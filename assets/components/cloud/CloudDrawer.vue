@@ -53,7 +53,10 @@
 
     <div class="min-h-0 flex-1 overflow-hidden">
       <ChatPane v-if="panel === 'chat'" />
-      <RailMetrics v-else-if="panel === 'metrics'" />
+      <!-- A page about one container gets its history; a page about the
+           instance gets every host's. -->
+      <RailMetrics v-else-if="panel === 'metrics' && containersInView" />
+      <RailHostMetrics v-else-if="panel === 'metrics'" />
       <RailAlerts v-else />
     </div>
   </div>
@@ -78,23 +81,20 @@ const { t } = useI18n();
 
 const items = computed(() => [
   { id: "chat" as const, label: t("cloud-rail.chat"), icon: mdiMessageOutline },
-  // Both are about the containers on screen. Off a log view the notifications
-  // page already lists every alert, and Cloud has no history for a whole host
-  // yet, so the tabs would only be empty.
+  { id: "metrics" as const, label: t("cloud-rail.metrics"), icon: mdiChartLine },
+  // Off a log view the notifications page already lists every alert, so the
+  // tab would only repeat it.
   ...(containersInView.value
-    ? [
-        { id: "metrics" as const, label: t("cloud-rail.metrics"), icon: mdiChartLine },
-        { id: "alerts" as const, label: t("cloud-rail.alerts"), icon: mdiBellOutline, dot: unseenAlerts.value },
-      ]
+    ? [{ id: "alerts" as const, label: t("cloud-rail.alerts"), icon: mdiBellOutline, dot: unseenAlerts.value }]
     : []),
 ]);
 
-// Leaving the containers a tab was about leaves it with nothing to show, so
-// the drawer falls back to the chat rather than an empty tab.
+// Leaving the containers the alerts tab was about leaves it with nothing to
+// show, so the drawer falls back to the chat rather than an empty tab.
 watch(
   containersInView,
   (ok) => {
-    if (!ok && panel.value !== "chat") openRail("chat");
+    if (!ok && panel.value === "alerts") openRail("chat");
   },
   { immediate: true },
 );
