@@ -65,16 +65,19 @@ import mdiBellOutline from "~icons/mdi/bell-outline";
 const { panel, toggleRail, hideRail } = useCloudRail();
 // Scoped to the view, because the panel this bell opens is. The nav's bell keeps
 // the instance-wide one: it opens the notifications page, which shows everything.
-const { unseen: unseenAlerts, scoped: alertsScoped } = useViewAlerts();
+const { unseen: unseenAlerts, scoped: containersInView } = useViewAlerts();
 const { t } = useI18n();
 
 const items = computed(() => [
   { id: "chat" as const, label: t("cloud-rail.chat"), icon: mdiMessageOutline },
-  { id: "metrics" as const, label: t("cloud-rail.metrics"), icon: mdiChartLine },
-  // Off a log view the notifications page already lists every alert, so the
-  // tab would only repeat it.
-  ...(alertsScoped.value
-    ? [{ id: "alerts" as const, label: t("cloud-rail.alerts"), icon: mdiBellOutline, dot: unseenAlerts.value }]
+  // Both are about the containers on screen. Off a log view the notifications
+  // page already lists every alert, and Cloud has no history for a whole host
+  // yet, so the tabs would only be empty.
+  ...(containersInView.value
+    ? [
+        { id: "metrics" as const, label: t("cloud-rail.metrics"), icon: mdiChartLine },
+        { id: "alerts" as const, label: t("cloud-rail.alerts"), icon: mdiBellOutline, dot: unseenAlerts.value },
+      ]
     : []),
 ]);
 </script>
