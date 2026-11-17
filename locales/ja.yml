@@ -320,7 +320,32 @@ cloud-chat:
     events: コンテナの履歴を確認
     docs: ドキュメントを読む
     notifications: 通知を確認
-    action: 操作を実行
+    count-logs: ログ行を数える
+    image-history: イメージの履歴を確認
+    hosts: ホストを一覧表示
+    instances: Dozzle インスタンスを一覧表示
+    docs-index: ドキュメントの索引を確認
+    web: Web を検索
+    ignore-finding: 検出結果を無視
+    mute: パターンをミュート
+    unmute: パターンのミュートを解除
+    mute-rules: ミュートルールを確認
+    remember: メモを保存
+    forget: メモを削除
+    schedule: チェックを予約
+    start: コンテナを起動
+    stop: コンテナを停止
+    restart: コンテナを再起動
+    remove: コンテナを削除
+    update: コンテナを更新
+    rollback: コンテナをロールバック
+    image-updates: イメージの更新を確認
+    create-alert: アラートを作成
+    draw-memory: メモリと上限をグラフ化
+    draw-cpu: CPU の推移をグラフ化
+    draw-count: ログ件数をグラフ化
+    draw-ranking: コンテナをランク付け
+    draw-logs: ログ行を表示
   phase:
     reading: 質問を読んでいます
     reviewing: 見つかった内容を確認しています

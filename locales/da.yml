@@ -814,7 +814,32 @@ cloud-chat:
     events: Tjekker containerhistorik
     docs: Læser dokumentationen
     notifications: Tjekker notifikationer
-    action: Udfører handlingen
+    count-logs: Tæller loglinjer
+    image-history: Tjekker image-historik
+    hosts: Lister værter
+    instances: Lister Dozzle-instanser
+    docs-index: Tjekker dokumentationens indeks
+    web: Søger på nettet
+    ignore-finding: Ignorerer fundet
+    mute: Dæmper mønsteret
+    unmute: Fjerner dæmpning af mønsteret
+    mute-rules: Tjekker dæmpningsregler
+    remember: Gemmer en note
+    forget: Fjerner en note
+    schedule: Planlægger et tjek
+    start: Starter containeren
+    stop: Stopper containeren
+    restart: Genstarter containeren
+    remove: Fjerner containeren
+    update: Opdaterer containeren
+    rollback: Ruller containeren tilbage
+    image-updates: Tjekker for image-opdateringer
+    create-alert: Opretter en alarm
+    draw-memory: Tegner hukommelse mod grænsen
+    draw-cpu: Tegner CPU over tid
+    draw-count: Tegner antallet af loglinjer
+    draw-ranking: Rangerer containere
+    draw-logs: Viser loglinjer
   phase:
     reading: Læser spørgsmålet
     reviewing: Gennemgår det fundne

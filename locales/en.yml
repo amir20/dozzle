@@ -327,7 +327,32 @@ cloud-chat:
     events: Checking container history
     docs: Reading the docs
     notifications: Checking notifications
-    action: Running the action
+    count-logs: Counting log lines
+    image-history: Checking image history
+    hosts: Listing hosts
+    instances: Listing Dozzle instances
+    docs-index: Checking the docs index
+    web: Searching the web
+    ignore-finding: Ignoring the finding
+    mute: Muting the pattern
+    unmute: Unmuting the pattern
+    mute-rules: Checking mute rules
+    remember: Saving a note
+    forget: Removing a note
+    schedule: Scheduling a check
+    start: Starting the container
+    stop: Stopping the container
+    restart: Restarting the container
+    remove: Removing the container
+    update: Updating the container
+    rollback: Rolling back the container
+    image-updates: Checking for image updates
+    create-alert: Creating an alert
+    draw-memory: Drawing memory against its limit
+    draw-cpu: Drawing CPU over time
+    draw-count: Drawing the log count
+    draw-ranking: Ranking containers
+    draw-logs: Showing log lines
   phase:
     reading: Reading the question
     reviewing: Going over what it found

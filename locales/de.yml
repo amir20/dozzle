@@ -814,7 +814,32 @@ cloud-chat:
     events: Container-Verlauf wird geprüft
     docs: Dokumentation wird gelesen
     notifications: Benachrichtigungen werden geprüft
-    action: Aktion wird ausgeführt
+    count-logs: Logzeilen werden gezählt
+    image-history: Image-Verlauf wird geprüft
+    hosts: Hosts werden aufgelistet
+    instances: Dozzle-Instanzen werden aufgelistet
+    docs-index: Dokumentationsindex wird geprüft
+    web: Web wird durchsucht
+    ignore-finding: Befund wird ignoriert
+    mute: Muster wird stummgeschaltet
+    unmute: Stummschaltung wird aufgehoben
+    mute-rules: Stummschaltregeln werden geprüft
+    remember: Notiz wird gespeichert
+    forget: Notiz wird entfernt
+    schedule: Prüfung wird geplant
+    start: Container wird gestartet
+    stop: Container wird gestoppt
+    restart: Container wird neu gestartet
+    remove: Container wird entfernt
+    update: Container wird aktualisiert
+    rollback: Container wird auf die vorherige Version zurückgesetzt
+    image-updates: Image-Updates werden geprüft
+    create-alert: Alarm wird erstellt
+    draw-memory: Speicher und Limit werden gezeichnet
+    draw-cpu: CPU-Verlauf wird gezeichnet
+    draw-count: Log-Anzahl wird gezeichnet
+    draw-ranking: Rangliste der Container wird erstellt
+    draw-logs: Logzeilen werden angezeigt
   phase:
     reading: Frage wird gelesen
     reviewing: Ergebnisse werden ausgewertet

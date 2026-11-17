@@ -815,7 +815,32 @@ cloud-chat:
     events: Containergeschiedenis controleren
     docs: Documentatie lezen
     notifications: Meldingen controleren
-    action: Actie uitvoeren
+    count-logs: Logregels tellen
+    image-history: Imagegeschiedenis controleren
+    hosts: Hosts ophalen
+    instances: Dozzle-instanties ophalen
+    docs-index: Documentatie-index bekijken
+    web: Op het web zoeken
+    ignore-finding: Bevinding negeren
+    mute: Patroon dempen
+    unmute: Demping van patroon opheffen
+    mute-rules: Dempregels controleren
+    remember: Notitie opslaan
+    forget: Notitie verwijderen
+    schedule: Controle inplannen
+    start: Container starten
+    stop: Container stoppen
+    restart: Container herstarten
+    remove: Container verwijderen
+    update: Container bijwerken
+    rollback: Container terugdraaien
+    image-updates: Zoeken naar image-updates
+    create-alert: Waarschuwing aanmaken
+    draw-memory: Geheugen tegenover limiet tekenen
+    draw-cpu: CPU-verloop tekenen
+    draw-count: Aantal logregels tekenen
+    draw-ranking: Containers rangschikken
+    draw-logs: Logregels tonen
   phase:
     reading: Vraag lezen
     reviewing: Resultaten doornemen

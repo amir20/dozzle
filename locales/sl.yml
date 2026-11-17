@@ -819,7 +819,32 @@ cloud-chat:
     events: Preverjanje zgodovine vsebnika
     docs: Branje dokumentacije
     notifications: Preverjanje obvestil
-    action: Izvajanje dejanja
+    count-logs: Štetje vrstic dnevnika
+    image-history: Preverjanje zgodovine slik
+    hosts: Pridobivanje seznama gostiteljev
+    instances: Pridobivanje seznama primerkov Dozzle
+    docs-index: Pregled kazala dokumentacije
+    web: Iskanje po spletu
+    ignore-finding: Prezrtje ugotovitve
+    mute: Utišanje vzorca
+    unmute: Preklic utišanja vzorca
+    mute-rules: Preverjanje pravil utišanja
+    remember: Shranjevanje zapiska
+    forget: Odstranjevanje zapiska
+    schedule: Načrtovanje preverjanja
+    start: Zagon vsebnika
+    stop: Ustavljanje vsebnika
+    restart: Ponovni zagon vsebnika
+    remove: Odstranjevanje vsebnika
+    update: Posodabljanje vsebnika
+    rollback: Povrnitev vsebnika na prejšnjo različico
+    image-updates: Preverjanje posodobitev slik
+    create-alert: Ustvarjanje opozorila
+    draw-memory: Risanje pomnilnika glede na omejitev
+    draw-cpu: Risanje CPE skozi čas
+    draw-count: Risanje števila dnevniških vrstic
+    draw-ranking: Razvrščanje vsebnikov
+    draw-logs: Prikaz vrstic dnevnika
   phase:
     reading: Branje vprašanja
     reviewing: Pregled najdenega

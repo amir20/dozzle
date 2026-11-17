@@ -814,7 +814,32 @@ cloud-chat:
     events: Vérification de l'historique du conteneur
     docs: Lecture de la documentation
     notifications: Vérification des notifications
-    action: Exécution de l'action
+    count-logs: Comptage des lignes de log
+    image-history: Vérification de l'historique des images
+    hosts: Récupération des hôtes
+    instances: Récupération des instances Dozzle
+    docs-index: Consultation de l'index de la documentation
+    web: Recherche sur le web
+    ignore-finding: Mise à l'écart du constat
+    mute: Mise en sourdine du motif
+    unmute: Réactivation du motif
+    mute-rules: Vérification des règles de sourdine
+    remember: Enregistrement d'une note
+    forget: Suppression d'une note
+    schedule: Planification d'une vérification
+    start: Démarrage du conteneur
+    stop: Arrêt du conteneur
+    restart: Redémarrage du conteneur
+    remove: Suppression du conteneur
+    update: Mise à jour du conteneur
+    rollback: Retour du conteneur à la version précédente
+    image-updates: Recherche de mises à jour d'image
+    create-alert: Création d'une alerte
+    draw-memory: Tracé de la mémoire face à sa limite
+    draw-cpu: Tracé du CPU dans le temps
+    draw-count: Tracé du nombre de logs
+    draw-ranking: Classement des conteneurs
+    draw-logs: Affichage des lignes de log
   phase:
     reading: Lecture de la question
     reviewing: Analyse des résultats

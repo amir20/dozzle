@@ -816,7 +816,32 @@ cloud-chat:
     events: 컨테이너 기록 확인 중
     docs: 문서 읽는 중
     notifications: 알림 설정 확인 중
-    action: 작업 실행 중
+    count-logs: 로그 줄 세는 중
+    image-history: 이미지 기록 확인 중
+    hosts: 호스트 목록 확인 중
+    instances: Dozzle 인스턴스 목록 확인 중
+    docs-index: 문서 색인 확인 중
+    web: 웹 검색 중
+    ignore-finding: 발견 사항 무시 중
+    mute: 패턴 음소거 중
+    unmute: 패턴 음소거 해제 중
+    mute-rules: 음소거 규칙 확인 중
+    remember: 메모 저장 중
+    forget: 메모 삭제 중
+    schedule: 점검 예약 중
+    start: 컨테이너 시작 중
+    stop: 컨테이너 중지 중
+    restart: 컨테이너 재시작 중
+    remove: 컨테이너 제거 중
+    update: 컨테이너 업데이트 중
+    rollback: 컨테이너 롤백 중
+    image-updates: 이미지 업데이트 확인 중
+    create-alert: 알림 생성 중
+    draw-memory: 메모리와 한도 그래프 그리는 중
+    draw-cpu: CPU 추이 그래프 그리는 중
+    draw-count: 로그 수 그래프 그리는 중
+    draw-ranking: 컨테이너 순위 매기는 중
+    draw-logs: 로그 줄 표시 중
   phase:
     reading: 질문 읽는 중
     reviewing: 찾은 내용 검토 중

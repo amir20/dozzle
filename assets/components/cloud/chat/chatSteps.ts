@@ -57,12 +57,62 @@ export function stepIcon(tool?: string): Component {
   return group ? icons[group] : mdiWrenchOutline;
 }
 
+/** The words for each tool cloud sends, by cloud's name for it, as a key under
+ *  `cloud-chat.step`. Cloud names the tools it proxies to Dozzle
+ *  `rpc_<dozzle name>`. */
+export const stepKeys: Record<string, string> = {
+  search_logs: "logs",
+  search_log_stats: "count-logs",
+  history_get_events: "events",
+  history_container_changes: "image-history",
+  history_get_alerts: "alerts",
+  history_get_findings: "findings",
+  history_list_containers: "containers",
+  docs_list: "docs-index",
+  docs_read: "docs",
+  web_search: "web",
+  metrics_container_stats: "stats",
+  metrics_container_timeseries: "stats",
+  ignore_finding: "ignore-finding",
+  mute_pattern: "mute",
+  unmute_pattern: "unmute",
+  list_mute_rules: "mute-rules",
+  remember: "remember",
+  forget_note: "forget",
+  schedule_check: "schedule",
+  list_dozzle_instances: "instances",
+  rpc_find_containers: "containers",
+  rpc_list_all_containers: "containers",
+  rpc_list_running_containers: "containers",
+  rpc_list_hosts: "hosts",
+  rpc_get_running_container_stats: "stats",
+  rpc_inspect_container: "inspect",
+  rpc_inspect_containers: "inspect",
+  rpc_fetch_container_logs: "logs",
+  rpc_start_container: "start",
+  rpc_stop_container: "stop",
+  rpc_restart_container: "restart",
+  rpc_remove_container: "remove",
+  rpc_update_container: "update",
+  rpc_rollback_container: "rollback",
+  rpc_check_image_updates: "image-updates",
+  rpc_list_notifications: "notifications",
+  rpc_create_log_notification: "create-alert",
+  rpc_create_metric_notification: "create-alert",
+  rpc_create_event_notification: "create-alert",
+  show_memory_vs_limit: "draw-memory",
+  show_cpu: "draw-cpu",
+  show_pattern_count: "draw-count",
+  show_container_ranking: "draw-ranking",
+  show_logs: "draw-logs",
+};
+
 /** The step in the reader's language, or cloud's English when this build has
  *  no words for it. */
 export function stepText(step: ChatStep): string {
   if (step.tool) {
-    const group = toolGroup(step.tool);
-    return group ? t(`cloud-chat.step.${group}`) : step.label;
+    const key = Object.hasOwn(stepKeys, step.tool) ? stepKeys[step.tool] : undefined;
+    return key ? t(`cloud-chat.step.${key}`) : step.label;
   }
   const phase = PHASES.find((p) => p === step.phase);
   return phase ? t(`cloud-chat.phase.${phase}`) : step.label;
