@@ -775,6 +775,8 @@ cloud-rail:
   chat: Chiedi a Dozzle
   metrics: Metriche
   alerts: Avvisi
+  hide: Nascondi la barra cloud
+  show: Mostra la barra cloud
   alerts-empty-here: Non è scattato nulla su ciò che stai guardando.
   all-activity: Tutta l'attività
   metrics-no-container: Apri un container per vederne la cronologia.

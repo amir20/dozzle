@@ -777,6 +777,8 @@ cloud-rail:
   chat: Dozzle에게 질문
   metrics: 메트릭
   alerts: 알림
+  hide: 클라우드 레일 숨기기
+  show: 클라우드 레일 표시
   alerts-empty-here: 보고 있는 대상에서 발생한 알림이 없습니다.
   all-activity: 전체 활동
   metrics-no-container: 컨테이너를 열면 기록을 볼 수 있습니다.

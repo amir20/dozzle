@@ -54,6 +54,8 @@ declare module 'vue' {
     CloudDrawer: typeof import('./components/cloud/CloudDrawer.vue')['default']
     CloudEventLogItem: typeof import('./components/logs/entries/CloudEventLogItem.vue')['default']
     CloudPopover: typeof import('./components/cloud/CloudPopover.vue')['default']
+    CloudRail: typeof import('./components/cloud/rail/CloudRail.vue')['default']
+    CloudRailHandle: typeof import('./components/cloud/rail/CloudRailHandle.vue')['default']
     CloudSettingsCard: typeof import('./components/cloud/CloudSettingsCard.vue')['default']
     CloudUsage: typeof import('./components/cloud/CloudUsage.vue')['default']
     CollapsibleSection: typeof import('./components/ui/CollapsibleSection.vue')['default']

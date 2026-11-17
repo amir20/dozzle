@@ -1,3 +1,5 @@
+import { collapseCloudRail } from "@/stores/settings";
+
 export type RailPanel = "chat" | "metrics" | "alerts";
 
 /**
@@ -17,6 +19,10 @@ const panel = ref<RailPanel>();
 /** The panel last opened, so a single "Cloud" entry point (a phone's toolbar
  *  menu, which has no room for three rows) lands where the reader left off. */
 const lastPanel = ref<RailPanel>("chat");
+/** The icon strip's width. Shared with the layout, which pads the page by it so
+ *  the strip never sits over the logs. */
+export const RAIL_WIDTH = 48;
+
 watch(panel, (next) => {
   if (next) lastPanel.value = next;
   // Counted on the change, not on ChatPane mounting: the rail remounts with chat
@@ -62,6 +68,24 @@ export function useCloudRail() {
   // nothing in particular.
   const available = computed(() => linked.value && viewing.value);
 
+  // The strip is how people find Cloud at all, so it stays on screen beside the
+  // logs; the panels it opens live in the drawer. Hidden is a preference, and
+  // the tab on the edge brings it back. A phone has no room for a permanent
+  // strip, so there the drawer opens from the toolbar or the palette.
+  const mounted = computed(() => available.value && !isMobile.value && !collapseCloudRail.value);
+  const collapsed = computed(() => available.value && !isMobile.value && collapseCloudRail.value);
+
+  /** What the page keeps clear on its right for the strip. */
+  const railOffset = computed(() => (mounted.value ? RAIL_WIDTH : 0));
+
+  function hideRail() {
+    collapseCloudRail.value = true;
+  }
+
+  function showRail() {
+    collapseCloudRail.value = false;
+  }
+
   function openRail(next: RailPanel) {
     panel.value = next;
   }
@@ -80,5 +104,17 @@ export function useCloudRail() {
     panel.value = panel.value === next ? undefined : next;
   }
 
-  return { panel, available, openRail, openCloud, closeRail, toggleRail };
+  return {
+    panel,
+    available,
+    mounted,
+    collapsed,
+    railOffset,
+    openRail,
+    openCloud,
+    closeRail,
+    toggleRail,
+    hideRail,
+    showRail,
+  };
 }

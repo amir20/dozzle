@@ -775,6 +775,8 @@ cloud-rail:
   chat: 询问 Dozzle
   metrics: 指标
   alerts: 告警
+  hide: 隐藏云侧栏
+  show: 显示云侧栏
   alerts-empty-here: 当前查看的内容没有触发过告警。
   all-activity: 全部活动
   metrics-no-container: 打开一个容器即可查看历史。

@@ -288,6 +288,8 @@ cloud-rail:
   chat: Ask Dozzle
   metrics: Metrics
   alerts: Alerts
+  hide: Hide the cloud rail
+  show: Show the cloud rail
   alerts-empty-here: Nothing has fired on what you're looking at.
   all-activity: All activity
   metrics-no-container: Open a container to see its history.

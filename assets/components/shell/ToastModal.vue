@@ -10,6 +10,7 @@
     name="toast"
     class="toast toast-end max-md:toast-center max-md:toast-bottom whitespace-normal max-md:w-full max-md:px-2"
     :style="{
+      paddingInlineEnd: railOffset ? `${railOffset}px` : undefined,
       bottom: aboveTabBar ? 'var(--mobile-tabbar-height)' : undefined,
     }"
   >
@@ -93,6 +94,7 @@ const { toasts, removeToast } = useToast();
 // The rail is fixed to the same edge the toasts stack against, so a notice
 // would land on top of its icons. The layout pads the page by this width for
 // the same reason; a fixed element has to do it itself.
+const { railOffset } = useCloudRail();
 
 const accent = {
   error: "text-error",

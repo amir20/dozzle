@@ -2,14 +2,15 @@
   <!-- Clamped once the box has finished sliding in, never while it is moving: a
        correction measured mid-animation moves the card, which re-measures. -->
   <transition name="slide" @after-enter="clampIntoView">
-    <!-- A drag sets left/top. The strip itself is
+    <!-- Padded past the cloud rail so the box does not open on top of it. A
+         drag sets left/top, which this does not touch. The strip itself is
          inert: it spans the window, so whatever sits under it (the topbar) has
          to stay clickable. Only the card takes the pointer. -->
     <div
       class="pointer-events-none fixed z-50 flex w-full justify-end p-2"
       v-show="showSearch"
       ref="container"
-      :style="style"
+      :style="[style, { paddingRight: railOffset ? `${railOffset + 8}px` : undefined }]"
     >
       <!-- Primary on the border, not on a filled control: this is the one thing
            on screen the user is driving while it is open, and a neutral card
@@ -106,6 +107,7 @@ const card = ref<HTMLDivElement>();
 const handle = ref<HTMLDivElement>();
 const { searchQueryFilter, showSearch, resetSearch, isValidQuery, inverseFilter, toggleInverse, searchOverlayHeight } =
   useSearchFilter();
+const { railOffset } = useCloudRail();
 const { canOpen: canOpenInCloud, open: openInCloud } = useFindInCloud();
 
 // Opening on top of the container title bar covers the stats and the toolbar

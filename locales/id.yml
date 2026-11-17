@@ -787,6 +787,8 @@ cloud-rail:
   chat: Tanya Dozzle
   metrics: Metrik
   alerts: Peringatan
+  hide: Sembunyikan bilah cloud
+  show: Tampilkan bilah cloud
   alerts-empty-here: Belum ada yang terpicu pada yang sedang Anda lihat.
   all-activity: Semua aktivitas
   metrics-no-container: Buka kontainer untuk melihat riwayatnya.

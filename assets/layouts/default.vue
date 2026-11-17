@@ -6,7 +6,10 @@
         <SidePanel />
       </Pane>
       <Pane min-size="10" :size="navVisible ? 100 - menuWidth : 100">
-        <div>
+        <!-- The strip is fixed to the right edge, so its width is reserved here
+             rather than over the logs. Reserved inside the content column and
+             not on the page, because the nav is a different column. -->
+        <div :style="{ paddingRight: `${railOffset}px` }">
           <Splitpanes>
             <Pane class="router-view min-h-screen" :class="{ 'tabbar-clearance': showTabBar }">
               <router-view></router-view>
@@ -26,7 +29,8 @@
         </div>
       </Pane>
     </Splitpanes>
-    <!-- Hiding lives at the bottom of the sidebar itself; this is what brings it back. -->
+    <!-- Hiding lives at the bottom of the sidebar itself; this is what brings it back,
+         the same edge tab the cloud strip leaves on the other side. -->
     <EdgeTab
       v-if="!isMobile && !forceMenuHidden && collapseNav"
       side="left"
@@ -34,6 +38,8 @@
       @click="collapseNav = false"
     />
   </div>
+  <CloudRail v-if="railMounted" />
+  <CloudRailHandle v-else-if="railCollapsed" />
   <dialog ref="modal" class="modal bg-base-300/50! items-start backdrop-blur-md transition-none!" @close="closeSearch">
     <div class="modal-box max-w-3xl overflow-visible! bg-transparent pt-20 shadow-none">
       <FuzzySearchModal @close="closeSearch" v-if="open" />
@@ -78,7 +84,16 @@ const FuzzySearchModal = defineAsyncComponent(() => import("@/components/search/
 // Only rendered for pinned columns; the route's own view imports it when it needs it.
 const ContainerLog = defineAsyncComponent(() => import("@/components/views/ContainerLog.vue"));
 
-const { panel: cloudPanel, available: railAvailable, toggleRail, openRail, closeRail } = useCloudRail();
+const {
+  panel: cloudPanel,
+  available: railAvailable,
+  mounted: railMounted,
+  collapsed: railCollapsed,
+  railOffset,
+  toggleRail,
+  openRail,
+  closeRail,
+} = useCloudRail();
 
 // The cloud panels live in the drawer. Opening a panel from nothing opens the
 // drawer; moving between tabs only changes what it shows. Clearing the panel
