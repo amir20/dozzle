@@ -851,7 +851,7 @@ cloud-chat:
   error-not-configured: Dozzle Cloud belum ditautkan, jadi tidak ada asisten untuk ditanya.
   section-ask: Asisten
   ask-for: Tanya Dozzle tentang {query}
-  ask-hint: Menjawab dari kontainer yang terlihat
+  ask-hint: Menjawab dari apa yang sedang kamu lihat
   ask-shortcut: untuk bertanya
   visual:
     memory: "Memori"

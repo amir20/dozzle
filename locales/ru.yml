@@ -839,7 +839,7 @@ cloud-chat:
   error-not-configured: Dozzle Cloud не подключён, спрашивать некого.
   section-ask: Ассистент
   ask-for: Спросить Dozzle про {query}
-  ask-hint: Отвечает по контейнерам на экране
+  ask-hint: Отвечает по тому, что на экране
   ask-shortcut: чтобы спросить
   visual:
     memory: "Память"

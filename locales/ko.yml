@@ -841,7 +841,7 @@ cloud-chat:
   error-not-configured: Dozzle Cloud가 연결되지 않아 질문할 어시스턴트가 없습니다.
   section-ask: 어시스턴트
   ask-for: "{query}에 대해 Dozzle에 질문"
-  ask-hint: 화면에 있는 컨테이너를 근거로 답합니다
+  ask-hint: 보고 있는 화면을 근거로 답합니다
   ask-shortcut: 질문하기
   visual:
     memory: "메모리"

@@ -345,7 +345,7 @@ cloud-chat:
   error-not-configured: Dozzle Cloud がリンクされていないため、質問できるアシスタントがありません。
   section-ask: アシスタント
   ask-for: "{query} について Dozzle に質問"
-  ask-hint: 表示中のコンテナから回答します
+  ask-hint: 表示中の内容をもとに回答します
   ask-shortcut: 質問する
   visual:
     memory: "メモリ"
