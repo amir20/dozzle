@@ -1041,7 +1041,7 @@ func (x *ChatDone) GetVisuals() []*ChatVisual {
 // it came and never recomputes it. Which fields are set depends on type.
 type ChatVisual struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// memory_vs_limit | pattern_count | container_ranking | logs | container_events
+	// memory_vs_limit | cpu_over_time | pattern_count | container_ranking | logs | container_events
 	Type      string `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
 	Container string `protobuf:"bytes,2,opt,name=container,proto3" json:"container,omitempty"`
 	HostId    string `protobuf:"bytes,3,opt,name=host_id,json=hostId,proto3" json:"host_id,omitempty"`
@@ -1064,8 +1064,8 @@ type ChatVisual struct {
 	// pattern_count: matches per bucket, oldest first, as SearchLogs returns them.
 	Volume []*SearchVolumeBucket `protobuf:"bytes,13,rep,name=volume,proto3" json:"volume,omitempty"`
 	StepNs int64                 `protobuf:"varint,14,opt,name=step_ns,json=stepNs,proto3" json:"step_ns,omitempty"`
-	// memory_vs_limit: the container's memory over the window, as
-	// GetContainerMetrics returns it.
+	// memory_vs_limit, cpu_over_time: the container's memory or CPU over the
+	// window, as GetContainerMetrics returns it.
 	Points []*ContainerMetricPoint `protobuf:"bytes,15,rep,name=points,proto3" json:"points,omitempty"`
 	// memory_vs_limit: the configured limit in bytes; 0 when none is set or it
 	// could not be read.

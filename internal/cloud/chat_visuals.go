@@ -11,7 +11,7 @@ import (
 // turn (ChatTurn.visual_types): cloud offers the assistant its picture tools
 // only for these, so adding a type here is how the pane opts into it, and a
 // type cloud adds later is never sent to a build that cannot draw it.
-var VisualTypes = []string{"memory_vs_limit", "pattern_count", "container_ranking", "logs", "container_events"}
+var VisualTypes = []string{"memory_vs_limit", "cpu_over_time", "pattern_count", "container_ranking", "logs", "container_events"}
 
 // ChatVisual is pb.ChatVisual for the browser. Every number was measured by
 // cloud; the pane draws it as it came. See cloud.proto for the fields.

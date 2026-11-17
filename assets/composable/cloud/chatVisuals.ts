@@ -3,9 +3,12 @@ import { i18n } from "@/modules/i18n";
 
 const { t } = i18n.global;
 
-/** One bucket of a container's memory, as the metrics panel receives it. */
+/** One bucket of a container's memory or CPU, as the metrics panel receives it. */
 export type ChatVisualPoint = {
   ts: number;
+  /** Percent, normalised the way Dozzle shows it. */
+  cpu?: number;
+  cpuMax?: number;
   memory: number;
   memoryUsage: number;
   memoryUsageMax?: number;
@@ -29,7 +32,7 @@ export type ChatVisualFacts = {
  * cloud.proto (ChatVisual) for the fields each type sets.
  */
 export type ChatVisual = {
-  type: "memory_vs_limit" | "pattern_count" | "container_ranking" | "logs" | "container_events";
+  type: "memory_vs_limit" | "cpu_over_time" | "pattern_count" | "container_ranking" | "logs" | "container_events";
   container?: string;
   hostId?: string;
   hostName?: string;
@@ -84,4 +87,23 @@ export function memoryBars(points: ChatVisualPoint[], limit: number) {
     if (limit <= 0) return { percent: p.memoryUsage, value: p.memoryUsage, peak, peakPercent: peak };
     return { percent: (p.memoryUsage / limit) * 100, value: p.memoryUsage, peak, peakPercent: (peak / limit) * 100 };
   });
+}
+
+/**
+ * The CPU chart's bars. CPU is spiky, so like the metrics panel it scales to
+ * its own peak rather than to 100%. The peak is the highest sample in each
+ * bucket, falling back to its average from a cloud that sends no max.
+ */
+export function cpuBars(points: ChatVisualPoint[]) {
+  return points.map((p) => {
+    const cpu = p.cpu ?? 0;
+    const peak = p.cpuMax ?? cpu;
+    return { percent: cpu, value: cpu, peak, peakPercent: peak };
+  });
+}
+
+/** The highest CPU sample in the window, or undefined when there is no series. */
+export function cpuPeak(points: ChatVisualPoint[]): number | undefined {
+  if (!points.length) return undefined;
+  return Math.max(...points.map((p) => p.cpuMax ?? p.cpu ?? 0));
 }

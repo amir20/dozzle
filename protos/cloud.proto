@@ -216,7 +216,7 @@ message ChatDone {
 // and the assistant only chose which picture to show, so the pane draws it as
 // it came and never recomputes it. Which fields are set depends on type.
 message ChatVisual {
-  // memory_vs_limit | pattern_count | container_ranking | logs | container_events
+  // memory_vs_limit | cpu_over_time | pattern_count | container_ranking | logs | container_events
   string type = 1;
   string container = 2;
   string host_id = 3;
@@ -239,8 +239,8 @@ message ChatVisual {
   // pattern_count: matches per bucket, oldest first, as SearchLogs returns them.
   repeated SearchVolumeBucket volume = 13;
   int64 step_ns = 14;
-  // memory_vs_limit: the container's memory over the window, as
-  // GetContainerMetrics returns it.
+  // memory_vs_limit, cpu_over_time: the container's memory or CPU over the
+  // window, as GetContainerMetrics returns it.
   repeated ContainerMetricPoint points = 15;
   // memory_vs_limit: the configured limit in bytes; 0 when none is set or it
   // could not be read.
