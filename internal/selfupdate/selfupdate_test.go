@@ -211,6 +211,10 @@ func (f *fakeDocker) ServiceUpdate(_ context.Context, id string, opts client.Ser
 
 func (f *fakeDocker) Close() error { return nil }
 
+func (f *fakeDocker) ServerVersion(context.Context, client.ServerVersionOptions) (client.ServerVersionResult, error) {
+	return client.ServerVersionResult{}, nil
+}
+
 func dozzleContainer() dcontainer.InspectResponse {
 	return dcontainer.InspectResponse{
 		ID:    selfID,
