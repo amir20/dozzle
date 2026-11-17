@@ -144,6 +144,15 @@ watch(
 // Arriving from a log row's menu means the question is already half asked.
 onMounted(() => composer.value?.focus());
 watch(focused, (line) => line && composer.value?.focus());
+// The composer is disabled while an answer streams, which drops its focus, and
+// re-enabling it does not bring focus back. Return it once the answer is in,
+// unless the reader has since put focus somewhere else on purpose.
+watch(streaming, async (now, before) => {
+  if (now || !before) return;
+  await nextTick();
+  const active = document.activeElement;
+  if (!active || active === document.body) composer.value?.focus();
+});
 
 function send() {
   const text = draft.value;
