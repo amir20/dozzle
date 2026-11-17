@@ -189,7 +189,7 @@ func TestLogStreamer_InitialSnapshotAndBatching(t *testing.T) {
 		return nil
 	}
 
-	ls := newLogStreamer(hs, nil, send)
+	ls := newLogStreamer(hs, nil, send, nil)
 
 	ctx, cancel := context.WithCancel(t.Context())
 	defer cancel()
@@ -248,7 +248,7 @@ func TestLogStreamer_NewContainerStartsReader(t *testing.T) {
 	}
 
 	send := func(_ *pb.ToolResponse) error { return nil }
-	ls := newLogStreamer(hs, nil, send)
+	ls := newLogStreamer(hs, nil, send, nil)
 
 	ctx, cancel := context.WithCancel(t.Context())
 	defer cancel()
@@ -298,7 +298,7 @@ func TestLogStreamer_LevelUnknownIsBlank(t *testing.T) {
 		}
 		return nil
 	}
-	ls := newLogStreamer(hs, nil, send)
+	ls := newLogStreamer(hs, nil, send, nil)
 
 	ctx, cancel := context.WithCancel(t.Context())
 	defer cancel()
@@ -334,7 +334,7 @@ func TestLogStreamer_LabelDisabledSkipsContainer(t *testing.T) {
 	}
 
 	send := func(_ *pb.ToolResponse) error { return nil }
-	ls := newLogStreamer(hs, nil, send)
+	ls := newLogStreamer(hs, nil, send, nil)
 
 	ctx, cancel := context.WithCancel(t.Context())
 	defer cancel()
@@ -376,7 +376,7 @@ func TestLogStreamer_LabelMinLevelFiltersBelow(t *testing.T) {
 		}
 		return nil
 	}
-	ls := newLogStreamer(hs, nil, send)
+	ls := newLogStreamer(hs, nil, send, nil)
 
 	ctx, cancel := context.WithCancel(t.Context())
 	defer cancel()
@@ -431,7 +431,7 @@ func TestLogStreamer_InvalidLabelIgnoredStreamsAll(t *testing.T) {
 		}
 		return nil
 	}
-	ls := newLogStreamer(hs, nil, send)
+	ls := newLogStreamer(hs, nil, send, nil)
 
 	ctx, cancel := context.WithCancel(t.Context())
 	defer cancel()
@@ -504,7 +504,7 @@ func TestLogStreamer_BatchFlushesOnMaxEntries(t *testing.T) {
 		}
 		return nil
 	}
-	ls := newLogStreamer(hs, nil, send)
+	ls := newLogStreamer(hs, nil, send, nil)
 
 	ctx, cancel := context.WithCancel(t.Context())
 	defer cancel()
@@ -562,7 +562,7 @@ func TestLogStreamer_OversizedLineIsClippedAndSentAlone(t *testing.T) {
 		}
 		return nil
 	}
-	ls := newLogStreamer(hs, nil, send)
+	ls := newLogStreamer(hs, nil, send, nil)
 
 	ctx, cancel := context.WithCancel(t.Context())
 	runDone := make(chan struct{})

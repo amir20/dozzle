@@ -336,9 +336,11 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 	if !streamLogs {
 		log.Debug().Msg("cloud log streaming disabled by user setting; skipping streamer")
 	} else if lshs, ok := c.deps.HostService.(LogStreamHostService); ok {
-		streamer := newLogStreamer(lshs, c.deps.Principal.Labels, sendResp)
 		wg.Go(func() {
-			streamer.run(streamLifetime)
+			// Asked before any reader starts, so each container's first reader
+			// can resume where Cloud's stored lines end.
+			resume := fetchLogResume(metadata.NewOutgoingContext(streamLifetime, md), client)
+			newLogStreamer(lshs, c.deps.Principal.Labels, sendResp, resume).run(streamLifetime)
 		})
 	} else {
 		log.Debug().Msg("host service does not support log streaming; skipping")
