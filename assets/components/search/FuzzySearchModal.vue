@@ -25,6 +25,8 @@
         @keydown.up.prevent="move(-1)"
         @keydown.enter.exact.prevent="onEnter"
         @keydown.shift.enter.exact.prevent="runLogSearch"
+        @keydown.shift.meta.enter.exact.prevent="askAssistant"
+        @keydown.shift.ctrl.enter.exact.prevent="askAssistant"
         @keydown.alt.enter.exact.prevent="onPin"
         @keydown.meta.enter.exact.prevent="onMerge"
         @keydown.ctrl.enter.exact.prevent="onMerge"
@@ -208,6 +210,12 @@
                       {{ $t("cloud-chat.ask-hint") }}
                     </span>
                   </div>
+                  <!-- ⇧⌘, the same pair that opens the chat from anywhere (⇧⌘K). -->
+                  <template v-if="canHover">
+                    <kbd class="kbd kbd-xs shrink-0">⇧</kbd>
+                    <kbd class="kbd kbd-xs shrink-0">⌘</kbd>
+                    <kbd class="kbd kbd-xs shrink-0">↵</kbd>
+                  </template>
                 </template>
 
                 <!-- Cloud log search -->
@@ -983,7 +991,8 @@ function mergeItem(item: Item) {
 // goes straight through rather than opening an empty pane to retype it in.
 function askAssistant() {
   const q = trimmedQuery.value;
-  if (!q) return;
+  // The chord works from any row, so it checks what the Ask row's presence would.
+  if (!q || !askAvailable.value) return;
   openPane();
   ask(q, view.value);
   close();
