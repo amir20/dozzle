@@ -299,7 +299,7 @@ cloud-chat:
   title: Dozzle に質問
   close: 閉じる
   clear: チャットをクリア
-  empty: 表示中の内容について質問できます。アシスタントはこの画面を見て、これらのログを読めます。
+  empty: 表示中の内容について質問できます。アシスタントはこのページを見て、コンテナのログを読めます。
   thinking: 考え中…
   doing:
     logs: ログを読んでいます…
@@ -354,7 +354,7 @@ cloud-chat:
   nothing-found: 見つかりませんでした
   worked-for: "{time} 作業しました"
   earlier: "以前 {n} 件"
-  placeholder: これらのログについて質問
+  placeholder: 質問を入力
   historical: 過去
   n-containers: "コンテナ {n} 件"
   evidence: 質問と一緒に送信した内容

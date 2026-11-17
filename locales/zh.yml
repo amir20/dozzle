@@ -793,7 +793,7 @@ cloud-chat:
   title: 问 Dozzle
   close: 关闭
   clear: 清除对话
-  empty: 就眼前看到的内容提问。助手能看到这个视图，也能读这些日志。
+  empty: 就眼前看到的内容提问。助手能看到这个页面，也能读取你的容器日志。
   thinking: 思考中…
   doing:
     logs: 正在读取日志…
@@ -848,7 +848,7 @@ cloud-chat:
   nothing-found: 未找到
   worked-for: 用时 {time}
   earlier: 更早的 {n} 条
-  placeholder: 就这些日志提问
+  placeholder: 提个问题
   historical: 历史
   n-containers: "{n} 个容器"
   evidence: 随问题一起发送

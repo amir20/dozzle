@@ -306,7 +306,7 @@ cloud-chat:
   title: Ask Dozzle
   close: Close
   clear: Clear chat
-  empty: Ask about what you're looking at. The assistant can see this view and read these logs.
+  empty: Ask about what you're looking at. The assistant can see this page and read your containers' logs.
   thinking: Thinking…
   doing:
     logs: Reading logs…
@@ -361,7 +361,7 @@ cloud-chat:
   nothing-found: nothing found
   worked-for: Worked for {time}
   earlier: "{n} earlier"
-  placeholder: Ask about these logs
+  placeholder: Ask a question
   historical: historical
   n-containers: "{n} containers"
   evidence: Sent with your question

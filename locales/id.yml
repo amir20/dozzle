@@ -805,7 +805,7 @@ cloud-chat:
   title: Tanya Dozzle
   close: Tutup
   clear: Hapus obrolan
-  empty: Tanyakan tentang yang sedang kamu lihat. Asisten bisa melihat tampilan ini dan membaca log-nya.
+  empty: Tanyakan tentang yang sedang kamu lihat. Asisten bisa melihat halaman ini dan membaca log kontainermu.
   thinking: Berpikir…
   doing:
     logs: Membaca log…
@@ -860,7 +860,7 @@ cloud-chat:
   nothing-found: tidak ada yang ditemukan
   worked-for: Bekerja selama {time}
   earlier: "{n} sebelumnya"
-  placeholder: Tanya tentang log ini
+  placeholder: Ajukan pertanyaan
   historical: historis
   n-containers: "{n} kontainer"
   evidence: Dikirim bersama pertanyaan Anda

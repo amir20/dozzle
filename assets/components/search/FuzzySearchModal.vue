@@ -69,6 +69,7 @@
         <template v-for="group in groups" :key="group.id">
           <div
             class="bg-base-200 text-base-content/40 sticky top-0 z-10 flex items-center gap-1.5 px-4 pt-3 pb-1.5 text-[11px] font-semibold tracking-wider uppercase"
+            :data-group="group.id"
           >
             {{ group.label }}
             <span v-if="(group.count ?? group.entries.length) > 1" class="text-base-content/25">{{
@@ -343,6 +344,7 @@ import { ContainerState } from "@/types/Container";
 import { useFuse } from "@vueuse/integrations/useFuse";
 import { type FuseResult } from "fuse.js";
 import { useCloudConfig } from "@/composable/cloud/cloudConfig";
+import { isQuestionLike } from "@/composable/cloud/questionLike";
 import { useCommands, useContainerCommands, type Command } from "@/composable/app/commands";
 import { Container } from "@/models/Container";
 import MdiTextBoxOutline from "~icons/mdi/text-box-outline";
@@ -754,6 +756,11 @@ const groups = computed<Group[]>(() => {
     return result;
   }
 
+  // A query that reads as a question is asked, not looked up, so Ask leads and
+  // Enter sends it. Anything else keeps Ask as the last row.
+  const askFirst = scope.value === "all" && askVisible.value && isQuestionLike(trimmedQuery.value);
+  if (askFirst) push("ask", t("cloud-chat.section-ask"), [{ kind: "ask", key: "ask" }]);
+
   if (scope.value === "all") {
     // Containers lead: this is a log viewer, so a typed query is far more often a
     // container name than a command. Enter on the first row opens a container.
@@ -785,7 +792,7 @@ const groups = computed<Group[]>(() => {
 
   // Last row, and only with something typed: the palette is for finding
   // things, and asking is what you do when finding did not answer it.
-  if (scope.value !== "commands" && askVisible.value) {
+  if (scope.value !== "commands" && askVisible.value && !askFirst) {
     push("ask", t("cloud-chat.section-ask"), [{ kind: "ask", key: "ask" }]);
   }
 
@@ -794,9 +801,8 @@ const groups = computed<Group[]>(() => {
 
 const flatEntries = computed(() => groups.value.flatMap((group) => group.entries));
 const selectedEntry = computed<Entry | undefined>(() => flatEntries.value[selectedIndex.value]);
-// The assistant answers about the logs on screen, so the row is offered only
-// where there are logs on screen. Elsewhere it would open a panel the layout
-// does not mount.
+// The rail exists on every page once cloud is linked, and the question goes out
+// with whatever that page is about.
 const { available: railAvailable } = useCloudRail();
 const askAvailable = computed(() => cloudLinked.value && railAvailable.value);
 const askVisible = computed(() => askAvailable.value && !!trimmedQuery.value);

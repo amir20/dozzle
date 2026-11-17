@@ -793,7 +793,7 @@ cloud-chat:
   title: Спросить Dozzle
   close: Закрыть
   clear: Очистить чат
-  empty: Спросите о том, что видите. Ассистент видит этот экран и читает эти логи.
+  empty: Спросите о том, что видите. Ассистент видит эту страницу и читает логи ваших контейнеров.
   thinking: Думает…
   doing:
     logs: Читаю логи…
@@ -848,7 +848,7 @@ cloud-chat:
   nothing-found: ничего не найдено
   worked-for: "Работа: {time}"
   earlier: "ранее: {n}"
-  placeholder: Спросить об этих логах
+  placeholder: Задать вопрос
   historical: история
   n-containers: "Контейнеров: {n}"
   evidence: Отправляется с вопросом

@@ -795,7 +795,7 @@ cloud-chat:
   title: Dozzle에 질문
   close: 닫기
   clear: 대화 지우기
-  empty: 지금 보고 있는 것에 대해 물어보세요. 어시스턴트가 이 화면과 로그를 함께 봅니다.
+  empty: 지금 보고 있는 것에 대해 물어보세요. 어시스턴트가 이 페이지를 보고 컨테이너 로그를 읽을 수 있습니다.
   thinking: 생각 중…
   doing:
     logs: 로그 읽는 중…
@@ -850,7 +850,7 @@ cloud-chat:
   nothing-found: 찾은 항목 없음
   worked-for: "{time} 동안 작업"
   earlier: 이전 {n}개
-  placeholder: 이 로그에 대해 질문
+  placeholder: 질문하기
   historical: 기록 보기
   n-containers: 컨테이너 {n}개
   evidence: 질문과 함께 전송됨
