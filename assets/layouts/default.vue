@@ -100,6 +100,9 @@ const {
 // closes the drawer, unless another occupant has already taken it over.
 watch(cloudPanel, (next, prev) => {
   if (next && !prev) {
+    // Every way in (the chord, a toolbar, a log row's menu) comes through
+    // here, so this is the one gate on where the panels can show.
+    if (!railAvailable.value) return closeRail();
     // Taking over the drawer is a close for whatever is in it, so its guard
     // gets a say: a half-built alert form asks before it is thrown away.
     const guard = drawerCloseGuard.value;
