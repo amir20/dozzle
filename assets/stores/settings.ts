@@ -14,7 +14,6 @@ export type Settings = {
   dateLocale: "auto" | "en-US" | "en-GB" | "de-DE" | "en-CA";
   softWrap: boolean;
   collapseNav: boolean;
-  collapseCloudRail: boolean;
   automaticRedirect: "instant" | "delayed" | "none";
   locale: string;
   groupContainers: "always" | "at-least-2" | "never";
@@ -40,7 +39,6 @@ export const DEFAULT_SETTINGS: Settings = {
   dateLocale: "auto",
   softWrap: true,
   collapseNav: false,
-  collapseCloudRail: false,
   automaticRedirect: "delayed",
   locale: "",
   groupContainers: "at-least-2",
@@ -65,7 +63,6 @@ if (settings.value.automaticRedirect === true) {
 
 export const {
   collapseNav,
-  collapseCloudRail,
   compact,
   softWrap,
   hourStyle,

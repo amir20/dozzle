@@ -780,9 +780,6 @@ cloud-rail:
   chat: Vprašaj Dozzle
   metrics: Meritve
   alerts: Opozorila
-  close: Zapri
-  hide: Skrij oblačno vrstico
-  show: Pokaži oblačno vrstico
   alerts-empty-here: Za to, kar gledate, se ni sprožilo nič.
   all-activity: Vsa dejavnost
   metrics-no-container: Odprite vsebnik, da vidite njegovo zgodovino.

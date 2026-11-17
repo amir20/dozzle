@@ -775,9 +775,6 @@ cloud-rail:
   chat: Спросить Dozzle
   metrics: Метрики
   alerts: Оповещения
-  close: Закрыть
-  hide: Скрыть панель облака
-  show: Показать панель облака
   alerts-empty-here: По тому, что вы смотрите, ничего не срабатывало.
   all-activity: Вся активность
   metrics-no-container: Откройте контейнер, чтобы увидеть его историю.

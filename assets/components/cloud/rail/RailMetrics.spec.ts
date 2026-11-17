@@ -25,8 +25,7 @@ vi.mock("@/composable/logs/viewContext", () => ({
 const updates = vi.hoisted(() => ({ list: [] as object[], created: 0, memoryLimit: 0 }));
 const jump = vi.hoisted(() => ({ jumpTo: vi.fn() }));
 vi.mock("@/composable/logs/logJump", () => ({ useLogJump: () => jump }));
-// The rail is a full-screen sheet on a phone. Tests flip it per case.
-const rail = vi.hoisted(() => ({ sheet: false, hover: true }));
+const rail = vi.hoisted(() => ({ hover: true, closeRail: vi.fn() }));
 // A getter rather than a computed: this module is evaluated once, and a computed
 // over a plain object would cache its first answer for every test.
 vi.mock("@/composable/ui/media", () => ({
@@ -38,10 +37,7 @@ vi.mock("@/composable/ui/media", () => ({
   isMobile: { value: false },
   isMac: true,
 }));
-vi.mock("@/composable/cloud/cloudRail", async () => {
-  const { computed } = await import("vue");
-  return { useCloudRail: () => ({ sheet: computed(() => rail.sheet) }) };
-});
+vi.mock("@/composable/cloud/cloudRail", () => ({ useCloudRail: () => ({ closeRail: rail.closeRail }) }));
 vi.mock("@/stores/container", async () => {
   const { reactive } = await import("vue");
   return {
@@ -131,7 +127,7 @@ afterEach(() => {
   updates.created = 0;
   updates.memoryLimit = 0;
   jump.jumpTo.mockReset();
-  rail.sheet = false;
+  rail.closeRail.mockReset();
   rail.hover = true;
 });
 
@@ -374,6 +370,8 @@ describe("<RailMetrics />", () => {
     await wrapper.findAll("section button")[0].trigger("click");
 
     expect(jump.jumpTo).toHaveBeenCalledWith({ containerId: "abc", date: new Date(HOUR) });
+    // The drawer is modal over the logs, so it closes or the jump is unseen.
+    expect(rail.closeRail).toHaveBeenCalled();
   });
 
   // Before this container was created the bars are one a deploy replaced, and
@@ -392,22 +390,6 @@ describe("<RailMetrics />", () => {
 
     expect(jump.jumpTo).not.toHaveBeenCalled();
     expect(button.attributes("aria-disabled")).toBe("true");
-  });
-
-  // BarChart keeps a tapped bar reported so it can be read on a phone. A jump
-  // there would also land out of sight under the full-screen sheet.
-  test("on a phone a tap reads the bar and does not jump", async () => {
-    rail.sheet = true;
-    respond([
-      { ts: 0, cpu: 1, memory: 1, memoryUsage: 1 },
-      { ts: HOUR, cpu: 1, memory: 1, memoryUsage: 1 },
-    ]);
-    const wrapper = await render();
-    wrapper.findAllComponents(BarChartStub)[0].vm.$emit("hoverValue", 1, 1, 2);
-    await flushPromises();
-    await wrapper.findAll("section button")[0].trigger("click");
-
-    expect(jump.jumpTo).not.toHaveBeenCalled();
   });
 
   // An iPad in landscape is wider than a phone but has no hover either: a tap

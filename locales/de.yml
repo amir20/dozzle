@@ -775,9 +775,6 @@ cloud-rail:
   chat: Dozzle fragen
   metrics: Metriken
   alerts: Alarme
-  close: Schließen
-  hide: Cloud-Leiste ausblenden
-  show: Cloud-Leiste einblenden
   alerts-empty-here: Für das, was du gerade ansiehst, wurde nichts ausgelöst.
   all-activity: Gesamte Aktivität
   metrics-no-container: Öffne einen Container, um seinen Verlauf zu sehen.
