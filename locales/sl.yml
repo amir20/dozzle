@@ -868,7 +868,7 @@ cloud-chat:
   error-not-configured: Dozzle Cloud ni povezan, zato ni pomočnika, ki bi ga vprašali.
   section-ask: Pomočnik
   ask-for: Vprašaj Dozzle o {query}
-  ask-hint: Odgovarja iz vsebnikov v pogledu
+  ask-hint: Odgovarja glede na to, kar gledaš
   ask-shortcut: za vprašanje
   visual:
     memory: "Pomnilnik"

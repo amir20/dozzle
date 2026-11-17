@@ -863,7 +863,7 @@ cloud-chat:
   error-not-configured: O Dozzle Cloud não está vinculado, então não há assistente para perguntar.
   section-ask: Assistente
   ask-for: Perguntar ao Dozzle sobre {query}
-  ask-hint: Responde a partir dos contentores à vista
+  ask-hint: Responde com base no que está a ver
   ask-shortcut: para perguntar
   visual:
     memory: "Memória"

@@ -863,7 +863,7 @@ cloud-chat:
   error-not-configured: 尚未连接 Dozzle Cloud，没有可以提问的助手。
   section-ask: 助手
   ask-for: 就 {query} 问 Dozzle
-  ask-hint: 基于视图里的容器作答
+  ask-hint: 基于你正在查看的内容作答
   ask-shortcut: 提问
   visual:
     memory: "内存"

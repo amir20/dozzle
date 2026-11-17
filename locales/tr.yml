@@ -866,7 +866,7 @@ cloud-chat:
   error-not-configured: Dozzle Cloud bağlı değil, bu yüzden soru sorulacak bir asistan yok.
   section-ask: Asistan
   ask-for: "{query} hakkında Dozzle'a sor"
-  ask-hint: Görünen konteynerlere bakarak yanıtlar
+  ask-hint: Baktığın şeye göre yanıtlar
   ask-shortcut: sormak için
   visual:
     memory: "Bellek"
