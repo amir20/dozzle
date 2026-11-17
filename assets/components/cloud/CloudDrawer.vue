@@ -8,8 +8,11 @@
     a slogan. It opens only where cloud is linked, so the mark is a statement of
     where the answers come from and never an advert.
   -->
-  <div class="-m-6 flex h-[calc(100%+3rem)] min-h-0 flex-col">
-    <header class="shrink-0 px-6 pt-6">
+  <!-- Bleeds sideways only. Bled past the drawer's bottom padding too, the
+       content overflowed the box by that padding, and focusing the composer
+       scrolled the header (and the drawer's own close buttons) off the top. -->
+  <div class="-mx-6 flex h-full min-h-0 flex-col">
+    <header class="shrink-0 px-6">
       <h2 class="flex items-center gap-2 text-2xl font-bold">
         <span class="bg-info/10 text-info flex size-8 shrink-0 items-center justify-center rounded-full">
           <mdi:cloud class="size-4.5" />

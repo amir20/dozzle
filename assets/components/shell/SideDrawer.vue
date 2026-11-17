@@ -29,7 +29,8 @@
         <slot v-if="open" :close="requestClose"></slot>
       </div>
     </div>
-    <button class="modal-backdrop cursor-pointer" type="button" @click="requestClose">close</button>
+    <!-- Out of the tab order: a pointer target, and Esc already does what it does. -->
+    <button class="modal-backdrop cursor-pointer" type="button" tabindex="-1" @click="requestClose">close</button>
   </dialog>
 </template>
 <script setup lang="ts">
