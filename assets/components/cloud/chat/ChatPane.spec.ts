@@ -36,14 +36,19 @@ vi.mock("@/composable/logs/viewContext", () => ({
 
 const i18n = createI18n({ legacy: false, locale: "en", missingWarn: false, fallbackWarn: false, messages: { en: {} } });
 
+let mounted: ReturnType<typeof mount> | undefined;
+
 function mountPane() {
-  return mount(ChatPane, {
+  mounted = mount(ChatPane, {
     attachTo: document.body,
     global: { plugins: [i18n], stubs: { ChatViewContext: true, ChatFocusedLine: true } },
   });
+  return mounted;
 }
 
 afterEach(() => {
+  mounted?.unmount();
+  mounted = undefined;
   streaming.value = false;
   document.body.innerHTML = "";
 });
@@ -71,7 +76,7 @@ describe("ChatPane", () => {
   });
 
   test("leaves focus where the reader put it while the answer streamed", async () => {
-    const wrapper = mountPane();
+    mountPane();
     const elsewhere = document.createElement("button");
     document.body.appendChild(elsewhere);
 
@@ -83,6 +88,5 @@ describe("ChatPane", () => {
     await nextTick();
     await nextTick();
     expect(document.activeElement).toBe(elsewhere);
-    wrapper.unmount();
   });
 });
