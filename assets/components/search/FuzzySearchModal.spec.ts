@@ -143,6 +143,23 @@ describe("<FuzzySearchModal />", () => {
     }
   });
 
+  test("a question puts Ask first, a name keeps it last", async () => {
+    useCloudConfig().cloudConfig.value = { linked: true, streamLogs: true } as never;
+    try {
+      const wrapper = createFuzzySearchModal();
+      const order = () => wrapper.findAll("[data-group]").map((el) => el.attributes("data-group"));
+
+      await wrapper.find("input").setValue("why is foo bar broken");
+      expect(order()[0]).toBe("ask");
+
+      await wrapper.find("input").setValue("foo");
+      expect(order()[0]).toBe("containers");
+      expect(order().at(-1)).toBe("ask");
+    } finally {
+      useCloudConfig().cloudConfig.value = null;
+    }
+  });
+
   test("choose baz", async () => {
     const wrapper = createFuzzySearchModal();
     await wrapper.find("input").setValue("baz");

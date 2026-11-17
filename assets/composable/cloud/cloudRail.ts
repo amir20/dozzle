@@ -61,12 +61,12 @@ export function useViewAlerts() {
 export function useCloudRail() {
   const { width: windowWidth } = useWindowSize();
   const { linked } = useCloudSurface();
-  const viewing = hasViewContext();
 
-  // Every panel is about the logs on screen, so the rail belongs where there
-  // are logs on screen. On the home page or in settings it would be a strip of
-  // icons about nothing in particular.
-  const available = computed(() => linked.value && viewing.value);
+  // One rail on every page. Each panel scopes itself to whatever the page is
+  // about (useViewContext): a log view's containers, or the instance's hosts
+  // where no viewer is mounted. A question across every container is still a
+  // question, and the home page is where people ask it.
+  const available = computed(() => linked.value);
 
   /**
    * A phone has no room for a permanent strip beside the stream, and a 550px

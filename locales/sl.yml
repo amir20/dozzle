@@ -799,7 +799,7 @@ cloud-chat:
   title: Vprašaj Dozzle
   close: Zapri
   clear: Počisti klepet
-  empty: Vprašaj o tem, kar gledaš. Pomočnik vidi ta pogled in bere te dnevnike.
+  empty: Vprašaj o tem, kar gledaš. Pomočnik vidi to stran in bere dnevnike tvojih vsebnikov.
   thinking: Razmišljam…
   doing:
     logs: Berem dnevnike…
@@ -829,7 +829,7 @@ cloud-chat:
   nothing-found: nič najdenega
   worked-for: "Delo: {time}"
   earlier: "prejšnjih: {n}"
-  placeholder: Vprašaj o teh dnevnikih
+  placeholder: Postavi vprašanje
   historical: zgodovinsko
   n-containers: "Vsebnikov: {n}"
   evidence: Poslano z vašim vprašanjem

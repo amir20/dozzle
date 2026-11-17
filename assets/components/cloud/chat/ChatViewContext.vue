@@ -42,6 +42,7 @@ import type { ViewContext } from "@/composable/logs/viewContext";
 
 const { view, compact = false } = defineProps<{ view: ViewContext; compact?: boolean }>();
 const { t } = useI18n();
+const { hosts } = useHosts();
 const slots = useSlots();
 
 // `$slots.default` is truthy the moment a caller writes slot content at all,
@@ -70,6 +71,11 @@ const parts = computed(() => {
     out.push({ key: "container", label: t("cloud-chat.n-containers", { n: names.length }) });
   } else if (view.target) {
     out.push({ key: "target", label: view.target, name: true });
+  } else if (view.hosts.length === 1) {
+    // A page with no viewer is about the instance: name the one host, or count them.
+    out.push({ key: "hosts", label: hosts.value[view.hosts[0]]?.name ?? view.hosts[0], name: true });
+  } else if (view.hosts.length > 1) {
+    out.push({ key: "hosts", label: t("label.host-count", view.hosts.length) });
   }
 
   if (view.lines?.length) out.push({ key: "lines", label: t("cloud-chat.lines-in-view", { n: view.lines.length }) });

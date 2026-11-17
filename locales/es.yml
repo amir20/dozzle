@@ -299,7 +299,7 @@ cloud-chat:
   title: Preguntar a Dozzle
   close: Cerrar
   clear: Borrar el chat
-  empty: Pregunta sobre lo que estás viendo. El asistente ve esta vista y lee estos logs.
+  empty: Pregunta sobre lo que estás viendo. El asistente ve esta página y puede leer los logs de tus contenedores.
   thinking: Pensando…
   doing:
     logs: Leyendo los logs…
@@ -329,7 +329,7 @@ cloud-chat:
   nothing-found: no se encontró nada
   worked-for: Trabajó {time}
   earlier: "{n} anteriores"
-  placeholder: Pregunta sobre estos logs
+  placeholder: Haz una pregunta
   historical: histórico
   n-containers: "{n} contenedores"
   evidence: Se envía con tu pregunta

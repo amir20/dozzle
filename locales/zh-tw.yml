@@ -796,7 +796,7 @@ cloud-chat:
   title: 問 Dozzle
   close: 關閉
   clear: 清除對話
-  empty: 就眼前看到的內容提問。助手能看到這個檢視，也能讀這些日誌。
+  empty: 就眼前看到的內容提問。助手能看到這個頁面，也能讀取你的容器日誌。
   thinking: 思考中…
   doing:
     logs: 正在讀取日誌…
@@ -826,7 +826,7 @@ cloud-chat:
   nothing-found: 沒有找到
   worked-for: 花了 {time}
   earlier: 較早的 {n} 筆
-  placeholder: 就這些日誌提問
+  placeholder: 提個問題
   historical: 歷史
   n-containers: "{n} 個容器"
   evidence: 隨問題一起傳送

@@ -795,7 +795,7 @@ cloud-chat:
   title: Vraag het Dozzle
   close: Sluiten
   clear: Chat wissen
-  empty: Stel een vraag over wat je ziet. De assistent kent deze weergave en leest deze logs.
+  empty: Stel een vraag over wat je ziet. De assistent kan deze pagina zien en de logs van je containers lezen.
   thinking: Aan het denken…
   doing:
     logs: Logs lezen…
@@ -825,7 +825,7 @@ cloud-chat:
   nothing-found: niets gevonden
   worked-for: "{time} gewerkt"
   earlier: "{n} eerdere"
-  placeholder: Vraag over deze logs
+  placeholder: Stel een vraag
   historical: historisch
   n-containers: "{n} containers"
   evidence: Wordt met je vraag meegestuurd

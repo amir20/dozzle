@@ -796,7 +796,7 @@ cloud-chat:
   title: Zapytaj Dozzle
   close: Zamknij
   clear: Wyczyść czat
-  empty: Zapytaj o to, na co patrzysz. Asystent widzi ten widok i czyta te logi.
+  empty: Zapytaj o to, na co patrzysz. Asystent widzi tę stronę i może czytać logi twoich kontenerów.
   thinking: Myślę…
   doing:
     logs: Czytam logi…
@@ -826,7 +826,7 @@ cloud-chat:
   nothing-found: nic nie znaleziono
   worked-for: "Praca: {time}"
   earlier: "wcześniejsze: {n}"
-  placeholder: Zapytaj o te logi
+  placeholder: Zadaj pytanie
   historical: historyczne
   n-containers: "Kontenery: {n}"
   evidence: Wysyłane z Twoim pytaniem

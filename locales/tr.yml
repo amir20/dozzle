@@ -797,7 +797,7 @@ cloud-chat:
   title: Dozzle'a sor
   close: Kapat
   clear: Sohbeti temizle
-  empty: Baktığın şeyi sor. Asistan bu görünümü görüyor ve bu logları okuyor.
+  empty: Baktığın şeyi sor. Asistan bu sayfayı görebilir ve konteynerlerinin loglarını okuyabilir.
   thinking: Düşünüyor…
   doing:
     logs: Loglar okunuyor…
@@ -827,7 +827,7 @@ cloud-chat:
   nothing-found: hiçbir şey bulunamadı
   worked-for: "{time} çalıştı"
   earlier: "{n} önceki"
-  placeholder: Bu loglar hakkında sor
+  placeholder: Bir soru sor
   historical: geçmiş
   n-containers: "{n} konteyner"
   evidence: Sorunuzla birlikte gönderilir
