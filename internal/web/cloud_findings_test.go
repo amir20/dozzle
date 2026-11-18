@@ -100,18 +100,65 @@ func Test_cloudFindings_no_visible_containers_skips_cloud(t *testing.T) {
 }
 
 // sameNameHosts resolves one container name on two hosts, the case Cloud cannot
-// tell apart because a finding records names only.
+// tell apart because a finding records names only. A container listed in hidden
+// is invisible to any filtered lookup.
 type sameNameHosts struct {
 	HostService
 	containers map[string]container.Container
+	hidden     map[string]bool
 }
 
-func (s *sameNameHosts) FindContainer(host, id string, _ container.ContainerLabels) (*container.ContainerService, error) {
+func (s *sameNameHosts) FindContainer(host, id string, labels container.ContainerLabels) (*container.ContainerService, error) {
 	c, ok := s.containers[host+"/"+id]
-	if !ok {
+	if !ok || (labels.Exists() && s.hidden[host+"/"+id]) {
 		return nil, errors.New("not found")
 	}
 	return container.NewContainerService(nil, c), nil
+}
+
+func (s *sameNameHosts) ListAllContainers(labels container.ContainerLabels) ([]container.Container, []error) {
+	var out []container.Container
+	for key, c := range s.containers {
+		if labels.Exists() && s.hidden[key] {
+			continue
+		}
+		out = append(out, c)
+	}
+	return out, nil
+}
+
+// A filtered user is not sent a finding about a name they share with a
+// container on another host that their filter hides: Cloud cannot tell the two
+// apart, so the name is never asked about.
+func Test_cloudFindings_restricted_drops_names_shared_with_hidden_containers(t *testing.T) {
+	h := restrictedHandler(t)
+	h.hostService = &sameNameHosts{HostService: h.hostService, containers: map[string]container.Container{
+		"a/1": {ID: "1", Host: "a", Name: "web"},
+		"b/2": {ID: "2", Host: "b", Name: "web"},
+		"a/3": {ID: "3", Host: "a", Name: "db"},
+	}, hidden: map[string]bool{"b/2": true}}
+	got := stubFindings(h, &cloud.FindingsResult{Findings: []cloud.Finding{
+		{ID: "f1", ContainerNames: []string{"web"}},
+		{ID: "f2", ContainerNames: []string{"db", "web"}},
+	}}, nil)
+
+	q := url.Values{"container": {"a/1", "a/3"}}
+	code, body := findingsRequest(t, h, asRestrictedUser(httptest.NewRequest(http.MethodGet, findingsURL(q.Encode()), nil)))
+
+	require.Equal(t, http.StatusOK, code)
+	assert.Equal(t, []string{"db"}, got.names, "web is shared with a hidden container on host b")
+	require.Len(t, body.Findings, 1)
+	assert.Equal(t, "f2", body.Findings[0].ID)
+	assert.Equal(t, []cloud.FindingContainer{{Host: "a", ID: "3", Name: "db"}}, body.Findings[0].Containers, "web is never tagged")
+	assert.False(t, body.CanIgnore)
+
+	// Only the namesake hidden: nothing left to ask Cloud.
+	got.calls = 0
+	q = url.Values{"container": {"a/1"}}
+	code, body = findingsRequest(t, h, asRestrictedUser(httptest.NewRequest(http.MethodGet, findingsURL(q.Encode()), nil)))
+	require.Equal(t, http.StatusOK, code)
+	assert.Empty(t, body.Findings)
+	assert.Zero(t, got.calls)
 }
 
 // A name on two hosts tags both containers, the name goes to Cloud once, and a
@@ -133,9 +180,10 @@ func Test_cloudFindings_maps_names_back_to_every_container(t *testing.T) {
 	code, body := findingsRequest(t, h, asUnfilteredUser(httptest.NewRequest(http.MethodGet, findingsURL(q.Encode()), nil)))
 
 	require.Equal(t, http.StatusOK, code)
-	assert.Equal(t, []string{"web", "db"}, got.names)
+	assert.Equal(t, []string{"web", "db"}, got.names, "an unfiltered user keeps a name on two hosts")
 	assert.Equal(t, int32(50), got.limit, "limit is capped")
 	assert.True(t, body.Truncated)
+	assert.True(t, body.CanIgnore)
 	require.Len(t, body.Findings, 2)
 	web1 := cloud.FindingContainer{Host: "a", ID: "1", Name: "web"}
 	web2 := cloud.FindingContainer{Host: "b", ID: "2", Name: "web"}
@@ -173,16 +221,67 @@ func Test_cloudFindings_filters(t *testing.T) {
 	assert.Zero(t, got.calls)
 }
 
+// Past the cap the first containers, in request order, are looked up and the
+// answer says it is incomplete.
 func Test_cloudFindings_too_many_containers(t *testing.T) {
 	h := restrictedHandler(t)
-	got := stubFindings(h, &cloud.FindingsResult{}, nil)
+	containers := map[string]container.Container{}
 	q := url.Values{}
-	for i := range maxAlertContainers + 1 {
-		q.Add("container", fmt.Sprintf("localhost/c%d", i))
+	var want []string
+	for i := range maxAlertContainers + 5 {
+		name := fmt.Sprintf("c%d", i)
+		containers["h/"+name] = container.Container{ID: name, Host: "h", Name: name}
+		q.Add("container", "h/"+name)
+		if i < maxAlertContainers {
+			want = append(want, name)
+		}
 	}
-	code, _ := findingsRequest(t, h, asUnfilteredUser(httptest.NewRequest(http.MethodGet, findingsURL(q.Encode()), nil)))
-	assert.Equal(t, http.StatusBadRequest, code)
-	assert.Zero(t, got.calls)
+	h.hostService = &sameNameHosts{HostService: h.hostService, containers: containers}
+	got := stubFindings(h, &cloud.FindingsResult{}, nil)
+
+	code, body := findingsRequest(t, h, asUnfilteredUser(httptest.NewRequest(http.MethodGet, findingsURL(q.Encode()), nil)))
+	require.Equal(t, http.StatusOK, code)
+	assert.Equal(t, want, got.names)
+	assert.True(t, body.Truncated)
+
+	// Under the cap, Cloud's own flag is all that sets it.
+	q = url.Values{"container": {"h/c0"}}
+	code, body = findingsRequest(t, h, asUnfilteredUser(httptest.NewRequest(http.MethodGet, findingsURL(q.Encode()), nil)))
+	require.Equal(t, http.StatusOK, code)
+	assert.False(t, body.Truncated)
+}
+
+// canIgnore is the ignore route's own checks, answered up front: the cloud role
+// and no filter.
+func Test_cloudFindings_canIgnore(t *testing.T) {
+	q := url.Values{"container": {"localhost/dev123"}}
+	for name, tc := range map[string]struct {
+		provider AuthProvider
+		user     *auth.User
+		want     bool
+	}{
+		"no auth":              {provider: NONE, want: true},
+		"cloud role":           {provider: SIMPLE, user: &auth.User{Roles: auth.Cloud}, want: true},
+		"no cloud role":        {provider: SIMPLE, user: &auth.User{Roles: auth.Actions}},
+		"filtered":             {provider: SIMPLE, user: &auth.User{ContainerLabels: devLabels}},
+		"filtered, every role": {provider: SIMPLE, user: &auth.User{Roles: auth.All, ContainerLabels: devLabels}},
+	} {
+		t.Run(name, func(t *testing.T) {
+			h := restrictedHandler(t)
+			h.config.Authorization.Provider = tc.provider
+			stubFindings(h, &cloud.FindingsResult{}, nil)
+			r := httptest.NewRequest(http.MethodGet, findingsURL(q.Encode()), nil)
+			if tc.user != nil {
+				r = r.WithContext(auth.WithUser(context.Background(), *tc.user))
+			}
+			rr := httptest.NewRecorder()
+			h.cloudFindings(rr, r)
+			require.Equal(t, http.StatusOK, rr.Code)
+			var body map[string]any
+			require.NoError(t, json.Unmarshal(rr.Body.Bytes(), &body))
+			assert.Equal(t, tc.want, body["canIgnore"])
+		})
+	}
 }
 
 func Test_cloudFindings_errors(t *testing.T) {

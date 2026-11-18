@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/amir20/dozzle/internal/cloud"
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc/codes"
@@ -32,10 +33,16 @@ var findingsFilters = map[string]struct {
 // A finding records container names only, so each requested host/id is
 // resolved through the caller's own scope first and only the names of the ones
 // they may see go to Cloud. One they cannot see reads as one that does not
-// exist, and is dropped without a word.
+// exist, and is dropped without a word. Only the first maxAlertContainers are
+// looked up; past that the answer is marked truncated.
+//
+// A name is not unique across hosts, and Cloud cannot tell the hosts apart.
+// For a filtered user a name is only sent when every container carrying it,
+// on any host, is one they may see, so a finding about a hidden namesake never
+// reaches them.
 //
 //	200 — findings returned (may be empty)
-//	400 — bad filter, or more than maxAlertContainers containers
+//	400 — bad filter
 //	503 — cloud not configured
 //	504 — cloud round-trip exceeded the timeout
 //	502 — any other cloud-side error
@@ -43,6 +50,16 @@ func (h *handler) cloudFindings(w http.ResponseWriter, r *http.Request) {
 	if h.config.Cloud.GetFindings == nil {
 		writeError(w, http.StatusServiceUnavailable, "cloud not configured")
 		return
+	}
+
+	// Same checks the ignore route enforces, decided here so the UI never has
+	// to guess.
+	canIgnore := h.hasCloudRole(r) && !h.restrictedUser(r)
+	truncated := false
+	respond := func(result *cloud.FindingsResult) {
+		result.CanIgnore = canIgnore
+		result.Truncated = result.Truncated || truncated
+		writeFindings(w, result)
 	}
 
 	q := r.URL.Query()
@@ -59,8 +76,8 @@ func (h *handler) cloudFindings(w http.ResponseWriter, r *http.Request) {
 
 	requested := q["container"]
 	if len(requested) > maxAlertContainers {
-		writeError(w, http.StatusBadRequest, "too many containers")
-		return
+		requested = requested[:maxAlertContainers]
+		truncated = true
 	}
 
 	limit := int32(20)
@@ -97,8 +114,19 @@ func (h *handler) cloudFindings(w http.ResponseWriter, r *http.Request) {
 		byName[c.Name] = append(byName[c.Name], cloud.FindingContainer{Host: c.Host, ID: c.ID, Name: c.Name})
 	}
 
+	if h.restrictedUser(r) && len(names) > 0 {
+		names = h.namesOnlyVisible(r, names)
+		// Forget the dropped names too, so a finding that also names one of them
+		// is never mapped back to it.
+		kept := make(map[string][]cloud.FindingContainer, len(names))
+		for _, name := range names {
+			kept[name] = byName[name]
+		}
+		byName = kept
+	}
+
 	if len(names) == 0 {
-		writeFindings(w, &cloud.FindingsResult{})
+		respond(&cloud.FindingsResult{})
 		return
 	}
 
@@ -118,7 +146,7 @@ func (h *handler) cloudFindings(w http.ResponseWriter, r *http.Request) {
 		// An older Cloud has no findings RPC. That is an empty list, not an
 		// error banner.
 		if status.Code(err) == codes.Unimplemented {
-			writeFindings(w, &cloud.FindingsResult{})
+			respond(&cloud.FindingsResult{})
 			return
 		}
 		log.Warn().Err(err).Msg("cloud findings failed")
@@ -146,7 +174,28 @@ func (h *handler) cloudFindings(w http.ResponseWriter, r *http.Request) {
 		findings = append(findings, f)
 	}
 
-	writeFindings(w, &cloud.FindingsResult{Findings: findings, FixLocked: result.FixLocked, Truncated: result.Truncated})
+	respond(&cloud.FindingsResult{Findings: findings, FixLocked: result.FixLocked, Truncated: result.Truncated})
+}
+
+// namesOnlyVisible keeps the names whose every container, across all hosts and
+// ignoring every filter, is one the caller may see. A name shared with a
+// container hidden from them is dropped: Cloud would answer for both.
+func (h *handler) namesOnlyVisible(r *http.Request, names []string) []string {
+	visible := h.visibleContainerIDs(r)
+	all, _ := h.hostService.ListAllContainers(container.ContainerLabels{})
+	hidden := make(map[string]struct{})
+	for _, c := range all {
+		if _, ok := visible[c.ID]; !ok {
+			hidden[c.Name] = struct{}{}
+		}
+	}
+	kept := names[:0]
+	for _, name := range names {
+		if _, ok := hidden[name]; !ok {
+			kept = append(kept, name)
+		}
+	}
+	return kept
 }
 
 // ignoreCloudFinding ignores one finding (POST), or takes that back (DELETE).

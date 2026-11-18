@@ -14,7 +14,12 @@ type FindingsResult struct {
 	// FixLocked means the viewer's plan withholds the fix. Decided in Cloud;
 	// never infer it from an empty Fix.
 	FixLocked bool `json:"fixLocked"`
+	// Truncated means the list is incomplete: Cloud stopped at the limit, or
+	// the request named more containers than are looked up.
 	Truncated bool `json:"truncated,omitempty"`
+	// CanIgnore says whether this caller may use the ignore route. Decided by
+	// the web layer with the same checks that route enforces.
+	CanIgnore bool `json:"canIgnore"`
 }
 
 // FindingContainer is one container on screen that a finding is about.
