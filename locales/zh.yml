@@ -688,6 +688,7 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Dozzle Cloud Pro 方案提供
   plan: 计划
+  account: 账户
   usage: 事件
   usage-agent-messages: 智能体对话
   usage-log-bytes: 已索引数据
@@ -771,6 +772,11 @@ cloud:
 cloud-rail:
   title: Dozzle Cloud
   chat: 询问 Dozzle
+  ask: 提问
+  open-account: 计划与账单
+  alerts-retention: "Dozzle Cloud 保留 {n} 天的告警历史。 | Dozzle Cloud 保留 {n} 天的告警历史。"
+  create-alert: 创建告警规则
+  metrics-live: "来自此浏览器的实时数据，最近 {n} 分钟。统计数据到达后，Cloud 历史会逐步补全。"
   metrics: 指标
   alerts: 告警
   hide: 隐藏云侧栏
@@ -812,6 +818,10 @@ cloud-findings:
   undo: 撤销
   ignore-failed: 无法更新该调查结果。
   truncated: 这里并未列出所有调查结果，其余的在 Dozzle Cloud 中。
+  next-review: "下次审查：{when} {time}"
+  last-review: "上次审查：{when}"
+  not-reviewed: 尚未审查
+  empty-reviewed: "上次审查未在 {name} 上发现任何问题。"
 cloud-chat:
   title: 问 Dozzle
   close: 关闭

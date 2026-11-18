@@ -689,6 +689,7 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Beschikbaar met Dozzle Cloud Pro
   plan: Plan
+  account: Account
   usage: Gebeurtenissen
   usage-agent-messages: Agentgesprekken
   usage-log-bytes: Geïndexeerde data
@@ -772,6 +773,11 @@ cloud:
 cloud-rail:
   title: Dozzle Cloud
   chat: Vraag Dozzle
+  ask: Vragen
+  open-account: Abonnement en facturatie
+  alerts-retention: "Dozzle Cloud bewaart {n} dag aan waarschuwingsgeschiedenis. | Dozzle Cloud bewaart {n} dagen aan waarschuwingsgeschiedenis."
+  create-alert: Een waarschuwingsregel maken
+  metrics-live: "Live vanuit deze browser, laatste {n} min. De Cloud-geschiedenis vult zich zodra statistieken binnenkomen."
   metrics: Metrieken
   alerts: Waarschuwingen
   hide: Cloudbalk verbergen
@@ -813,6 +819,10 @@ cloud-findings:
   undo: Ongedaan maken
   ignore-failed: Kon de bevinding niet bijwerken.
   truncated: Niet elke bevinding staat hier. Dozzle Cloud heeft de rest.
+  next-review: "Volgende controle {when}, {time}"
+  last-review: "Laatst gecontroleerd {when}"
+  not-reviewed: Nog niet gecontroleerd
+  empty-reviewed: "Niets opgemerkt bij {name} in de laatste controle."
 cloud-chat:
   title: Vraag het Dozzle
   close: Sluiten

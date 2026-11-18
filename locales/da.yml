@@ -688,6 +688,7 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Tilgængelig med Dozzle Cloud Pro
   plan: Plan
+  account: Konto
   usage: Begivenheder
   usage-agent-messages: Agent-chats
   usage-log-bytes: Indekseret data
@@ -771,6 +772,11 @@ cloud:
 cloud-rail:
   title: Dozzle Cloud
   chat: Spørg Dozzle
+  ask: Spørg
+  open-account: Abonnement og fakturering
+  alerts-retention: "Dozzle Cloud gemmer {n} dags advarselshistorik. | Dozzle Cloud gemmer {n} dages advarselshistorik."
+  create-alert: Opret en advarselsregel
+  metrics-live: "Live fra denne browser, seneste {n} min. Cloud-historikken udfyldes, efterhånden som statistik kommer ind."
   metrics: Metrikker
   alerts: Advarsler
   hide: Skjul cloud-panelet
@@ -812,6 +818,10 @@ cloud-findings:
   undo: Fortryd
   ignore-failed: Kunne ikke opdatere fundet.
   truncated: Ikke alle fund vises her. Dozzle Cloud har resten.
+  next-review: "Næste gennemgang {when}, {time}"
+  last-review: "Sidst gennemgået {when}"
+  not-reviewed: Ikke gennemgået endnu
+  empty-reviewed: "Intet bemærket på {name} i den seneste gennemgang."
 cloud-chat:
   title: Spørg Dozzle
   close: Luk

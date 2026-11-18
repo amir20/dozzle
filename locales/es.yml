@@ -278,6 +278,11 @@ placeholder:
 cloud-rail:
   title: Dozzle Cloud
   chat: Preguntar a Dozzle
+  ask: Preguntar
+  open-account: Plan y facturación
+  alerts-retention: "Dozzle Cloud guarda {n} día de historial de alertas. | Dozzle Cloud guarda {n} días de historial de alertas."
+  create-alert: Crear una regla de alerta
+  metrics-live: "En vivo desde este navegador, últimos {n} min. El historial de Cloud se completa a medida que llegan las estadísticas."
   metrics: Métricas
   alerts: Alertas
   hide: Ocultar la barra de cloud
@@ -319,6 +324,10 @@ cloud-findings:
   undo: Deshacer
   ignore-failed: No se pudo actualizar el hallazgo.
   truncated: Aquí no se muestran todos los hallazgos. Dozzle Cloud tiene el resto.
+  next-review: "Próxima revisión {when}, {time}"
+  last-review: "Última revisión {when}"
+  not-reviewed: Aún sin revisar
+  empty-reviewed: "No se notó nada en {name} en la última revisión."
 cloud-chat:
   title: Preguntar a Dozzle
   close: Cerrar
@@ -897,6 +906,7 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Disponible con Dozzle Cloud Pro
   plan: Plan
+  account: Cuenta
   usage: Eventos
   usage-agent-messages: Chats del agente
   usage-log-bytes: Datos indexados

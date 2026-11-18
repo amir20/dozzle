@@ -279,6 +279,11 @@ placeholder:
 cloud-rail:
   title: Dozzle Cloud
   chat: Dozzle に質問
+  ask: 質問
+  open-account: プランと請求
+  alerts-retention: "Dozzle Cloud はアラート履歴を {n} 日間保持します。 | Dozzle Cloud はアラート履歴を {n} 日間保持します。"
+  create-alert: アラートルールを作成
+  metrics-live: "このブラウザからのライブデータ（直近 {n} 分）。統計が届くにつれて Cloud の履歴が埋まります。"
   metrics: メトリクス
   alerts: アラート
   hide: クラウドレールを隠す
@@ -320,6 +325,10 @@ cloud-findings:
   undo: 元に戻す
   ignore-failed: 検出結果を更新できませんでした。
   truncated: ここにはすべての検出結果が表示されているわけではありません。残りは Dozzle Cloud にあります。
+  next-review: "次回のレビュー: {when} {time}"
+  last-review: "最終レビュー: {when}"
+  not-reviewed: まだレビューされていません
+  empty-reviewed: "前回のレビューでは {name} に問題は見つかりませんでした。"
 cloud-chat:
   title: Dozzle に質問
   close: 閉じる
@@ -898,6 +907,7 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Dozzle Cloud Pro で利用できます
   plan: プラン
+  account: アカウント
   usage: イベント
   usage-agent-messages: エージェントとのチャット
   usage-log-bytes: インデックス済みデータ

@@ -700,6 +700,7 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Tersedia dengan Dozzle Cloud Pro
   plan: Paket
+  account: Akun
   usage: Event
   usage-agent-messages: Obrolan agen
   usage-log-bytes: Data terindeks
@@ -783,6 +784,11 @@ cloud:
 cloud-rail:
   title: Dozzle Cloud
   chat: Tanya Dozzle
+  ask: Tanya
+  open-account: Paket dan tagihan
+  alerts-retention: "Dozzle Cloud menyimpan riwayat peringatan selama {n} hari. | Dozzle Cloud menyimpan riwayat peringatan selama {n} hari."
+  create-alert: Buat aturan peringatan
+  metrics-live: "Langsung dari browser ini, {n} menit terakhir. Riwayat Cloud terisi saat statistik masuk."
   metrics: Metrik
   alerts: Peringatan
   hide: Sembunyikan bilah cloud
@@ -824,6 +830,10 @@ cloud-findings:
   undo: Urungkan
   ignore-failed: Tidak dapat memperbarui temuan.
   truncated: Tidak semua temuan tercantum di sini. Dozzle Cloud menyimpan sisanya.
+  next-review: "Tinjauan berikutnya {when}, {time}"
+  last-review: "Terakhir ditinjau {when}"
+  not-reviewed: Belum ditinjau
+  empty-reviewed: "Tidak ada yang tercatat pada {name} di tinjauan terakhir."
 cloud-chat:
   title: Tanya Dozzle
   close: Tutup

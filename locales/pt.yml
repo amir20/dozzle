@@ -688,6 +688,7 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Disponível com o Dozzle Cloud Pro
   plan: Plano
+  account: Conta
   usage: Eventos
   usage-agent-messages: Conversas com o agente
   usage-log-bytes: Dados indexados
@@ -771,6 +772,11 @@ cloud:
 cloud-rail:
   title: Dozzle Cloud
   chat: Perguntar ao Dozzle
+  ask: Perguntar
+  open-account: Plano e faturamento
+  alerts-retention: "O Dozzle Cloud guarda {n} dia de histórico de alertas. | O Dozzle Cloud guarda {n} dias de histórico de alertas."
+  create-alert: Criar uma regra de alerta
+  metrics-live: "Ao vivo deste navegador, últimos {n} min. O histórico do Cloud é preenchido conforme as estatísticas chegam."
   metrics: Métricas
   alerts: Alertas
   hide: Ocultar a barra do cloud
@@ -812,6 +818,10 @@ cloud-findings:
   undo: Desfazer
   ignore-failed: Não foi possível atualizar a descoberta.
   truncated: Nem todas as descobertas estão listadas aqui. O Dozzle Cloud tem o resto.
+  next-review: "Próxima revisão {when}, {time}"
+  last-review: "Última revisão {when}"
+  not-reviewed: Ainda não revisado
+  empty-reviewed: "Nada notado em {name} na última revisão."
 cloud-chat:
   title: Perguntar ao Dozzle
   close: Fechar

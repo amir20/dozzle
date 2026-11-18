@@ -693,6 +693,7 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Na voljo z Dozzle Cloud Pro
   plan: Načrt
+  account: Račun
   usage: Dogodki
   usage-agent-messages: Klepeti z agentom
   usage-log-bytes: Indeksirani podatki
@@ -776,6 +777,11 @@ cloud:
 cloud-rail:
   title: Dozzle Cloud
   chat: Vprašaj Dozzle
+  ask: Vprašaj
+  open-account: Načrt in obračun
+  alerts-retention: "Dozzle Cloud hrani zgodovino opozoril {n} dan. | Dozzle Cloud hrani zgodovino opozoril {n} dni."
+  create-alert: Ustvari pravilo opozorila
+  metrics-live: "V živo iz tega brskalnika, zadnjih {n} min. Zgodovina v Cloud se zapolni, ko prispe statistika."
   metrics: Meritve
   alerts: Opozorila
   hide: Skrij oblačno vrstico
@@ -817,6 +823,10 @@ cloud-findings:
   undo: Razveljavi
   ignore-failed: Ugotovitve ni bilo mogoče posodobiti.
   truncated: Tu niso navedene vse ugotovitve. Ostale so v Dozzle Cloud.
+  next-review: "Naslednji pregled {when}, {time}"
+  last-review: "Zadnji pregled {when}"
+  not-reviewed: Še ni pregledano
+  empty-reviewed: "Pri zadnjem pregledu na {name} ni bilo opaženo nič."
 cloud-chat:
   title: Vprašaj Dozzle
   close: Zapri

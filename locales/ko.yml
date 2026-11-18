@@ -690,6 +690,7 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Dozzle Cloud Pro에서 사용할 수 있습니다
   plan: 플랜
+  account: 계정
   usage: 이벤트
   usage-agent-messages: 에이전트 대화
   usage-log-bytes: 색인된 데이터
@@ -773,6 +774,11 @@ cloud:
 cloud-rail:
   title: Dozzle Cloud
   chat: Dozzle에게 질문
+  ask: 질문
+  open-account: 플랜 및 결제
+  alerts-retention: "Dozzle Cloud는 알림 기록을 {n}일 동안 보관합니다. | Dozzle Cloud는 알림 기록을 {n}일 동안 보관합니다."
+  create-alert: 알림 규칙 만들기
+  metrics-live: "이 브라우저의 실시간 데이터, 최근 {n}분. 통계가 도착하면 Cloud 기록이 채워집니다."
   metrics: 메트릭
   alerts: 알림
   hide: 클라우드 레일 숨기기
@@ -814,6 +820,10 @@ cloud-findings:
   undo: 실행 취소
   ignore-failed: 조사 결과를 업데이트하지 못했습니다.
   truncated: 모든 조사 결과가 여기에 표시되지는 않습니다. 나머지는 Dozzle Cloud에 있습니다.
+  next-review: "다음 검토 {when}, {time}"
+  last-review: "마지막 검토 {when}"
+  not-reviewed: 아직 검토되지 않음
+  empty-reviewed: "지난 검토에서 {name}에 발견된 내용이 없습니다."
 cloud-chat:
   title: Dozzle에 질문
   close: 닫기

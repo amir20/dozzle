@@ -688,6 +688,7 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Доступно в Dozzle Cloud Pro
   plan: План
+  account: Аккаунт
   usage: События
   usage-agent-messages: Чаты с агентом
   usage-log-bytes: Проиндексированные данные
@@ -771,6 +772,11 @@ cloud:
 cloud-rail:
   title: Dozzle Cloud
   chat: Спросить Dozzle
+  ask: Спросить
+  open-account: Тариф и оплата
+  alerts-retention: "Dozzle Cloud хранит историю оповещений {n} день. | Dozzle Cloud хранит историю оповещений {n} дней."
+  create-alert: Создать правило оповещения
+  metrics-live: "В реальном времени из этого браузера, последние {n} мин. История Cloud заполнится по мере поступления статистики."
   metrics: Метрики
   alerts: Оповещения
   hide: Скрыть панель облака
@@ -812,6 +818,10 @@ cloud-findings:
   undo: Отменить
   ignore-failed: Не удалось обновить находку.
   truncated: Здесь показаны не все находки. Остальные есть в Dozzle Cloud.
+  next-review: "Следующая проверка {when}, {time}"
+  last-review: "Последняя проверка {when}"
+  not-reviewed: Ещё не проверялось
+  empty-reviewed: "При последней проверке в {name} ничего не замечено."
 cloud-chat:
   title: Спросить Dozzle
   close: Закрыть

@@ -691,6 +691,7 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Dozzle Cloud Pro ile kullanılabilir
   plan: Plan
+  account: Hesap
   usage: Olaylar
   usage-agent-messages: Aracı sohbetleri
   usage-log-bytes: Dizine eklenen veri
@@ -774,6 +775,11 @@ cloud:
 cloud-rail:
   title: Dozzle Cloud
   chat: Dozzle'a sor
+  ask: Sor
+  open-account: Plan ve faturalandırma
+  alerts-retention: "Dozzle Cloud {n} günlük uyarı geçmişi tutar. | Dozzle Cloud {n} günlük uyarı geçmişi tutar."
+  create-alert: Uyarı kuralı oluştur
+  metrics-live: "Bu tarayıcıdan canlı, son {n} dk. Cloud geçmişi istatistikler geldikçe dolar."
   metrics: Metrikler
   alerts: Uyarılar
   hide: Cloud çubuğunu gizle
@@ -815,6 +821,10 @@ cloud-findings:
   undo: Geri al
   ignore-failed: Bulgu güncellenemedi.
   truncated: "Tüm bulgular burada listelenmiyor. Geri kalanı Dozzle Cloud'da."
+  next-review: "Sonraki inceleme {when}, {time}"
+  last-review: "Son inceleme {when}"
+  not-reviewed: Henüz incelenmedi
+  empty-reviewed: "Son incelemede {name} üzerinde bir şey fark edilmedi."
 cloud-chat:
   title: Dozzle'a sor
   close: Kapat
