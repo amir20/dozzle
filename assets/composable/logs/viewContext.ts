@@ -189,19 +189,17 @@ export function publishVisibleLogs(entries: Ref<LogEntry<LogMessage>[]>) {
 
 export function useViewContext(): ComputedRef<ViewContext> {
   const route = useRoute();
-  const { hosts } = useHosts();
 
   return computed(() => {
     // A page with no log viewer (home, settings) is about the whole instance,
-    // so its scope is every host the user can see. Same shape as a log view's,
-    // so nothing downstream branches on which kind of page asked.
+    // and says so by naming nothing: no containers and no hosts. Sending every
+    // host id read to the assistant as a host the person had named, which it
+    // then tried, and failed, to match.
     const view = published.value?.value ?? {
       kind: routeKind(route.name),
       target: typeof route.params.id === "string" ? route.params.id : undefined,
       containers: [],
-      hosts: Object.values(hosts.value)
-        .filter((h) => h.available)
-        .map((h) => h.id),
+      hosts: [],
       visibleAt: new Date().toISOString(),
       historical: false,
     };

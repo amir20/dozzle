@@ -71,11 +71,12 @@ const parts = computed(() => {
     out.push({ key: "container", label: t("cloud-chat.n-containers", { n: names.length }) });
   } else if (view.target) {
     out.push({ key: "target", label: view.target, name: true });
-  } else if (view.hosts.length === 1) {
-    // A page with no viewer is about the instance: name the one host, or count them.
-    out.push({ key: "hosts", label: hosts.value[view.hosts[0]]?.name ?? view.hosts[0], name: true });
-  } else if (view.hosts.length > 1) {
-    out.push({ key: "hosts", label: t("label.host-count", view.hosts.length) });
+  } else if (!view.hosts.length) {
+    // A page with no viewer is about the instance, and sends no scope at all.
+    // The card still says what that means here: the one host, or how many.
+    const available = Object.values(hosts.value).filter((h) => h.available);
+    if (available.length === 1) out.push({ key: "hosts", label: available[0].name, name: true });
+    else if (available.length > 1) out.push({ key: "hosts", label: t("label.host-count", available.length) });
   }
 
   if (view.lines?.length) out.push({ key: "lines", label: t("cloud-chat.lines-in-view", { n: view.lines.length }) });
