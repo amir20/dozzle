@@ -40,7 +40,7 @@ async function render() {
           locale: "en",
           missingWarn: false,
           fallbackWarn: false,
-          messages: { en: { "cloud-rail": { "metrics-no-container": "Open a container" } } },
+          messages: { en: { "cloud-rail": { "metrics-failed": "Could not load the history." } } },
         }),
       ],
       stubs: { BarChart: BarChartStub },
@@ -73,11 +73,11 @@ describe("<RailHostMetrics />", () => {
     expect(sections[1].findAllComponents(BarChartStub)[1].props("max")).toBeUndefined();
   });
 
-  test("a filtered user is pointed at a container instead", async () => {
-    respond(403);
+  test("a failed read says so instead of drawing nothing", async () => {
+    respond(502);
     const wrapper = await render();
 
-    expect(wrapper.text()).toContain("Open a container");
+    expect(wrapper.text()).toContain("Could not load");
     expect(wrapper.find("[data-host]").exists()).toBe(false);
   });
 });

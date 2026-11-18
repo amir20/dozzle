@@ -24,9 +24,6 @@
     </div>
 
     <p v-if="loading" class="text-base-content/60 text-sm">{{ $t("cloud-rail.metrics-loading") }}</p>
-    <!-- A filtered user cannot see every container, and a host's sum is every
-         container on it, so the per-container history is what they get. -->
-    <p v-else-if="forbidden" class="text-base-content/60 text-sm">{{ $t("cloud-rail.metrics-no-container") }}</p>
     <p v-else-if="failed" class="text-base-content/60 text-sm">{{ $t("cloud-rail.metrics-failed") }}</p>
     <p v-else-if="!hostSeries.length" class="text-base-content/60 text-sm">{{ $t("cloud-rail.metrics-empty") }}</p>
 
@@ -84,7 +81,6 @@ const series = ref<HostSeries[]>([]);
 const bucket = ref(0);
 const loading = ref(false);
 const failed = ref(false);
-const forbidden = ref(false);
 
 // One bucket per chart column, as in the container history.
 const root = ref<HTMLElement | null>(null);
@@ -103,13 +99,12 @@ async function load() {
   const current = () => request === latest;
   loading.value = true;
   failed.value = false;
-  forbidden.value = false;
   try {
     const res = await fetch(withBase(`/api/cloud/metrics/hosts?window=${window.value}&buckets=${columns.value}`));
     if (!current()) return;
     if (!res.ok) {
-      forbidden.value = res.status === 403;
-      failed.value = res.status !== 403 && res.status !== 503;
+      // 503 is an unlinked instance, which the drawer is not offered on anyway.
+      failed.value = res.status !== 503;
       series.value = [];
       return;
     }
