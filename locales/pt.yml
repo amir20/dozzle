@@ -793,7 +793,7 @@ cloud-chat:
   title: Perguntar ao Dozzle
   close: Fechar
   clear: Limpar a conversa
-  empty: Pergunta sobre o que estás a ver. O assistente vê esta vista e lê estes logs.
+  empty: Pergunta sobre o que estás a ver. O assistente vê esta página e lê os logs dos teus contentores.
   thinking: A pensar…
   doing:
     logs: Lendo os logs…
@@ -848,7 +848,7 @@ cloud-chat:
   nothing-found: nada encontrado
   worked-for: Trabalhou {time}
   earlier: "{n} anteriores"
-  placeholder: Perguntar sobre estes logs
+  placeholder: Fazer uma pergunta
   historical: histórico
   n-containers: "{n} contentores"
   evidence: Enviado com a sua pergunta
@@ -863,7 +863,7 @@ cloud-chat:
   error-not-configured: O Dozzle Cloud não está vinculado, então não há assistente para perguntar.
   section-ask: Assistente
   ask-for: Perguntar ao Dozzle sobre {query}
-  ask-hint: Responde a partir dos contentores à vista
+  ask-hint: Responde com base no que está a ver
   ask-shortcut: para perguntar
   visual:
     memory: "Memória"
@@ -904,7 +904,7 @@ cloud-search:
   searching: "Buscando…"
   hits-count: "{n} resultados"
   window-since: "desde {time}"
-  hero-title-cloud: "Buscar containers e logs"
+  hero-title-cloud: "Buscar containers, logs ou fazer uma pergunta"
   hero-title-plain: "Buscar containers"
   hero-pill-indexed: "Índice Cloud"
   modal-placeholder-cloud: "Buscar containers e logs…"

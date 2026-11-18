@@ -793,7 +793,7 @@ cloud-chat:
   title: Spørg Dozzle
   close: Luk
   clear: Ryd chatten
-  empty: Spørg om det du kigger på. Assistenten kan se denne visning og læse disse logs.
+  empty: Spørg om det du kigger på. Assistenten kan se denne side og læse dine containeres logs.
   thinking: Tænker…
   doing:
     logs: Læser logs…
@@ -848,7 +848,7 @@ cloud-chat:
   nothing-found: intet fundet
   worked-for: Arbejdede i {time}
   earlier: "{n} tidligere"
-  placeholder: Spørg om disse logs
+  placeholder: Stil et spørgsmål
   historical: historisk
   n-containers: "{n} containere"
   evidence: Sendes med dit spørgsmål
@@ -863,7 +863,7 @@ cloud-chat:
   error-not-configured: Dozzle Cloud er ikke tilknyttet, så der er ingen assistent at spørge.
   section-ask: Assistent
   ask-for: Spørg Dozzle om {query}
-  ask-hint: Svarer ud fra containerne i visningen
+  ask-hint: Svarer ud fra det, du kigger på
   ask-shortcut: for at spørge
   visual:
     memory: "Hukommelse"
@@ -904,7 +904,7 @@ cloud-search:
   searching: "Søger…"
   hits-count: "{n} resultater"
   window-since: "siden {time}"
-  hero-title-cloud: "Søg containere og logs"
+  hero-title-cloud: "Søg containere, logs eller stil et spørgsmål"
   hero-title-plain: "Søg containere"
   hero-pill-indexed: "Cloud-indeks"
   modal-placeholder-cloud: "Søg containere og logs…"

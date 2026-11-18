@@ -793,7 +793,7 @@ cloud-chat:
   title: Спросить Dozzle
   close: Закрыть
   clear: Очистить чат
-  empty: Спросите о том, что видите. Ассистент видит этот экран и читает эти логи.
+  empty: Спросите о том, что видите. Ассистент видит эту страницу и читает логи ваших контейнеров.
   thinking: Думает…
   doing:
     logs: Читаю логи…
@@ -848,7 +848,7 @@ cloud-chat:
   nothing-found: ничего не найдено
   worked-for: "Работа: {time}"
   earlier: "ранее: {n}"
-  placeholder: Спросить об этих логах
+  placeholder: Задать вопрос
   historical: история
   n-containers: "Контейнеров: {n}"
   evidence: Отправляется с вопросом
@@ -863,7 +863,7 @@ cloud-chat:
   error-not-configured: Dozzle Cloud не подключён, спрашивать некого.
   section-ask: Ассистент
   ask-for: Спросить Dozzle про {query}
-  ask-hint: Отвечает по контейнерам на экране
+  ask-hint: Отвечает по тому, что на экране
   ask-shortcut: чтобы спросить
   visual:
     memory: "Память"
@@ -904,7 +904,7 @@ cloud-search:
   searching: "Поиск…"
   hits-count: "{n} результатов"
   window-since: "с {time}"
-  hero-title-cloud: "Поиск по контейнерам и логам"
+  hero-title-cloud: "Ищите контейнеры, логи или задайте вопрос"
   hero-title-plain: "Поиск по контейнерам"
   hero-pill-indexed: "Индекс Cloud"
   modal-placeholder-cloud: "Поиск по контейнерам и логам…"

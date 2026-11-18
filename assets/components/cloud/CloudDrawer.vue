@@ -73,14 +73,31 @@ const ChatPane = defineAsyncComponent(() => import("@/components/cloud/chat/Chat
 const { panel, openRail, closeRail } = useCloudRail();
 const { messages, reset: resetChat } = useCloudChat();
 // Scoped to the view, because the panel this bell opens is.
-const { unseen: unseenAlerts } = useViewAlerts();
+const { unseen: unseenAlerts, scoped: containersInView } = useViewAlerts();
 const { t } = useI18n();
 
 const items = computed(() => [
   { id: "chat" as const, label: t("cloud-rail.chat"), icon: mdiMessageOutline },
-  { id: "metrics" as const, label: t("cloud-rail.metrics"), icon: mdiChartLine },
-  { id: "alerts" as const, label: t("cloud-rail.alerts"), icon: mdiBellOutline, dot: unseenAlerts.value },
+  // Both are about the containers on screen. Off a log view the notifications
+  // page already lists every alert, and Cloud has no history for a whole host
+  // yet, so the tabs would only be empty.
+  ...(containersInView.value
+    ? [
+        { id: "metrics" as const, label: t("cloud-rail.metrics"), icon: mdiChartLine },
+        { id: "alerts" as const, label: t("cloud-rail.alerts"), icon: mdiBellOutline, dot: unseenAlerts.value },
+      ]
+    : []),
 ]);
+
+// Leaving the containers a tab was about leaves it with nothing to show, so
+// the drawer falls back to the chat rather than an empty tab.
+watch(
+  containersInView,
+  (ok) => {
+    if (!ok && panel.value !== "chat") openRail("chat");
+  },
+  { immediate: true },
+);
 
 // The drawer unmounts its occupant when it closes or another occupant takes
 // over, so this is the one place that knows the panel is gone.

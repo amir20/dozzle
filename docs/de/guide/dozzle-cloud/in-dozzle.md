@@ -1,7 +1,7 @@
 ---
 title: In deinem Dozzle
 description: Was sich in deinem eigenen Dozzle ändert, wenn du es mit Dozzle Cloud verbindest, darunter Ask Dozzle, Metrik-Verlauf und Alarme, die ein Neuladen überstehen.
-sourceHash: 921d6ccbad4e
+sourceHash: af42207c220c
 ---
 
 # In deinem Dozzle
@@ -18,21 +18,23 @@ Eine Installation ohne Cloud zeigt deshalb einen leeren Verlaufsbereich mit eine
 
 > Alarme erscheinen hier, sobald diese Instanz mit Dozzle Cloud verbunden ist. Bis dahin tauchen sie im Log-Stream auf und sind nach dem Neuladen vergessen.
 
-## Die Cloud-Leiste
+## Die Dozzle-Cloud-Schublade
 
-Ein Streifen mit Symbolen am rechten Rand der Log-Ansicht und das Panel, das eines davon öffnet. Sie wird nur eingebunden, wenn Cloud verbunden ist, und nur in einer Ansicht, in der tatsächlich Logs stehen; auf der Startseite oder in den Einstellungen erscheint sie also nie.
+Dozzle fragen, Metriken und Alarme sind Reiter in einer Schublade, die sich von rechts öffnet. Es gibt sie nur, wenn Cloud verbunden ist, dann aber auf jeder Seite.
 
-Das Panel liegt **neben** dem Stream statt darüber: die Seite reserviert genau seine Breite, dadurch verdeckt nichts auf der Leiste je die Zeilen, über die es spricht. Auf dem Telefon ist für einen dauerhaften Streifen kein Platz, dort wird das Panel zu einer bildschirmfüllenden Ebene, die sich über die Werkzeugleiste oder die Befehlspalette öffnet.
+Gefunden wird sie über einen Streifen mit Symbolen am rechten Rand: jedes Symbol öffnet seinen Reiter in der Schublade. Ob der Streifen ausgeblendet ist, wird gemerkt, und ein kleiner Reiter am Rand holt ihn zurück, so wie sich die Seitenleiste auf der anderen Seite einklappt. Auf dem Telefon gibt es keinen Streifen, dort öffnet sich die Schublade bildschirmfüllend über die Werkzeugleiste oder die Befehlspalette.
 
-Ob die Leiste ausgeblendet ist, wird gemerkt. Ein kleiner Reiter am Rand holt sie zurück, so wie sich die Seitenleiste auf der anderen Seite einklappt.
+Solange die Schublade offen ist, verdeckt sie die Logs. Alles darin, was zurück auf den Stream zeigt (die Zeilen anzeigen, ein Zeitpunkt in einem Diagramm), schließt sie deshalb zuerst und scrollt dann den Stream dorthin. <kbd>Esc</kbd> schließt sie.
+
+Metriken und Alarme beziehen sich auf die Container auf dem Bildschirm, deshalb erscheinen sie nur auf einer Seite, die einen zeigt. Auf der Startseite oder in den Einstellungen bietet die Schublade nur den Chat an.
 
 ### <Icon icon="mdi:message-outline" inline /> Dozzle fragen
 
-Eine Frage zu der Ansicht, die gerade offen ist, beantwortet anhand der Logs darin. Über dem Eingabefeld steht, was mit der Frage mitgeht: welche Container in der Ansicht sind, wie viele Zeilen, und die Log-Zeile, auf die du gezeigt hast, falls du aus dem Menü einer Zeile gekommen bist. Nichts wird still mitgeschickt.
+Eine Frage zu dem, was du gerade ansiehst. In einer Log-Ansicht wird sie anhand der Logs darin beantwortet, auf jeder anderen Seite anhand der gesamten Instanz. Über dem Eingabefeld steht, was mit der Frage mitgeht: welche Container oder welcher Host in der Ansicht sind, wie viele Zeilen, und die Log-Zeile, auf die du gezeigt hast, falls du aus dem Menü einer Zeile gekommen bist. Nichts wird still mitgeschickt.
 
 Antworten enden in Dozzle statt in einem Link nach außen. Geht es um einen Zeitpunkt, führt die Aktion deinen eigenen Stream dorthin.
 
-Öffnen mit <kbd>.</kbd> in den Logs eines Containers, über das Container-Menü oder über eine Log-Zeile.
+Öffnen über die Schaltfläche **Dozzle fragen** neben der Suchleiste, mit <kbd>⇧</kbd><kbd>⌘</kbd><kbd>K</kbd> auf jeder Seite, mit <kbd>.</kbd> in den Logs eines Containers, über das Container-Menü oder über eine Log-Zeile. In der <kbd>⌘</kbd><kbd>K</kbd>-Palette steht bei einer Eingabe, die wie eine Frage klingt, **Fragen** an erster Stelle, sodass <kbd>Enter</kbd> sie abschickt, und <kbd>⇧</kbd><kbd>⌘</kbd><kbd>↵</kbd> fragt aus jeder Zeile heraus. Unter Windows und Linux steht <kbd>Ctrl</kbd> für <kbd>⌘</kbd>.
 
 ### <Icon icon="mdi:chart-line" inline /> Metriken
 
@@ -40,7 +42,7 @@ Dozzle hält 300 Messpunkte im Browser und nichts dahinter, „war das vor einer
 
 ### <Icon icon="mdi:bell-outline" inline /> Alarme
 
-Was auf den Containern der aktuellen Ansicht ausgelöst hat. Die Seite [Benachrichtigungen](/de/guide/alerts-and-webhooks) beantwortet dieselbe Frage für die gesamte Instanz; dieses Panel ist auf das begrenzt, was auf dem Bildschirm steht, und genau deshalb hat es seinen Platz neben dem Stream verdient. Beim Öffnen verschwindet der Punkt an der Glocke.
+Was auf den Containern der aktuellen Ansicht ausgelöst hat. Die Seite [Benachrichtigungen](/de/guide/alerts-and-webhooks) beantwortet dieselbe Frage für die gesamte Instanz; dieser Reiter ist auf das begrenzt, was auf dem Bildschirm steht, und genau deshalb hat er seinen Platz in Dozzle verdient. Beim Öffnen verschwindet der Punkt für ungesehene Alarme an der Glocke.
 
 ## Alarme, die ein Neuladen überstehen
 

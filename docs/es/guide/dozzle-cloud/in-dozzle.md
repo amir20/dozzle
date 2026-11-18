@@ -1,7 +1,7 @@
 ---
 title: En tu Dozzle
 description: Lo que cambia en tu propio Dozzle al enlazarlo con Dozzle Cloud, incluidos Ask Dozzle, el historial de métricas y las alertas que sobreviven a una recarga.
-sourceHash: 921d6ccbad4e
+sourceHash: af42207c220c
 ---
 
 # En tu Dozzle
@@ -18,21 +18,23 @@ Por eso una instalación sin Cloud muestra una sección de historial vacía con 
 
 > Las alertas aparecerán aquí cuando esta instancia esté enlazada con Dozzle Cloud. Hasta entonces salen en el flujo de logs y se olvidan al recargar.
 
-## El carril de Cloud
+## El panel de Dozzle Cloud
 
-Una franja de iconos en el borde derecho de la vista de logs, con el panel que uno de ellos abre. Solo se monta cuando Cloud está enlazado y solo en una vista que tenga logs en pantalla, así que nunca aparece en la página de inicio ni en Configuración.
+Preguntar a Dozzle, Métricas y Alertas son pestañas de un mismo panel que se abre desde la derecha. Solo existe cuando Cloud está enlazado, y está en todas las páginas.
 
-El panel se coloca **al lado** del flujo, no encima: la página reserva exactamente su ancho, de modo que nada del carril tapa jamás las líneas de las que habla. En un teléfono no hay sitio para una franja permanente, así que el panel pasa a ser una hoja a pantalla completa que se abre desde la barra de herramientas o la paleta de comandos.
+Una franja de iconos en el borde derecho es la forma de encontrarlo: cada icono abre su pestaña en el panel. Que la franja esté oculta se recuerda, y una pequeña pestaña en el borde la trae de vuelta, igual que la barra lateral se pliega en el otro lado. En un teléfono no hay franja, y el panel se abre a pantalla completa desde la barra de herramientas o la paleta de comandos.
 
-Que el carril esté oculto se recuerda. Una pequeña pestaña en el borde lo trae de vuelta, igual que la barra lateral se pliega en el otro lado.
+El panel tapa los logs mientras está abierto, así que todo lo que en él apunta de vuelta al flujo (mostrar las líneas, un momento en un gráfico) primero lo cierra y luego desplaza el flujo hasta allí. <kbd>Esc</kbd> lo cierra.
+
+Métricas y Alertas tratan de los contenedores que hay en pantalla, así que solo aparecen en una página que muestre alguno. En la página de inicio o en Configuración, el panel ofrece solo el chat.
 
 ### <Icon icon="mdi:message-outline" inline /> Preguntar a Dozzle
 
-Una pregunta sobre la vista que estás mirando, respondida con los logs que contiene. Encima del campo de texto está lo que se envía con la pregunta: qué contenedores hay en la vista, cuántas líneas, y la línea de log que señalaste si llegaste desde el menú de una fila. Nada se envía en silencio.
+Una pregunta sobre lo que estás mirando. En una vista de logs se responde con los logs que contiene; en cualquier otra página, con toda la instancia. Encima del campo de texto está lo que se envía con la pregunta: qué contenedores o qué host hay en la vista, cuántas líneas, y la línea de log que señalaste si llegaste desde el menú de una fila. Nada se envía en silencio.
 
 Las respuestas terminan en Dozzle en lugar de en un enlace hacia fuera. Cuando la respuesta trata de un momento concreto, la acción lleva tu propio flujo hasta él.
 
-Ábrelo pulsando <kbd>.</kbd> en los logs de un contenedor, desde el menú del contenedor o desde una línea de log.
+Ábrelo con el botón **Preguntar a Dozzle** junto a la barra de búsqueda, con <kbd>⇧</kbd><kbd>⌘</kbd><kbd>K</kbd> en cualquier página, pulsando <kbd>.</kbd> en los logs de un contenedor, desde el menú del contenedor o desde una línea de log. En la paleta de <kbd>⌘</kbd><kbd>K</kbd>, una consulta que suena a pregunta pone **Preguntar** en primer lugar para que <kbd>Enter</kbd> la envíe, y <kbd>⇧</kbd><kbd>⌘</kbd><kbd>↵</kbd> pregunta desde cualquier fila. En Windows y Linux, <kbd>Ctrl</kbd> sustituye a <kbd>⌘</kbd>.
 
 ### <Icon icon="mdi:chart-line" inline /> Métricas
 
@@ -40,7 +42,7 @@ Dozzle guarda 300 muestras en el navegador y nada por detrás, así que «¿esta
 
 ### <Icon icon="mdi:bell-outline" inline /> Alertas
 
-Lo que se ha disparado en los contenedores que hay ahora en la vista. La página de [notificaciones](/es/guide/alerts-and-webhooks) responde a lo mismo para toda la instancia; este panel se limita a lo que está en pantalla, y esa es la única razón por la que se gana un sitio junto al flujo. Abrirlo apaga el punto de no leídas en la campana.
+Lo que se ha disparado en los contenedores que hay ahora en la vista. La página de [notificaciones](/es/guide/alerts-and-webhooks) responde a lo mismo para toda la instancia; esta pestaña se limita a lo que está en pantalla, y esa es la única razón por la que se gana un sitio en Dozzle. Abrirla apaga el punto de no leídas en la campana.
 
 ## Alertas que sobreviven a una recarga
 

@@ -2,10 +2,16 @@
  * @vitest-environment jsdom
  */
 import { mount } from "@vue/test-utils";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { createI18n } from "vue-i18n";
 import type { ViewContext } from "@/composable/logs/viewContext";
 import ChatViewContext from "./ChatViewContext.vue";
+
+vi.mock("@/stores/config", () => ({
+  __esModule: true,
+  default: { base: "", hosts: [{ id: "h1", name: "orbstack", available: true }] },
+  withBase: (p: string) => p,
+}));
 
 const i18n = createI18n({
   legacy: false,
@@ -62,5 +68,13 @@ describe("ChatViewContext", () => {
 
   test("draws a divider when the slot has content", () => {
     expect(mountWith("<div>this log line</div>").find(".h-px").exists()).toBe(true);
+  });
+
+  // Off a log view nothing is sent to scope the question, so the card names
+  // what that means from the hosts Dozzle already knows.
+  test("off a log view, names the instance's one host without sending it", () => {
+    const home: ViewContext = { kind: "index", containers: [], hosts: [], visibleAt: "", historical: false };
+    const wrapper = mount(ChatViewContext, { props: { view: home }, global: { plugins: [i18n] } });
+    expect(wrapper.text()).toContain("orbstack");
   });
 });

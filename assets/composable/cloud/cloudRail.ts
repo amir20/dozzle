@@ -61,12 +61,12 @@ export function useViewAlerts() {
 
 export function useCloudRail() {
   const { linked } = useCloudSurface();
-  const viewing = hasViewContext();
 
-  // Every panel is about the logs on screen, so the drawer belongs where there
-  // are logs on screen. On the home page or in settings it would be about
-  // nothing in particular.
-  const available = computed(() => linked.value && viewing.value);
+  // One rail on every page. Each panel scopes itself to whatever the page is
+  // about (useViewContext): a log view's containers, or the whole instance
+  // where no viewer is mounted. A question across every container is still a
+  // question, and the home page is where people ask it.
+  const available = computed(() => linked.value);
 
   // The strip is how people find Cloud at all, so it stays on screen beside the
   // logs; the panels it opens live in the drawer. Hidden is a preference, and
