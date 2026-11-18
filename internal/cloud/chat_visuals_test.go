@@ -5,6 +5,7 @@ import (
 
 	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -60,4 +61,13 @@ func TestVisualsFromProto(t *testing.T) {
 	assert.Equal(t, 87.5, *cpu.Points[0].CPUMax)
 
 	assert.Nil(t, visualsFromProto(nil))
+}
+
+func TestVisualsFromProtoDropsCPUWithoutPoints(t *testing.T) {
+	got := visualsFromProto([]*pb.ChatVisual{
+		{Type: "cpu_over_time", Container: "api"},
+		{Type: "memory_vs_limit", Container: "api"},
+	})
+	require.Len(t, got, 1)
+	assert.Equal(t, "memory_vs_limit", got[0].Type)
 }
