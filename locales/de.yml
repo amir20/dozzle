@@ -775,7 +775,6 @@ cloud-rail:
   chat: Dozzle fragen
   metrics: Metriken
   alerts: Alarme
-  close: Schließen
   hide: Cloud-Leiste ausblenden
   show: Cloud-Leiste einblenden
   alerts-empty-here: Für das, was du gerade ansiehst, wurde nichts ausgelöst.
@@ -794,7 +793,7 @@ cloud-chat:
   title: Dozzle fragen
   close: Schließen
   clear: Chat leeren
-  empty: Frag zu dem, was du gerade siehst. Der Assistent kennt diese Ansicht und liest diese Logs.
+  empty: Frag zu dem, was du gerade siehst. Der Assistent sieht diese Seite und kann die Logs deiner Container lesen.
   thinking: Denkt nach…
   doing:
     logs: Logs werden gelesen…
@@ -849,7 +848,7 @@ cloud-chat:
   nothing-found: nichts gefunden
   worked-for: "{time} gearbeitet"
   earlier: "{n} frühere"
-  placeholder: Zu diesen Logs fragen
+  placeholder: Stell eine Frage
   historical: historisch
   n-containers: "{n} Container"
   evidence: Wird mit deiner Frage gesendet
@@ -864,7 +863,7 @@ cloud-chat:
   error-not-configured: Dozzle Cloud ist nicht verknüpft, es gibt also keinen Assistenten zum Fragen.
   section-ask: Assistent
   ask-for: Dozzle nach {query} fragen
-  ask-hint: Antwortet aus den sichtbaren Containern
+  ask-hint: Antwortet anhand dessen, was du gerade siehst
   ask-shortcut: zum Fragen
   visual:
     memory: "Speicher"
@@ -905,7 +904,7 @@ cloud-search:
   searching: "Suche läuft…"
   hits-count: "{n} Treffer"
   window-since: "seit {time}"
-  hero-title-cloud: "Container und Logs durchsuchen"
+  hero-title-cloud: "Container und Logs durchsuchen oder eine Frage stellen"
   hero-title-plain: "Container durchsuchen"
   hero-pill-indexed: "Cloud-Index"
   modal-placeholder-cloud: "Container und Logs durchsuchen…"

@@ -57,6 +57,13 @@ service CloudToolService {
   // the (user_id, api_key_id) on the connection, like everything else here.
   rpc GetContainerMetrics(GetContainerMetricsRequest) returns (GetContainerMetricsResponse);
 
+  // Dozzle-initiated unary call: the same stats summed per host, for a page
+  // that is about the whole instance rather than one container. Every host this
+  // instance has reported comes back, as totals only. A Cloud without this RPC
+  // answers Unimplemented.
+  // Scoped server-side to the (user_id, api_key_id) on the connection.
+  rpc GetHostMetrics(GetHostMetricsRequest) returns (GetHostMetricsResponse);
+
   // Dozzle-initiated unary call, made once per ToolStream connection before
   // the log streamer starts: where each container's log stream should resume,
   // so lines written while the link was down are sent instead of lost. Cloud
@@ -216,7 +223,7 @@ message ChatDone {
 // and the assistant only chose which picture to show, so the pane draws it as
 // it came and never recomputes it. Which fields are set depends on type.
 message ChatVisual {
-  // memory_vs_limit | pattern_count | container_ranking | logs | container_events
+  // memory_vs_limit | cpu_over_time | pattern_count | container_ranking | logs | container_events
   string type = 1;
   string container = 2;
   string host_id = 3;
@@ -239,8 +246,8 @@ message ChatVisual {
   // pattern_count: matches per bucket, oldest first, as SearchLogs returns them.
   repeated SearchVolumeBucket volume = 13;
   int64 step_ns = 14;
-  // memory_vs_limit: the container's memory over the window, as
-  // GetContainerMetrics returns it.
+  // memory_vs_limit, cpu_over_time: the container's memory or CPU over the
+  // window, as GetContainerMetrics returns it.
   repeated ContainerMetricPoint points = 15;
   // memory_vs_limit: the configured limit in bytes; 0 when none is set or it
   // could not be read.
@@ -357,6 +364,35 @@ message GetContainerMetricsResponse {
   repeated ContainerMetricPoint points = 1;
   // The bucket width cloud actually used, so the panel can say "1m averages"
   // rather than implying every point is a sample.
+  int64 bucket_ns = 2;
+}
+
+message GetHostMetricsRequest {
+  // The window to read, unix nanoseconds. An empty until means now.
+  int64 since_ts_ns = 1;
+  int64 until_ts_ns = 2;
+  // How many points to return per host, as for GetContainerMetricsRequest.
+  int32 buckets = 3;
+}
+
+message HostMetricPoint {
+  int64 ts_ns = 1;
+  // The sum of the host's containers' CPU percent. A container with no CPU
+  // limit reports against the host's cores, so this reads as the host's load;
+  // one with a limit reports against that, which overstates it.
+  double cpu = 2;
+  // The sum of the host's containers' memory, bytes.
+  int64 memory_usage = 3;
+}
+
+message HostMetricSeries {
+  string host_id = 1;
+  repeated HostMetricPoint points = 2;
+}
+
+message GetHostMetricsResponse {
+  repeated HostMetricSeries hosts = 1;
+  // The bucket width cloud actually used.
   int64 bucket_ns = 2;
 }
 

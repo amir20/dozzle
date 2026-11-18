@@ -187,19 +187,14 @@ export function publishVisibleLogs(entries: Ref<LogEntry<LogMessage>[]>) {
   });
 }
 
-/** Whether a log viewer is on screen at all.
- *
- * True exactly where one has published, which is every log view and nothing
- * else: the home page, settings and notifications never mount one. Beats a list
- * of route names, which goes stale the moment a route is added. */
-export function hasViewContext(): ComputedRef<boolean> {
-  return computed(() => published.value !== undefined);
-}
-
 export function useViewContext(): ComputedRef<ViewContext> {
   const route = useRoute();
 
   return computed(() => {
+    // A page with no log viewer (home, settings) is about the whole instance,
+    // and says so by naming nothing: no containers and no hosts. Sending every
+    // host id read to the assistant as a host the person had named, which it
+    // then tried, and failed, to match.
     const view = published.value?.value ?? {
       kind: routeKind(route.name),
       target: typeof route.params.id === "string" ? route.params.id : undefined,

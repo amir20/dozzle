@@ -778,7 +778,6 @@ cloud-rail:
   chat: Dozzle'a sor
   metrics: Metrikler
   alerts: Uyarılar
-  close: Kapat
   hide: Cloud çubuğunu gizle
   show: Cloud çubuğunu göster
   alerts-empty-here: Baktığınız şey için hiçbir şey tetiklenmedi.
@@ -797,7 +796,7 @@ cloud-chat:
   title: Dozzle'a sor
   close: Kapat
   clear: Sohbeti temizle
-  empty: Baktığın şeyi sor. Asistan bu görünümü görüyor ve bu logları okuyor.
+  empty: Baktığın şeyi sor. Asistan bu sayfayı görebilir ve konteynerlerinin loglarını okuyabilir.
   thinking: Düşünüyor…
   doing:
     logs: Loglar okunuyor…
@@ -852,7 +851,7 @@ cloud-chat:
   nothing-found: hiçbir şey bulunamadı
   worked-for: "{time} çalıştı"
   earlier: "{n} önceki"
-  placeholder: Bu loglar hakkında sor
+  placeholder: Bir soru sor
   historical: geçmiş
   n-containers: "{n} konteyner"
   evidence: Sorunuzla birlikte gönderilir
@@ -867,7 +866,7 @@ cloud-chat:
   error-not-configured: Dozzle Cloud bağlı değil, bu yüzden soru sorulacak bir asistan yok.
   section-ask: Asistan
   ask-for: "{query} hakkında Dozzle'a sor"
-  ask-hint: Görünen konteynerlere bakarak yanıtlar
+  ask-hint: Baktığın şeye göre yanıtlar
   ask-shortcut: sormak için
   visual:
     memory: "Bellek"
@@ -908,7 +907,7 @@ cloud-search:
   searching: "Aranıyor…"
   hits-count: "{n} sonuç"
   window-since: "{time} tarihinden beri"
-  hero-title-cloud: "Konteynerleri ve logları ara"
+  hero-title-cloud: "Konteynerleri, logları ara veya bir soru sor"
   hero-title-plain: "Konteynerleri ara"
   hero-pill-indexed: "Cloud indeksi"
   modal-placeholder-cloud: "Konteynerleri ve logları ara…"

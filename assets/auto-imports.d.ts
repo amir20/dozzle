@@ -88,6 +88,8 @@ declare global {
   const controlledComputed: typeof import('@vueuse/core').controlledComputed
   const controlledRef: typeof import('@vueuse/core').controlledRef
   const copyLabels: typeof import('./composable/logs/copyLogs').copyLabels
+  const cpuBars: typeof import('./composable/cloud/chatVisuals').cpuBars
+  const cpuPeak: typeof import('./composable/cloud/chatVisuals').cpuPeak
   const createApp: typeof import('vue').createApp
   const createContainerHints: typeof import('./composable/editor/exprEditor').createContainerHints
   const createDisposableDirective: typeof import('@vueuse/core').createDisposableDirective
@@ -182,6 +184,7 @@ declare global {
   const isObject: typeof import('./utils/index').isObject
   const isPreferencePage: typeof import('./composable/app/settingsPages').isPreferencePage
   const isProxy: typeof import('vue').isProxy
+  const isQuestionLike: typeof import('./composable/cloud/questionLike').isQuestionLike
   const isReactive: typeof import('vue').isReactive
   const isReadonly: typeof import('vue').isReadonly
   const isRef: typeof import('vue').isRef
@@ -859,6 +862,8 @@ declare module 'vue' {
     readonly containerWorkload: UnwrapRef<typeof import('./composable/containers/rolloutRestart')['containerWorkload']>
     readonly controlledComputed: UnwrapRef<typeof import('@vueuse/core')['controlledComputed']>
     readonly controlledRef: UnwrapRef<typeof import('@vueuse/core')['controlledRef']>
+    readonly cpuBars: UnwrapRef<typeof import('./composable/cloud/chatVisuals')['cpuBars']>
+    readonly cpuPeak: UnwrapRef<typeof import('./composable/cloud/chatVisuals')['cpuPeak']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
     readonly createContainerHints: UnwrapRef<typeof import('./composable/editor/exprEditor')['createContainerHints']>
     readonly createDisposableDirective: UnwrapRef<typeof import('@vueuse/core')['createDisposableDirective']>
@@ -925,7 +930,6 @@ declare module 'vue' {
     readonly guardSettingsRoutes: UnwrapRef<typeof import('./composable/app/settingsPages')['guardSettingsRoutes']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly hasIcon: UnwrapRef<typeof import('./utils/index')['hasIcon']>
-    readonly hasViewContext: UnwrapRef<typeof import('./composable/logs/viewContext')['hasViewContext']>
     readonly hashCode: UnwrapRef<typeof import('./utils/index')['hashCode']>
     readonly hiddenColumns: UnwrapRef<typeof import('./stores/settings')['hiddenColumns']>
     readonly highlightErrors: UnwrapRef<typeof import('./stores/settings')['highlightErrors']>
@@ -948,6 +952,7 @@ declare module 'vue' {
     readonly isObject: UnwrapRef<typeof import('./utils/index')['isObject']>
     readonly isPreferencePage: UnwrapRef<typeof import('./composable/app/settingsPages')['isPreferencePage']>
     readonly isProxy: UnwrapRef<typeof import('vue')['isProxy']>
+    readonly isQuestionLike: UnwrapRef<typeof import('./composable/cloud/questionLike')['isQuestionLike']>
     readonly isReactive: UnwrapRef<typeof import('vue')['isReactive']>
     readonly isReadonly: UnwrapRef<typeof import('vue')['isReadonly']>
     readonly isRef: UnwrapRef<typeof import('vue')['isRef']>

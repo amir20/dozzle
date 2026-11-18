@@ -10,7 +10,7 @@ vi.mock("@/modules/i18n", () => ({
   },
 }));
 
-const { factsLine, memoryBars } = await import("./chatVisuals");
+const { cpuBars, cpuPeak, factsLine, memoryBars } = await import("./chatVisuals");
 
 describe("factsLine", () => {
   // Rook: 24 SIGKILL-heavy exits and no out-of-memory event stored.
@@ -64,5 +64,32 @@ describe("memoryBars", () => {
   test("without a limit, bars are bytes so the chart scales to its own peak", () => {
     const [bar] = memoryBars([{ ts: 0, memory: 0, memoryUsage: 300 }], 0);
     expect(bar).toEqual({ percent: 300, value: 300, peak: 300, peakPercent: 300 });
+  });
+});
+
+describe("cpuBars", () => {
+  test("bars are the average and the peak is the bucket's highest sample", () => {
+    expect(cpuBars([{ ts: 1, cpu: 12.5, cpuMax: 87.5, memory: 0, memoryUsage: 0 }])).toEqual([
+      { percent: 12.5, value: 12.5, peak: 87.5, peakPercent: 87.5 },
+    ]);
+  });
+
+  test("a cloud that sends no max peaks at the average", () => {
+    expect(cpuBars([{ ts: 1, cpu: 4, memory: 0, memoryUsage: 0 }])[0].peak).toBe(4);
+  });
+});
+
+describe("cpuPeak", () => {
+  test("is the highest sample across the window", () => {
+    expect(
+      cpuPeak([
+        { ts: 1, cpu: 0.1, cpuMax: 2.1, memory: 0, memoryUsage: 0 },
+        { ts: 2, cpu: 0.2, memory: 0, memoryUsage: 0 },
+      ]),
+    ).toBe(2.1);
+  });
+
+  test("is undefined with no series", () => {
+    expect(cpuPeak([])).toBeUndefined();
   });
 });

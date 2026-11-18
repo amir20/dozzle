@@ -6,10 +6,9 @@
         <SidePanel />
       </Pane>
       <Pane min-size="10" :size="navVisible ? 100 - menuWidth : 100">
-        <!-- The rail is fixed to the right edge, so its width is reserved here
+        <!-- The strip is fixed to the right edge, so its width is reserved here
              rather than over the logs. Reserved inside the content column and
-             not on the page, because the nav is a different column: narrowing
-             it when a panel opens reads as the menu having done something. -->
+             not on the page, because the nav is a different column. -->
         <div :style="{ paddingRight: `${railOffset}px` }">
           <Splitpanes>
             <Pane class="router-view min-h-screen" :class="{ 'tabbar-clearance': showTabBar }">
@@ -31,7 +30,7 @@
       </Pane>
     </Splitpanes>
     <!-- Hiding lives at the bottom of the sidebar itself; this is what brings it back,
-         the same edge tab the cloud rail leaves on the other side. -->
+         the same edge tab the cloud strip leaves on the other side. -->
     <EdgeTab
       v-if="!isMobile && !forceMenuHidden && collapseNav"
       side="left"
@@ -63,6 +62,7 @@
 import { Splitpanes, Pane } from "splitpanes";
 import { collapseNav } from "@/stores/settings";
 import SideDrawer from "@/components/shell/SideDrawer.vue";
+import CloudDrawer from "@/components/cloud/CloudDrawer.vue";
 
 usePinnedColumnsInUrl();
 const pinnedLogsStore = usePinnedLogsStore();
@@ -74,6 +74,7 @@ const {
   properties: drawerProperties,
   width: drawerWidth,
   closeGuard: drawerCloseGuard,
+  showDrawer,
 } = createDrawer(drawer);
 
 import { useFuzzySearch } from "@/composable/app/fuzzySearch";
@@ -84,13 +85,33 @@ const FuzzySearchModal = defineAsyncComponent(() => import("@/components/search/
 const ContainerLog = defineAsyncComponent(() => import("@/components/views/ContainerLog.vue"));
 
 const {
-  railOffset,
+  panel: cloudPanel,
+  available: railAvailable,
   mounted: railMounted,
   collapsed: railCollapsed,
-  available: railAvailable,
+  railOffset,
   toggleRail,
   openRail,
+  closeRail,
 } = useCloudRail();
+
+// The cloud panels live in the drawer. Opening a panel from nothing opens the
+// drawer; moving between tabs only changes what it shows. Clearing the panel
+// closes the drawer, unless another occupant has already taken it over.
+watch(cloudPanel, (next, prev) => {
+  if (next && !prev) {
+    // Every way in (the chord, a toolbar, a log row's menu) comes through
+    // here, so this is the one gate on where the panels can show.
+    if (!railAvailable.value) return closeRail();
+    // Taking over the drawer is a close for whatever is in it, so its guard
+    // gets a say: a half-built alert form asks before it is thrown away.
+    const guard = drawerCloseGuard.value;
+    if (guard && !guard()) return closeRail();
+    showDrawer(CloudDrawer, {}, "md");
+  } else if (!next && prev && drawerComponent.value === CloudDrawer) drawer.value?.close();
+});
+// Unlinking cloud leaves the panels with nothing to show.
+watch(railAvailable, (ok) => ok || closeRail());
 
 const modal = ref<HTMLDialogElement>();
 const { open, openSearch: showFuzzySearch, closeSearch } = useFuzzySearch();
@@ -133,7 +154,7 @@ onKeyStroke("k", (e) => {
 // layout rather than the toolbar so it works on every view it can talk about.
 onKeyStroke(["k", "K"], (e) => {
   if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
-    toggleRail("chat");
+    if (railAvailable.value) toggleRail("chat");
     e.preventDefault();
   }
 });

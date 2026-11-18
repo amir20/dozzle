@@ -1,7 +1,7 @@
 ---
 title: Dans votre Dozzle
-description: Ce qui change dans votre propre Dozzle une fois relié à Dozzle Cloud, notamment Ask Dozzle, l'historique des métriques et les alertes qui survivent à un rechargement.
-sourceHash: 921d6ccbad4e
+description: Ce qui change dans votre propre Dozzle une fois relié à Dozzle Cloud, notamment Demander à Dozzle, l'historique des métriques et les alertes qui survivent à un rechargement.
+sourceHash: 6f212d9d6aeb
 ---
 
 # Dans votre Dozzle
@@ -18,29 +18,33 @@ Une installation sans Cloud affiche donc une section d'historique vide avec une 
 
 > Les alertes apparaîtront ici une fois cette instance reliée à Dozzle Cloud. En attendant, elles apparaissent dans le flux de logs et sont oubliées au rechargement.
 
-## Le rail cloud
+## Le tiroir Dozzle Cloud
 
-Une bande d'icônes sur le bord droit de la vue des logs, et le panneau que l'une d'elles ouvre. Il n'est monté que si Cloud est relié, et seulement sur une vue où il y a des logs à l'écran : il n'apparaît donc jamais sur la page d'accueil ni dans les réglages.
+Demander à Dozzle, Métriques et Alertes sont des onglets d'un même tiroir qui s'ouvre par la droite. Il n'existe que si Cloud est relié, et alors sur toutes les pages.
 
-Le panneau se place **à côté** du flux plutôt que par-dessus : la page réserve exactement sa largeur, si bien que rien sur le rail ne recouvre jamais les lignes dont il parle. Sur un téléphone, il n'y a pas la place pour une bande permanente : le panneau devient une feuille plein écran, ouverte depuis la barre d'outils ou la palette de commandes.
+Une bande d'icônes sur le bord droit permet de le trouver : chaque icône ouvre son onglet dans le tiroir. Le fait de masquer la bande est mémorisé, et un petit onglet sur le bord la ramène, comme la barre latérale se replie de l'autre côté. Sur un téléphone, il n'y a pas de bande : le tiroir s'ouvre en plein écran depuis la barre d'outils ou la palette de commandes.
 
-Le fait de masquer le rail est mémorisé. Un petit onglet sur le bord le ramène, comme la barre latérale se replie de l'autre côté.
+Le tiroir recouvre les logs tant qu'il est ouvert : tout ce qui, à l'intérieur, renvoie au flux (montrer les lignes, un moment sur un graphique) le ferme d'abord, puis fait défiler le flux jusque-là. <kbd>Esc</kbd> le ferme.
+
+Alertes porte sur les conteneurs à l'écran : l'onglet n'apparaît donc que sur une page qui en affiche un. Sur la page d'accueil ou dans les réglages, Métriques affiche plutôt tous les hôtes.
 
 ### <Icon icon="mdi:message-outline" inline /> Demander à Dozzle
 
-Une question sur la vue que vous regardez, à laquelle on répond à partir des logs qu'elle contient. Au-dessus du champ de saisie figure ce qui part avec la question : quels conteneurs sont dans la vue, combien de lignes, et la ligne de log que vous avez désignée si vous êtes parti du menu d'une ligne. Rien n'est envoyé en silence.
+Une question sur ce que vous regardez. Sur une vue de logs, on y répond à partir des logs qu'elle contient ; sur toute autre page, à partir de l'instance entière. Au-dessus du champ de saisie figure ce qui part avec la question : quels conteneurs ou quel hôte sont dans la vue, combien de lignes, et la ligne de log que vous avez désignée si vous êtes parti du menu d'une ligne. Rien n'est envoyé en silence.
 
 Les réponses se terminent dans Dozzle plutôt que par un lien vers l'extérieur. Quand la réponse porte sur un moment précis, l'action conduit votre propre flux jusqu'à lui.
 
-Ouvrez-le en appuyant sur <kbd>.</kbd> dans les logs d'un conteneur, depuis le menu du conteneur, ou depuis une ligne de log.
+Ouvrez-le depuis le bouton **Demander à Dozzle** à côté de la barre de recherche, avec <kbd>⇧</kbd><kbd>⌘</kbd><kbd>K</kbd> sur n'importe quelle page, en appuyant sur <kbd>.</kbd> dans les logs d'un conteneur, depuis le menu du conteneur, ou depuis une ligne de log. Dans la palette <kbd>⌘</kbd><kbd>K</kbd>, une requête qui ressemble à une question place **Demander** en premier, pour que <kbd>Enter</kbd> l'envoie, et <kbd>⇧</kbd><kbd>⌘</kbd><kbd>↵</kbd> pose la question depuis n'importe quelle ligne. Sous Windows et Linux, <kbd>Ctrl</kbd> remplace <kbd>⌘</kbd>.
 
 ### <Icon icon="mdi:chart-line" inline /> Métriques
 
 Dozzle garde 300 échantillons dans le navigateur et rien derrière : « est-ce que c'était comme ça il y a une heure ? » n'a donc pas de réponse locale. Ce panneau relit les échantillons que votre instance envoie depuis le début : CPU, mémoire, réseau et disque sur les dernières 1 h, 6 h ou 24 h. Chaque barre est une moyenne, avec l'échantillon le plus haut tracé en transparence derrière elle, pour qu'un pic bref reste visible quelle que soit la longueur de la fenêtre, et survoler n'importe quel graphique les relit tous au même instant. Réseau et disque additionnent ce qui est sorti et ce qui est entré sur la fenêtre. Pro ajoute une fenêtre de 7 jours.
 
+Sur une page sans conteneur, l'onglet affiche plutôt tous les hôtes : CPU et mémoire, avec les conteneurs de chaque hôte additionnés, sur les mêmes fenêtres. La mémoire est tracée par rapport au total de l'hôte quand Dozzle le connaît. La somme CPU se lit comme la charge de l'hôte pour les conteneurs sans limite CPU ; un conteneur qui a une limite est mesuré par rapport à cette limite, si bien que sur un tel hôte la somme peut paraître élevée.
+
 ### <Icon icon="mdi:bell-outline" inline /> Alertes
 
-Ce qui s'est déclenché sur les conteneurs actuellement dans la vue. La page [notifications](/fr/guide/alerts-and-webhooks) répond à la même question pour toute l'instance ; ce panneau se limite à ce qui est à l'écran, et c'est la seule raison qui lui vaut une place à côté du flux. L'ouvrir éteint la pastille non lue sur la cloche.
+Ce qui s'est déclenché sur les conteneurs actuellement dans la vue. La page [notifications](/fr/guide/alerts-and-webhooks) répond à la même question pour toute l'instance ; cet onglet se limite à ce qui est à l'écran, et c'est la seule raison qui lui vaut une place dans Dozzle. L'ouvrir éteint la pastille non lue sur la cloche.
 
 ## Des alertes qui survivent au rechargement
 

@@ -12,6 +12,7 @@ import { router } from "@/modules/router";
 
 import EventSource from "@/testing/eventSourceMock";
 import { useCloudConfig } from "@/composable/cloud/cloudConfig";
+import { useCloudRail } from "@/composable/cloud/cloudRail";
 import { useImageUpdates } from "@/composable/containers/imageUpdate";
 import config from "@/stores/config";
 import { compact } from "@/stores/settings";
@@ -138,6 +139,47 @@ describe("<FuzzySearchModal />", () => {
       await wrapper.find("input").trigger("keydown", { key: "Enter", shiftKey: true });
       expect(useRouter().push).toHaveBeenCalledWith({ path: "/cloud/search", query: { q: "timeout" } });
     } finally {
+      useCloudConfig().cloudConfig.value = null;
+      vi.unstubAllGlobals();
+    }
+  });
+
+  test("a question puts Ask first, a name keeps it last", async () => {
+    useCloudConfig().cloudConfig.value = { linked: true, streamLogs: true } as never;
+    try {
+      const wrapper = createFuzzySearchModal();
+      const order = () => wrapper.findAll("[data-group]").map((el) => el.attributes("data-group"));
+
+      await wrapper.find("input").setValue("why is foo bar broken");
+      expect(order()[0]).toBe("ask");
+
+      await wrapper.find("input").setValue("foo");
+      expect(order()[0]).toBe("containers");
+      expect(order().at(-1)).toBe("ask");
+    } finally {
+      useCloudConfig().cloudConfig.value = null;
+    }
+  });
+
+  test("shift+cmd+enter asks from any row", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("")));
+    useCloudConfig().cloudConfig.value = { linked: true, streamLogs: true } as never;
+    const { panel, closeRail } = useCloudRail();
+    try {
+      const wrapper = createFuzzySearchModal();
+      // A container name, so the selected row is the container, not Ask.
+      await wrapper.find("input").setValue("foo");
+      await wrapper.find("input").trigger("keydown", { key: "Enter", shiftKey: true, metaKey: true });
+      expect(panel.value).toBe("chat");
+      expect(useRouter().push).not.toHaveBeenCalled();
+
+      // Where the palette offers no Ask row, the chord does not ask either.
+      closeRail();
+      await wrapper.find("input").setValue(">timestamps");
+      await wrapper.find("input").trigger("keydown", { key: "Enter", shiftKey: true, metaKey: true });
+      expect(panel.value).toBeUndefined();
+    } finally {
+      closeRail();
       useCloudConfig().cloudConfig.value = null;
       vi.unstubAllGlobals();
     }

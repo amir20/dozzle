@@ -56,3 +56,20 @@ func TestMetricResultFromProtoOlderCloudOmitsNewFields(t *testing.T) {
 	require.NoError(t, err)
 	assert.JSONEq(t, `{"ts":1000,"cpu":5,"memory":10,"memoryUsage":100}`, string(body))
 }
+
+func TestHostMetricResultFromProto(t *testing.T) {
+	resp := &pb.GetHostMetricsResponse{
+		BucketNs: 60_000_000_000,
+		Hosts: []*pb.HostMetricSeries{{
+			HostId: "h1",
+			Points: []*pb.HostMetricPoint{{TsNs: 1_700_000_000_000_000_000, Cpu: 42.5, MemoryUsage: 1 << 30}},
+		}},
+	}
+
+	result := hostMetricResultFromProto(resp)
+	require.Len(t, result.Hosts, 1)
+	assert.Equal(t, "h1", result.Hosts[0].HostID)
+	assert.Equal(t, int64(60_000), result.Bucket)
+	require.Len(t, result.Hosts[0].Points, 1)
+	assert.Equal(t, HostMetricPoint{TS: 1_700_000_000_000, CPU: 42.5, MemoryUsage: 1 << 30}, result.Hosts[0].Points[0])
+}

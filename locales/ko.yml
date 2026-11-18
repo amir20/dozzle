@@ -777,7 +777,6 @@ cloud-rail:
   chat: Dozzle에게 질문
   metrics: 메트릭
   alerts: 알림
-  close: 닫기
   hide: 클라우드 레일 숨기기
   show: 클라우드 레일 표시
   alerts-empty-here: 보고 있는 대상에서 발생한 알림이 없습니다.
@@ -796,7 +795,7 @@ cloud-chat:
   title: Dozzle에 질문
   close: 닫기
   clear: 대화 지우기
-  empty: 지금 보고 있는 것에 대해 물어보세요. 어시스턴트가 이 화면과 로그를 함께 봅니다.
+  empty: 지금 보고 있는 것에 대해 물어보세요. 어시스턴트가 이 페이지를 보고 컨테이너 로그를 읽을 수 있습니다.
   thinking: 생각 중…
   doing:
     logs: 로그 읽는 중…
@@ -851,7 +850,7 @@ cloud-chat:
   nothing-found: 찾은 항목 없음
   worked-for: "{time} 동안 작업"
   earlier: 이전 {n}개
-  placeholder: 이 로그에 대해 질문
+  placeholder: 질문하기
   historical: 기록 보기
   n-containers: 컨테이너 {n}개
   evidence: 질문과 함께 전송됨
@@ -866,7 +865,7 @@ cloud-chat:
   error-not-configured: Dozzle Cloud가 연결되지 않아 질문할 어시스턴트가 없습니다.
   section-ask: 어시스턴트
   ask-for: "{query}에 대해 Dozzle에 질문"
-  ask-hint: 화면에 있는 컨테이너를 근거로 답합니다
+  ask-hint: 보고 있는 화면을 근거로 답합니다
   ask-shortcut: 질문하기
   visual:
     memory: "메모리"
@@ -907,7 +906,7 @@ cloud-search:
   searching: "검색 중…"
   hits-count: "{n}개 결과"
   window-since: "{time} 이후"
-  hero-title-cloud: "컨테이너 및 로그 검색"
+  hero-title-cloud: "컨테이너, 로그 검색 또는 질문하기"
   hero-title-plain: "컨테이너 검색"
   hero-pill-indexed: "Cloud 인덱스"
   modal-placeholder-cloud: "컨테이너 및 로그 검색…"

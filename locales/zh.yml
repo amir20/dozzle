@@ -775,7 +775,6 @@ cloud-rail:
   chat: 询问 Dozzle
   metrics: 指标
   alerts: 告警
-  close: 关闭
   hide: 隐藏云侧栏
   show: 显示云侧栏
   alerts-empty-here: 当前查看的内容没有触发过告警。
@@ -794,7 +793,7 @@ cloud-chat:
   title: 问 Dozzle
   close: 关闭
   clear: 清除对话
-  empty: 就眼前看到的内容提问。助手能看到这个视图，也能读这些日志。
+  empty: 就眼前看到的内容提问。助手能看到这个页面，也能读取你的容器日志。
   thinking: 思考中…
   doing:
     logs: 正在读取日志…
@@ -849,7 +848,7 @@ cloud-chat:
   nothing-found: 未找到
   worked-for: 用时 {time}
   earlier: 更早的 {n} 条
-  placeholder: 就这些日志提问
+  placeholder: 提个问题
   historical: 历史
   n-containers: "{n} 个容器"
   evidence: 随问题一起发送
@@ -864,7 +863,7 @@ cloud-chat:
   error-not-configured: 尚未连接 Dozzle Cloud，没有可以提问的助手。
   section-ask: 助手
   ask-for: 就 {query} 问 Dozzle
-  ask-hint: 基于视图里的容器作答
+  ask-hint: 基于你正在查看的内容作答
   ask-shortcut: 提问
   visual:
     memory: "内存"
@@ -905,7 +904,7 @@ cloud-search:
   searching: "搜索中…"
   hits-count: "{n} 条结果"
   window-since: "自 {time} 起"
-  hero-title-cloud: "搜索容器和日志"
+  hero-title-cloud: "搜索容器、日志或提个问题"
   hero-title-plain: "搜索容器"
   hero-pill-indexed: "Cloud 索引"
   modal-placeholder-cloud: "搜索容器和日志…"

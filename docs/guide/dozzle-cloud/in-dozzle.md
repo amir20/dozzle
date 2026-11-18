@@ -17,29 +17,33 @@ So a Cloud-less install shows an empty history section with a line saying what i
 
 > Alerts show up here once this instance is linked to Dozzle Cloud. Until then they appear in the log stream and are forgotten on refresh.
 
-## The cloud rail
+## The Dozzle Cloud drawer
 
-A strip of icons on the right edge of the log view, with the panel one of them opens. It is mounted only where Cloud is linked and only on a view that has logs on screen, so it never appears on the home page or in settings.
+Ask Dozzle, Metrics and Alerts are tabs in one drawer that opens from the right. It exists only where Cloud is linked, on every page.
 
-The panel sits **beside** the stream rather than over it: the page reserves exactly its width, so nothing on the rail ever covers the lines it is talking about. On a phone there is no room for a permanent strip, so the panel becomes a full-screen sheet opened from the toolbar or the command palette.
+A strip of icons on the right edge is how you find it: each icon opens its tab in the drawer. Hiding the strip is remembered, and a small tab on the edge brings it back, the way the sidebar collapses on the other side. On a phone there is no strip, and the drawer opens full screen from the toolbar or the command palette.
 
-Hiding the rail is remembered. A small tab on the edge brings it back, the way the sidebar collapses on the other side.
+The drawer covers the logs while it is open, so anything in it that points back at the stream (show the lines, a moment on a chart) closes it first and then scrolls the stream there. <kbd>Esc</kbd> closes it.
+
+Alerts is about the containers on screen, so it appears only on a page that shows one. On the home page or in settings, Metrics shows every host instead.
 
 ### <Icon icon="mdi:message-outline" inline /> Ask Dozzle
 
-A question about the view you are looking at, answered against the logs in it. Above the composer is the evidence that goes with the question: which containers are in view, how many lines, and the log line you pointed at if you started from a row's menu. Nothing is sent silently.
+A question about what you are looking at. On a log view it is answered against the logs in it; on any other page, against the whole instance. Above the composer is the evidence that goes with the question: which containers or host are in view, how many lines, and the log line you pointed at if you started from a row's menu. Nothing is sent silently.
 
 Answers end in Dozzle rather than in a link out. When the answer is about a moment, the action drives your own stream to it.
 
-Open it by pressing <kbd>.</kbd> in a container's logs, from the container menu, or from a log row.
+Open it from the **Ask Dozzle** button beside the search bar, with <kbd>⇧</kbd><kbd>⌘</kbd><kbd>K</kbd> on any page, by pressing <kbd>.</kbd> in a container's logs, from the container menu, or from a log row. In the <kbd>⌘</kbd><kbd>K</kbd> palette, a query that reads like a question puts **Ask** first so <kbd>Enter</kbd> sends it, and <kbd>⇧</kbd><kbd>⌘</kbd><kbd>↵</kbd> asks from any row. On Windows and Linux, <kbd>Ctrl</kbd> stands in for <kbd>⌘</kbd>.
 
 ### <Icon icon="mdi:chart-line" inline /> Metrics
 
 Dozzle keeps 300 stat samples in the browser and nothing behind them, so "was it like this an hour ago?" has no local answer. This panel reads back the samples your instance has been pushing all along: CPU, memory, network and disk over the last 1h, 6h or 24h. Each bar is an average with the highest sample drawn faintly behind it, so a short spike stays visible however long the window is, and hovering any chart reads all of them back at the same moment. Network and disk add up what went out and what came in over the window. Pro adds a 7 day window.
 
+On a page with no container, the tab shows every host instead: CPU and memory with each host's containers added up, over the same windows. Memory is drawn against the host's total where Dozzle knows it. The CPU sum reads as the host's load for containers with no CPU limit; a container with a limit reports against that limit, so on such a host the sum can run high.
+
 ### <Icon icon="mdi:bell-outline" inline /> Alerts
 
-What fired on the containers currently in view. The [notifications](/guide/alerts-and-webhooks) page answers the same question for the whole instance; this panel is scoped to what is on screen, which is the only reason it earns a place beside the stream. Opening it clears the unseen dot on the bell.
+What fired on the containers currently in view. The [notifications](/guide/alerts-and-webhooks) page answers the same question for the whole instance; this tab is scoped to what is on screen, which is the only reason it earns a place in Dozzle. Opening it clears the unseen dot on the bell.
 
 ## Alerts that survive a reload
 

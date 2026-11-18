@@ -776,7 +776,6 @@ cloud-rail:
   chat: Vraag Dozzle
   metrics: Metrieken
   alerts: Waarschuwingen
-  close: Sluiten
   hide: Cloudbalk verbergen
   show: Cloudbalk tonen
   alerts-empty-here: Er is niets afgegaan voor wat je bekijkt.
@@ -795,7 +794,7 @@ cloud-chat:
   title: Vraag het Dozzle
   close: Sluiten
   clear: Chat wissen
-  empty: Stel een vraag over wat je ziet. De assistent kent deze weergave en leest deze logs.
+  empty: Stel een vraag over wat je ziet. De assistent kan deze pagina zien en de logs van je containers lezen.
   thinking: Aan het denken…
   doing:
     logs: Logs lezen…
@@ -850,7 +849,7 @@ cloud-chat:
   nothing-found: niets gevonden
   worked-for: "{time} gewerkt"
   earlier: "{n} eerdere"
-  placeholder: Vraag over deze logs
+  placeholder: Stel een vraag
   historical: historisch
   n-containers: "{n} containers"
   evidence: Wordt met je vraag meegestuurd
@@ -865,7 +864,7 @@ cloud-chat:
   error-not-configured: Dozzle Cloud is niet gekoppeld, dus er is geen assistent om iets aan te vragen.
   section-ask: Assistent
   ask-for: Dozzle vragen over {query}
-  ask-hint: Antwoordt vanuit de zichtbare containers
+  ask-hint: Antwoordt op basis van wat je bekijkt
   ask-shortcut: om te vragen
   visual:
     memory: "Geheugen"
@@ -906,7 +905,7 @@ cloud-search:
   searching: "Zoeken…"
   hits-count: "{n} treffers"
   window-since: "sinds {time}"
-  hero-title-cloud: "Containers en logs zoeken"
+  hero-title-cloud: "Zoek containers, logs of stel een vraag"
   hero-title-plain: "Containers zoeken"
   hero-pill-indexed: "Cloud-index"
   modal-placeholder-cloud: "Containers en logs zoeken…"
