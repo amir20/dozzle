@@ -23,7 +23,7 @@
       tabindex="-1"
       class="bg-base-100 fixed inset-y-0 flex flex-col outline-hidden"
       :class="isMobile ? 'pt-safe inset-x-0 z-50' : 'z-40 shadow-lg'"
-      :style="isMobile ? undefined : { right: `${railOffset}px`, width: `min(48rem, calc(100vw - ${railOffset}px))` }"
+      :style="isMobile ? undefined : { right: `${edgeOffset}px`, width: `min(48rem, calc(100vw - ${edgeOffset}px))` }"
     >
       <header class="flex shrink-0 items-center gap-3 px-6 pt-6">
         <!-- A phone has no rail, so its mark lives here. -->
@@ -107,7 +107,7 @@ import { cloudPanelHref } from "@/composable/cloud/cloudRail";
 // Carries markdown-it, and nobody who never asks a question should download it.
 const ChatPane = defineAsyncComponent(() => import("@/components/cloud/chat/ChatPane.vue"));
 
-const { panel, railOffset, openRail, closeRail } = useCloudRail();
+const { panel, edgeOffset, openRail, closeRail } = useCloudRail();
 const { messages, reset: resetChat } = useCloudChat();
 const { inView, scoped, containers } = useCloudScope();
 // The labels are needed everywhere; the dots only where this draws the tabs.
@@ -125,9 +125,19 @@ const linkLabel = computed(() =>
 );
 
 // Not a native dialog, so Esc is ours to handle. A modal on top (the palette,
-// the app drawer) owns its own Esc.
+// the app drawer) owns its own Esc, and so does an open menu (a native popover,
+// which Esc dismisses first): the first Esc closes the menu, the next the panel.
+function layerOnTop() {
+  if (document.querySelector("dialog[open]")) return true;
+  try {
+    return document.querySelector(":popover-open") !== null;
+  } catch {
+    // An engine without the selector has no open popovers to ask about.
+    return false;
+  }
+}
 onKeyStroke("Escape", () => {
-  if (panel.value && !document.querySelector("dialog[open]")) closeRail();
+  if (panel.value && !layerOnTop()) closeRail();
 });
 
 // Not a native dialog either, so focus is ours too. On open it moves to the

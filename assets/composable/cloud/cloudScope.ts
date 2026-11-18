@@ -5,7 +5,7 @@ import type { ViewContext } from "@/composable/logs/viewContext";
  *
  * A page about containers opens every panel scoped to them, and the chip at the
  * top of the drawer widens it to the whole instance. The widening belongs to
- * the containers it was made on, so navigating to another view starts scoped
+ * the page it was made on, so navigating to another view starts scoped
  * again rather than carrying "all" to a page that never asked for it.
  */
 const widenedFor = ref<string>();
@@ -14,9 +14,14 @@ export function useCloudScope() {
   const view = useViewContext();
   const store = useContainerStore();
 
+  const route = useRoute();
+
   const inView = computed(() => view.value.containers);
-  const key = computed(() => inView.value.map((c) => `${c.host}/${c.id}`).join(","));
-  const widened = computed(() => key.value !== "" && widenedFor.value === key.value);
+  // Keyed on the page, not on the containers it shows: a host or stack view
+  // gains and loses containers as they start and stop, and that must not drop
+  // the reader back to the narrow scope under them.
+  const key = computed(() => route.path);
+  const widened = computed(() => inView.value.length > 0 && widenedFor.value === key.value);
 
   /** True while the panels answer for the containers on screen. */
   const scoped = computed(() => inView.value.length > 0 && !widened.value);

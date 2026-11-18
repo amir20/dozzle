@@ -117,11 +117,18 @@ export function useCloudRail() {
   // logs; the panels it opens live in the drawer. Hidden is a preference, and
   // the tab on the edge brings it back. A phone has no room for a permanent
   // strip, so there the drawer opens from the toolbar or the palette.
-  const mounted = computed(() => available.value && !isMobile.value && !collapseCloudRail.value);
-  const collapsed = computed(() => available.value && !isMobile.value && collapseCloudRail.value);
+  //
+  // The strip is also the drawer's tabs, so a panel opened while it is hidden
+  // (the bell, the palette, the chord) brings it back for as long as the panel
+  // is open. The page does not reflow for that: it sits under the backdrop.
+  const desktop = computed(() => available.value && !isMobile.value);
+  const mounted = computed(() => desktop.value && (!collapseCloudRail.value || !!panel.value));
+  const collapsed = computed(() => desktop.value && collapseCloudRail.value && !panel.value);
 
   /** What the page keeps clear on its right for the strip. */
-  const railOffset = computed(() => (mounted.value ? RAIL_WIDTH : 0));
+  const railOffset = computed(() => (desktop.value && !collapseCloudRail.value ? RAIL_WIDTH : 0));
+  /** Where the drawer's right edge sits: against the strip whenever it is on screen. */
+  const edgeOffset = computed(() => (mounted.value ? RAIL_WIDTH : 0));
 
   function hideRail() {
     collapseCloudRail.value = true;
@@ -155,6 +162,7 @@ export function useCloudRail() {
     mounted,
     collapsed,
     railOffset,
+    edgeOffset,
     openRail,
     openCloud,
     closeRail,
