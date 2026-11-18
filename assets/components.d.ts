@@ -51,6 +51,7 @@ declare module 'vue' {
     'Cil:mediaPause': typeof import('~icons/cil/media-pause')['default']
     'Cil:xCircle': typeof import('~icons/cil/x-circle')['default']
     CloudDestinationForm: typeof import('./components/notifications/CloudDestinationForm.vue')['default']
+    CloudDrawer: typeof import('./components/cloud/CloudDrawer.vue')['default']
     CloudEventLogItem: typeof import('./components/logs/entries/CloudEventLogItem.vue')['default']
     CloudPopover: typeof import('./components/cloud/CloudPopover.vue')['default']
     CloudRail: typeof import('./components/cloud/rail/CloudRail.vue')['default']

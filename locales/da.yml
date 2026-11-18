@@ -775,7 +775,6 @@ cloud-rail:
   chat: Spørg Dozzle
   metrics: Metrikker
   alerts: Advarsler
-  close: Luk
   hide: Skjul cloud-panelet
   show: Vis cloud-panelet
   alerts-empty-here: Intet er udløst for det, du kigger på.

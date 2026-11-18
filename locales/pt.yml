@@ -775,7 +775,6 @@ cloud-rail:
   chat: Perguntar ao Dozzle
   metrics: Métricas
   alerts: Alertas
-  close: Fechar
   hide: Ocultar a barra do cloud
   show: Mostrar a barra do cloud
   alerts-empty-here: Nada disparou no que você está vendo.

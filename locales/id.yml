@@ -787,7 +787,6 @@ cloud-rail:
   chat: Tanya Dozzle
   metrics: Metrik
   alerts: Peringatan
-  close: Tutup
   hide: Sembunyikan bilah cloud
   show: Tampilkan bilah cloud
   alerts-empty-here: Belum ada yang terpicu pada yang sedang Anda lihat.

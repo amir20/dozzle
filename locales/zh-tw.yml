@@ -777,7 +777,6 @@ cloud-rail:
   chat: 詢問 Dozzle
   metrics: 指標
   alerts: 警報
-  close: 關閉
   hide: 隱藏雲端側欄
   show: 顯示雲端側欄
   alerts-empty-here: 目前檢視的內容沒有觸發過警報。

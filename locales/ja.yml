@@ -281,7 +281,6 @@ cloud-rail:
   chat: Dozzle に質問
   metrics: メトリクス
   alerts: アラート
-  close: 閉じる
   hide: クラウドレールを隠す
   show: クラウドレールを表示
   alerts-empty-here: 表示中の内容では何も発生していません。

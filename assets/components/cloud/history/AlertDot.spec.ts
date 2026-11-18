@@ -12,11 +12,8 @@ vi.mock("@/stores/config", () => ({ __esModule: true, default: { base: "", hosts
 vi.mock("@/stores/container", () => ({ useContainerStore: () => ({ allContainersById: { here: {} } }) }));
 const jump = vi.hoisted(() => ({ jumpTo: vi.fn() }));
 vi.mock("@/composable/logs/logJump", () => ({ useLogJump: () => jump }));
-const rail = vi.hoisted(() => ({ sheet: true, closeRail: vi.fn() }));
-vi.mock("@/composable/cloud/cloudRail", async () => {
-  const { computed } = await import("vue");
-  return { useCloudRail: () => ({ sheet: computed(() => rail.sheet), closeRail: rail.closeRail }) };
-});
+const rail = vi.hoisted(() => ({ closeRail: vi.fn() }));
+vi.mock("@/composable/cloud/cloudRail", () => ({ useCloudRail: () => ({ closeRail: rail.closeRail }) }));
 vi.mock("@/composable/cloud/recentAlerts", () => ({
   useRecentAlerts: () => ({ byContainer: { value: new Map() }, fetchRecentAlerts: vi.fn() }),
 }));
@@ -48,8 +45,8 @@ describe("<AlertDot />", () => {
     expect(render("gone").findAll("button").length).toBe(1);
   });
 
-  // On a phone the rail is a sheet over the logs, so a jump closes it first.
-  test("on a phone the jump closes the rail sheet", async () => {
+  // The cloud drawer is modal over the logs, so a jump closes it first.
+  test("the jump closes the cloud drawer", async () => {
     await render("here").findAll("button")[1].trigger("click");
 
     expect(rail.closeRail).toHaveBeenCalled();

@@ -775,7 +775,6 @@ cloud-rail:
   chat: 询问 Dozzle
   metrics: 指标
   alerts: 告警
-  close: 关闭
   hide: 隐藏云侧栏
   show: 显示云侧栏
   alerts-empty-here: 当前查看的内容没有触发过告警。

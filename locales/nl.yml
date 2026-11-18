@@ -776,7 +776,6 @@ cloud-rail:
   chat: Vraag Dozzle
   metrics: Metrieken
   alerts: Waarschuwingen
-  close: Sluiten
   hide: Cloudbalk verbergen
   show: Cloudbalk tonen
   alerts-empty-here: Er is niets afgegaan voor wat je bekijkt.

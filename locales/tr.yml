@@ -778,7 +778,6 @@ cloud-rail:
   chat: Dozzle'a sor
   metrics: Metrikler
   alerts: Uyarılar
-  close: Kapat
   hide: Cloud çubuğunu gizle
   show: Cloud çubuğunu göster
   alerts-empty-here: Baktığınız şey için hiçbir şey tetiklenmedi.
