@@ -3,9 +3,12 @@
     <slot name="more-items"></slot>
     <Announcements />
 
-    <router-link
+    <!-- With cloud linked the history of what fired is the drawer's Alerts
+         panel, so the bell opens it; otherwise it goes to the rules. -->
+    <component
+      :is="cloudLinked ? 'button' : RouterLink"
       v-if="config.enableNotifications"
-      :to="{ name: '/notifications', query: unseenAlerts ? { tab: 'activity' } : undefined }"
+      v-bind="cloudLinked ? { type: 'button', onClick: () => openRail('alerts') } : { to: { name: '/notifications' } }"
       :aria-label="unseenAlerts ? $t('notifications.new-alerts') : $t('title.notifications')"
       :title="unseenAlerts ? $t('notifications.new-alerts') : undefined"
       data-testid="notifications"
@@ -19,9 +22,7 @@
         <span class="bg-warning absolute size-full rounded-full opacity-75 motion-safe:animate-ping"></span>
         <span class="bg-warning relative size-full rounded-full"></span>
       </span>
-    </router-link>
-
-    <CloudPopover v-if="cloudSurfaceMounted" />
+    </component>
 
     <router-link
       :to="{ name: '/settings' }"
@@ -77,7 +78,10 @@
   </div>
 </template>
 <script lang="ts" setup>
-const { mounted: cloudSurfaceMounted } = useCloudSurface();
+import { RouterLink } from "vue-router";
+
+const { linked: cloudLinked } = useCloudSurface();
+const { openRail } = useCloudRail();
 const { logoutUrl } = config;
 
 // simple and oidc hold a session cookie Dozzle issued, so logging out means

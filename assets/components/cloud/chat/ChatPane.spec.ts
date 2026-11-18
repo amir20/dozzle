@@ -21,9 +21,9 @@ vi.mock("@/composable/cloud/cloudChat", () => ({
   }),
 }));
 
-vi.mock("@/composable/logs/viewContext", () => ({
-  useViewContext: () =>
-    computed(() => ({
+vi.mock("@/composable/cloud/cloudScope", () => ({
+  useCloudScope: () => ({
+    scopedView: computed(() => ({
       kind: "container",
       target: "abc",
       containers: [],
@@ -32,6 +32,7 @@ vi.mock("@/composable/logs/viewContext", () => ({
       historical: false,
       lines: [],
     })),
+  }),
 }));
 
 const i18n = createI18n({ legacy: false, locale: "en", missingWarn: false, fallbackWarn: false, messages: { en: {} } });

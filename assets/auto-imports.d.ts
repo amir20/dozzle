@@ -73,6 +73,7 @@ declare global {
   const clearAim: typeof import('./composable/ui/pointerAim').clearAim
   const clearCloudWelcomePending: typeof import('./composable/cloud/cloudWelcome').clearCloudWelcomePending
   const clearSetupResume: typeof import('./composable/setup/setup').clearSetupResume
+  const cloudPanelHref: typeof import('./composable/cloud/cloudRail').cloudPanelHref
   const cloudWelcomePending: typeof import('./composable/cloud/cloudWelcome').cloudWelcomePending
   const collapseCloudRail: typeof import('./stores/settings').collapseCloudRail
   const collapseNav: typeof import('./stores/settings').collapseNav
@@ -134,7 +135,10 @@ declare global {
   const extendRef: typeof import('@vueuse/core').extendRef
   const factsLine: typeof import('./composable/cloud/chatVisuals').factsLine
   const fetchAlerts: typeof import('./composable/cloud/cloudAlerts').fetchAlerts
+  const fetchFindings: typeof import('./composable/cloud/cloudFindings').fetchFindings
   const fetchPatternContext: typeof import('./composable/cloud/patternMemory').fetchPatternContext
+  const findingMoment: typeof import('./composable/cloud/cloudFindings').findingMoment
+  const findingsUrl: typeof import('./composable/cloud/cloudFindings').findingsUrl
   const firstLineByContainer: typeof import('./composable/logs/updateMarkers').firstLineByContainer
   const flattenJSON: typeof import('./utils/index').flattenJSON
   const flattenJSONToMap: typeof import('./utils/index').flattenJSONToMap
@@ -299,6 +303,7 @@ declare global {
   const selfUpdateHeadline: typeof import('./composable/setup/selfUpdate').selfUpdateHeadline
   const sessionHost: typeof import('./composable/app/storage').sessionHost
   const setActivePinia: typeof import('pinia').setActivePinia
+  const setFindingIgnored: typeof import('./composable/cloud/cloudFindings').setFindingIgnored
   const setMapStoreSuffix: typeof import('pinia').setMapStoreSuffix
   const setTitle: typeof import('./composable/app/title').setTitle
   const settings: typeof import('./stores/settings').settings
@@ -409,8 +414,10 @@ declare global {
   const useCloudAlerts: typeof import('./composable/cloud/cloudAlerts').useCloudAlerts
   const useCloudChat: typeof import('./composable/cloud/cloudChat').useCloudChat
   const useCloudConfig: typeof import('./composable/cloud/cloudConfig').useCloudConfig
+  const useCloudFindings: typeof import('./composable/cloud/cloudFindings').useCloudFindings
   const useCloudLogSearch: typeof import('./composable/cloud/cloudLogSearch').useCloudLogSearch
   const useCloudRail: typeof import('./composable/cloud/cloudRail').useCloudRail
+  const useCloudScope: typeof import('./composable/cloud/cloudScope').useCloudScope
   const useCloudSearchHandoff: typeof import('./composable/cloud/cloudLogSearch').useCloudSearchHandoff
   const useCloudSurface: typeof import('./composable/cloud/cloudSurface').useCloudSurface
   const useCloudWelcome: typeof import('./composable/cloud/cloudWelcome').useCloudWelcome
@@ -545,6 +552,7 @@ declare global {
   const usePrevious: typeof import('@vueuse/core').usePrevious
   const useProfileStorage: typeof import('./composable/app/profileStorage').useProfileStorage
   const useRafFn: typeof import('@vueuse/core').useRafFn
+  const useRailItems: typeof import('./composable/cloud/cloudRail').useRailItems
   const useRecentAlerts: typeof import('./composable/cloud/recentAlerts').useRecentAlerts
   const useRecentDeploys: typeof import('./composable/cloud/recentDeploys').useRecentDeploys
   const useRefHistory: typeof import('@vueuse/core').useRefHistory
@@ -610,6 +618,7 @@ declare global {
   const useToast: typeof import('./composable/app/toast').useToast
   const useToggle: typeof import('@vueuse/core').useToggle
   const useTransition: typeof import('@vueuse/core').useTransition
+  const useUnseenFindings: typeof import('./composable/cloud/cloudFindings').useUnseenFindings
   const useUpdatePolicies: typeof import('./composable/containers/updatePolicy').useUpdatePolicies
   const useUrlSearchParams: typeof import('@vueuse/core').useUrlSearchParams
   const useUserMedia: typeof import('@vueuse/core').useUserMedia
@@ -680,6 +689,9 @@ declare global {
   // @ts-ignore
   export type { ChatStep, ChatMessage } from './composable/cloud/cloudChat'
   import('./composable/cloud/cloudChat')
+  // @ts-ignore
+  export type { FindingSeverity, FindingStatus, FindingsFilter, FindingContainer, CloudFinding, CloudFindingsResult } from './composable/cloud/cloudFindings'
+  import('./composable/cloud/cloudFindings')
   // @ts-ignore
   export type { CloudLogHit } from './composable/cloud/cloudLogSearch'
   import('./composable/cloud/cloudLogSearch')
@@ -848,6 +860,7 @@ declare module 'vue' {
     readonly clearAim: UnwrapRef<typeof import('./composable/ui/pointerAim')['clearAim']>
     readonly clearCloudWelcomePending: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['clearCloudWelcomePending']>
     readonly clearSetupResume: UnwrapRef<typeof import('./composable/setup/setup')['clearSetupResume']>
+    readonly cloudPanelHref: UnwrapRef<typeof import('./composable/cloud/cloudRail')['cloudPanelHref']>
     readonly cloudWelcomePending: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['cloudWelcomePending']>
     readonly collapseCloudRail: UnwrapRef<typeof import('./stores/settings')['collapseCloudRail']>
     readonly collapseNav: UnwrapRef<typeof import('./stores/settings')['collapseNav']>
@@ -906,7 +919,10 @@ declare module 'vue' {
     readonly extendRef: UnwrapRef<typeof import('@vueuse/core')['extendRef']>
     readonly factsLine: UnwrapRef<typeof import('./composable/cloud/chatVisuals')['factsLine']>
     readonly fetchAlerts: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['fetchAlerts']>
+    readonly fetchFindings: UnwrapRef<typeof import('./composable/cloud/cloudFindings')['fetchFindings']>
     readonly fetchPatternContext: UnwrapRef<typeof import('./composable/cloud/patternMemory')['fetchPatternContext']>
+    readonly findingMoment: UnwrapRef<typeof import('./composable/cloud/cloudFindings')['findingMoment']>
+    readonly findingsUrl: UnwrapRef<typeof import('./composable/cloud/cloudFindings')['findingsUrl']>
     readonly firstLineByContainer: UnwrapRef<typeof import('./composable/logs/updateMarkers')['firstLineByContainer']>
     readonly flattenJSON: UnwrapRef<typeof import('./utils/index')['flattenJSON']>
     readonly flattenJSONToMap: UnwrapRef<typeof import('./utils/index')['flattenJSONToMap']>
@@ -1064,6 +1080,7 @@ declare module 'vue' {
     readonly selfUpdateHeadline: UnwrapRef<typeof import('./composable/setup/selfUpdate')['selfUpdateHeadline']>
     readonly sessionHost: UnwrapRef<typeof import('./composable/app/storage')['sessionHost']>
     readonly setActivePinia: UnwrapRef<typeof import('pinia')['setActivePinia']>
+    readonly setFindingIgnored: UnwrapRef<typeof import('./composable/cloud/cloudFindings')['setFindingIgnored']>
     readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>
     readonly setTitle: UnwrapRef<typeof import('./composable/app/title')['setTitle']>
     readonly settings: UnwrapRef<typeof import('./stores/settings')['settings']>
@@ -1170,8 +1187,10 @@ declare module 'vue' {
     readonly useCloudAlerts: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['useCloudAlerts']>
     readonly useCloudChat: UnwrapRef<typeof import('./composable/cloud/cloudChat')['useCloudChat']>
     readonly useCloudConfig: UnwrapRef<typeof import('./composable/cloud/cloudConfig')['useCloudConfig']>
+    readonly useCloudFindings: UnwrapRef<typeof import('./composable/cloud/cloudFindings')['useCloudFindings']>
     readonly useCloudLogSearch: UnwrapRef<typeof import('./composable/cloud/cloudLogSearch')['useCloudLogSearch']>
     readonly useCloudRail: UnwrapRef<typeof import('./composable/cloud/cloudRail')['useCloudRail']>
+    readonly useCloudScope: UnwrapRef<typeof import('./composable/cloud/cloudScope')['useCloudScope']>
     readonly useCloudSearchHandoff: UnwrapRef<typeof import('./composable/cloud/cloudLogSearch')['useCloudSearchHandoff']>
     readonly useCloudSurface: UnwrapRef<typeof import('./composable/cloud/cloudSurface')['useCloudSurface']>
     readonly useCloudWelcome: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['useCloudWelcome']>
@@ -1304,6 +1323,7 @@ declare module 'vue' {
     readonly usePrevious: UnwrapRef<typeof import('@vueuse/core')['usePrevious']>
     readonly useProfileStorage: UnwrapRef<typeof import('./composable/app/profileStorage')['useProfileStorage']>
     readonly useRafFn: UnwrapRef<typeof import('@vueuse/core')['useRafFn']>
+    readonly useRailItems: UnwrapRef<typeof import('./composable/cloud/cloudRail')['useRailItems']>
     readonly useRecentAlerts: UnwrapRef<typeof import('./composable/cloud/recentAlerts')['useRecentAlerts']>
     readonly useRecentDeploys: UnwrapRef<typeof import('./composable/cloud/recentDeploys')['useRecentDeploys']>
     readonly useRefHistory: UnwrapRef<typeof import('@vueuse/core')['useRefHistory']>
@@ -1369,6 +1389,7 @@ declare module 'vue' {
     readonly useToast: UnwrapRef<typeof import('./composable/app/toast')['useToast']>
     readonly useToggle: UnwrapRef<typeof import('@vueuse/core')['useToggle']>
     readonly useTransition: UnwrapRef<typeof import('@vueuse/core')['useTransition']>
+    readonly useUnseenFindings: UnwrapRef<typeof import('./composable/cloud/cloudFindings')['useUnseenFindings']>
     readonly useUpdatePolicies: UnwrapRef<typeof import('./composable/containers/updatePolicy')['useUpdatePolicies']>
     readonly useUrlSearchParams: UnwrapRef<typeof import('@vueuse/core')['useUrlSearchParams']>
     readonly useUserMedia: UnwrapRef<typeof import('@vueuse/core')['useUserMedia']>

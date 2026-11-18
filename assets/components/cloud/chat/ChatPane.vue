@@ -99,7 +99,8 @@
 
 <script lang="ts" setup>
 const { messages, status, activity, streaming, focused, ask, clearFocus } = useCloudChat();
-const view = useViewContext();
+// Widened by the scope chip, the turn is about the instance rather than the page.
+const { scopedView: view } = useCloudScope();
 const draft = ref("");
 const { t } = useI18n();
 

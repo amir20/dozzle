@@ -8,7 +8,7 @@
 
 const PENDING_KEY = "DOZZLE_CLOUD_WELCOME_PENDING";
 
-// Set by whoever hands the welcome over. CloudPopover owns the modal and consumes it.
+// Set by whoever hands the welcome over. WelcomeModal consumes it.
 const requested = ref(false);
 
 export function markCloudWelcomePending() {

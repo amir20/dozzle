@@ -38,8 +38,12 @@
       @click="collapseNav = false"
     />
   </div>
+  <!-- Before the rail, so at the same layer the rail stays on top: the drawer
+       slides out from behind it. -->
+  <CloudDrawer v-if="railAvailable" />
   <CloudRail v-if="railMounted" />
   <CloudRailHandle v-else-if="railCollapsed" />
+  <WelcomeModal v-if="cloudSurfaceMounted" />
   <!-- A dialog sits in the top layer, so the body's safe-area padding never reaches it. On a phone
        with a side status column (iPhone Duo) the palette's close button ended up underneath it. -->
   <dialog
@@ -68,7 +72,6 @@
 import { Splitpanes, Pane } from "splitpanes";
 import { collapseNav } from "@/stores/settings";
 import SideDrawer from "@/components/shell/SideDrawer.vue";
-import CloudDrawer from "@/components/cloud/CloudDrawer.vue";
 
 usePinnedColumnsInUrl();
 const pinnedLogsStore = usePinnedLogsStore();
@@ -80,7 +83,6 @@ const {
   properties: drawerProperties,
   width: drawerWidth,
   closeGuard: drawerCloseGuard,
-  showDrawer,
 } = createDrawer(drawer);
 
 import { useFuzzySearch } from "@/composable/app/fuzzySearch";
@@ -101,26 +103,25 @@ const {
   closeRail,
 } = useCloudRail();
 
-// The cloud panels live in the drawer. Opening a panel from nothing opens the
-// drawer; moving between tabs only changes what it shows. Clearing the panel
-// closes the drawer, unless another occupant has already taken it over.
+// The cloud panels have a drawer of their own beside the rail. Every way in
+// (the rail, the chord, a toolbar, a log row's menu) comes through here, so this
+// is the one gate on where the panels can show.
 watch(cloudPanel, (next, prev) => {
-  if (next && !prev) {
-    // Every way in (the chord, a toolbar, a log row's menu) comes through
-    // here, so this is the one gate on where the panels can show.
-    if (!railAvailable.value) return closeRail();
-    // Taking over the drawer is a close for whatever is in it, so its guard
-    // gets a say: a half-built alert form asks before it is thrown away.
-    const guard = drawerCloseGuard.value;
-    if (guard && !guard()) return closeRail();
-    showDrawer(CloudDrawer, {}, "md");
-  } else if (!next && prev && drawerComponent.value === CloudDrawer) drawer.value?.close();
+  if (!next || prev) return;
+  if (!railAvailable.value) return closeRail();
+  // The app's drawer is modal and would sit over the panel, so opening one
+  // closes it, and that close goes through its guard: a half-built alert form
+  // asks before it is thrown away.
+  const guard = drawerCloseGuard.value;
+  if (guard && !guard()) return closeRail();
+  drawer.value?.close();
 });
 // Unlinking cloud leaves the panels with nothing to show.
 watch(railAvailable, (ok) => ok || closeRail());
 
 const modal = ref<HTMLDialogElement>();
 const { open, openSearch: showFuzzySearch, closeSearch } = useFuzzySearch();
+const { mounted: cloudSurfaceMounted } = useCloudSurface();
 const searchParams = new URLSearchParams(window.location.search);
 
 onMounted(startUsageReporting);

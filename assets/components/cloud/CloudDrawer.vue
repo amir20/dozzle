@@ -1,105 +1,158 @@
 <template>
   <!--
-    Chat, metrics and alerts in the app's one drawer, as tabs. The drawer is
-    modal, so whatever on it points back at the logs ("show me the lines")
-    closes it first, the way the phone sheet always did.
+    The cloud panels. On a desktop the rail is this drawer's edge: the panel
+    slides out from behind it and the rail takes the panel's fill, so the two
+    read as one surface, and the rail's icons are the tabs. Not the app's modal
+    drawer, because the rail has to stay clickable while a panel is open.
 
-    Everything here is Cloud, which the header says once so no tab has to carry
-    a slogan. It opens only where cloud is linked, so the mark is a statement of
-    where the answers come from and never an advert.
+    On a phone there is no rail, so the drawer is a screen of its own and the
+    tabs float at its bottom the way the app's own tab bar does.
   -->
-  <!-- Bleeds sideways only. Bled past the drawer's bottom padding too, the
-       content overflowed the box by that padding, and focusing the composer
-       scrolled the header (and the drawer's own close buttons) off the top. -->
-  <div class="-mx-6 flex h-full min-h-0 flex-col">
-    <header class="shrink-0 px-6">
-      <h2 class="flex items-center gap-2 text-2xl font-bold">
-        <span class="bg-info/10 text-info flex size-8 shrink-0 items-center justify-center rounded-full">
-          <mdi:cloud class="size-4.5" />
-        </span>
-        {{ $t("cloud.title") }}
-      </h2>
-    </header>
-
-    <nav
-      class="border-base-content/10 mt-4 flex shrink-0 items-center gap-1 border-b px-6 pb-2"
-      :aria-label="$t('cloud-rail.title')"
+  <Transition name="cloud-fade">
+    <div v-if="panel && !isMobile" class="bg-base-300/50 fixed inset-0 z-40" @click="closeRail()"></div>
+  </Transition>
+  <Transition name="cloud-slide">
+    <section
+      v-if="panel"
+      role="dialog"
+      :aria-label="title"
+      class="bg-base-100 fixed inset-y-0 flex flex-col"
+      :class="isMobile ? 'pt-safe inset-x-0 z-50' : 'z-40 shadow-lg'"
+      :style="isMobile ? undefined : { right: `${railOffset}px`, width: `min(48rem, calc(100vw - ${railOffset}px))` }"
     >
-      <button
-        v-for="item in items"
-        :key="item.id"
-        type="button"
-        class="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm transition-colors"
-        :class="panel === item.id ? 'bg-base-300 font-semibold' : 'text-base-content/60 hover:bg-base-300'"
-        :aria-pressed="panel === item.id"
-        @click="openRail(item.id)"
-      >
-        <component :is="item.icon" class="size-4 shrink-0" />
-        <span class="truncate">{{ item.label }}</span>
-        <span v-if="item.dot" class="bg-warning size-1.5 shrink-0 rounded-full"></span>
-      </button>
-      <!-- A thread that has run its course is in the way of the next one. -->
-      <button
-        v-if="panel === 'chat' && messages.length"
-        type="button"
-        class="btn btn-ghost btn-xs btn-square ml-auto"
-        :title="$t('cloud-chat.clear')"
-        :aria-label="$t('cloud-chat.clear')"
-        @click="resetChat()"
-      >
-        <octicon:trash-24 class="size-4" />
-      </button>
-    </nav>
+      <header class="flex shrink-0 items-center gap-3 px-6 pt-6">
+        <!-- A phone has no rail, so its mark lives here. -->
+        <CloudPopover v-if="isMobile" />
+        <h2 class="min-w-0 flex-1 truncate text-2xl font-bold">{{ title }}</h2>
+        <!-- A thread that has run its course is in the way of the next one. -->
+        <button
+          v-if="panel === 'chat' && messages.length"
+          type="button"
+          class="icon-btn"
+          :title="$t('cloud-chat.clear')"
+          :aria-label="$t('cloud-chat.clear')"
+          @click="resetChat()"
+        >
+          <octicon:trash-24 class="size-4" />
+        </button>
+        <button type="button" class="icon-btn" :aria-label="$t('cloud-chat.close')" @click="closeRail()">
+          <mdi:close />
+        </button>
+      </header>
 
-    <div class="min-h-0 flex-1 overflow-hidden">
-      <ChatPane v-if="panel === 'chat'" />
-      <!-- A page about one container gets its history; a page about the
-           instance gets every host's. -->
-      <RailMetrics v-else-if="panel === 'metrics' && containersInView" />
-      <RailHostMetrics v-else-if="panel === 'metrics'" />
-      <RailAlerts v-else />
-    </div>
-  </div>
+      <div v-if="inView.length" class="shrink-0 px-6 pt-4">
+        <CloudScopeChip />
+      </div>
+
+      <div class="relative mt-2 min-h-0 flex-1">
+        <Transition name="cloud-fade">
+          <div :key="panel" class="absolute inset-0">
+            <RailFindings v-if="panel === 'findings'" />
+            <RailAlerts v-else-if="panel === 'alerts'" />
+            <ChatPane v-else-if="panel === 'chat'" />
+            <!-- A page about one container gets its history; the instance gets every host's. -->
+            <RailMetrics v-else-if="scoped" />
+            <RailHostMetrics v-else />
+          </div>
+        </Transition>
+      </div>
+
+      <footer
+        class="bg-base-100 border-base-content/10 shrink-0 border-t px-4 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]"
+        :style="isMobile ? { paddingBottom: 'var(--mobile-tabbar-height)' } : undefined"
+      >
+        <a
+          :href="href"
+          target="_blank"
+          rel="noreferrer noopener"
+          class="hover:bg-base-300 flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors"
+        >
+          <mdi:cloud-outline class="size-4 shrink-0 opacity-60" />
+          <span class="min-w-0 flex-1 truncate">{{ linkLabel }}</span>
+          <mdi:open-in-new class="size-3.5 shrink-0 opacity-40" />
+        </a>
+      </footer>
+
+      <nav
+        v-if="isMobile"
+        class="frosted border-base-content/10 absolute right-[calc(0.75rem+env(safe-area-inset-right))] bottom-[calc(0.75rem+env(safe-area-inset-bottom))] left-[calc(0.75rem+env(safe-area-inset-left))] flex rounded-full border p-1 shadow-lg"
+        :aria-label="$t('cloud-rail.title')"
+      >
+        <button
+          v-for="item in items"
+          :key="item.id"
+          type="button"
+          class="relative flex min-h-13 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-full px-1 text-[0.625rem] font-medium transition-colors"
+          :class="panel === item.id ? 'bg-base-content/10 text-primary' : 'text-base-content/60'"
+          :aria-pressed="panel === item.id"
+          @click="openRail(item.id)"
+        >
+          <component :is="item.icon" class="size-6" />
+          <span class="max-w-full truncate">{{ item.label }}</span>
+          <span v-if="item.dot" class="bg-warning absolute top-1.5 left-[calc(50%+0.5rem)] size-2 rounded-full"></span>
+        </button>
+      </nav>
+    </section>
+  </Transition>
 </template>
 
 <script lang="ts" setup>
-import mdiMessageOutline from "~icons/mdi/message-outline";
-import mdiChartLine from "~icons/mdi/chart-line";
-import mdiBellOutline from "~icons/mdi/bell-outline";
-
-// Handed to every drawer occupant; the drawer's own X and Esc close this one.
-defineProps<{ close?: () => void }>();
+import { cloudPanelHref } from "@/composable/cloud/cloudRail";
 
 // Carries markdown-it, and nobody who never asks a question should download it.
 const ChatPane = defineAsyncComponent(() => import("@/components/cloud/chat/ChatPane.vue"));
 
-const { panel, openRail, closeRail } = useCloudRail();
+const { panel, railOffset, openRail, closeRail } = useCloudRail();
 const { messages, reset: resetChat } = useCloudChat();
-// Scoped to the view, because the panel this bell opens is.
-const { unseen: unseenAlerts, scoped: containersInView } = useViewAlerts();
+const { inView, scoped, containers } = useCloudScope();
+// The labels are needed everywhere; the dots only where this draws the tabs.
+const items = useRailItems(() => isMobile.value && !!panel.value);
 const { t } = useI18n();
 
-const items = computed(() => [
-  { id: "chat" as const, label: t("cloud-rail.chat"), icon: mdiMessageOutline },
-  { id: "metrics" as const, label: t("cloud-rail.metrics"), icon: mdiChartLine },
-  // Off a log view the notifications page already lists every alert, so the
-  // tab would only repeat it.
-  ...(containersInView.value
-    ? [{ id: "alerts" as const, label: t("cloud-rail.alerts"), icon: mdiBellOutline, dot: unseenAlerts.value }]
-    : []),
-]);
+const title = computed(() => items.value.find((i) => i.id === panel.value)?.label ?? "");
 
-// Leaving the containers the alerts tab was about leaves it with nothing to
-// show, so the drawer falls back to the chat rather than an empty tab.
-watch(
-  containersInView,
-  (ok) => {
-    if (!ok && panel.value === "alerts") openRail("chat");
-  },
-  { immediate: true },
+// One container on screen links to that container in Cloud; anything wider to
+// the list this panel is a slice of.
+const one = computed(() => (containers.value.length === 1 ? containers.value[0] : undefined));
+const href = computed(() => (panel.value ? cloudPanelHref(panel.value, one.value) : ""));
+const linkLabel = computed(() =>
+  one.value ? t("cloud-rail.open-container", { name: one.value.name }) : t("cloud-rail.open-in-cloud"),
 );
 
-// The drawer unmounts its occupant when it closes or another occupant takes
-// over, so this is the one place that knows the panel is gone.
-onUnmounted(closeRail);
+// Not a native dialog, so Esc is ours to handle. A modal on top (the palette,
+// the app drawer) owns its own Esc.
+onKeyStroke("Escape", () => {
+  if (panel.value && !document.querySelector("dialog[open]")) closeRail();
+});
 </script>
+
+<style scoped>
+.cloud-slide-enter-active,
+.cloud-slide-leave-active {
+  transition: translate 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.cloud-slide-enter-from,
+.cloud-slide-leave-to {
+  translate: 100% 0;
+}
+
+.cloud-fade-enter-active,
+.cloud-fade-leave-active {
+  transition: opacity 160ms ease;
+}
+
+.cloud-fade-enter-from,
+.cloud-fade-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud-slide-enter-active,
+  .cloud-slide-leave-active,
+  .cloud-fade-enter-active,
+  .cloud-fade-leave-active {
+    transition: none;
+  }
+}
+</style>

@@ -291,7 +291,13 @@ cloud-rail:
   hide: Hide the cloud rail
   show: Show the cloud rail
   alerts-empty-here: Nothing has fired on what you're looking at.
-  all-activity: All activity
+  findings: Findings
+  scope: What the panel is about
+  scope-n: "{n} containers"
+  scope-all: All containers
+  open-in-cloud: Open in Dozzle Cloud
+  open-container: "Open {name} in Dozzle Cloud"
+  alert-rules: Alert rules
   metrics-no-container: Open a container to see its history.
   metrics-loading: Loading history…
   metrics-failed: Could not load the history.
@@ -302,6 +308,25 @@ cloud-rail:
   window-6h: 6h
   window-24h: 24h
   window-7d: 7d
+cloud-findings:
+  instance: Findings are kept per container. Open a container to see what the daily review noticed about it, or see every finding in Dozzle Cloud.
+  filter-new: New
+  filter-all: All
+  filter-ignored: Ignored
+  loading: Loading findings…
+  failed: Could not load findings.
+  empty-new: Nothing new noticed on what you're looking at.
+  empty-all: No findings on what you're looking at.
+  empty-ignored: Nothing ignored here.
+  locked: Details arrive with your next report
+  resolved: Resolved
+  show-lines: Show me the lines
+  ignore: Ignore
+  unignore: Stop ignoring
+  investigate: Investigate
+  ignored: Ignored. It stays out of reports and emails.
+  undo: Undo
+  ignore-failed: Could not update the finding.
 cloud-chat:
   title: Ask Dozzle
   close: Close
@@ -656,7 +681,6 @@ terminal:
   close-search: Close search
 notifications:
   history:
-    title: Activity
     loading: Loading activity…
     failed: Could not load activity.
     empty: Nothing has fired recently.

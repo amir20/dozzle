@@ -6,12 +6,8 @@
         <p class="text-base-content/60">{{ $t("notifications.description") }}</p>
       </div>
 
-      <!--
-        Three surfaces, one page. Stacked they made a page nobody reaches the
-        bottom of, and the rules you came to edit sat between a destination
-        picker and a history you were not looking for. Tabs also give the bell
-        somewhere to point: a new alert opens the history directly.
-      -->
+      <!-- The rules, then where they go. What they did is the cloud drawer's
+           Alerts panel, which is where the bell points. -->
       <div role="tablist" class="tabs tabs-border border-base-content/10 mb-6 border-b">
         <button
           v-for="entry in tabs"
@@ -25,15 +21,11 @@
           <span v-if="entry.count !== undefined" class="text-base-content/40 font-mono text-xs">
             {{ entry.count }}
           </span>
-          <span v-if="entry.dot" class="bg-warning size-1.5 rounded-full"></span>
         </button>
       </div>
 
-      <!-- ACTIVITY -->
-      <AlertHistory v-if="tab === 'activity'" />
-
       <!-- ALERTS -->
-      <template v-else-if="tab === 'alerts'">
+      <template v-if="tab === 'alerts'">
         <!-- With nothing to list, the button is the whole page, so it sits under the
              sentence that explains it instead of alone at the far edge. -->
         <EmptyState v-if="!alerts.length" :title="$t('notifications.no-alerts')">
@@ -136,30 +128,29 @@ const route = useRoute();
 const alerts = ref<NotificationRule[]>([]);
 const dispatchers = ref<Dispatcher[]>([]);
 
-type Tab = "activity" | "alerts" | "destinations";
+type Tab = "alerts" | "destinations";
 const { linked: cloudLinked } = useCloudSurface();
-const { unseen: unseenAlerts, markAlertsSeen } = useRecentAlerts();
+const { openRail } = useCloudRail();
 
-// What happened, then the rules that made it happen, then where it goes. Only
-// Cloud remembers an alert past the refresh that dropped it out of the log
-// stream, so an unlinked instance has no history at all and the tab is gone
-// rather than empty — a webhook or an email destination never fills it.
-//
-// The rules open first, whatever the history holds: a default that depended on
-// the fetch would flip the tab under the reader. Links about something that
-// fired ask for ?tab=activity themselves.
 const DEFAULT_TAB: Tab = "alerts";
 
 // The tab lives in the URL so a bookmark and the back button land where the
 // reader left off. Only when it differs from the default, so a plain
 // /notifications link stays plain.
-const tab = computed<Tab>(() => {
-  const value = route.query.tab;
-  // ?tab=activity is a link someone kept from when this instance was linked, or
-  // a bell that fired before it was unlinked. There is no tab to land on now.
-  if (value === "activity") return cloudLinked.value ? "activity" : DEFAULT_TAB;
-  return value === "alerts" || value === "destinations" ? value : DEFAULT_TAB;
-});
+const tab = computed<Tab>(() => (route.query.tab === "destinations" ? "destinations" : DEFAULT_TAB));
+
+// ?tab=activity is the history this page used to hold: a bookmark, an older
+// email, the phone's bell. The history is the drawer's Alerts panel now, so
+// that is where it opens. Unlinked there is no history, and the rules show.
+watch(
+  () => route.query.tab,
+  (value) => {
+    if (value !== "activity") return;
+    router.replace({ query: { ...route.query, tab: undefined } });
+    if (cloudLinked.value) openRail("alerts");
+  },
+  { immediate: true },
+);
 
 function queryForTab(next: Tab) {
   return next === DEFAULT_TAB ? undefined : next;
@@ -170,18 +161,9 @@ function selectTab(next: Tab) {
 }
 
 const tabs = computed(() => [
-  ...(cloudLinked.value
-    ? [{ id: "activity" as const, label: t("notifications.history.title"), dot: unseenAlerts.value }]
-    : []),
   { id: "alerts" as const, label: t("notifications.alerts"), count: alerts.value.length },
   { id: "destinations" as const, label: t("notifications.destinations"), count: dispatchers.value.length },
 ]);
-
-// Reading the history is what clears the bell, so it happens on arrival and
-// again when the rows land — the fetch usually finishes after the tab opens.
-watchEffect(() => {
-  if (tab.value === "activity" && unseenAlerts.value) markAlertsSeen();
-});
 
 async function fetchAlerts() {
   const res = await fetch(withBase("/api/notifications/rules"));

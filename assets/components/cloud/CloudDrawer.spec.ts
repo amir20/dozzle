@@ -2,41 +2,112 @@
  * @vitest-environment jsdom
  */
 import { mount } from "@vue/test-utils";
-import { describe, expect, test, vi } from "vitest";
-import { nextTick, ref } from "vue";
+import { afterEach, describe, expect, test, vi } from "vitest";
+import { computed, nextTick, ref } from "vue";
 import { createI18n } from "vue-i18n";
 import CloudDrawer from "./CloudDrawer.vue";
+import { isMobile } from "@/composable/ui/media";
 
-const panel = ref<"chat" | "metrics" | "alerts" | undefined>("alerts");
+// Writable in this mock, read-only in the real media query.
+const mobile = isMobile as unknown as { value: boolean };
+
+type Panel = "findings" | "alerts" | "chat" | "metrics";
+const panel = ref<Panel | undefined>("findings");
 const scoped = ref(true);
-const openRail = vi.fn((id: "chat" | "metrics" | "alerts") => (panel.value = id));
+const inView = ref([{ id: "a1", name: "api", host: "h1" }]);
+const closeRail = vi.fn(() => (panel.value = undefined));
+const openRail = vi.fn((id: Panel) => (panel.value = id));
 
-vi.mock("@/composable/cloud/cloudRail", () => ({
-  useCloudRail: () => ({ panel, openRail, closeRail: vi.fn() }),
-  useViewAlerts: () => ({ unseen: ref(false), scoped }),
+vi.mock("@/stores/config", () => ({
+  __esModule: true,
+  default: { cloudUrl: "https://cloud.example", hosts: [] },
+  withBase: (p: string) => p,
+}));
+vi.mock("@/composable/ui/media", async () => {
+  const { ref } = await import("vue");
+  return { isMobile: ref(false), canHover: ref(true), isMac: true };
+});
+vi.mock("@/composable/cloud/cloudRail", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/composable/cloud/cloudRail")>();
+  return {
+    cloudPanelHref: actual.cloudPanelHref,
+    useCloudRail: () => ({ panel, railOffset: ref(48), openRail, closeRail }),
+    useRailItems: () =>
+      computed(() =>
+        (["findings", "alerts", "chat", "metrics"] as const).map((id) => ({ id, label: id, icon: "i", dot: false })),
+      ),
+  };
+});
+vi.mock("@/composable/cloud/cloudScope", () => ({
+  useCloudScope: () => ({ inView, scoped, containers: computed(() => (scoped.value ? inView.value : [])) }),
 }));
 vi.mock("@/composable/cloud/cloudChat", () => ({ useCloudChat: () => ({ messages: ref([]), reset: vi.fn() }) }));
 
 const i18n = createI18n({ legacy: false, locale: "en", missingWarn: false, fallbackWarn: false, messages: { en: {} } });
 
+const stubs = {
+  ChatPane: true,
+  RailFindings: true,
+  RailAlerts: true,
+  RailMetrics: true,
+  RailHostMetrics: true,
+  CloudScopeChip: true,
+  CloudPopover: true,
+  Transition: false,
+};
+
+const mountDrawer = () => mount(CloudDrawer, { attachTo: document.body, global: { plugins: [i18n], stubs } });
+
+afterEach(() => {
+  panel.value = "findings";
+  scoped.value = true;
+  mobile.value = false;
+  document.body.innerHTML = "";
+});
+
 describe("<CloudDrawer />", () => {
-  test("off a log view the alerts tab is gone, the chat takes over, and metrics are per host", async () => {
-    const wrapper = mount(CloudDrawer, {
-      global: {
-        plugins: [i18n],
-        stubs: { ChatPane: true, RailMetrics: true, RailHostMetrics: true, RailAlerts: true },
-      },
-    });
-    expect(wrapper.findAll("nav button[aria-pressed]")).toHaveLength(3);
+  test("has no tab row of its own on a desktop, where the rail is the tabs", () => {
+    const wrapper = mountDrawer();
+    expect(wrapper.findComponent({ name: "RailFindings" }).exists()).toBe(true);
+    expect(wrapper.find("nav").exists()).toBe(false);
+    expect(wrapper.findComponent({ name: "CloudScopeChip" }).exists()).toBe(true);
+  });
+
+  test("the footer links to the container in Cloud, and to the panel's list once widened", async () => {
+    const wrapper = mountDrawer();
+    expect(wrapper.find("footer a").attributes("href")).toBe(
+      "https://cloud.example/metrics/h1/api?from=dozzle_drawer_findings",
+    );
 
     scoped.value = false;
+    panel.value = "alerts";
     await nextTick();
-    expect(wrapper.findAll("nav button[aria-pressed]")).toHaveLength(2);
-    expect(panel.value).toBe("chat");
-
+    expect(wrapper.find("footer a").attributes("href")).toBe("https://cloud.example/alerts?from=dozzle_drawer_alerts");
+    // Widened, metrics are every host's.
     panel.value = "metrics";
     await nextTick();
     expect(wrapper.findComponent({ name: "RailHostMetrics" }).exists()).toBe(true);
-    expect(wrapper.findComponent({ name: "RailMetrics" }).exists()).toBe(false);
+  });
+
+  test("the backdrop and Esc close it", async () => {
+    const wrapper = mountDrawer();
+    await wrapper.find(".fixed.inset-0").trigger("click");
+    expect(closeRail).toHaveBeenCalledTimes(1);
+
+    panel.value = "chat";
+    await nextTick();
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    expect(closeRail).toHaveBeenCalledTimes(2);
+  });
+
+  test("a phone gets the four tabs as a bar inside the sheet, and the account mark", async () => {
+    mobile.value = true;
+    const wrapper = mountDrawer();
+    const tabs = wrapper.findAll("nav button");
+    expect(tabs.map((b) => b.text())).toEqual(["findings", "alerts", "chat", "metrics"]);
+    expect(wrapper.findComponent({ name: "CloudPopover" }).exists()).toBe(true);
+
+    await tabs[2].trigger("click");
+    expect(openRail).toHaveBeenCalledWith("chat");
   });
 });

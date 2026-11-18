@@ -1,6 +1,11 @@
+import type { MaybeRefOrGetter } from "vue";
 import { collapseCloudRail } from "@/stores/settings";
+import mdiLightbulbOnOutline from "~icons/mdi/lightbulb-on-outline";
+import mdiBellOutline from "~icons/mdi/bell-outline";
+import mdiMessageOutline from "~icons/mdi/message-outline";
+import mdiChartLine from "~icons/mdi/chart-line";
 
-export type RailPanel = "chat" | "metrics" | "alerts";
+export type RailPanel = "findings" | "alerts" | "chat" | "metrics";
 
 /**
  * Which cloud panel the drawer is showing, if any.
@@ -44,9 +49,11 @@ watch(panel, (next) => {
  */
 export function useViewAlerts() {
   const { alerts, unseenIn } = useRecentAlerts();
-  const view = useViewContext();
+  const { containers } = useCloudScope();
 
-  const ids = computed(() => new Set(view.value.containers.map((c) => c.id)));
+  // Widening the scope chip to every container empties this, which is the
+  // instance, exactly as on a page with no containers of its own.
+  const ids = computed(() => new Set(containers.value.map((c) => c.id)));
   const scoped = computed(() => ids.value.size > 0);
   const single = computed(() => ids.value.size === 1);
 
@@ -57,6 +64,44 @@ export function useViewAlerts() {
   );
 
   return { visible, scoped, single, unseen: unseenIn(ids) };
+}
+
+/**
+ * The panels in the order every surface lists them: the rail's icons and the
+ * phone sheet's tab bar. What Cloud noticed comes first, then what your own
+ * rules raised, then the question you can ask, then the history.
+ */
+export function useRailItems(dots: MaybeRefOrGetter<boolean> = true) {
+  const { t } = useI18n();
+  const { unseen: unseenAlerts } = useViewAlerts();
+  // Asks Cloud once per scope, so only a surface that is showing the tabs asks.
+  const unseenFindings = useUnseenFindings(dots);
+
+  return computed(() => [
+    {
+      id: "findings" as const,
+      label: t("cloud-rail.findings"),
+      icon: mdiLightbulbOnOutline,
+      dot: unseenFindings.value,
+    },
+    { id: "alerts" as const, label: t("cloud-rail.alerts"), icon: mdiBellOutline, dot: unseenAlerts.value },
+    { id: "chat" as const, label: t("cloud-rail.chat"), icon: mdiMessageOutline, dot: false },
+    { id: "metrics" as const, label: t("cloud-rail.metrics"), icon: mdiChartLine, dot: false },
+  ]);
+}
+
+/**
+ * The footer link out of a panel, tagged so Cloud counts where people came
+ * from. A single container links to the closest thing Cloud has to its page,
+ * its metrics; anything wider links to the list the panel is a slice of.
+ */
+export function cloudPanelHref(panel: RailPanel, container?: { host: string; name: string }) {
+  const from = `from=dozzle_drawer_${panel}`;
+  if (container) {
+    return `${config.cloudUrl}/metrics/${encodeURIComponent(container.host)}/${encodeURIComponent(container.name)}?${from}`;
+  }
+  const path = { findings: "/findings", alerts: "/alerts", chat: "", metrics: "/metrics" }[panel];
+  return `${config.cloudUrl}${path}?${from}`;
 }
 
 export function useCloudRail() {

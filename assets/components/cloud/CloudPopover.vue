@@ -1,18 +1,12 @@
 <template>
-  <Dropdown placement="bottom-end" @opened="onOpen">
+  <!-- The account and usage, hung off the cloud mark at the top of the rail (or
+       of the phone's cloud sheet). Both exist only where cloud is linked. -->
+  <Dropdown :placement="isMobile ? 'bottom-start' : 'bottom-end'" @opened="ensureCloudStatus()">
     <template #trigger>
       <div class="relative">
         <mdi:cloud
           class="icon-float size-6"
-          :class="
-            !cloudConfig
-              ? 'text-base-content/40'
-              : cloudConfig.linked && !cloudStatusError
-                ? 'text-info'
-                : cloudStatusError === 'unavailable'
-                  ? 'text-warning'
-                  : 'text-error'
-          "
+          :class="!cloudStatusError ? 'text-info' : cloudStatusError === 'unavailable' ? 'text-warning' : 'text-error'"
         />
         <span
           v-if="cloudConfig?.linked"
@@ -31,52 +25,7 @@
     </template>
     <template #content>
       <div class="w-76">
-        <!--
-          Not linked. Same header shape as the linked state so the panel doesn't
-          reshuffle after linking. Three concrete rows sell it better than the
-          one abstract sentence that used to sit here, so `cloud.description` is
-          left to the settings card where there is room for prose.
-        -->
-        <template v-if="!cloudConfig">
-          <div class="flex items-center gap-2.5 px-2 py-1.5">
-            <div class="bg-info/10 text-info shrink-0 rounded-full p-1.5">
-              <mdi:cloud class="size-5" />
-            </div>
-            <span class="text-sm font-semibold">{{ $t("cloud.title") }}</span>
-          </div>
-
-          <div class="bg-base-content/10 my-1.5 h-px"></div>
-
-          <ul class="text-base-content/70 space-y-2 px-2 py-1 text-xs">
-            <li class="flex items-start gap-2">
-              <mdi:robot-outline class="text-info mt-px size-4 shrink-0" />
-              <span>{{ $t("cloud.pitch.findings") }}</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <mdi:bell-ring-outline class="text-info mt-px size-4 shrink-0" />
-              <span>{{ $t("cloud.pitch.alerts") }}</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <mdi:remote class="text-info mt-px size-4 shrink-0" />
-              <span>{{ $t("cloud.pitch.control") }}</span>
-            </li>
-          </ul>
-
-          <div class="bg-base-content/10 my-1.5 h-px"></div>
-
-          <div class="flex gap-2 px-1 pb-0.5">
-            <a :href="`${cloudUrl}`" target="_blank" rel="noreferrer noopener" class="btn btn-sm flex-1">
-              {{ $t("cloud.learn-more") }}
-            </a>
-            <button v-if="canLinkCloud" class="btn btn-primary btn-sm flex-1" @click="startCloudLink('cloud')">
-              <mdi:link-variant class="text-base" />
-              {{ $t("cloud.link-instance") }}
-            </button>
-          </div>
-        </template>
-
-        <!-- Linked -->
-        <template v-else-if="cloudConfig.linked">
+        <template v-if="cloudConfig?.linked">
           <!--
             Error state. Same header/divider/footer shape as the other two
             branches so the panel keeps its size when the connection drops.
@@ -184,7 +133,6 @@
       </div>
     </template>
   </Dropdown>
-  <WelcomeModal ref="welcomeModal" />
 </template>
 
 <script lang="ts" setup>
@@ -194,41 +142,6 @@ const { canLink: canLinkCloud } = useCloudSurface();
 const { cloudConfig, cloudStatus, cloudStatusError, isLoadingCloudStatus, fetchCloudStatus, ensureCloudStatus } =
   useCloudConfig();
 
-const welcomeModal = ref<{ open: () => void }>();
-const cloudWelcomeShown = useProfileStorage("cloudWelcomeShown", false);
-const { requested } = useCloudWelcome();
-
-function onOpen() {
-  ensureCloudStatus();
-}
-
-function showWelcome() {
-  if (cloudWelcomeShown.value) return;
-  cloudWelcomeShown.value = true;
-  nextTick(() => welcomeModal.value?.open());
-}
-
-// Handed over by the setup wizard once it closes. Immediate, because the wizard may
-// have closed before this component mounted.
-watch(
-  requested,
-  (value) => {
-    if (!value) return;
-    requested.value = false;
-    showWelcome();
-  },
-  { immediate: true },
-);
-
-onMounted(() => {
-  ensureCloudStatus();
-
-  // Back from linking. When the wizard started the link it has already claimed the
-  // return (and dropped the hash); the pending check keeps that explicit rather than
-  // relying on this running after the wizard's setup.
-  if (window.location.hash === "#cloudLinked" && !cloudWelcomePending()) {
-    history.replaceState(history.state, "", window.location.pathname + window.location.search);
-    showWelcome();
-  }
-});
+// The mark's colour and dot say whether the connection is healthy.
+onMounted(ensureCloudStatus);
 </script>
