@@ -27,19 +27,17 @@ func hostMetricsRequest(t *testing.T, h *handler, r *http.Request) (int, cloud.H
 	return rr.Code, body
 }
 
-// A host's sum takes in every container on it, so a filtered user would see
-// the instance through the totals. They are refused before Cloud is asked.
-func Test_cloudHostMetrics_refuses_a_filtered_user(t *testing.T) {
+// A filtered user gets the same host totals: they are sums, with nothing in
+// them that names a container.
+func Test_cloudHostMetrics_answers_a_filtered_user(t *testing.T) {
 	h := restrictedHandler(t)
-	called := false
 	h.config.Cloud.GetHostMetrics = func(context.Context, int64, int64, int32) (*cloud.HostMetricResult, error) {
-		called = true
-		return &cloud.HostMetricResult{}, nil
+		return &cloud.HostMetricResult{Hosts: []cloud.HostMetrics{{HostID: "h1"}}}, nil
 	}
 
-	code, _ := hostMetricsRequest(t, h, asRestrictedUser(httptest.NewRequest(http.MethodGet, "/api/cloud/metrics/hosts", nil)))
-	assert.Equal(t, http.StatusForbidden, code)
-	assert.False(t, called, "cloud must not be asked for a filtered user")
+	code, body := hostMetricsRequest(t, h, asRestrictedUser(httptest.NewRequest(http.MethodGet, "/api/cloud/metrics/hosts", nil)))
+	assert.Equal(t, http.StatusOK, code)
+	assert.Len(t, body.Hosts, 1)
 }
 
 func Test_cloudHostMetrics_passes_the_window(t *testing.T) {

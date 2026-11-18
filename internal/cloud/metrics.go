@@ -115,8 +115,7 @@ type HostMetricResult struct {
 }
 
 // GetHostMetrics reads back the stats this instance has been pushing, summed
-// per host. Cloud answers for every host on the instance, so the caller only
-// asks for a user who may see every container.
+// per host. Cloud answers for every host on the instance, as totals only.
 func (c *Client) GetHostMetrics(ctx context.Context, sinceNs, untilNs int64, buckets int32) (*HostMetricResult, error) {
 	apiKey := c.apiKeyFunc()
 	if apiKey == "" {

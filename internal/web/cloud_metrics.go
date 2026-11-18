@@ -77,22 +77,16 @@ func (h *handler) cloudContainerMetrics(w http.ResponseWriter, r *http.Request) 
 // cloudHostMetrics reads back what Cloud kept for every host on the instance,
 // summed across each host's containers.
 //
-// A host's sum takes in every container on it, including ones a filtered user
-// cannot see, so such a user is refused rather than shown the instance through
-// its totals.
+// Open to a filtered user too. A host's sum takes in containers they cannot
+// see, but only as a total: no name, log or per-container number comes back.
 //
 //	200 — hosts returned (may be empty)
-//	403 — the caller's view is filtered
 //	503 — cloud not configured
 //	504 — cloud round-trip exceeded the timeout
 //	502 — any other cloud-side error
 func (h *handler) cloudHostMetrics(w http.ResponseWriter, r *http.Request) {
 	if h.config.Cloud.GetHostMetrics == nil {
 		writeError(w, http.StatusServiceUnavailable, "cloud not configured")
-		return
-	}
-	if h.restrictedUser(r) {
-		writeError(w, http.StatusForbidden, "host metrics are not available to a filtered user")
 		return
 	}
 

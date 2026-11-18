@@ -82,8 +82,8 @@ type CloudToolServiceClient interface {
 	GetContainerMetrics(ctx context.Context, in *GetContainerMetricsRequest, opts ...grpc.CallOption) (*GetContainerMetricsResponse, error)
 	// Dozzle-initiated unary call: the same stats summed per host, for a page
 	// that is about the whole instance rather than one container. Every host this
-	// instance has reported comes back, so Dozzle only calls it for a user who
-	// may see every container. A Cloud without this RPC answers Unimplemented.
+	// instance has reported comes back, as totals only. A Cloud without this RPC
+	// answers Unimplemented.
 	// Scoped server-side to the (user_id, api_key_id) on the connection.
 	GetHostMetrics(ctx context.Context, in *GetHostMetricsRequest, opts ...grpc.CallOption) (*GetHostMetricsResponse, error)
 	// Dozzle-initiated unary call, made once per ToolStream connection before
@@ -270,8 +270,8 @@ type CloudToolServiceServer interface {
 	GetContainerMetrics(context.Context, *GetContainerMetricsRequest) (*GetContainerMetricsResponse, error)
 	// Dozzle-initiated unary call: the same stats summed per host, for a page
 	// that is about the whole instance rather than one container. Every host this
-	// instance has reported comes back, so Dozzle only calls it for a user who
-	// may see every container. A Cloud without this RPC answers Unimplemented.
+	// instance has reported comes back, as totals only. A Cloud without this RPC
+	// answers Unimplemented.
 	// Scoped server-side to the (user_id, api_key_id) on the connection.
 	GetHostMetrics(context.Context, *GetHostMetricsRequest) (*GetHostMetricsResponse, error)
 	// Dozzle-initiated unary call, made once per ToolStream connection before
