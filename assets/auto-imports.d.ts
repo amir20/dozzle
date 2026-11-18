@@ -173,6 +173,7 @@ declare global {
   const highlightSubstringInHtml: typeof import('./utils/index').highlightSubstringInHtml
   const hostLiveSeries: typeof import('./composable/cloud/liveMetrics').hostLiveSeries
   const hourStyle: typeof import('./stores/settings').hourStyle
+  const hoverSpan: typeof import('./composable/cloud/metricsTime').hoverSpan
   const iconSlugForImage: typeof import('./utils/index').iconSlugForImage
   const iconUrl: typeof import('./utils/index').iconUrl
   const ignorableWatch: typeof import('@vueuse/core').ignorableWatch
@@ -349,6 +350,7 @@ declare global {
   const size: typeof import('./stores/settings').size
   const smallerScrollbars: typeof import('./stores/settings').smallerScrollbars
   const softWrap: typeof import('./stores/settings').softWrap
+  const spanMiddle: typeof import('./composable/cloud/metricsTime').spanMiddle
   const startCloudLink: typeof import('./composable/cloud/cloudLink').startCloudLink
   const startUsageReporting: typeof import('./composable/app/usage').startUsageReporting
   const storeToRefs: typeof import('pinia').storeToRefs
@@ -528,6 +530,7 @@ declare global {
   const useMemory: typeof import('@vueuse/core').useMemory
   const useMergedStream: typeof import('./composable/logs/eventStreams').useMergedStream
   const useModel: typeof import('vue').useModel
+  const useMetricsClock: typeof import('./composable/cloud/metricsTime').useMetricsClock
   const useMounted: typeof import('@vueuse/core').useMounted
   const useMouse: typeof import('@vueuse/core').useMouse
   const useMouseInElement: typeof import('@vueuse/core').useMouseInElement
@@ -668,6 +671,7 @@ declare global {
   const whenever: typeof import('@vueuse/core').whenever
   const willAutoUpdate: typeof import('./composable/containers/updatePolicy').willAutoUpdate
   const windowReachesUpdate: typeof import('./composable/logs/updateMarkers').windowReachesUpdate
+  const windowClock: typeof import('./composable/cloud/metricsTime').windowClock
   const withBase: typeof import('./stores/config').withBase
   const writeSetupResume: typeof import('./composable/setup/setup').writeSetupResume
 }
@@ -714,6 +718,9 @@ declare global {
   import('./composable/cloud/liveMetrics')
   // @ts-ignore
   export type { PatternContextHit } from './composable/cloud/patternMemory'
+  export type { MetricsHover } from './composable/cloud/metricsTime'
+  import('./composable/cloud/metricsTime')
+  // @ts-ignore
   import('./composable/cloud/patternMemory')
   // @ts-ignore
   export type { RecentDeploy } from './composable/cloud/recentDeploys'
@@ -966,6 +973,7 @@ declare module 'vue' {
     readonly hostLiveSeries: UnwrapRef<typeof import('./composable/cloud/liveMetrics')['hostLiveSeries']>
     readonly hourStyle: UnwrapRef<typeof import('./stores/settings')['hourStyle']>
     readonly iconSlugForImage: UnwrapRef<typeof import('./utils/index')['iconSlugForImage']>
+    readonly hoverSpan: UnwrapRef<typeof import('./composable/cloud/metricsTime')['hoverSpan']>
     readonly iconUrl: UnwrapRef<typeof import('./utils/index')['iconUrl']>
     readonly ignorableWatch: UnwrapRef<typeof import('@vueuse/core')['ignorableWatch']>
     readonly imageStatusKind: UnwrapRef<typeof import('./composable/containers/updatePolicy')['imageStatusKind']>
@@ -1137,6 +1145,7 @@ declare module 'vue' {
     readonly smallerScrollbars: UnwrapRef<typeof import('./stores/settings')['smallerScrollbars']>
     readonly softWrap: UnwrapRef<typeof import('./stores/settings')['softWrap']>
     readonly startCloudLink: UnwrapRef<typeof import('./composable/cloud/cloudLink')['startCloudLink']>
+    readonly spanMiddle: UnwrapRef<typeof import('./composable/cloud/metricsTime')['spanMiddle']>
     readonly startUsageReporting: UnwrapRef<typeof import('./composable/app/usage')['startUsageReporting']>
     readonly storeToRefs: UnwrapRef<typeof import('pinia')['storeToRefs']>
     readonly stripImageDigest: UnwrapRef<typeof import('./utils/index')['stripImageDigest']>
@@ -1310,6 +1319,7 @@ declare module 'vue' {
     readonly useMergedStream: UnwrapRef<typeof import('./composable/logs/eventStreams')['useMergedStream']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useMounted: UnwrapRef<typeof import('@vueuse/core')['useMounted']>
+    readonly useMetricsClock: UnwrapRef<typeof import('./composable/cloud/metricsTime')['useMetricsClock']>
     readonly useMouse: UnwrapRef<typeof import('@vueuse/core')['useMouse']>
     readonly useMouseInElement: UnwrapRef<typeof import('@vueuse/core')['useMouseInElement']>
     readonly useMousePressed: UnwrapRef<typeof import('@vueuse/core')['useMousePressed']>
@@ -1450,6 +1460,7 @@ declare module 'vue' {
     readonly willAutoUpdate: UnwrapRef<typeof import('./composable/containers/updatePolicy')['willAutoUpdate']>
     readonly windowReachesUpdate: UnwrapRef<typeof import('./composable/logs/updateMarkers')['windowReachesUpdate']>
     readonly withBase: UnwrapRef<typeof import('./stores/config')['withBase']>
+    readonly windowClock: UnwrapRef<typeof import('./composable/cloud/metricsTime')['windowClock']>
     readonly writeSetupResume: UnwrapRef<typeof import('./composable/setup/setup')['writeSetupResume']>
   }
 }
