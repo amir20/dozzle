@@ -6319,7 +6319,8 @@ type GetAlertsRequest struct {
 	// delivered; an event on its own may have been held back.
 	IncludeEvents bool `protobuf:"varint,7,opt,name=include_events,json=includeEvents,proto3" json:"include_events,omitempty"`
 	// When > 0, also return per-bucket totals over [from_ts_ns, to_ts_ns] split
-	// into this many equal buckets, so a chart stays exact past the event cap.
+	// into this many equal buckets, so a chart's match counts stay exact past
+	// the event cap.
 	// Server-capped (200). 0 = no buckets. An older Cloud ignores it and returns
 	// none.
 	Buckets       int32 `protobuf:"varint,8,opt,name=buckets,proto3" json:"buckets,omitempty"`
@@ -7246,8 +7247,11 @@ func (x *GetAlertsResponse) GetBuckets() []*AlertBucket {
 	return nil
 }
 
-// One equal slice of the requested window. Counts are exact, unlike events,
-// which stop at Cloud's cap.
+// One equal slice of the requested window. matched is always exact, unlike
+// events, which stop at Cloud's cap. notified is exact while the window holds
+// at most a few thousand matches; past that Cloud may undercount it and sets
+// truncated on the response. Cloud may also shorten a very wide window, so
+// the first bucket's start_ts_ns, not from_ts_ns, is where the chart begins.
 type AlertBucket struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Start of the bucket, unix nanoseconds. The bucket runs to the next one's
