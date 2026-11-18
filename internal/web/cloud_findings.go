@@ -94,25 +94,33 @@ func (h *handler) cloudFindings(w http.ResponseWriter, r *http.Request) {
 
 	// Several containers can share a name (one per host), so a name maps back
 	// to every container on screen that carries it.
-	labels := h.resolveLabels(r)
-	byName := make(map[string][]cloud.FindingContainer)
-	seen := make(map[string]struct{})
-	var names []string
-	for _, ref := range requested {
-		host, id, found := strings.Cut(ref, "/")
+	refs := make([]containerRef, 0, len(requested))
+	seen := make(map[containerRef]struct{}, len(requested))
+	for _, raw := range requested {
+		host, id, found := strings.Cut(raw, "/")
 		if !found || host == "" || id == "" {
 			continue
 		}
-		service, err := h.hostService.FindContainer(host, id, labels)
-		if err != nil {
+		ref := containerRef{host: host, id: id}
+		if _, dup := seen[ref]; dup {
 			continue
 		}
+		seen[ref] = struct{}{}
+		refs = append(refs, ref)
+	}
+
+	// Several at a time, so one slow agent host does not hold up the rest. A
+	// container that is gone, outside the caller's labels or on a failing host is
+	// left out: the answer is about the ones that resolved.
+	services, _ := h.resolveContainers(refs, h.resolveLabels(r), nil)
+	if r.Context().Err() != nil {
+		return
+	}
+
+	byName := make(map[string][]cloud.FindingContainer)
+	var names []string
+	for _, service := range services {
 		c := service.Container
-		key := c.Host + "/" + c.ID
-		if _, dup := seen[key]; dup {
-			continue
-		}
-		seen[key] = struct{}{}
 		if _, known := byName[c.Name]; !known {
 			names = append(names, c.Name)
 		}
