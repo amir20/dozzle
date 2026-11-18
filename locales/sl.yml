@@ -469,7 +469,6 @@ terminal:
   close-search: Zapri iskanje
 notifications:
   history:
-    title: Dejavnost
     loading: Nalaganje dejavnosti…
     failed: Dejavnosti ni bilo mogoče naložiti.
     empty: Nedavno se ni sprožilo nič.
@@ -783,7 +782,13 @@ cloud-rail:
   hide: Skrij oblačno vrstico
   show: Pokaži oblačno vrstico
   alerts-empty-here: Za to, kar gledate, se ni sprožilo nič.
-  all-activity: Vsa dejavnost
+  findings: Ugotovitve
+  scope: Na kaj se nanaša plošča
+  scope-n: "Vsebnikov: {n}"
+  scope-all: Vsi vsebniki
+  open-in-cloud: Odpri v Dozzle Cloud
+  open-container: "Odpri {name} v Dozzle Cloud"
+  alert-rules: Pravila opozoril
   metrics-no-container: Odprite vsebnik, da vidite njegovo zgodovino.
   metrics-loading: Nalagam zgodovino…
   metrics-failed: Zgodovine ni bilo mogoče naložiti.
@@ -794,6 +799,25 @@ cloud-rail:
   window-6h: 6 h
   window-24h: 24 h
   window-7d: 7 d
+cloud-findings:
+  instance: Ugotovitve se hranijo za vsak vsebnik posebej. Odprite vsebnik, da vidite, kaj je dnevni pregled opazil pri njem, ali si oglejte vse ugotovitve v Dozzle Cloud.
+  filter-new: Nove
+  filter-all: Vse
+  filter-ignored: Prezrte
+  loading: Nalaganje ugotovitev…
+  failed: Ugotovitev ni bilo mogoče naložiti.
+  empty-new: Pri tem, kar gledate, ni bilo opaženo nič novega.
+  empty-all: Za to, kar gledate, ni ugotovitev.
+  empty-ignored: Tukaj ni nič prezrtega.
+  locked: Podrobnosti pridejo z vašim naslednjim poročilom
+  resolved: Razrešeno
+  show-lines: Pokaži mi vrstice
+  ignore: Prezri
+  unignore: Ne prezri več
+  investigate: Razišči
+  ignored: Prezrto. Ne bo se pojavljalo v poročilih in e-poštnih sporočilih.
+  undo: Razveljavi
+  ignore-failed: Ugotovitve ni bilo mogoče posodobiti.
 cloud-chat:
   title: Vprašaj Dozzle
   close: Zapri

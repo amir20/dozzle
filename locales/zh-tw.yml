@@ -466,7 +466,6 @@ terminal:
   close-search: 關閉搜尋
 notifications:
   history:
-    title: 動態
     loading: 正在載入動態…
     failed: 無法載入動態。
     empty: 最近沒有任何警報觸發。
@@ -780,7 +779,13 @@ cloud-rail:
   hide: 隱藏雲端側欄
   show: 顯示雲端側欄
   alerts-empty-here: 目前檢視的內容沒有觸發過警報。
-  all-activity: 全部活動
+  findings: 調查結果
+  scope: 面板範圍
+  scope-n: "{n} 個容器"
+  scope-all: 所有容器
+  open-in-cloud: 在 Dozzle Cloud 中開啟
+  open-container: "在 Dozzle Cloud 中開啟 {name}"
+  alert-rules: 警報規則
   metrics-no-container: 開啟一個容器即可檢視歷史。
   metrics-loading: 正在載入歷史…
   metrics-failed: 無法載入歷史。
@@ -791,6 +796,25 @@ cloud-rail:
   window-6h: 6 小時
   window-24h: 24 小時
   window-7d: 7 天
+cloud-findings:
+  instance: 調查結果依容器保存。開啟一個容器即可檢視每日審查發現的問題，或在 Dozzle Cloud 中檢視全部調查結果。
+  filter-new: 新的
+  filter-all: 全部
+  filter-ignored: 已忽略
+  loading: 正在載入調查結果…
+  failed: 無法載入調查結果。
+  empty-new: 目前檢視的內容沒有新發現。
+  empty-all: 目前檢視的內容沒有調查結果。
+  empty-ignored: 這裡沒有已忽略的項目。
+  locked: 詳細資訊將隨下一份報告送達
+  resolved: 已解決
+  show-lines: 顯示相關記錄行
+  ignore: 忽略
+  unignore: 取消忽略
+  investigate: 調查
+  ignored: 已忽略。它不會再出現在報告和電子郵件中。
+  undo: 復原
+  ignore-failed: 無法更新該調查結果。
 cloud-chat:
   title: 問 Dozzle
   close: 關閉

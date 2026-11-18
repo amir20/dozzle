@@ -283,7 +283,13 @@ cloud-rail:
   hide: Ocultar la barra de cloud
   show: Mostrar la barra de cloud
   alerts-empty-here: No se ha disparado nada en lo que estás viendo.
-  all-activity: Toda la actividad
+  findings: Hallazgos
+  scope: De qué trata el panel
+  scope-n: "{n} contenedores"
+  scope-all: Todos los contenedores
+  open-in-cloud: Abrir en Dozzle Cloud
+  open-container: "Abrir {name} en Dozzle Cloud"
+  alert-rules: Reglas de alerta
   metrics-no-container: Abre un contenedor para ver su historial.
   metrics-loading: Cargando el historial…
   metrics-failed: No se pudo cargar el historial.
@@ -294,6 +300,25 @@ cloud-rail:
   window-6h: 6 h
   window-24h: 24 h
   window-7d: 7 d
+cloud-findings:
+  instance: Los hallazgos se guardan por contenedor. Abre un contenedor para ver lo que la revisión diaria notó sobre él, o mira todos los hallazgos en Dozzle Cloud.
+  filter-new: Nuevos
+  filter-all: Todos
+  filter-ignored: Ignorados
+  loading: Cargando hallazgos…
+  failed: No se pudieron cargar los hallazgos.
+  empty-new: No se ha notado nada nuevo en lo que estás viendo.
+  empty-all: No hay hallazgos en lo que estás viendo.
+  empty-ignored: Aquí no hay nada ignorado.
+  locked: Los detalles llegan con tu próximo informe
+  resolved: Resuelto
+  show-lines: Muéstrame las líneas
+  ignore: Ignorar
+  unignore: Dejar de ignorar
+  investigate: Investigar
+  ignored: Ignorado. Ya no aparecerá en informes ni correos.
+  undo: Deshacer
+  ignore-failed: No se pudo actualizar el hallazgo.
 cloud-chat:
   title: Preguntar a Dozzle
   close: Cerrar
@@ -648,7 +673,6 @@ terminal:
   close-search: Cerrar búsqueda
 notifications:
   history:
-    title: Actividad
     loading: Cargando actividad…
     failed: No se pudo cargar la actividad.
     empty: No se ha disparado nada recientemente.

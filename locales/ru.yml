@@ -464,7 +464,6 @@ terminal:
   close-search: Закрыть поиск
 notifications:
   history:
-    title: Активность
     loading: Загрузка активности…
     failed: Не удалось загрузить активность.
     empty: Недавно ничего не срабатывало.
@@ -778,7 +777,13 @@ cloud-rail:
   hide: Скрыть панель облака
   show: Показать панель облака
   alerts-empty-here: По тому, что вы смотрите, ничего не срабатывало.
-  all-activity: Вся активность
+  findings: Находки
+  scope: К чему относится панель
+  scope-n: "Контейнеров: {n}"
+  scope-all: Все контейнеры
+  open-in-cloud: Открыть в Dozzle Cloud
+  open-container: "Открыть {name} в Dozzle Cloud"
+  alert-rules: Правила оповещений
   metrics-no-container: Откройте контейнер, чтобы увидеть его историю.
   metrics-loading: Загружаю историю…
   metrics-failed: Не удалось загрузить историю.
@@ -789,6 +794,25 @@ cloud-rail:
   window-6h: 6 ч
   window-24h: 24 ч
   window-7d: 7 д
+cloud-findings:
+  instance: Находки хранятся для каждого контейнера. Откройте контейнер, чтобы увидеть, что заметил ежедневный анализ, или посмотрите все находки в Dozzle Cloud.
+  filter-new: Новые
+  filter-all: Все
+  filter-ignored: Игнорируемые
+  loading: Загрузка находок…
+  failed: Не удалось загрузить находки.
+  empty-new: По тому, что вы смотрите, ничего нового не замечено.
+  empty-all: По тому, что вы смотрите, находок нет.
+  empty-ignored: Здесь ничего не игнорируется.
+  locked: Подробности появятся в следующем отчёте
+  resolved: Решено
+  show-lines: Показать строки
+  ignore: Игнорировать
+  unignore: Перестать игнорировать
+  investigate: Расследовать
+  ignored: Игнорируется. Не попадёт в отчёты и письма.
+  undo: Отменить
+  ignore-failed: Не удалось обновить находку.
 cloud-chat:
   title: Спросить Dozzle
   close: Закрыть

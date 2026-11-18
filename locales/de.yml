@@ -464,7 +464,6 @@ terminal:
   close-search: Suche schließen
 notifications:
   history:
-    title: Aktivität
     loading: Aktivität wird geladen…
     failed: Aktivität konnte nicht geladen werden.
     empty: In letzter Zeit wurde nichts ausgelöst.
@@ -778,7 +777,13 @@ cloud-rail:
   hide: Cloud-Leiste ausblenden
   show: Cloud-Leiste einblenden
   alerts-empty-here: Für das, was du gerade ansiehst, wurde nichts ausgelöst.
-  all-activity: Gesamte Aktivität
+  findings: Befunde
+  scope: Worum es in der Leiste geht
+  scope-n: "{n} Container"
+  scope-all: Alle Container
+  open-in-cloud: In Dozzle Cloud öffnen
+  open-container: "{name} in Dozzle Cloud öffnen"
+  alert-rules: Alarmregeln
   metrics-no-container: Öffne einen Container, um seinen Verlauf zu sehen.
   metrics-loading: Verlauf wird geladen…
   metrics-failed: Der Verlauf konnte nicht geladen werden.
@@ -789,6 +794,25 @@ cloud-rail:
   window-6h: 6 Std
   window-24h: 24 Std
   window-7d: 7 T
+cloud-findings:
+  instance: Befunde werden pro Container gespeichert. Öffne einen Container, um zu sehen, was die tägliche Prüfung dazu bemerkt hat, oder sieh dir alle Befunde in Dozzle Cloud an.
+  filter-new: Neu
+  filter-all: Alle
+  filter-ignored: Ignoriert
+  loading: Befunde werden geladen…
+  failed: Befunde konnten nicht geladen werden.
+  empty-new: Bei dem, was du gerade ansiehst, ist nichts Neues aufgefallen.
+  empty-all: Keine Befunde zu dem, was du gerade ansiehst.
+  empty-ignored: Hier wird nichts ignoriert.
+  locked: Details kommen mit deinem nächsten Bericht
+  resolved: Behoben
+  show-lines: Zeig mir die Zeilen
+  ignore: Ignorieren
+  unignore: Nicht mehr ignorieren
+  investigate: Untersuchen
+  ignored: Ignoriert. Er taucht nicht mehr in Berichten und E-Mails auf.
+  undo: Rückgängig
+  ignore-failed: Der Befund konnte nicht aktualisiert werden.
 cloud-chat:
   title: Dozzle fragen
   close: Schließen

@@ -467,7 +467,6 @@ terminal:
   close-search: Aramayı kapat
 notifications:
   history:
-    title: Etkinlik
     loading: Etkinlik yükleniyor…
     failed: Etkinlik yüklenemedi.
     empty: Son zamanlarda hiçbir şey tetiklenmedi.
@@ -781,7 +780,13 @@ cloud-rail:
   hide: Cloud çubuğunu gizle
   show: Cloud çubuğunu göster
   alerts-empty-here: Baktığınız şey için hiçbir şey tetiklenmedi.
-  all-activity: Tüm etkinlik
+  findings: Bulgular
+  scope: Panelin kapsamı
+  scope-n: "{n} konteyner"
+  scope-all: Tüm konteynerler
+  open-in-cloud: Dozzle Cloud'da aç
+  open-container: "{name} öğesini Dozzle Cloud'da aç"
+  alert-rules: Uyarı kuralları
   metrics-no-container: Geçmişi görmek için bir konteyner açın.
   metrics-loading: Geçmiş yükleniyor…
   metrics-failed: Geçmiş yüklenemedi.
@@ -792,6 +797,25 @@ cloud-rail:
   window-6h: 6 sa
   window-24h: 24 sa
   window-7d: 7 g
+cloud-findings:
+  instance: Bulgular konteyner başına tutulur. Günlük incelemenin ne fark ettiğini görmek için bir konteyner açın veya tüm bulguları Dozzle Cloud'da görün.
+  filter-new: Yeni
+  filter-all: Tümü
+  filter-ignored: Yok sayılan
+  loading: Bulgular yükleniyor…
+  failed: Bulgular yüklenemedi.
+  empty-new: Baktığınız şeyde yeni bir şey fark edilmedi.
+  empty-all: Baktığınız şeyde bulgu yok.
+  empty-ignored: Burada yok sayılan bir şey yok.
+  locked: Ayrıntılar bir sonraki raporunuzla gelecek
+  resolved: Çözüldü
+  show-lines: Satırları göster
+  ignore: Yok say
+  unignore: Yok saymayı bırak
+  investigate: İncele
+  ignored: Yok sayıldı. Raporlara ve e-postalara dahil edilmeyecek.
+  undo: Geri al
+  ignore-failed: Bulgu güncellenemedi.
 cloud-chat:
   title: Dozzle'a sor
   close: Kapat

@@ -464,7 +464,6 @@ terminal:
   close-search: 关闭搜索
 notifications:
   history:
-    title: 动态
     loading: 正在加载动态…
     failed: 无法加载动态。
     empty: 最近没有任何警报触发。
@@ -778,7 +777,13 @@ cloud-rail:
   hide: 隐藏云侧栏
   show: 显示云侧栏
   alerts-empty-here: 当前查看的内容没有触发过告警。
-  all-activity: 全部活动
+  findings: 调查结果
+  scope: 面板范围
+  scope-n: "{n} 个容器"
+  scope-all: 所有容器
+  open-in-cloud: 在 Dozzle Cloud 中打开
+  open-container: "在 Dozzle Cloud 中打开 {name}"
+  alert-rules: 告警规则
   metrics-no-container: 打开一个容器即可查看历史。
   metrics-loading: 正在加载历史…
   metrics-failed: 无法加载历史。
@@ -789,6 +794,25 @@ cloud-rail:
   window-6h: 6 小时
   window-24h: 24 小时
   window-7d: 7 天
+cloud-findings:
+  instance: 调查结果按容器保存。打开一个容器即可查看每日审查发现的问题，或在 Dozzle Cloud 中查看全部调查结果。
+  filter-new: 新的
+  filter-all: 全部
+  filter-ignored: 已忽略
+  loading: 正在加载调查结果…
+  failed: 无法加载调查结果。
+  empty-new: 当前查看的内容没有新发现。
+  empty-all: 当前查看的内容没有调查结果。
+  empty-ignored: 这里没有已忽略的项目。
+  locked: 详情将随下一份报告送达
+  resolved: 已解决
+  show-lines: 显示相关日志行
+  ignore: 忽略
+  unignore: 取消忽略
+  investigate: 调查
+  ignored: 已忽略。它不会再出现在报告和邮件中。
+  undo: 撤销
+  ignore-failed: 无法更新该调查结果。
 cloud-chat:
   title: 问 Dozzle
   close: 关闭

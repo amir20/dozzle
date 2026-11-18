@@ -465,7 +465,6 @@ terminal:
   close-search: Zoeken sluiten
 notifications:
   history:
-    title: Activiteit
     loading: Activiteit laden…
     failed: Kon activiteit niet laden.
     empty: Er is recent niets afgegaan.
@@ -779,7 +778,13 @@ cloud-rail:
   hide: Cloudbalk verbergen
   show: Cloudbalk tonen
   alerts-empty-here: Er is niets afgegaan voor wat je bekijkt.
-  all-activity: Alle activiteit
+  findings: Bevindingen
+  scope: Waar het paneel over gaat
+  scope-n: "{n} containers"
+  scope-all: Alle containers
+  open-in-cloud: Openen in Dozzle Cloud
+  open-container: "{name} openen in Dozzle Cloud"
+  alert-rules: Waarschuwingsregels
   metrics-no-container: Open een container om de geschiedenis te zien.
   metrics-loading: Geschiedenis laden…
   metrics-failed: Kon de geschiedenis niet laden.
@@ -790,6 +795,25 @@ cloud-rail:
   window-6h: 6u
   window-24h: 24u
   window-7d: 7 d
+cloud-findings:
+  instance: Bevindingen worden per container bijgehouden. Open een container om te zien wat de dagelijkse controle erover heeft opgemerkt, of bekijk alle bevindingen in Dozzle Cloud.
+  filter-new: Nieuw
+  filter-all: Alle
+  filter-ignored: Genegeerd
+  loading: Bevindingen laden…
+  failed: Kon bevindingen niet laden.
+  empty-new: Niets nieuws opgemerkt in wat je bekijkt.
+  empty-all: Geen bevindingen voor wat je bekijkt.
+  empty-ignored: Hier wordt niets genegeerd.
+  locked: Details komen met je volgende rapport
+  resolved: Opgelost
+  show-lines: Toon me de regels
+  ignore: Negeren
+  unignore: Niet meer negeren
+  investigate: Onderzoeken
+  ignored: Genegeerd. Deze blijft buiten rapporten en e-mails.
+  undo: Ongedaan maken
+  ignore-failed: Kon de bevinding niet bijwerken.
 cloud-chat:
   title: Vraag het Dozzle
   close: Sluiten

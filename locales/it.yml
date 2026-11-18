@@ -464,7 +464,6 @@ terminal:
   close-search: Chiudi la ricerca
 notifications:
   history:
-    title: Attività
     loading: Caricamento attività…
     failed: Impossibile caricare l'attività.
     empty: Nulla è scattato di recente.
@@ -778,7 +777,13 @@ cloud-rail:
   hide: Nascondi la barra cloud
   show: Mostra la barra cloud
   alerts-empty-here: Non è scattato nulla su ciò che stai guardando.
-  all-activity: Tutta l'attività
+  findings: Rilevamenti
+  scope: Di cosa tratta il pannello
+  scope-n: "{n} container"
+  scope-all: Tutti i container
+  open-in-cloud: Apri in Dozzle Cloud
+  open-container: "Apri {name} in Dozzle Cloud"
+  alert-rules: Regole di avviso
   metrics-no-container: Apri un container per vederne la cronologia.
   metrics-loading: Caricamento della cronologia…
   metrics-failed: Impossibile caricare la cronologia.
@@ -789,6 +794,25 @@ cloud-rail:
   window-6h: 6 h
   window-24h: 24 h
   window-7d: 7 g
+cloud-findings:
+  instance: I rilevamenti sono conservati per container. Apri un container per vedere cosa ha notato la revisione giornaliera, oppure guarda tutti i rilevamenti in Dozzle Cloud.
+  filter-new: Nuovi
+  filter-all: Tutti
+  filter-ignored: Ignorati
+  loading: Caricamento dei rilevamenti…
+  failed: Impossibile caricare i rilevamenti.
+  empty-new: Niente di nuovo notato su ciò che stai guardando.
+  empty-all: Nessun rilevamento su ciò che stai guardando.
+  empty-ignored: Qui non c'è nulla di ignorato.
+  locked: I dettagli arrivano con il tuo prossimo report
+  resolved: Risolto
+  show-lines: Mostrami le righe
+  ignore: Ignora
+  unignore: Smetti di ignorare
+  investigate: Indaga
+  ignored: Ignorato. Non comparirà più nei report e nelle email.
+  undo: Annulla
+  ignore-failed: Impossibile aggiornare il rilevamento.
 cloud-chat:
   title: Chiedi a Dozzle
   close: Chiudi

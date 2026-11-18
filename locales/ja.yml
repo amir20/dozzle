@@ -284,7 +284,13 @@ cloud-rail:
   hide: クラウドレールを隠す
   show: クラウドレールを表示
   alerts-empty-here: 表示中の内容では何も発生していません。
-  all-activity: すべてのアクティビティ
+  findings: 検出結果
+  scope: パネルの対象
+  scope-n: "{n} 個のコンテナ"
+  scope-all: すべてのコンテナ
+  open-in-cloud: Dozzle Cloud で開く
+  open-container: "{name} を Dozzle Cloud で開く"
+  alert-rules: アラートルール
   metrics-no-container: コンテナを開くと履歴を表示します。
   metrics-loading: 履歴を読み込んでいます…
   metrics-failed: 履歴を読み込めませんでした。
@@ -295,6 +301,25 @@ cloud-rail:
   window-6h: 6 時間
   window-24h: 24 時間
   window-7d: 7 日
+cloud-findings:
+  instance: 検出結果はコンテナごとに保存されます。コンテナを開くと毎日のレビューで見つかった内容を確認できます。すべての検出結果は Dozzle Cloud で確認できます。
+  filter-new: 新規
+  filter-all: すべて
+  filter-ignored: 無視中
+  loading: 検出結果を読み込んでいます…
+  failed: 検出結果を読み込めませんでした。
+  empty-new: 表示中の内容に新しい検出結果はありません。
+  empty-all: 表示中の内容に検出結果はありません。
+  empty-ignored: 無視している項目はありません。
+  locked: 詳細は次回のレポートで届きます
+  resolved: 解決済み
+  show-lines: 該当行を表示
+  ignore: 無視
+  unignore: 無視を解除
+  investigate: 調査
+  ignored: 無視しました。レポートとメールには含まれません。
+  undo: 元に戻す
+  ignore-failed: 検出結果を更新できませんでした。
 cloud-chat:
   title: Dozzle に質問
   close: 閉じる
@@ -649,7 +674,6 @@ terminal:
   close-search: 検索を閉じる
 notifications:
   history:
-    title: アクティビティ
     loading: アクティビティを読み込んでいます…
     failed: アクティビティを読み込めませんでした。
     empty: 最近発生したものはありません。

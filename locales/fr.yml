@@ -464,7 +464,6 @@ terminal:
   close-search: Fermer la recherche
 notifications:
   history:
-    title: Activité
     loading: Chargement de l'activité…
     failed: Impossible de charger l'activité.
     empty: Rien ne s'est déclenché récemment.
@@ -778,7 +777,13 @@ cloud-rail:
   hide: Masquer la barre cloud
   show: Afficher la barre cloud
   alerts-empty-here: Rien ne s'est déclenché sur ce que vous regardez.
-  all-activity: Toute l'activité
+  findings: Constats
+  scope: Ce que couvre le panneau
+  scope-n: "{n} conteneurs"
+  scope-all: Tous les conteneurs
+  open-in-cloud: Ouvrir dans Dozzle Cloud
+  open-container: "Ouvrir {name} dans Dozzle Cloud"
+  alert-rules: Règles d'alerte
   metrics-no-container: Ouvrez un conteneur pour voir son historique.
   metrics-loading: Chargement de l'historique…
   metrics-failed: Impossible de charger l'historique.
@@ -789,6 +794,25 @@ cloud-rail:
   window-6h: 6 h
   window-24h: 24 h
   window-7d: 7 j
+cloud-findings:
+  instance: Les constats sont conservés par conteneur. Ouvrez un conteneur pour voir ce que l'examen quotidien a relevé à son sujet, ou consultez tous les constats dans Dozzle Cloud.
+  filter-new: Nouveaux
+  filter-all: Tous
+  filter-ignored: Ignorés
+  loading: Chargement des constats…
+  failed: Impossible de charger les constats.
+  empty-new: Rien de nouveau relevé sur ce que vous regardez.
+  empty-all: Aucun constat sur ce que vous regardez.
+  empty-ignored: Rien d'ignoré ici.
+  locked: Les détails arriveront avec votre prochain rapport
+  resolved: Résolu
+  show-lines: Montrez-moi les lignes
+  ignore: Ignorer
+  unignore: Ne plus ignorer
+  investigate: Investiguer
+  ignored: Ignoré. Il n'apparaîtra plus dans les rapports ni les e-mails.
+  undo: Annuler
+  ignore-failed: Impossible de mettre à jour le constat.
 cloud-chat:
   title: Demander à Dozzle
   close: Fermer

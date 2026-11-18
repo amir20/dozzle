@@ -466,7 +466,6 @@ terminal:
   close-search: 검색 닫기
 notifications:
   history:
-    title: 활동
     loading: 활동을 불러오는 중…
     failed: 활동을 불러올 수 없습니다.
     empty: 최근에 발생한 알림이 없습니다.
@@ -780,7 +779,13 @@ cloud-rail:
   hide: 클라우드 레일 숨기기
   show: 클라우드 레일 표시
   alerts-empty-here: 보고 있는 대상에서 발생한 알림이 없습니다.
-  all-activity: 전체 활동
+  findings: 조사 결과
+  scope: 패널 대상
+  scope-n: "컨테이너 {n}개"
+  scope-all: 모든 컨테이너
+  open-in-cloud: Dozzle Cloud에서 열기
+  open-container: "Dozzle Cloud에서 {name} 열기"
+  alert-rules: 알림 규칙
   metrics-no-container: 컨테이너를 열면 기록을 볼 수 있습니다.
   metrics-loading: 기록 불러오는 중…
   metrics-failed: 기록을 불러오지 못했습니다.
@@ -791,6 +796,25 @@ cloud-rail:
   window-6h: 6시간
   window-24h: 24시간
   window-7d: 7일
+cloud-findings:
+  instance: 조사 결과는 컨테이너별로 보관됩니다. 컨테이너를 열면 일일 검토에서 발견한 내용을 볼 수 있고, 모든 조사 결과는 Dozzle Cloud에서 볼 수 있습니다.
+  filter-new: 새 항목
+  filter-all: 전체
+  filter-ignored: 무시됨
+  loading: 조사 결과 불러오는 중…
+  failed: 조사 결과를 불러오지 못했습니다.
+  empty-new: 보고 있는 대상에서 새로 발견된 내용이 없습니다.
+  empty-all: 보고 있는 대상에 대한 조사 결과가 없습니다.
+  empty-ignored: 무시된 항목이 없습니다.
+  locked: 자세한 내용은 다음 리포트와 함께 제공됩니다
+  resolved: 해결됨
+  show-lines: 해당 줄 보기
+  ignore: 무시
+  unignore: 무시 해제
+  investigate: 조사
+  ignored: 무시했습니다. 리포트와 메일에서 제외됩니다.
+  undo: 실행 취소
+  ignore-failed: 조사 결과를 업데이트하지 못했습니다.
 cloud-chat:
   title: Dozzle에 질문
   close: 닫기

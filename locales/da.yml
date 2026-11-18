@@ -464,7 +464,6 @@ terminal:
   close-search: Luk søgning
 notifications:
   history:
-    title: Aktivitet
     loading: Indlæser aktivitet…
     failed: Kunne ikke indlæse aktivitet.
     empty: Intet er udløst nyligt.
@@ -778,7 +777,13 @@ cloud-rail:
   hide: Skjul cloud-panelet
   show: Vis cloud-panelet
   alerts-empty-here: Intet er udløst for det, du kigger på.
-  all-activity: Al aktivitet
+  findings: Fund
+  scope: Hvad panelet handler om
+  scope-n: "{n} containere"
+  scope-all: Alle containere
+  open-in-cloud: Åbn i Dozzle Cloud
+  open-container: "Åbn {name} i Dozzle Cloud"
+  alert-rules: Advarselsregler
   metrics-no-container: Åbn en container for at se dens historik.
   metrics-loading: Indlæser historik…
   metrics-failed: Kunne ikke indlæse historikken.
@@ -789,6 +794,25 @@ cloud-rail:
   window-6h: 6t
   window-24h: 24t
   window-7d: 7 d
+cloud-findings:
+  instance: Fund gemmes pr. container. Åbn en container for at se, hvad den daglige gennemgang har bemærket om den, eller se alle fund i Dozzle Cloud.
+  filter-new: Nye
+  filter-all: Alle
+  filter-ignored: Ignorerede
+  loading: Indlæser fund…
+  failed: Kunne ikke indlæse fund.
+  empty-new: Intet nyt bemærket i det, du kigger på.
+  empty-all: Ingen fund i det, du kigger på.
+  empty-ignored: Intet ignoreret her.
+  locked: Detaljerne kommer med din næste rapport
+  resolved: Løst
+  show-lines: Vis mig linjerne
+  ignore: Ignorer
+  unignore: Stop med at ignorere
+  investigate: Undersøg
+  ignored: Ignoreret. Det holdes ude af rapporter og mails.
+  undo: Fortryd
+  ignore-failed: Kunne ikke opdatere fundet.
 cloud-chat:
   title: Spørg Dozzle
   close: Luk
