@@ -70,6 +70,12 @@ func visualsFromProto(in []*pb.ChatVisual) []ChatVisual {
 		if !slices.Contains(VisualTypes, v.GetType()) {
 			continue
 		}
+		// A CPU picture is its series and nothing else. Cloud sends it without
+		// one when the read behind it failed or came back empty, and drawn, it
+		// would be a container's name over an empty box.
+		if v.GetType() == "cpu_over_time" && len(v.GetPoints()) == 0 {
+			continue
+		}
 		cv := ChatVisual{
 			Type:        v.GetType(),
 			Container:   v.GetContainer(),
