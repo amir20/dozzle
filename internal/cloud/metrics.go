@@ -92,3 +92,67 @@ func metricResultFromProto(resp *pb.GetContainerMetricsResponse) *MetricResult {
 	}
 	return result
 }
+
+// HostMetricPoint is one bucket of a host's history: its containers summed.
+type HostMetricPoint struct {
+	// Milliseconds, as for MetricPoint.
+	TS          int64   `json:"ts"`
+	CPU         float64 `json:"cpu"`
+	MemoryUsage int64   `json:"memoryUsage"`
+}
+
+// HostMetrics is one host's series.
+type HostMetrics struct {
+	HostID string            `json:"hostId"`
+	Points []HostMetricPoint `json:"points"`
+}
+
+// HostMetricResult is what Cloud remembers about every host on the instance.
+type HostMetricResult struct {
+	Hosts []HostMetrics `json:"hosts"`
+	// The bucket width cloud used, milliseconds.
+	Bucket int64 `json:"bucket"`
+}
+
+// GetHostMetrics reads back the stats this instance has been pushing, summed
+// per host. Cloud answers for every host on the instance, as totals only.
+func (c *Client) GetHostMetrics(ctx context.Context, sinceNs, untilNs int64, buckets int32) (*HostMetricResult, error) {
+	apiKey := c.apiKeyFunc()
+	if apiKey == "" {
+		return nil, ErrNotConfigured
+	}
+
+	client, err := c.unaryServiceClient()
+	if err != nil {
+		return nil, err
+	}
+
+	mdPairs := []string{"x-api-key", apiKey}
+	if c.instanceID != "" {
+		mdPairs = append(mdPairs, "x-instance-id", c.instanceID)
+	}
+	callCtx := metadata.NewOutgoingContext(ctx, metadata.Pairs(mdPairs...))
+
+	resp, err := client.GetHostMetrics(callCtx, &pb.GetHostMetricsRequest{
+		SinceTsNs: sinceNs,
+		UntilTsNs: untilNs,
+		Buckets:   buckets,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("cloud: host metrics: %w", err)
+	}
+
+	return hostMetricResultFromProto(resp), nil
+}
+
+func hostMetricResultFromProto(resp *pb.GetHostMetricsResponse) *HostMetricResult {
+	result := &HostMetricResult{Hosts: make([]HostMetrics, 0, len(resp.GetHosts())), Bucket: resp.GetBucketNs() / 1e6}
+	for _, h := range resp.GetHosts() {
+		host := HostMetrics{HostID: h.GetHostId(), Points: make([]HostMetricPoint, 0, len(h.GetPoints()))}
+		for _, p := range h.GetPoints() {
+			host.Points = append(host.Points, HostMetricPoint{TS: p.GetTsNs() / 1e6, CPU: p.GetCpu(), MemoryUsage: p.GetMemoryUsage()})
+		}
+		result.Hosts = append(result.Hosts, host)
+	}
+	return result
+}
