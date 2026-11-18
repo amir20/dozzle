@@ -780,6 +780,14 @@ cloud-rail:
   hide: 클라우드 레일 숨기기
   show: 클라우드 레일 표시
   alerts-empty-here: 보고 있는 대상에서 발생한 알림이 없습니다.
+  alerts-chart: 규칙이 일치한 빈도
+  alerts-chart-scroll: 이 시간을 목록에서 보기
+  alerts-matches: "{n}건 일치 | {n}건 일치"
+  alerts-happened: "1번 발생 | {n}번 발생"
+  alerts-notified: "1번 알림을 받았습니다 | {n}번 알림을 받았습니다"
+  alerts-notified-earlier: 이전에 알림을 받았습니다
+  alerts-quiet: "{containers}에서 {n}건 더 일치, 새로 알려드릴 내용은 없습니다 | {containers}에서 {n}건 더 일치, 새로 알려드릴 내용은 없습니다"
+  alerts-quiet-containers: "컨테이너 {n}개 | 컨테이너 {n}개"
   findings: 조사 결과
   scope: 패널 대상
   scope-n: "컨테이너 {n}개"

@@ -778,6 +778,14 @@ cloud-rail:
   hide: Cloud-Leiste ausblenden
   show: Cloud-Leiste einblenden
   alerts-empty-here: Für das, was du gerade ansiehst, wurde nichts ausgelöst.
+  alerts-chart: Wie oft deine Regeln zugetroffen haben
+  alerts-chart-scroll: Diesen Zeitpunkt in der Liste zeigen
+  alerts-matches: "{n} Treffer | {n} Treffer"
+  alerts-happened: "Einmal passiert | {n}-mal passiert"
+  alerts-notified: "Du wurdest einmal benachrichtigt | Du wurdest {n}-mal benachrichtigt"
+  alerts-notified-earlier: Du wurdest schon früher benachrichtigt
+  alerts-quiet: "{n} weiterer Treffer auf {containers}, nichts Neues für dich | {n} weitere Treffer auf {containers}, nichts Neues für dich"
+  alerts-quiet-containers: "{n} Container | {n} Containern"
   findings: Befunde
   scope: Worum es in der Leiste geht
   scope-n: "{n} Container"

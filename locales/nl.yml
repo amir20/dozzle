@@ -779,6 +779,14 @@ cloud-rail:
   hide: Cloudbalk verbergen
   show: Cloudbalk tonen
   alerts-empty-here: Er is niets afgegaan voor wat je bekijkt.
+  alerts-chart: Hoe vaak je regels overeenkwamen
+  alerts-chart-scroll: Dit tijdstip in de lijst tonen
+  alerts-matches: "{n} treffer | {n} treffers"
+  alerts-happened: "Eén keer gebeurd | {n} keer gebeurd"
+  alerts-notified: "Je hebt één melding gekregen | Je hebt {n} meldingen gekregen"
+  alerts-notified-earlier: Je hebt eerder al een melding gekregen
+  alerts-quiet: "Nog {n} treffer op {containers}, niets nieuws te melden | Nog {n} treffers op {containers}, niets nieuws te melden"
+  alerts-quiet-containers: "{n} container | {n} containers"
   findings: Bevindingen
   scope: Waar het paneel over gaat
   scope-n: "{n} containers"

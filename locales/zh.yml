@@ -778,6 +778,14 @@ cloud-rail:
   hide: 隐藏云侧栏
   show: 显示云侧栏
   alerts-empty-here: 当前查看的内容没有触发过告警。
+  alerts-chart: 规则匹配的频率
+  alerts-chart-scroll: 在列表中显示这个时间
+  alerts-matches: "{n} 次匹配 | {n} 次匹配"
+  alerts-happened: "发生了 1 次 | 发生了 {n} 次"
+  alerts-notified: "已通知你 1 次 | 已通知你 {n} 次"
+  alerts-notified-earlier: 之前已通知过你
+  alerts-quiet: "{containers}上又匹配了 {n} 次，没有新情况 | {containers}上又匹配了 {n} 次，没有新情况"
+  alerts-quiet-containers: "{n} 个容器 | {n} 个容器"
   findings: 调查结果
   scope: 面板范围
   scope-n: "{n} 个容器"

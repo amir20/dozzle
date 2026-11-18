@@ -778,6 +778,14 @@ cloud-rail:
   hide: Skjul cloud-panelet
   show: Vis cloud-panelet
   alerts-empty-here: Intet er udløst for det, du kigger på.
+  alerts-chart: Hvor ofte dine regler matchede
+  alerts-chart-scroll: Vis dette tidspunkt i listen
+  alerts-matches: "{n} match | {n} match"
+  alerts-happened: "Skete én gang | Skete {n} gange"
+  alerts-notified: "Du fik besked én gang | Du fik besked {n} gange"
+  alerts-notified-earlier: Du fik besked tidligere
+  alerts-quiet: "{n} match mere på {containers}, intet nyt at fortælle | {n} match mere på {containers}, intet nyt at fortælle"
+  alerts-quiet-containers: "{n} container | {n} containere"
   findings: Fund
   scope: Hvad panelet handler om
   scope-n: "{n} containere"

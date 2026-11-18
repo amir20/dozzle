@@ -778,6 +778,14 @@ cloud-rail:
   hide: Masquer la barre cloud
   show: Afficher la barre cloud
   alerts-empty-here: Rien ne s'est déclenché sur ce que vous regardez.
+  alerts-chart: À quelle fréquence vos règles se sont déclenchées
+  alerts-chart-scroll: Afficher ce moment dans la liste
+  alerts-matches: "{n} correspondance | {n} correspondances"
+  alerts-happened: "Arrivé une fois | Arrivé {n} fois"
+  alerts-notified: "Vous avez été prévenu une fois | Vous avez été prévenu {n} fois"
+  alerts-notified-earlier: Vous avez déjà été prévenu
+  alerts-quiet: "{n} autre correspondance sur {containers}, rien de nouveau à vous signaler | {n} autres correspondances sur {containers}, rien de nouveau à vous signaler"
+  alerts-quiet-containers: "{n} conteneur | {n} conteneurs"
   findings: Constats
   scope: Ce que couvre le panneau
   scope-n: "{n} conteneurs"
