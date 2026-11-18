@@ -5,7 +5,11 @@
     <div
       v-if="browsing"
       class="bg-base-100 pt-safe fixed inset-0 z-30 flex flex-col"
-      :style="{ paddingBottom: 'var(--mobile-tabbar-height)' }"
+      :style="{
+        paddingBottom: 'var(--mobile-tabbar-height)',
+        paddingLeft: 'env(safe-area-inset-left)',
+        paddingRight: 'env(safe-area-inset-right)',
+      }"
       data-testid="navigation"
     >
       <div class="flex min-h-0 flex-1 flex-col gap-3 p-3">
