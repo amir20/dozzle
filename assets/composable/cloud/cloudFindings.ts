@@ -159,7 +159,8 @@ function hasUnseen(findings: CloudFinding[], names: Set<string>) {
   );
 }
 
-/** The cap the server applies; asking past it only gets the list marked truncated. */
+/** The cap the server applies. One past it is sent so the server keeps its own
+ *  limit and marks the answer truncated, rather than this cut hiding the rest. */
 const MAX_ASKED = 100;
 
 /**
@@ -178,7 +179,7 @@ export function useFindingsScope() {
       .filter((c) => c.state !== "deleted")
       .map((c) => ({ host: c.host, id: c.id, name: c.name }))
       .sort((a, b) => (a.id < b.id ? -1 : 1))
-      .slice(0, MAX_ASKED);
+      .slice(0, MAX_ASKED + 1);
   });
 }
 
