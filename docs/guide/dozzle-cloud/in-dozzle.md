@@ -25,7 +25,7 @@ A strip of icons on the right edge is how you find it: each icon opens its tab i
 
 The drawer covers the logs while it is open, so anything in it that points back at the stream (show the lines, a moment on a chart) closes it first and then scrolls the stream there. <kbd>Esc</kbd> closes it.
 
-Metrics and Alerts are about the containers on screen, so they appear only on a page that shows one. On the home page or in settings the drawer offers the chat alone.
+Alerts is about the containers on screen, so it appears only on a page that shows one. On the home page or in settings, Metrics shows every host instead.
 
 ### <Icon icon="mdi:message-outline" inline /> Ask Dozzle
 
@@ -38,6 +38,8 @@ Open it from the **Ask Dozzle** button beside the search bar, with <kbd>⇧</kbd
 ### <Icon icon="mdi:chart-line" inline /> Metrics
 
 Dozzle keeps 300 stat samples in the browser and nothing behind them, so "was it like this an hour ago?" has no local answer. This panel reads back the samples your instance has been pushing all along: CPU, memory, network and disk over the last 1h, 6h or 24h. Each bar is an average with the highest sample drawn faintly behind it, so a short spike stays visible however long the window is, and hovering any chart reads all of them back at the same moment. Network and disk add up what went out and what came in over the window. Pro adds a 7 day window.
+
+On a page with no container, the tab shows every host instead: CPU and memory with each host's containers added up, over the same windows. Memory is drawn against the host's total where Dozzle knows it. The CPU sum reads as the host's load for containers with no CPU limit; a container with a limit reports against that limit, so on such a host the sum can run high.
 
 ### <Icon icon="mdi:bell-outline" inline /> Alerts
 

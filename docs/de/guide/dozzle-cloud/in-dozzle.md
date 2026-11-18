@@ -1,7 +1,7 @@
 ---
 title: In deinem Dozzle
 description: Was sich in deinem eigenen Dozzle ändert, wenn du es mit Dozzle Cloud verbindest, darunter Ask Dozzle, Metrik-Verlauf und Alarme, die ein Neuladen überstehen.
-sourceHash: af42207c220c
+sourceHash: 6f212d9d6aeb
 ---
 
 # In deinem Dozzle
@@ -26,7 +26,7 @@ Gefunden wird sie über einen Streifen mit Symbolen am rechten Rand: jedes Symbo
 
 Solange die Schublade offen ist, verdeckt sie die Logs. Alles darin, was zurück auf den Stream zeigt (die Zeilen anzeigen, ein Zeitpunkt in einem Diagramm), schließt sie deshalb zuerst und scrollt dann den Stream dorthin. <kbd>Esc</kbd> schließt sie.
 
-Metriken und Alarme beziehen sich auf die Container auf dem Bildschirm, deshalb erscheinen sie nur auf einer Seite, die einen zeigt. Auf der Startseite oder in den Einstellungen bietet die Schublade nur den Chat an.
+Alarme beziehen sich auf die Container auf dem Bildschirm, deshalb erscheint dieser Reiter nur auf einer Seite, die einen zeigt. Auf der Startseite oder in den Einstellungen zeigen die Metriken stattdessen jeden Host.
 
 ### <Icon icon="mdi:message-outline" inline /> Dozzle fragen
 
@@ -39,6 +39,8 @@ Antworten enden in Dozzle statt in einem Link nach außen. Geht es um einen Zeit
 ### <Icon icon="mdi:chart-line" inline /> Metriken
 
 Dozzle hält 300 Messpunkte im Browser und nichts dahinter, „war das vor einer Stunde auch schon so?“ hat lokal also keine Antwort. Dieses Panel liest die Messpunkte zurück, die deine Instanz die ganze Zeit übermittelt hat: CPU, Speicher, Netzwerk und Datenträger über die letzten 1 h, 6 h oder 24 h. Jeder Balken ist ein Durchschnitt, hinter dem der höchste Messpunkt blass gezeichnet ist, sodass eine kurze Spitze sichtbar bleibt, egal wie lang das Fenster ist, und wer über ein beliebiges Diagramm fährt, liest alle zum selben Zeitpunkt aus. Netzwerk und Datenträger summieren über das Fenster, was hinausging und was hereinkam. Pro ergänzt ein Fenster von 7 Tagen.
+
+Auf einer Seite ohne Container zeigt der Reiter stattdessen jeden Host: CPU und Speicher, aufsummiert über die Container des jeweiligen Hosts, in denselben Zeitfenstern. Der Speicher wird gegen den Gesamtspeicher des Hosts gezeichnet, sofern Dozzle ihn kennt. Die CPU-Summe entspricht der Last des Hosts für Container ohne CPU-Limit; ein Container mit Limit meldet seinen Wert relativ zu diesem Limit, auf einem solchen Host kann die Summe also hoch ausfallen.
 
 ### <Icon icon="mdi:bell-outline" inline /> Alarme
 
