@@ -818,6 +818,7 @@ cloud-findings:
   ignored: Prezrto. Ne bo se pojavljalo v poročilih in e-poštnih sporočilih.
   undo: Razveljavi
   ignore-failed: Ugotovitve ni bilo mogoče posodobiti.
+  truncated: Tu niso navedene vse ugotovitve. Ostale so v Dozzle Cloud.
 cloud-chat:
   title: Vprašaj Dozzle
   close: Zapri

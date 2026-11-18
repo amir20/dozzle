@@ -815,6 +815,7 @@ cloud-findings:
   ignored: Zignorowano. Nie będzie pojawiać się w raportach ani mailach.
   undo: Cofnij
   ignore-failed: Nie udało się zaktualizować ustalenia.
+  truncated: Nie wszystkie ustalenia są tu wymienione. Resztę znajdziesz w Dozzle Cloud.
 cloud-chat:
   title: Zapytaj Dozzle
   close: Zamknij

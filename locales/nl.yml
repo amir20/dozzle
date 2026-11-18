@@ -814,6 +814,7 @@ cloud-findings:
   ignored: Genegeerd. Deze blijft buiten rapporten en e-mails.
   undo: Ongedaan maken
   ignore-failed: Kon de bevinding niet bijwerken.
+  truncated: Niet elke bevinding staat hier. Dozzle Cloud heeft de rest.
 cloud-chat:
   title: Vraag het Dozzle
   close: Sluiten

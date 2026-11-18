@@ -1,5 +1,7 @@
 <template>
-  <div>
+  <!-- Behind an open cloud panel the page is inert, so Tab stays in the panel and
+       the rail that is its tab bar. Toasts and the rail live outside this div. -->
+  <div :inert="(railAvailable && !!cloudPanel) || undefined">
     <MobileTabBar v-if="showTabBar" @search="showFuzzySearch" />
     <Splitpanes @resized="onResized($event)">
       <Pane :min-size="navMinSize" :size="navSize" v-if="navVisible">
@@ -64,7 +66,8 @@
       <template #fallback> <span class="loading loading-spinner loading-sm"></span></template>
     </Suspense>
   </SideDrawer>
-  <ToastModal :above-tab-bar="showTabBar" />
+  <!-- The phone's cloud sheet floats its own tab bar at the bottom edge. -->
+  <ToastModal :above-tab-bar="showTabBar || (isMobile && !!cloudPanel)" />
   <SetupWizard />
 </template>
 

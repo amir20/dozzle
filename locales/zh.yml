@@ -813,6 +813,7 @@ cloud-findings:
   ignored: 已忽略。它不会再出现在报告和邮件中。
   undo: 撤销
   ignore-failed: 无法更新该调查结果。
+  truncated: 这里并未列出所有调查结果，其余的在 Dozzle Cloud 中。
 cloud-chat:
   title: 问 Dozzle
   close: 关闭

@@ -813,6 +813,7 @@ cloud-findings:
   ignored: Ignoré. Il n'apparaîtra plus dans les rapports ni les e-mails.
   undo: Annuler
   ignore-failed: Impossible de mettre à jour le constat.
+  truncated: Tous les constats ne sont pas listés ici. Dozzle Cloud a le reste.
 cloud-chat:
   title: Demander à Dozzle
   close: Fermer

@@ -1,7 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
-import { mount } from "@vue/test-utils";
+import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { computed, nextTick, ref } from "vue";
 import { createI18n } from "vue-i18n";
@@ -59,6 +59,7 @@ const stubs = {
 const mountDrawer = () => mount(CloudDrawer, { attachTo: document.body, global: { plugins: [i18n], stubs } });
 
 afterEach(() => {
+  closeRail.mockClear();
   panel.value = "findings";
   scoped.value = true;
   mobile.value = false;
@@ -98,6 +99,54 @@ describe("<CloudDrawer />", () => {
     await nextTick();
     window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
     expect(closeRail).toHaveBeenCalledTimes(2);
+  });
+
+  test("Esc leaves a modal on top of it alone", async () => {
+    mountDrawer();
+    const open = document.createElement("dialog");
+    open.setAttribute("open", "");
+    document.body.appendChild(open);
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    expect(closeRail).not.toHaveBeenCalled();
+  });
+
+  test("is a labelled modal dialog", () => {
+    const section = mountDrawer().find("section");
+    expect(section.attributes("role")).toBe("dialog");
+    expect(section.attributes("aria-modal")).toBe("true");
+    expect(section.attributes("aria-label")).toBe("findings");
+  });
+
+  test("takes focus on open and hands it back to what opened it on close", async () => {
+    panel.value = undefined;
+    const opener = document.createElement("button");
+    document.body.appendChild(opener);
+    opener.focus();
+    const wrapper = mountDrawer();
+
+    panel.value = "findings";
+    await flushPromises();
+    expect(document.activeElement).toBe(wrapper.find("section").element);
+
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    await flushPromises();
+    expect(document.activeElement).toBe(opener);
+  });
+
+  test("leaves focus where the reader put it after closing", async () => {
+    panel.value = undefined;
+    const opener = document.createElement("button");
+    const elsewhere = document.createElement("input");
+    document.body.append(opener, elsewhere);
+    opener.focus();
+    mountDrawer();
+    panel.value = "alerts";
+    await flushPromises();
+
+    elsewhere.focus();
+    panel.value = undefined;
+    await flushPromises();
+    expect(document.activeElement).toBe(elsewhere);
   });
 
   test("a phone gets the four tabs as a bar inside the sheet, and the account mark", async () => {

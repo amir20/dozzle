@@ -825,6 +825,7 @@ cloud-findings:
   ignored: Diabaikan. Tidak akan muncul di laporan dan email.
   undo: Urungkan
   ignore-failed: Tidak dapat memperbarui temuan.
+  truncated: Tidak semua temuan tercantum di sini. Dozzle Cloud menyimpan sisanya.
 cloud-chat:
   title: Tanya Dozzle
   close: Tutup

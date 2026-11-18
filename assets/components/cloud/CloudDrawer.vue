@@ -12,11 +12,16 @@
     <div v-if="panel && !isMobile" class="bg-base-300/50 fixed inset-0 z-40" @click="closeRail()"></div>
   </Transition>
   <Transition name="cloud-slide">
+    <!-- Modal to everything but the rail: the layout makes the page behind it
+         inert, and focus comes in on open and goes back on close. -->
     <section
       v-if="panel"
+      ref="dialog"
       role="dialog"
+      aria-modal="true"
       :aria-label="title"
-      class="bg-base-100 fixed inset-y-0 flex flex-col"
+      tabindex="-1"
+      class="bg-base-100 fixed inset-y-0 flex flex-col outline-hidden"
       :class="isMobile ? 'pt-safe inset-x-0 z-50' : 'z-40 shadow-lg'"
       :style="isMobile ? undefined : { right: `${railOffset}px`, width: `min(48rem, calc(100vw - ${railOffset}px))` }"
     >
@@ -123,6 +128,33 @@ const linkLabel = computed(() =>
 // the app drawer) owns its own Esc.
 onKeyStroke("Escape", () => {
   if (panel.value && !document.querySelector("dialog[open]")) closeRail();
+});
+
+// Not a native dialog either, so focus is ours too. On open it moves to the
+// panel itself, which is enough for a screen reader to land in it and for Tab
+// to start there; chat then moves it on to its composer when it mounts. On
+// close it goes back to whatever opened the panel, if that is still on the page.
+const dialog = useTemplateRef<HTMLElement>("dialog");
+let opener: HTMLElement | null = null;
+watch(panel, async (next, prev) => {
+  if (next && !prev) {
+    const active = document.activeElement;
+    opener = active instanceof HTMLElement && active !== document.body ? active : null;
+    await nextTick();
+    // Chat may already have focused its composer; keep that.
+    if (!dialog.value?.contains(document.activeElement)) dialog.value?.focus({ preventScroll: true });
+  } else if (!next && prev) {
+    const target = opener;
+    const leaving = dialog.value;
+    opener = null;
+    // After the page stops being inert, or the focus call is a no-op.
+    await nextTick();
+    // Only when focus went down with the panel: a reader who has since put it
+    // somewhere else on purpose keeps it there.
+    const active = document.activeElement;
+    const stranded = !active || active === document.body || !!leaving?.contains(active);
+    if (stranded && target?.isConnected) target.focus({ preventScroll: true });
+  }
 });
 </script>
 

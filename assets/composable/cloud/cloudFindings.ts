@@ -43,7 +43,12 @@ export interface CloudFindingsResult {
   findings: CloudFinding[];
   /** Plan gate decided in Cloud. Never infer it from a missing fix. */
   fixLocked: boolean;
+  /** The list stops short: Cloud hit its limit, or the scope named more
+   *  containers than are looked up. */
   truncated?: boolean;
+  /** Whether this reader may ignore a finding. Decided by the server with the
+   *  same checks the ignore route enforces; never inferred here. */
+  canIgnore?: boolean;
 }
 
 type Scope = { host: string; id: string }[];
@@ -64,11 +69,16 @@ export function findingsUrl(containers: Scope, filter: FindingsFilter) {
 /** A finding has no whole-instance list in Dozzle (that lives in Cloud), so an
  *  empty scope asks nothing and gets nothing. */
 export async function fetchFindings(containers: Scope, filter: FindingsFilter): Promise<CloudFindingsResult> {
-  if (containers.length === 0) return { findings: [], fixLocked: false };
+  if (containers.length === 0) return { findings: [], fixLocked: false, canIgnore: false };
   const res = await fetch(findingsUrl(containers, filter));
   if (!res.ok) throw new Error(`findings: ${res.status}`);
   const body = await res.json();
-  return { findings: body.findings ?? [], fixLocked: !!body.fixLocked, truncated: !!body.truncated };
+  return {
+    findings: body.findings ?? [],
+    fixLocked: !!body.fixLocked,
+    truncated: !!body.truncated,
+    canIgnore: !!body.canIgnore,
+  };
 }
 
 /** Ignore a finding account-wide, or take that back. */
@@ -79,12 +89,70 @@ export async function setFindingIgnored(id: string, ignored: boolean) {
   return res.ok;
 }
 
-/** The newest finding this reader has opened the panel on, by first sighting.
- *  First rather than last seen: an ongoing finding is re-seen every morning, and
- *  the dot is for something new, not for something still there. */
+/**
+ * The newest finding this reader has opened the panel on, per container name,
+ * by first sighting. First rather than last seen: an ongoing finding is re-seen
+ * every morning, and the dot is for something new, not for something still
+ * there. Per name because a finding records names, and one mark for every
+ * container let reading container A put out the dot for a finding on B.
+ */
 // Per browser rather than per profile: a profile field is a server-side setting,
-// and this is only a dot.
-const lastSeenFinding = useLocalStorage("DOZZLE_LAST_SEEN_FINDING", 0);
+// and this is only a dot. The key once held a single number; that reads as
+// nothing seen, so the dots come back once rather than hiding something new.
+const SEEN_KEY = "DOZZLE_LAST_SEEN_FINDING";
+/** Names kept, newest marks first. Enough for any screen, small enough to never matter. */
+export const SEEN_LIMIT = 200;
+
+function readSeen(): Record<string, number> {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(SEEN_KEY) ?? "{}");
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+  } catch {
+    // Storage blocked or garbled: no marks, so a dot shows rather than hides.
+    return {};
+  }
+}
+
+const seenFindings = ref<Record<string, number>>(readSeen());
+
+/** Moves each container's mark up to the newest finding shown on it. Monotonic. */
+export function markFindingsSeen(findings: CloudFinding[]) {
+  const next = { ...seenFindings.value };
+  let changed = false;
+  for (const f of findings) {
+    for (const c of f.containers) {
+      if (f.firstSeenAt > (next[c.name] ?? 0)) {
+        next[c.name] = f.firstSeenAt;
+        changed = true;
+      }
+    }
+  }
+  if (!changed) return;
+  const kept = Object.fromEntries(
+    Object.entries(next)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, SEEN_LIMIT),
+  );
+  seenFindings.value = kept;
+  try {
+    localStorage.setItem(SEEN_KEY, JSON.stringify(kept));
+  } catch {
+    // Not persisted, but this page still remembers.
+  }
+}
+
+/** Test seam: re-reads the marks from storage. */
+export function resetSeenFindings() {
+  seenFindings.value = readSeen();
+}
+
+/** Whether any of these findings is newer, on a container in `names`, than
+ *  the reader has seen on that container. */
+function hasUnseen(findings: CloudFinding[], names: Set<string>) {
+  return findings.some((f) =>
+    f.containers.some((c) => names.has(c.name) && f.firstSeenAt > (seenFindings.value[c.name] ?? 0)),
+  );
+}
 
 export function useCloudFindings(filter: MaybeRefOrGetter<FindingsFilter>) {
   const { containers } = useCloudScope();
@@ -94,6 +162,7 @@ export function useCloudFindings(filter: MaybeRefOrGetter<FindingsFilter>) {
   const findings = ref<CloudFinding[]>([]);
   const fixLocked = ref(false);
   const truncated = ref(false);
+  const canIgnore = ref(false);
   const loading = ref(false);
   const failed = ref(false);
 
@@ -108,9 +177,12 @@ export function useCloudFindings(filter: MaybeRefOrGetter<FindingsFilter>) {
       findings.value = result.findings;
       fixLocked.value = result.fixLocked;
       truncated.value = !!result.truncated;
+      canIgnore.value = !!result.canIgnore;
     } catch {
       if (mine !== request) return;
       findings.value = [];
+      truncated.value = false;
+      canIgnore.value = false;
       failed.value = true;
     } finally {
       if (mine === request) loading.value = false;
@@ -147,14 +219,14 @@ export function useCloudFindings(filter: MaybeRefOrGetter<FindingsFilter>) {
   }
 
   function markSeen() {
-    const newest = Math.max(0, ...findings.value.map((f) => f.firstSeenAt));
-    if (newest > lastSeenFinding.value) lastSeenFinding.value = newest;
+    markFindingsSeen(findings.value);
   }
 
   return {
     findings,
     fixLocked,
     truncated,
+    canIgnore,
     loading,
     failed,
     reload: load,
@@ -165,19 +237,24 @@ export function useCloudFindings(filter: MaybeRefOrGetter<FindingsFilter>) {
 }
 
 /** Whether the scope on screen has a new finding first seen after the reader
- *  last opened the panel. Asked once per scope, for the tab's dot. */
+ *  last opened the panel on that container. Asked once per scope, for the
+ *  tab's dot. */
 export function useUnseenFindings(enabled: MaybeRefOrGetter<boolean> = true) {
   const { containers } = useCloudScope();
-  const newest = ref(0);
+  const latest = ref<CloudFinding[]>([]);
+  const names = computed(() => new Set(containers.value.map((c) => c.name)));
 
+  let request = 0;
   watch(
     () => (toValue(enabled) ? containers.value.map((c) => `${c.host}/${c.id}`).join(",") : ""),
     async (key) => {
-      newest.value = 0;
+      // A scope left behind must not answer for the one on screen now.
+      const mine = ++request;
+      latest.value = [];
       if (!key) return;
       try {
         const { findings } = await fetchFindings(containers.value, "new");
-        newest.value = Math.max(0, ...findings.map((f) => f.firstSeenAt));
+        if (mine === request) latest.value = findings;
       } catch {
         // No dot is the honest answer when the question could not be asked.
       }
@@ -185,5 +262,5 @@ export function useUnseenFindings(enabled: MaybeRefOrGetter<boolean> = true) {
     { immediate: true },
   );
 
-  return computed(() => newest.value > lastSeenFinding.value);
+  return computed(() => hasUnseen(latest.value, names.value));
 }

@@ -813,6 +813,7 @@ cloud-findings:
   ignored: Ignoriert. Er taucht nicht mehr in Berichten und E-Mails auf.
   undo: Rückgängig
   ignore-failed: Der Befund konnte nicht aktualisiert werden.
+  truncated: Hier werden nicht alle Befunde angezeigt. Dozzle Cloud hat den Rest.
 cloud-chat:
   title: Dozzle fragen
   close: Schließen

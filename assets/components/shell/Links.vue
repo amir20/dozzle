@@ -8,7 +8,7 @@
     <component
       :is="cloudLinked ? 'button' : RouterLink"
       v-if="config.enableNotifications"
-      v-bind="cloudLinked ? { type: 'button', onClick: () => openRail('alerts') } : { to: { name: '/notifications' } }"
+      v-bind="cloudLinked ? { type: 'button', onClick: openAllAlerts } : { to: { name: '/notifications' } }"
       :aria-label="unseenAlerts ? $t('notifications.new-alerts') : $t('title.notifications')"
       :title="unseenAlerts ? $t('notifications.new-alerts') : undefined"
       data-testid="notifications"
@@ -82,7 +82,16 @@ import { RouterLink } from "vue-router";
 
 const { linked: cloudLinked } = useCloudSurface();
 const { openRail } = useCloudRail();
+const { widen } = useCloudScope();
 const { logoutUrl } = config;
+
+// The bell's dot is instance-wide, so the panel it opens is too: scoped to the
+// containers on screen it showed fewer rows than the dot promised, and reading
+// them never put the dot out.
+function openAllAlerts() {
+  widen();
+  openRail("alerts");
+}
 
 // simple and oidc hold a session cookie Dozzle issued, so logging out means
 // clearing it. Forward proxy has none: the logout URL is the whole logout there.

@@ -816,6 +816,7 @@ cloud-findings:
   ignored: Yok sayıldı. Raporlara ve e-postalara dahil edilmeyecek.
   undo: Geri al
   ignore-failed: Bulgu güncellenemedi.
+  truncated: "Tüm bulgular burada listelenmiyor. Geri kalanı Dozzle Cloud'da."
 cloud-chat:
   title: Dozzle'a sor
   close: Kapat

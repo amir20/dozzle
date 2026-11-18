@@ -813,6 +813,7 @@ cloud-findings:
   ignored: Игнорируется. Не попадёт в отчёты и письма.
   undo: Отменить
   ignore-failed: Не удалось обновить находку.
+  truncated: Здесь показаны не все находки. Остальные есть в Dozzle Cloud.
 cloud-chat:
   title: Спросить Dozzle
   close: Закрыть

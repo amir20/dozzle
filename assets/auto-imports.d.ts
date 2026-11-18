@@ -30,6 +30,7 @@ declare global {
   const RELATIVE_SPANS: typeof import('./composable/logs/timeRange').RELATIVE_SPANS
   const SAMPLE_WINDOW_STOPS: typeof import('./composable/notifications/alertForm').SAMPLE_WINDOW_STOPS
   const SCROLL_JITTER_PX: typeof import('./composable/ui/compactOnScroll').SCROLL_JITTER_PX
+  const SEEN_LIMIT: typeof import('./composable/cloud/cloudFindings').SEEN_LIMIT
   const SERVER_PAGES: typeof import('./composable/app/settingsPages').SERVER_PAGES
   const SETTINGS_PAGE_ICONS: typeof import('./composable/app/settingsPages').SETTINGS_PAGE_ICONS
   const SETTINGS_PAGE_IDS: typeof import('./composable/app/settingsPages').SETTINGS_PAGE_IDS
@@ -212,6 +213,7 @@ declare global {
   const mapStores: typeof import('pinia').mapStores
   const mapWritableState: typeof import('pinia').mapWritableState
   const markCloudWelcomePending: typeof import('./composable/cloud/cloudWelcome').markCloudWelcomePending
+  const markFindingsSeen: typeof import('./composable/cloud/cloudFindings').markFindingsSeen
   const markRaw: typeof import('vue').markRaw
   const memoryBars: typeof import('./composable/cloud/chatVisuals').memoryBars
   const menuWidth: typeof import('./stores/settings').menuWidth
@@ -290,6 +292,7 @@ declare global {
   const refWithControl: typeof import('@vueuse/core').refWithControl
   const relativeTimeTick: typeof import('./composable/ui/timeTicker').relativeTimeTick
   const repositionMarkers: typeof import('./composable/logs/updateMarkers').repositionMarkers
+  const resetSeenFindings: typeof import('./composable/cloud/cloudFindings').resetSeenFindings
   const resolveComponent: typeof import('vue').resolveComponent
   const resolvePolicy: typeof import('./composable/containers/updatePolicy').resolvePolicy
   const resolveRef: typeof import('@vueuse/core').resolveRef
@@ -817,6 +820,7 @@ declare module 'vue' {
     readonly RELATIVE_SPANS: UnwrapRef<typeof import('./composable/logs/timeRange')['RELATIVE_SPANS']>
     readonly SAMPLE_WINDOW_STOPS: UnwrapRef<typeof import('./composable/notifications/alertForm')['SAMPLE_WINDOW_STOPS']>
     readonly SCROLL_JITTER_PX: UnwrapRef<typeof import('./composable/ui/compactOnScroll')['SCROLL_JITTER_PX']>
+    readonly SEEN_LIMIT: UnwrapRef<typeof import('./composable/cloud/cloudFindings')['SEEN_LIMIT']>
     readonly SERVER_PAGES: UnwrapRef<typeof import('./composable/app/settingsPages')['SERVER_PAGES']>
     readonly SETTINGS_PAGE_ICONS: UnwrapRef<typeof import('./composable/app/settingsPages')['SETTINGS_PAGE_ICONS']>
     readonly SETTINGS_PAGE_IDS: UnwrapRef<typeof import('./composable/app/settingsPages')['SETTINGS_PAGE_IDS']>
@@ -991,6 +995,7 @@ declare module 'vue' {
     readonly mapStores: UnwrapRef<typeof import('pinia')['mapStores']>
     readonly mapWritableState: UnwrapRef<typeof import('pinia')['mapWritableState']>
     readonly markCloudWelcomePending: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['markCloudWelcomePending']>
+    readonly markFindingsSeen: UnwrapRef<typeof import('./composable/cloud/cloudFindings')['markFindingsSeen']>
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
     readonly memoryBars: UnwrapRef<typeof import('./composable/cloud/chatVisuals')['memoryBars']>
     readonly menuWidth: UnwrapRef<typeof import('./stores/settings')['menuWidth']>
@@ -1068,6 +1073,7 @@ declare module 'vue' {
     readonly refWithControl: UnwrapRef<typeof import('@vueuse/core')['refWithControl']>
     readonly relativeTimeTick: UnwrapRef<typeof import('./composable/ui/timeTicker')['relativeTimeTick']>
     readonly repositionMarkers: UnwrapRef<typeof import('./composable/logs/updateMarkers')['repositionMarkers']>
+    readonly resetSeenFindings: UnwrapRef<typeof import('./composable/cloud/cloudFindings')['resetSeenFindings']>
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
     readonly resolvePolicy: UnwrapRef<typeof import('./composable/containers/updatePolicy')['resolvePolicy']>
     readonly riskyContainers: UnwrapRef<typeof import('./composable/containers/updatePolicy')['riskyContainers']>

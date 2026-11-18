@@ -815,6 +815,7 @@ cloud-findings:
   ignored: 무시했습니다. 리포트와 메일에서 제외됩니다.
   undo: 실행 취소
   ignore-failed: 조사 결과를 업데이트하지 못했습니다.
+  truncated: 모든 조사 결과가 여기에 표시되지는 않습니다. 나머지는 Dozzle Cloud에 있습니다.
 cloud-chat:
   title: Dozzle에 질문
   close: 닫기

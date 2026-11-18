@@ -77,7 +77,8 @@
                 <template v-if="i === 0">{{ $t("cloud-findings.show-lines") }}</template>
                 <span v-else class="font-mono">{{ container.name }}</span>
               </button>
-              <template v-if="config.canLinkCloud">
+              <!-- The server says whether the ignore route would let this reader in. -->
+              <template v-if="canIgnore">
                 <button v-if="filter === 'ignored'" type="button" class="btn btn-sm" @click="unignore(finding)">
                   {{ $t("cloud-findings.unignore") }}
                 </button>
@@ -99,6 +100,11 @@
           </div>
         </div>
       </div>
+
+      <!-- The rest is in Cloud, which the footer links to. -->
+      <p v-if="truncated && findings.length" class="text-base-content/40 mt-3 text-xs">
+        {{ $t("cloud-findings.truncated") }}
+      </p>
     </template>
   </div>
 </template>
@@ -117,7 +123,7 @@ const expanded = ref<string>();
 
 const { containers } = useCloudScope();
 const single = computed(() => containers.value.length === 1);
-const { findings, loading, failed, ignore, unignore, markSeen } = useCloudFindings(filter);
+const { findings, truncated, canIgnore, loading, failed, ignore, unignore, markSeen } = useCloudFindings(filter);
 const { jumpTo } = useLogJump();
 const { closeRail } = useCloudRail();
 

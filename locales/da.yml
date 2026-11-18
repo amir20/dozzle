@@ -813,6 +813,7 @@ cloud-findings:
   ignored: Ignoreret. Det holdes ude af rapporter og mails.
   undo: Fortryd
   ignore-failed: Kunne ikke opdatere fundet.
+  truncated: Ikke alle fund vises her. Dozzle Cloud har resten.
 cloud-chat:
   title: Spørg Dozzle
   close: Luk

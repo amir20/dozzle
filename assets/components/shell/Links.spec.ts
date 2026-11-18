@@ -9,6 +9,7 @@ import Links from "./Links.vue";
 
 const linked = ref(false);
 const openRail = vi.fn();
+const widen = vi.fn();
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
@@ -17,6 +18,7 @@ vi.mock("@/stores/config", () => ({
 }));
 vi.mock("@/composable/cloud/cloudSurface", () => ({ useCloudSurface: () => ({ linked }) }));
 vi.mock("@/composable/cloud/cloudRail", () => ({ useCloudRail: () => ({ openRail }) }));
+vi.mock("@/composable/cloud/cloudScope", () => ({ useCloudScope: () => ({ widen }) }));
 vi.mock("@/composable/cloud/recentAlerts", () => ({
   useRecentAlerts: () => ({ unseen: ref(false), fetchRecentAlerts: vi.fn(), refreshRecentAlerts: vi.fn() }),
 }));
@@ -34,11 +36,15 @@ describe("<Links /> bell", () => {
     expect(bell.element.tagName).not.toBe("BUTTON");
   });
 
-  test("opens the drawer's Alerts panel once cloud is linked", async () => {
+  // The dot counts the instance, so the panel shows the instance: scoped to the
+  // containers on screen it listed fewer rows than the dot promised.
+  test("opens the drawer's Alerts panel widened to every container once cloud is linked", async () => {
     linked.value = true;
     const bell = mountLinks().find('[data-testid="notifications"]');
     expect(bell.element.tagName).toBe("BUTTON");
     await bell.trigger("click");
+    expect(widen).toHaveBeenCalled();
     expect(openRail).toHaveBeenCalledWith("alerts");
+    expect(widen.mock.invocationCallOrder[0]).toBeLessThan(openRail.mock.invocationCallOrder[0]);
   });
 });

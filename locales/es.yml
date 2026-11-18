@@ -319,6 +319,7 @@ cloud-findings:
   ignored: Ignorado. Ya no aparecerá en informes ni correos.
   undo: Deshacer
   ignore-failed: No se pudo actualizar el hallazgo.
+  truncated: Aquí no se muestran todos los hallazgos. Dozzle Cloud tiene el resto.
 cloud-chat:
   title: Preguntar a Dozzle
   close: Cerrar

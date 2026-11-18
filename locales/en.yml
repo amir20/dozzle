@@ -327,6 +327,7 @@ cloud-findings:
   ignored: Ignored. It stays out of reports and emails.
   undo: Undo
   ignore-failed: Could not update the finding.
+  truncated: Not every finding is listed here. Dozzle Cloud has the rest.
 cloud-chat:
   title: Ask Dozzle
   close: Close
