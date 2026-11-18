@@ -136,6 +136,30 @@ describe("ignoring a finding", () => {
     expect(api.findings.value.map((f) => f.id)).toEqual(["k1", "k2"]);
   });
 
+  test("an undo after the list moved on fetches it again instead of splicing a stale row", async () => {
+    scope.value = [{ host: "h1", id: "a1", name: "api" }];
+    // Answers by URL: earlier tests' components are still mounted and refetch
+    // on the scope change too.
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url.includes("/ignore")) return json({ finding: finding("k1") });
+      return json({ findings: url.includes("a1") ? [finding("k1"), finding("k2")] : [finding("k1")] });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const api = mountFindings();
+    await flushPromises();
+
+    await api.ignore(api.findings.value[0]);
+    scope.value = [{ host: "h1", id: "b2", name: "worker" }];
+    await flushPromises();
+
+    toast.mock.lastCall![0].action.handler();
+    await flushPromises();
+    expect(fetchMock).toHaveBeenCalledWith("/api/cloud/findings/k1/ignore", { method: "DELETE" });
+    expect(fetchMock).toHaveBeenLastCalledWith("/api/cloud/findings?container=h1%2Fb2&filter=new");
+    expect(api.findings.value.map((f) => f.id)).toEqual(["k1"]);
+    scope.value = [{ host: "h1", id: "a1", name: "api" }];
+  });
+
   test("puts the row back when Cloud refuses", async () => {
     const fetchMock = vi
       .fn()

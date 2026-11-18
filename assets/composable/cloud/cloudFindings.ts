@@ -189,16 +189,27 @@ export function useCloudFindings(filter: MaybeRefOrGetter<FindingsFilter>) {
     }
   }
 
-  watch(() => [toValue(filter), containers.value.map((c) => `${c.host}/${c.id}`).join(",")], load, { immediate: true });
+  /** Which list is on show: a filter and a scope. */
+  const listKey = () => `${toValue(filter)}|${containers.value.map((c) => `${c.host}/${c.id}`).join(",")}`;
+  watch(listKey, load, { immediate: true });
+
+  /** Puts a row back where it was, unless the list moved on while the request
+   *  was out: then it is fetched again rather than patched with a stale row. */
+  function putBack(finding: CloudFinding, index: number, key: string) {
+    if (key !== listKey()) return load();
+    if (findings.value.some((f) => f.id === finding.id)) return;
+    findings.value.splice(Math.min(index, findings.value.length), 0, finding);
+  }
 
   /** Ignored leaves New and All, and un-ignored leaves Ignored, so either way
    *  the row goes; the toast puts it back if the reader changes their mind. */
   async function toggleIgnored(finding: CloudFinding, ignored: boolean) {
     const index = findings.value.indexOf(finding);
     if (index === -1) return;
+    const key = listKey();
     findings.value.splice(index, 1);
     if (!(await setFindingIgnored(finding.id, ignored))) {
-      findings.value.splice(index, 0, finding);
+      putBack(finding, index, key);
       showToast({ type: "error", message: t("cloud-findings.ignore-failed") }, { expire: 5000 });
       return;
     }
@@ -207,15 +218,15 @@ export function useCloudFindings(filter: MaybeRefOrGetter<FindingsFilter>) {
         {
           type: "info",
           message: t("cloud-findings.ignored"),
-          action: { label: t("cloud-findings.undo"), handler: () => restore(finding, index) },
+          action: { label: t("cloud-findings.undo"), handler: () => restore(finding, index, key) },
         },
         { expire: 8000 },
       );
     }
   }
 
-  async function restore(finding: CloudFinding, index: number) {
-    if (await setFindingIgnored(finding.id, false)) findings.value.splice(index, 0, finding);
+  async function restore(finding: CloudFinding, index: number, key: string) {
+    if (await setFindingIgnored(finding.id, false)) putBack(finding, index, key);
   }
 
   function markSeen() {
