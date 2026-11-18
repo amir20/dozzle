@@ -14,6 +14,7 @@ import (
 	"github.com/moby/moby/api/types/image"
 	"github.com/moby/moby/api/types/mount"
 	"github.com/moby/moby/api/types/network"
+	"github.com/moby/moby/api/types/system"
 	"github.com/moby/moby/client"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -249,6 +250,33 @@ func TestReplacementSpecSharedNamespace(t *testing.T) {
 	spec := ReplacementSpec(old, nil, "dozzle")
 	assert.Nil(t, spec.NetworkingConfig)
 	assert.Empty(t, spec.Config.Hostname)
+}
+
+func TestSwapMemorySwappiness(t *testing.T) {
+	fastTimings(t)
+	zero, sixty := int64(0), int64(60)
+
+	swapped := func(swappiness *int64, podman bool) *int64 {
+		f := newFake()
+		old := f.containers[appID]
+		old.HostConfig.MemorySwappiness = swappiness
+		f.containers[appID] = old
+		_, err := swapApp(f, Options{Podman: podman})
+		require.NoError(t, err)
+		return f.created[0].HostConfig.MemorySwappiness
+	}
+
+	// Podman reports 0 when swappiness was never set, and crun refuses to
+	// start a container with it set on cgroup v2 (#5662).
+	assert.Nil(t, swapped(&zero, true))
+	assert.Equal(t, &sixty, swapped(&sixty, true), "an explicit value is kept on podman")
+	assert.Equal(t, &zero, swapped(&zero, false), "on docker a 0 was set on purpose")
+}
+
+func TestIsPodman(t *testing.T) {
+	assert.True(t, IsPodman(client.ServerVersionResult{Components: []system.ComponentVersion{{Name: "Podman Engine"}}}))
+	assert.True(t, IsPodman(client.ServerVersionResult{Platform: client.PlatformInfo{Name: "linux/amd64/fedora-43 Podman"}}))
+	assert.False(t, IsPodman(client.ServerVersionResult{Components: []system.ComponentVersion{{Name: "Engine"}}, Platform: client.PlatformInfo{Name: "Docker Engine - Community"}}))
 }
 
 func TestSwapSuccess(t *testing.T) {

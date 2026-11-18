@@ -383,6 +383,7 @@ func (d *Service) swapAndRejoin(ctx context.Context, old docker_types.InspectRes
 
 	ctx = context.WithoutCancel(ctx)
 	opts.OnVerifying = func() { progress(container.UpdateProgress{Status: container.UpdateVerifying}) }
+	opts.Podman = d.client.Host().Runtime == "podman"
 	result, err = swap.Swap(ctx, d.client.SwapAPI(), old, opts)
 	if err != nil {
 		// A stopped old container took its namespace with it, so dependents

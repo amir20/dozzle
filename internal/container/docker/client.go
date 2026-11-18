@@ -255,16 +255,8 @@ func (d *Client) Close() error {
 }
 
 func detectRuntime(cli CLI, info system.Info) string {
-	version, err := cli.ServerVersion(context.Background(), client.ServerVersionOptions{})
-	if err == nil {
-		for _, c := range version.Components {
-			if strings.Contains(strings.ToLower(c.Name), "podman") {
-				return "podman"
-			}
-		}
-		if strings.Contains(strings.ToLower(version.Platform.Name), "podman") {
-			return "podman"
-		}
+	if version, err := cli.ServerVersion(context.Background(), client.ServerVersionOptions{}); err == nil && swap.IsPodman(version) {
+		return "podman"
 	}
 	if strings.Contains(strings.ToLower(info.OperatingSystem), "podman") {
 		return "podman"
@@ -546,7 +538,11 @@ func (d *Client) ContainerCreate(ctx context.Context, inspectResp docker.Inspect
 		log.Warn().Err(err).Str("image", inspectResp.Image).Msg("could not inspect the old image, keeping its settings on the replacement")
 	}
 
-	resp, err := d.cli.ContainerCreate(ctx, swap.ReplacementSpec(inspectResp, oldImage, name))
+	spec := swap.ReplacementSpec(inspectResp, oldImage, name)
+	if d.host.Runtime == "podman" {
+		swap.ForPodman(spec.HostConfig)
+	}
+	resp, err := d.cli.ContainerCreate(ctx, spec)
 	if err != nil {
 		return "", err
 	}

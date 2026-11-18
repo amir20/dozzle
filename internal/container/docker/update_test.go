@@ -78,6 +78,8 @@ func (u *updateClient) ContainerRemove(_ context.Context, id string) error {
 	return nil
 }
 
+func (u *updateClient) Host() container.Host { return container.Host{Runtime: "docker"} }
+
 func (u *updateClient) ContainerCreate(_ context.Context, inspect docker_types.InspectResponse, name string) (string, error) {
 	u.calls = append(u.calls, "create "+name+" "+string(inspect.HostConfig.NetworkMode))
 	return "new-" + name, nil

@@ -86,11 +86,15 @@ func run(ctx context.Context, cli dockerAPI, targetID string, networkMode string
 		labels = swap.PreviousLabels(old, oldImage, ref)
 	}
 
+	version, err := cli.ServerVersion(ctx, client.ServerVersionOptions{})
+	podman := err == nil && swap.IsPodman(version)
+
 	swapped, err := swap.Swap(ctx, cli, old, swap.Options{
 		OldImage:    oldImage,
 		NetworkMode: networkMode,
 		Labels:      labels,
 		LogPrefix:   "self-update",
+		Podman:      podman,
 	})
 	if err != nil {
 		return err

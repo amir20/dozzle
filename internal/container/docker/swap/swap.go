@@ -76,6 +76,8 @@ type Options struct {
 	OnVerifying func()
 	// LogPrefix starts every log line, "update" when empty.
 	LogPrefix string
+	// Podman applies ForPodman to the replacement.
+	Podman bool
 }
 
 // Result is what a swap did.
@@ -158,6 +160,9 @@ func newSwap(cli API, old dcontainer.InspectResponse, opts Options) *swap {
 // applied (an empty value removes one). oldImage is as Options.OldImage.
 func (s *swap) spec(oldImage *image.InspectResponse, image string, labels map[string]string) client.ContainerCreateOptions {
 	spec := ReplacementSpec(s.old, oldImage, s.name)
+	if s.opts.Podman {
+		ForPodman(spec.HostConfig)
+	}
 	if s.opts.NetworkMode != "" {
 		spec.HostConfig.NetworkMode = dcontainer.NetworkMode(s.opts.NetworkMode)
 	}

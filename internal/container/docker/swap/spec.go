@@ -163,6 +163,27 @@ func ReplacementSpec(old dcontainer.InspectResponse, oldImage *image.InspectResp
 	}
 }
 
+// ForPodman adjusts a replacement's host config for a Podman engine. Podman's
+// compat API reports a swappiness of 0 where Docker reports null for "never
+// set" (containers/podman#23824), and crun refuses to start a container that
+// sets it on cgroup v2 (#5662), so the 0 is dropped and the engine default
+// applies. On Docker a 0 was set on purpose, so this is never applied there.
+func ForPodman(hc *dcontainer.HostConfig) {
+	if hc.MemorySwappiness != nil && *hc.MemorySwappiness == 0 {
+		hc.MemorySwappiness = nil
+	}
+}
+
+// IsPodman reports whether a server version was answered by Podman.
+func IsPodman(v client.ServerVersionResult) bool {
+	for _, c := range v.Components {
+		if strings.Contains(strings.ToLower(c.Name), "podman") {
+			return true
+		}
+	}
+	return strings.Contains(strings.ToLower(v.Platform.Name), "podman")
+}
+
 // preserveVolumes returns the mounts for the replacement. Named volumes and
 // binds already reference their data by name or path and are left alone. An
 // anonymous volume only has a destination in the create request, so it is
