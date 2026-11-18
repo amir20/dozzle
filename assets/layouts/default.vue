@@ -2,10 +2,10 @@
   <div>
     <MobileTabBar v-if="showTabBar" @search="showFuzzySearch" />
     <Splitpanes @resized="onResized($event)">
-      <Pane min-size="10" :size="menuWidth" v-if="navVisible">
+      <Pane :min-size="navMinSize" :size="navSize" v-if="navVisible">
         <SidePanel />
       </Pane>
-      <Pane min-size="10" :size="navVisible ? 100 - menuWidth : 100">
+      <Pane min-size="10" :size="navVisible ? 100 - navSize : 100">
         <!-- The strip is fixed to the right edge, so its width is reserved here
              rather than over the logs. Reserved inside the content column and
              not on the page, because the nav is a different column. -->
@@ -40,7 +40,13 @@
   </div>
   <CloudRail v-if="railMounted" />
   <CloudRailHandle v-else-if="railCollapsed" />
-  <dialog ref="modal" class="modal bg-base-300/50! items-start backdrop-blur-md transition-none!" @close="closeSearch">
+  <!-- A dialog sits in the top layer, so the body's safe-area padding never reaches it. On a phone
+       with a side status column (iPhone Duo) the palette's close button ended up underneath it. -->
+  <dialog
+    ref="modal"
+    class="modal bg-base-300/50! items-start pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] backdrop-blur-md transition-none!"
+    @close="closeSearch"
+  >
     <div class="modal-box max-w-3xl overflow-visible! bg-transparent pt-20 shadow-none">
       <FuzzySearchModal @close="closeSearch" v-if="open" />
     </div>
@@ -127,6 +133,13 @@ const forceMenuHidden = ref(searchParams.has("hideMenu"));
 // panes would together still claim 100% + menuWidth once the nav came back, and
 // splitpanes would shrink the nav to its min-size to compensate.
 const navVisible = computed(() => !isMobile.value && !collapseNav.value && !forceMenuHidden.value);
+
+// menuWidth is a percentage, so on a narrow desktop (an unfolded phone, an iPad) the
+// default 15% left about 130px and every container name read "doli…". Floor it in pixels.
+const NAV_MIN_PX = 200;
+const { width: windowWidth } = useWindowSize();
+const navMinSize = computed(() => Math.min(40, Math.max(10, (NAV_MIN_PX / windowWidth.value) * 100)));
+const navSize = computed(() => Math.max(menuWidth.value, navMinSize.value));
 
 // On a phone the shell is a tab bar for the top-level pages, and a log view is pushed on
 // top of it with a back button instead: the bottom of the stream is where people read.

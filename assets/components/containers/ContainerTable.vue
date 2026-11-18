@@ -75,7 +75,7 @@
         <tbody>
           <template v-if="!ready">
             <tr v-for="i in skeletonRows" :key="`skeleton-${i}`" role="status" class="animate-pulse">
-              <td v-if="isVisible('name')" class="max-w-80 max-md:w-full max-md:max-w-0">
+              <td v-if="isVisible('name')" class="w-full max-w-0">
                 <div class="flex items-center gap-2">
                   <div class="bg-base-content/50 size-6 shrink-0 rounded-full opacity-50"></div>
                   <div class="bg-base-content/50 h-3 w-40 max-w-full rounded-full opacity-50"></div>
@@ -132,7 +132,7 @@
             ]"
             class="hover:bg-base-200/60"
           >
-            <td v-if="isVisible('name')" class="max-w-80 max-md:w-full max-md:max-w-0">
+            <td v-if="isVisible('name')" class="w-full max-w-0">
               <div class="flex items-center gap-2 max-md:items-start">
                 <ContainerIcon
                   :state="container.state"
@@ -167,8 +167,7 @@
                     v-if="isMobile ? container.customGroup : container.customGroup || container.image"
                     class="text-base-content/50 truncate text-xs"
                   >
-                    <span>{{ container.customGroup }}</span
-                    ><template v-if="!isMobile && container.image"
+                    <span>{{ container.customGroup }}</span><template v-if="!isMobile && container.image"
                       ><span v-if="container.customGroup" class="text-base-content/30 mx-1">·</span
                       ><span class="font-mono" :title="container.image">{{ shortImageRef(container.image) }}</span
                       ><span
@@ -353,7 +352,7 @@ const fields: Record<
     rawLabel: "label.cpu",
     sortFunc: (a: Container, b: Container) => (cpuOf(a) - cpuOf(b)) * direction.value,
     mobileVisible: false,
-    customClass: "min-w-48 max-md:min-w-0",
+    customClass: "min-w-48 max-lg:min-w-32 max-md:min-w-0",
   },
   mem: {
     label: "label.avg-mem",
@@ -361,7 +360,7 @@ const fields: Record<
     rawLabel: "label.mem",
     sortFunc: (a: Container, b: Container) => (memOf(a) - memOf(b)) * direction.value,
     mobileVisible: false,
-    customClass: "min-w-48 max-md:min-w-0",
+    customClass: "min-w-48 max-lg:min-w-32 max-md:min-w-0",
   },
   net: {
     label: "label.network",

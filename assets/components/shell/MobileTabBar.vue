@@ -5,7 +5,11 @@
     <div
       v-if="browsing"
       class="bg-base-100 pt-safe fixed inset-0 z-30 flex flex-col"
-      :style="{ paddingBottom: 'var(--mobile-tabbar-height)' }"
+      :style="{
+        paddingBottom: 'var(--mobile-tabbar-height)',
+        paddingLeft: 'env(safe-area-inset-left)',
+        paddingRight: 'env(safe-area-inset-right)',
+      }"
       data-testid="navigation"
     >
       <div class="flex min-h-0 flex-1 flex-col gap-3 p-3">
@@ -22,7 +26,7 @@
   <!-- Scrolling down shrinks the bar out of the way and scrolling up brings it back,
        the same as Dozzle Cloud's. Never while Browse is open, which is a full screen. -->
   <nav
-    class="tab-bar fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-40 flex items-end gap-2"
+    class="tab-bar fixed right-[calc(0.75rem+env(safe-area-inset-right))] bottom-[calc(0.75rem+env(safe-area-inset-bottom))] left-[calc(0.75rem+env(safe-area-inset-left))] z-40 flex items-end gap-2"
     :class="{ compact: compact && !browsing }"
     :aria-label="$t('mobile-nav.label')"
   >

@@ -1,7 +1,7 @@
 <template>
   <ScrollableView :scrollable="scrollable" v-if="owner.name">
     <template #header>
-      <div class="mx-2 flex items-center gap-2 md:ml-4">
+      <div class="@container mx-2 flex items-center gap-2 md:ml-4">
         <div class="@container flex flex-1 items-center gap-1.5 md:gap-2">
           <ph:stack-simple />
           <div class="font-mono text-sm font-semibold">{{ owner.kind }}/{{ owner.name }}</div>

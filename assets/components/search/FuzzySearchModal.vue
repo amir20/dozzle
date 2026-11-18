@@ -48,7 +48,7 @@
         <mdi:close-circle class="size-4" />
       </button>
       <form method="dialog" class="flex shrink-0">
-        <button v-if="isMobile" class="icon-btn text-base-content/50 hover:text-base-content">
+        <button v-if="isMobile || !canHover" class="icon-btn text-base-content/50 hover:text-base-content">
           <mdi:close class="size-5" />
         </button>
         <button v-else class="cursor-pointer">
@@ -279,39 +279,42 @@
     >
       <!-- One row tall: a hint that does not fit wraps out of sight whole, last
            first, instead of pushing the cloud status off the edge. -->
+      <!-- Key hints follow the pointer, not the width: an unfolded phone or a tablet is
+           wide enough for them but has no keyboard to press them on. -->
       <div class="flex h-5 min-w-0 flex-1 flex-wrap content-start gap-x-4 gap-y-5 overflow-hidden *:h-5">
-        <span v-if="flatEntries.length > 1" class="hidden items-center gap-1 sm:flex">
-          <kbd class="kbd kbd-xs">↑</kbd><kbd class="kbd kbd-xs">↓</kbd>
-          <span class="ml-0.5">{{ $t("cloud-search.nav-hint") }}</span>
-        </span>
-        <span v-if="enterHint" class="hidden items-center gap-1 sm:flex">
-          <kbd class="kbd kbd-xs">↵</kbd> <span class="ml-0.5">{{ enterHint }}</span>
-        </span>
-        <span v-if="selectedContainerItem && !drilled" class="hidden items-center gap-1 md:flex">
-          <kbd class="kbd kbd-xs">tab</kbd>
-          <span class="ml-0.5">{{ $t("command-palette.actions-hint") }}</span>
-        </span>
-        <span v-if="drilled" class="hidden items-center gap-1 sm:flex">
-          <kbd class="kbd kbd-xs">esc</kbd>
-          <span class="ml-0.5">{{ $t("command-palette.back-hint") }}</span>
-        </span>
-        <!-- Pin and merge only apply to a container, not to a service or stack row. -->
-        <span v-if="selectedContainerItem" class="hidden items-center gap-1 md:flex">
-          <kbd class="kbd kbd-xs">⌥</kbd><kbd class="kbd kbd-xs">↵</kbd>
-          <span class="ml-0.5">{{ $t("cloud-search.pin-shortcut") }}</span>
-        </span>
-        <span
-          v-if="selectedContainerItem && canToggle(selectedContainerItem.id)"
-          class="hidden items-center gap-1 md:flex"
-        >
-          <kbd class="kbd kbd-xs">{{ isMac ? "⌘" : "Ctrl" }}</kbd
-          ><kbd class="kbd kbd-xs">↵</kbd>
-          <span class="ml-0.5">{{
-            isStreaming(selectedContainerItem.id)
-              ? $t("cloud-search.unmerge-shortcut")
-              : $t("cloud-search.merge-shortcut")
-          }}</span>
-        </span>
+        <template v-if="canHover">
+          <span v-if="flatEntries.length > 1" class="hidden items-center gap-1 sm:flex">
+            <kbd class="kbd kbd-xs">↑</kbd><kbd class="kbd kbd-xs">↓</kbd>
+            <span class="ml-0.5">{{ $t("cloud-search.nav-hint") }}</span>
+          </span>
+          <span v-if="enterHint" class="hidden items-center gap-1 sm:flex">
+            <kbd class="kbd kbd-xs">↵</kbd> <span class="ml-0.5">{{ enterHint }}</span>
+          </span>
+          <span v-if="selectedContainerItem && !drilled" class="hidden items-center gap-1 md:flex">
+            <kbd class="kbd kbd-xs">tab</kbd>
+            <span class="ml-0.5">{{ $t("command-palette.actions-hint") }}</span>
+          </span>
+          <span v-if="drilled" class="hidden items-center gap-1 sm:flex">
+            <kbd class="kbd kbd-xs">esc</kbd>
+            <span class="ml-0.5">{{ $t("command-palette.back-hint") }}</span>
+          </span>
+          <!-- Pin and merge only apply to a container, not to a service or stack row. -->
+          <span v-if="selectedContainerItem" class="hidden items-center gap-1 md:flex">
+            <kbd class="kbd kbd-xs">⌥</kbd><kbd class="kbd kbd-xs">↵</kbd>
+            <span class="ml-0.5">{{ $t("cloud-search.pin-shortcut") }}</span>
+          </span>
+          <span
+            v-if="selectedContainerItem && canToggle(selectedContainerItem.id)"
+            class="hidden items-center gap-1 md:flex"
+          >
+            <kbd class="kbd kbd-xs">{{ isMac ? "⌘" : "Ctrl" }}</kbd><kbd class="kbd kbd-xs">↵</kbd>
+            <span class="ml-0.5">{{
+              isStreaming(selectedContainerItem.id)
+                ? $t("cloud-search.unmerge-shortcut")
+                : $t("cloud-search.merge-shortcut")
+            }}</span>
+          </span>
+        </template>
       </div>
 
       <!-- Cloud status. Skipped while the log search row is on screen, which

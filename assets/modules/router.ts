@@ -4,6 +4,7 @@ import { routes } from "vue-router/auto-routes";
 import { setupLayouts } from "virtual:generated-layouts";
 import config from "@/stores/config";
 import { guardSettingsRoutes, isSettingsPageSwitch, settingsPages } from "@/composable/app/settingsPages";
+import { isLogRoute } from "@/composable/app/mobileShell";
 
 export const router = createRouter({
   history: createWebHistory(withBase("/")),
@@ -12,10 +13,14 @@ export const router = createRouter({
   // keeps the browser's own behaviour, which is what the log views want: they
   // restore their own scroll position. `#cloudLinked` is a signal to the cloud
   // popover rather than an anchor, so it has to fall through rather than warn. Switching
-  // settings pages starts the new page at its top.
-  scrollBehavior: (to, from) => {
+  // settings pages starts the new page at its top, and so does leaving a log view for
+  // any other page: the document was scrolled to the bottom of the stream, and the
+  // dashboard opened at its own last row with its header out of sight. Back still
+  // restores where the page was.
+  scrollBehavior: (to, from, savedPosition) => {
     if (to.hash && document.querySelector(to.hash)) return { el: to.hash };
     if (isSettingsPageSwitch(to.path, from.path)) return { top: 0 };
+    if (isLogRoute(from) && !isLogRoute(to)) return savedPosition ?? { top: 0 };
     return undefined;
   },
 });

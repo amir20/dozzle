@@ -1,7 +1,7 @@
 <template>
   <ScrollableView :scrollable="scrollable" v-if="host">
     <template #header>
-      <div class="mx-2 flex items-center gap-2 md:ml-4">
+      <div class="@container mx-2 flex items-center gap-2 md:ml-4">
         <div class="flex flex-1 items-center gap-1.5 truncate md:gap-2">
           <ph:computer-tower />
           <div class="inline-flex font-mono text-sm">

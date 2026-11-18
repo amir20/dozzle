@@ -1,7 +1,7 @@
 <template>
   <ScrollableView :scrollable="scrollable" v-if="found && ready">
     <template #header>
-      <div class="mx-2 flex items-center gap-2 md:ml-4">
+      <div class="@container mx-2 flex items-center gap-2 md:ml-4">
         <ContainerDropdown :containers="group.containers">
           {{ $t("label.container", group.containers.length) }}
         </ContainerDropdown>

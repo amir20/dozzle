@@ -77,6 +77,11 @@ useEventListener(panel, "close", () => (open.value = false));
   /* dvh, not lvh or 100vh: on iOS those are the largest viewport, which runs under the
      browser's toolbar, so a footer pinned to the bottom of the drawer lands off screen. */
   @apply bg-base-100 fixed right-0 h-dvh max-h-dvh translate-x-24 scale-100 rounded-none shadow-none;
+  /* A dialog sits in the top layer, out of reach of the body's safe-area padding. The
+     iPhone Duo reports its side status column as a right inset, and the close button
+     landed under it. */
+  padding-left: calc(1.5rem + env(safe-area-inset-left));
+  padding-right: calc(1.5rem + env(safe-area-inset-right));
 
   &[width="md"] {
     @apply max-w-3xl;
