@@ -21,6 +21,7 @@ type alertCall struct {
 	limit            int32
 	includeFollowUps bool
 	includeEvents    bool
+	buckets          int32
 }
 
 // alertHandler builds a handler wired to a stub GetAlerts, capturing what the
@@ -31,8 +32,8 @@ func alertHandler(t *testing.T, fn func(*alertCall) (*cloud.AlertResult, error))
 	got := &alertCall{}
 	h := &handler{config: &Config{}}
 	if fn != nil {
-		h.config.Cloud.GetAlerts = func(ctx context.Context, containerIDs []string, hostID string, fromNs, toNs int64, limit int32, includeFollowUps, includeEvents bool) (*cloud.AlertResult, error) {
-			*got = alertCall{containerIDs, hostID, fromNs, toNs, limit, includeFollowUps, includeEvents}
+		h.config.Cloud.GetAlerts = func(ctx context.Context, containerIDs []string, hostID string, fromNs, toNs int64, limit int32, includeFollowUps, includeEvents bool, buckets int32) (*cloud.AlertResult, error) {
+			*got = alertCall{containerIDs, hostID, fromNs, toNs, limit, includeFollowUps, includeEvents, buckets}
 			return fn(got)
 		}
 	}
@@ -149,4 +150,42 @@ func TestCloudAlerts_ErrorMapping(t *testing.T) {
 			require.Equal(t, tc.want, doAlerts(h, "containerIds=abc&from=1&to=2").Code)
 		})
 	}
+}
+
+// Buckets are opt-in like events, and bounded so a client cannot ask Cloud to
+// split a window into thousands of slices.
+func TestCloudAlerts_BucketsAreOptInAndCapped(t *testing.T) {
+	for query, want := range map[string]int32{
+		"":              0,
+		"&buckets=0":    0,
+		"&buckets=-5":   0,
+		"&buckets=nope": 0,
+		"&buckets=24":   24,
+		"&buckets=200":  200,
+		"&buckets=9999": maxAlertBuckets,
+	} {
+		t.Run(query, func(t *testing.T) {
+			h, got := alertHandler(t, okResult)
+			require.Equal(t, http.StatusOK, doAlerts(h, "containerIds=abc&from=1&to=2"+query).Code)
+			require.Equal(t, want, got.buckets)
+		})
+	}
+}
+
+// Buckets reach the browser as-is, with startTs in nanoseconds like every
+// other time in the response, and are absent when Cloud sent none.
+func TestCloudAlerts_ReturnsBuckets(t *testing.T) {
+	h, _ := alertHandler(t, func(*alertCall) (*cloud.AlertResult, error) {
+		return &cloud.AlertResult{Hits: []cloud.AlertHit{}, Buckets: []cloud.AlertBucket{
+			{StartTs: 1_000, Matched: 12, Notified: 1},
+			{StartTs: 2_000},
+		}}, nil
+	})
+	rr := doAlerts(h, "containerIds=abc&from=1000&to=3000&buckets=2")
+	require.Equal(t, http.StatusOK, rr.Code)
+	require.JSONEq(t, `{"hits":[],"buckets":[{"startTs":1000,"matched":12,"notified":1},{"startTs":2000,"matched":0,"notified":0}]}`, rr.Body.String())
+
+	h, _ = alertHandler(t, okResult)
+	rr = doAlerts(h, "containerIds=abc&from=1&to=2&buckets=2")
+	require.NotContains(t, rr.Body.String(), "buckets", "an older Cloud returns none; the chart hides")
 }

@@ -6318,6 +6318,11 @@ type GetAlertsRequest struct {
 	// alerts they were aggregated into. An alert means a notification was
 	// delivered; an event on its own may have been held back.
 	IncludeEvents bool `protobuf:"varint,7,opt,name=include_events,json=includeEvents,proto3" json:"include_events,omitempty"`
+	// When > 0, also return per-bucket totals over [from_ts_ns, to_ts_ns] split
+	// into this many equal buckets, so a chart stays exact past the event cap.
+	// Server-capped (200). 0 = no buckets. An older Cloud ignores it and returns
+	// none.
+	Buckets       int32 `protobuf:"varint,8,opt,name=buckets,proto3" json:"buckets,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -6399,6 +6404,13 @@ func (x *GetAlertsRequest) GetIncludeEvents() bool {
 		return x.IncludeEvents
 	}
 	return false
+}
+
+func (x *GetAlertsRequest) GetBuckets() int32 {
+	if x != nil {
+		return x.Buckets
+	}
+	return 0
 }
 
 type AlertHit struct {
@@ -7168,7 +7180,10 @@ type GetAlertsResponse struct {
 	// The window held more alerts than the limit allowed. The viewer shows a
 	// "more alerts in this range" affordance rather than paginating — unlike
 	// log search, scrollback windows are already small and bounded.
-	Truncated     bool `protobuf:"varint,2,opt,name=truncated,proto3" json:"truncated,omitempty"`
+	Truncated bool `protobuf:"varint,2,opt,name=truncated,proto3" json:"truncated,omitempty"`
+	// Populated only when buckets > 0, oldest first, one per requested bucket
+	// (empty buckets included). An older Cloud returns none.
+	Buckets       []*AlertBucket `protobuf:"bytes,4,rep,name=buckets,proto3" json:"buckets,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -7222,6 +7237,79 @@ func (x *GetAlertsResponse) GetTruncated() bool {
 		return x.Truncated
 	}
 	return false
+}
+
+func (x *GetAlertsResponse) GetBuckets() []*AlertBucket {
+	if x != nil {
+		return x.Buckets
+	}
+	return nil
+}
+
+// One equal slice of the requested window. Counts are exact, unlike events,
+// which stop at Cloud's cap.
+type AlertBucket struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Start of the bucket, unix nanoseconds. The bucket runs to the next one's
+	// start, or to_ts_ns for the last.
+	StartTsNs int64 `protobuf:"varint,1,opt,name=start_ts_ns,json=startTsNs,proto3" json:"start_ts_ns,omitempty"`
+	// Matched events in the bucket for the requested containers.
+	Matched int32 `protobuf:"varint,2,opt,name=matched,proto3" json:"matched,omitempty"`
+	// Alerts that sent a notification whose anchor falls in the bucket.
+	Notified      int32 `protobuf:"varint,3,opt,name=notified,proto3" json:"notified,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AlertBucket) Reset() {
+	*x = AlertBucket{}
+	mi := &file_cloud_proto_msgTypes[79]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AlertBucket) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AlertBucket) ProtoMessage() {}
+
+func (x *AlertBucket) ProtoReflect() protoreflect.Message {
+	mi := &file_cloud_proto_msgTypes[79]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AlertBucket.ProtoReflect.Descriptor instead.
+func (*AlertBucket) Descriptor() ([]byte, []int) {
+	return file_cloud_proto_rawDescGZIP(), []int{79}
+}
+
+func (x *AlertBucket) GetStartTsNs() int64 {
+	if x != nil {
+		return x.StartTsNs
+	}
+	return 0
+}
+
+func (x *AlertBucket) GetMatched() int32 {
+	if x != nil {
+		return x.Matched
+	}
+	return 0
+}
+
+func (x *AlertBucket) GetNotified() int32 {
+	if x != nil {
+		return x.Notified
+	}
+	return 0
 }
 
 var File_cloud_proto protoreflect.FileDescriptor
@@ -7762,7 +7850,7 @@ const file_cloud_proto_rawDesc = "" +
 	"\amessage\x18\x05 \x01(\tR\amessage\x12\x16\n" +
 	"\x06stream\x18\x06 \x01(\tR\x06stream\x12\x14\n" +
 	"\x05level\x18\a \x01(\tR\x05level\x12\x15\n" +
-	"\x06log_id\x18\b \x01(\rR\x05logId\"\xf3\x01\n" +
+	"\x06log_id\x18\b \x01(\rR\x05logId\"\x8d\x02\n" +
 	"\x10GetAlertsRequest\x12#\n" +
 	"\rcontainer_ids\x18\x01 \x03(\tR\fcontainerIds\x12\x17\n" +
 	"\ahost_id\x18\x02 \x01(\tR\x06hostId\x12\x1c\n" +
@@ -7771,7 +7859,8 @@ const file_cloud_proto_rawDesc = "" +
 	"\bto_ts_ns\x18\x04 \x01(\x03R\x06toTsNs\x12\x14\n" +
 	"\x05limit\x18\x05 \x01(\x05R\x05limit\x12,\n" +
 	"\x12include_follow_ups\x18\x06 \x01(\bR\x10includeFollowUps\x12%\n" +
-	"\x0einclude_events\x18\a \x01(\bR\rincludeEvents\"\xd1\x04\n" +
+	"\x0einclude_events\x18\a \x01(\bR\rincludeEvents\x12\x18\n" +
+	"\abuckets\x18\b \x01(\x05R\abuckets\"\xd1\x04\n" +
 	"\bAlertHit\x12\x19\n" +
 	"\balert_id\x18\x01 \x01(\tR\aalertId\x12!\n" +
 	"\fcontainer_id\x18\x02 \x01(\tR\vcontainerId\x12\x17\n" +
@@ -7842,11 +7931,16 @@ const file_cloud_proto_rawDesc = "" +
 	"\x13usual_rate_per_hour\x18\t \x01(\x01R\x10usualRatePerHourJ\x04\b\n" +
 	"\x10\vJ\x04\b\x14\x10\x1e\"N\n" +
 	"\x19GetPatternContextResponse\x121\n" +
-	"\bpatterns\x18\x01 \x03(\v2\x15.cloud.PatternContextR\bpatterns\"\x7f\n" +
+	"\bpatterns\x18\x01 \x03(\v2\x15.cloud.PatternContextR\bpatterns\"\xad\x01\n" +
 	"\x11GetAlertsResponse\x12#\n" +
 	"\x04hits\x18\x01 \x03(\v2\x0f.cloud.AlertHitR\x04hits\x12'\n" +
 	"\x06events\x18\x03 \x03(\v2\x0f.cloud.EventHitR\x06events\x12\x1c\n" +
-	"\ttruncated\x18\x02 \x01(\bR\ttruncated*b\n" +
+	"\ttruncated\x18\x02 \x01(\bR\ttruncated\x12,\n" +
+	"\abuckets\x18\x04 \x03(\v2\x12.cloud.AlertBucketR\abuckets\"c\n" +
+	"\vAlertBucket\x12\x1e\n" +
+	"\vstart_ts_ns\x18\x01 \x01(\x03R\tstartTsNs\x12\x18\n" +
+	"\amatched\x18\x02 \x01(\x05R\amatched\x12\x1a\n" +
+	"\bnotified\x18\x03 \x01(\x05R\bnotified*b\n" +
 	"\rChatStepState\x12\x1b\n" +
 	"\x17CHAT_STEP_STATE_RUNNING\x10\x00\x12\x18\n" +
 	"\x14CHAT_STEP_STATE_DONE\x10\x01\x12\x1a\n" +
@@ -7890,7 +7984,7 @@ func file_cloud_proto_rawDescGZIP() []byte {
 }
 
 var file_cloud_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_cloud_proto_msgTypes = make([]protoimpl.MessageInfo, 82)
+var file_cloud_proto_msgTypes = make([]protoimpl.MessageInfo, 83)
 var file_cloud_proto_goTypes = []any{
 	(ChatStepState)(0),                  // 0: cloud.ChatStepState
 	(ToolScope)(0),                      // 1: cloud.ToolScope
@@ -7974,9 +8068,10 @@ var file_cloud_proto_goTypes = []any{
 	(*PatternContext)(nil),              // 79: cloud.PatternContext
 	(*GetPatternContextResponse)(nil),   // 80: cloud.GetPatternContextResponse
 	(*GetAlertsResponse)(nil),           // 81: cloud.GetAlertsResponse
-	nil,                                 // 82: cloud.ContainerConfig.LabelHashesEntry
-	nil,                                 // 83: cloud.InspectContainerResult.LabelsEntry
-	nil,                                 // 84: cloud.RetroScanContainer.LevelCountsEntry
+	(*AlertBucket)(nil),                 // 82: cloud.AlertBucket
+	nil,                                 // 83: cloud.ContainerConfig.LabelHashesEntry
+	nil,                                 // 84: cloud.InspectContainerResult.LabelsEntry
+	nil,                                 // 85: cloud.RetroScanContainer.LevelCountsEntry
 }
 var file_cloud_proto_depIdxs = []int32{
 	5,  // 0: cloud.ViewContext.containers:type_name -> cloud.ViewContainer
@@ -8020,7 +8115,7 @@ var file_cloud_proto_depIdxs = []int32{
 	44, // 38: cloud.ToolResponse.stats_batch:type_name -> cloud.StatsBatch
 	38, // 39: cloud.ToolResponse.container_update:type_name -> cloud.ContainerUpdate
 	37, // 40: cloud.ToolResponse.container_config:type_name -> cloud.ContainerConfig
-	82, // 41: cloud.ContainerConfig.label_hashes:type_name -> cloud.ContainerConfig.LabelHashesEntry
+	83, // 41: cloud.ContainerConfig.label_hashes:type_name -> cloud.ContainerConfig.LabelHashesEntry
 	41, // 42: cloud.GetLogResumeResponse.points:type_name -> cloud.LogResumePoint
 	43, // 43: cloud.LogBatch.entries:type_name -> cloud.LogBatchEntry
 	45, // 44: cloud.StatsBatch.entries:type_name -> cloud.StatsBatchEntry
@@ -8040,12 +8135,12 @@ var file_cloud_proto_depIdxs = []int32{
 	54, // 58: cloud.ListContainersResult.containers:type_name -> cloud.ContainerInfo
 	57, // 59: cloud.ContainerStatsResult.stats:type_name -> cloud.ContainerStatEntry
 	59, // 60: cloud.FetchLogsResult.entries:type_name -> cloud.LogEntry
-	83, // 61: cloud.InspectContainerResult.labels:type_name -> cloud.InspectContainerResult.LabelsEntry
+	84, // 61: cloud.InspectContainerResult.labels:type_name -> cloud.InspectContainerResult.LabelsEntry
 	64, // 62: cloud.InspectContainerResult.mount_details:type_name -> cloud.ContainerMount
 	62, // 63: cloud.InspectContainerResult.health_log:type_name -> cloud.HealthProbe
 	61, // 64: cloud.InspectContainersResult.containers:type_name -> cloud.InspectContainerResult
 	66, // 65: cloud.RetroScanResult.containers:type_name -> cloud.RetroScanContainer
-	84, // 66: cloud.RetroScanContainer.level_counts:type_name -> cloud.RetroScanContainer.LevelCountsEntry
+	85, // 66: cloud.RetroScanContainer.level_counts:type_name -> cloud.RetroScanContainer.LevelCountsEntry
 	59, // 67: cloud.RetroScanContainer.lines:type_name -> cloud.LogEntry
 	72, // 68: cloud.SearchLogsResponse.hits:type_name -> cloud.SearchLogHit
 	71, // 69: cloud.SearchLogsResponse.volume:type_name -> cloud.SearchVolumeBucket
@@ -8055,35 +8150,36 @@ var file_cloud_proto_depIdxs = []int32{
 	79, // 73: cloud.GetPatternContextResponse.patterns:type_name -> cloud.PatternContext
 	74, // 74: cloud.GetAlertsResponse.hits:type_name -> cloud.AlertHit
 	75, // 75: cloud.GetAlertsResponse.events:type_name -> cloud.EventHit
-	36, // 76: cloud.CloudToolService.ToolStream:input_type -> cloud.ToolResponse
-	69, // 77: cloud.CloudToolService.SearchLogs:input_type -> cloud.SearchLogsRequest
-	73, // 78: cloud.CloudToolService.GetAlerts:input_type -> cloud.GetAlertsRequest
-	18, // 79: cloud.CloudToolService.GetRecentAlerts:input_type -> cloud.GetRecentAlertsRequest
-	19, // 80: cloud.CloudToolService.GetRecentDeploys:input_type -> cloud.GetRecentDeploysRequest
-	22, // 81: cloud.CloudToolService.GetFindings:input_type -> cloud.GetFindingsRequest
-	25, // 82: cloud.CloudToolService.IgnoreFinding:input_type -> cloud.IgnoreFindingRequest
-	78, // 83: cloud.CloudToolService.GetPatternContext:input_type -> cloud.GetPatternContextRequest
-	27, // 84: cloud.CloudToolService.GetContainerMetrics:input_type -> cloud.GetContainerMetricsRequest
-	30, // 85: cloud.CloudToolService.GetHostMetrics:input_type -> cloud.GetHostMetricsRequest
-	39, // 86: cloud.CloudToolService.GetLogResume:input_type -> cloud.GetLogResumeRequest
-	7,  // 87: cloud.CloudToolService.Chat:input_type -> cloud.ChatClientEvent
-	35, // 88: cloud.CloudToolService.ToolStream:output_type -> cloud.ToolRequest
-	70, // 89: cloud.CloudToolService.SearchLogs:output_type -> cloud.SearchLogsResponse
-	81, // 90: cloud.CloudToolService.GetAlerts:output_type -> cloud.GetAlertsResponse
-	81, // 91: cloud.CloudToolService.GetRecentAlerts:output_type -> cloud.GetAlertsResponse
-	20, // 92: cloud.CloudToolService.GetRecentDeploys:output_type -> cloud.GetRecentDeploysResponse
-	23, // 93: cloud.CloudToolService.GetFindings:output_type -> cloud.GetFindingsResponse
-	26, // 94: cloud.CloudToolService.IgnoreFinding:output_type -> cloud.IgnoreFindingResponse
-	80, // 95: cloud.CloudToolService.GetPatternContext:output_type -> cloud.GetPatternContextResponse
-	29, // 96: cloud.CloudToolService.GetContainerMetrics:output_type -> cloud.GetContainerMetricsResponse
-	34, // 97: cloud.CloudToolService.GetHostMetrics:output_type -> cloud.GetHostMetricsResponse
-	40, // 98: cloud.CloudToolService.GetLogResume:output_type -> cloud.GetLogResumeResponse
-	8,  // 99: cloud.CloudToolService.Chat:output_type -> cloud.ChatServerEvent
-	88, // [88:100] is the sub-list for method output_type
-	76, // [76:88] is the sub-list for method input_type
-	76, // [76:76] is the sub-list for extension type_name
-	76, // [76:76] is the sub-list for extension extendee
-	0,  // [0:76] is the sub-list for field type_name
+	82, // 76: cloud.GetAlertsResponse.buckets:type_name -> cloud.AlertBucket
+	36, // 77: cloud.CloudToolService.ToolStream:input_type -> cloud.ToolResponse
+	69, // 78: cloud.CloudToolService.SearchLogs:input_type -> cloud.SearchLogsRequest
+	73, // 79: cloud.CloudToolService.GetAlerts:input_type -> cloud.GetAlertsRequest
+	18, // 80: cloud.CloudToolService.GetRecentAlerts:input_type -> cloud.GetRecentAlertsRequest
+	19, // 81: cloud.CloudToolService.GetRecentDeploys:input_type -> cloud.GetRecentDeploysRequest
+	22, // 82: cloud.CloudToolService.GetFindings:input_type -> cloud.GetFindingsRequest
+	25, // 83: cloud.CloudToolService.IgnoreFinding:input_type -> cloud.IgnoreFindingRequest
+	78, // 84: cloud.CloudToolService.GetPatternContext:input_type -> cloud.GetPatternContextRequest
+	27, // 85: cloud.CloudToolService.GetContainerMetrics:input_type -> cloud.GetContainerMetricsRequest
+	30, // 86: cloud.CloudToolService.GetHostMetrics:input_type -> cloud.GetHostMetricsRequest
+	39, // 87: cloud.CloudToolService.GetLogResume:input_type -> cloud.GetLogResumeRequest
+	7,  // 88: cloud.CloudToolService.Chat:input_type -> cloud.ChatClientEvent
+	35, // 89: cloud.CloudToolService.ToolStream:output_type -> cloud.ToolRequest
+	70, // 90: cloud.CloudToolService.SearchLogs:output_type -> cloud.SearchLogsResponse
+	81, // 91: cloud.CloudToolService.GetAlerts:output_type -> cloud.GetAlertsResponse
+	81, // 92: cloud.CloudToolService.GetRecentAlerts:output_type -> cloud.GetAlertsResponse
+	20, // 93: cloud.CloudToolService.GetRecentDeploys:output_type -> cloud.GetRecentDeploysResponse
+	23, // 94: cloud.CloudToolService.GetFindings:output_type -> cloud.GetFindingsResponse
+	26, // 95: cloud.CloudToolService.IgnoreFinding:output_type -> cloud.IgnoreFindingResponse
+	80, // 96: cloud.CloudToolService.GetPatternContext:output_type -> cloud.GetPatternContextResponse
+	29, // 97: cloud.CloudToolService.GetContainerMetrics:output_type -> cloud.GetContainerMetricsResponse
+	34, // 98: cloud.CloudToolService.GetHostMetrics:output_type -> cloud.GetHostMetricsResponse
+	40, // 99: cloud.CloudToolService.GetLogResume:output_type -> cloud.GetLogResumeResponse
+	8,  // 100: cloud.CloudToolService.Chat:output_type -> cloud.ChatServerEvent
+	89, // [89:101] is the sub-list for method output_type
+	77, // [77:89] is the sub-list for method input_type
+	77, // [77:77] is the sub-list for extension type_name
+	77, // [77:77] is the sub-list for extension extendee
+	0,  // [0:77] is the sub-list for field type_name
 }
 
 func init() { file_cloud_proto_init() }
@@ -8137,7 +8233,7 @@ func file_cloud_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_cloud_proto_rawDesc), len(file_cloud_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   82,
+			NumMessages:   83,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

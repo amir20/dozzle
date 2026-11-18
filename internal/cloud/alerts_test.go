@@ -61,3 +61,19 @@ func Test_alertResultFromProto_maps_deploy_verdicts(t *testing.T) {
 	assert.Equal(t, "deploy", result.Events[0].Type)
 	assert.Nil(t, result.Events[1].Deploy)
 }
+
+// Buckets map field for field, in order, and stay nil when an older Cloud
+// sends none so the JSON omits them.
+func Test_alertResultFromProto_maps_buckets(t *testing.T) {
+	resp := &pb.GetAlertsResponse{Buckets: []*pb.AlertBucket{
+		{StartTsNs: 100, Matched: 7, Notified: 1},
+		{StartTsNs: 200},
+	}}
+
+	assert.Equal(t, []AlertBucket{
+		{StartTs: 100, Matched: 7, Notified: 1},
+		{StartTs: 200},
+	}, alertResultFromProto(resp).Buckets)
+
+	assert.Nil(t, alertResultFromProto(&pb.GetAlertsResponse{}).Buckets)
+}
