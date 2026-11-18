@@ -699,7 +699,6 @@ notifications:
   alerts: アラート
   add: 追加
   add-alert: アラートを追加
-  new-alerts: 新しいアラート
   prefill-name: エラーアラート
   prefill-expression: level == "error"
   default-alert-created: "デフォルトのアラートを作成しました。コンテナがエラーで終了すると通知されます。編集や一時停止はいつでもできます。"
