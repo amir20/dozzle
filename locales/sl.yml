@@ -909,7 +909,7 @@ cloud-search:
   searching: "Iskanje…"
   hits-count: "{n} zadetkov"
   window-since: "od {time}"
-  hero-title-cloud: "Iskanje vsebnikov in dnevnikov"
+  hero-title-cloud: "Iščite vsebnike, dnevnike ali postavite vprašanje"
   hero-title-plain: "Iskanje vsebnikov"
   hero-pill-indexed: "Cloud indeks"
   modal-placeholder-cloud: "Iskanje vsebnikov in dnevnikov…"

@@ -904,7 +904,7 @@ cloud-search:
   searching: "Поиск…"
   hits-count: "{n} результатов"
   window-since: "с {time}"
-  hero-title-cloud: "Поиск по контейнерам и логам"
+  hero-title-cloud: "Ищите контейнеры, логи или задайте вопрос"
   hero-title-plain: "Поиск по контейнерам"
   hero-pill-indexed: "Индекс Cloud"
   modal-placeholder-cloud: "Поиск по контейнерам и логам…"

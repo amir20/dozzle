@@ -410,7 +410,7 @@ cloud-search:
   searching: 検索中…
   hits-count: "{n} 件ヒット"
   window-since: "{time} 以降"
-  hero-title-cloud: コンテナとログを検索
+  hero-title-cloud: コンテナやログを検索、または質問
   hero-title-plain: コンテナを検索
   hero-pill-indexed: Cloud インデックス
   modal-placeholder-cloud: コンテナとログを検索…

@@ -906,7 +906,7 @@ cloud-search:
   searching: "搜尋中…"
   hits-count: "{n} 條結果"
   window-since: "自 {time} 起"
-  hero-title-cloud: "搜尋容器和日誌"
+  hero-title-cloud: "搜尋容器、日誌或提個問題"
   hero-title-plain: "搜尋容器"
   hero-pill-indexed: "Cloud 索引"
   modal-placeholder-cloud: "搜尋容器和日誌…"

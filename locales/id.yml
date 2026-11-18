@@ -916,7 +916,7 @@ cloud-search:
   searching: "Mencari…"
   hits-count: "{n} hasil"
   window-since: "sejak {time}"
-  hero-title-cloud: "Cari kontainer dan log"
+  hero-title-cloud: "Cari kontainer, log, atau ajukan pertanyaan"
   hero-title-plain: "Cari kontainer"
   hero-pill-indexed: "Indeks Cloud"
   modal-placeholder-cloud: "Cari kontainer dan log…"

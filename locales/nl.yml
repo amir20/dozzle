@@ -905,7 +905,7 @@ cloud-search:
   searching: "Zoeken…"
   hits-count: "{n} treffers"
   window-since: "sinds {time}"
-  hero-title-cloud: "Containers en logs zoeken"
+  hero-title-cloud: "Zoek containers, logs of stel een vraag"
   hero-title-plain: "Containers zoeken"
   hero-pill-indexed: "Cloud-index"
   modal-placeholder-cloud: "Containers en logs zoeken…"

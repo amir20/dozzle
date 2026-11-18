@@ -906,7 +906,7 @@ cloud-search:
   searching: "Wyszukiwanie…"
   hits-count: "{n} wyników"
   window-since: "od {time}"
-  hero-title-cloud: "Szukaj kontenerów i logów"
+  hero-title-cloud: "Szukaj kontenerów, logów lub zadaj pytanie"
   hero-title-plain: "Szukaj kontenerów"
   hero-pill-indexed: "Indeks Cloud"
   modal-placeholder-cloud: "Szukaj kontenerów i logów…"
