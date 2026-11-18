@@ -20,6 +20,11 @@ type FindingsResult struct {
 	// CanIgnore says whether this caller may use the ignore route. Decided by
 	// the web layer with the same checks that route enforces.
 	CanIgnore bool `json:"canIgnore"`
+	// LastScanAt and NextScanAt are when Cloud's scheduled log review of this
+	// instance last ran and next runs, unix nanoseconds like the Finding times.
+	// Instance-level, not about any container. Zero when Cloud did not say.
+	LastScanAt int64 `json:"lastScanAt,omitempty"`
+	NextScanAt int64 `json:"nextScanAt,omitempty"`
 }
 
 // FindingContainer is one container on screen that a finding is about.
@@ -84,7 +89,13 @@ func (c *Client) GetFindings(ctx context.Context, containerNames []string, statu
 	for _, f := range resp.GetFindings() {
 		findings = append(findings, findingFromProto(f))
 	}
-	return &FindingsResult{Findings: findings, FixLocked: resp.GetFixLocked(), Truncated: resp.GetTruncated()}, nil
+	return &FindingsResult{
+		Findings:   findings,
+		FixLocked:  resp.GetFixLocked(),
+		Truncated:  resp.GetTruncated(),
+		LastScanAt: resp.GetLastScanAtNs(),
+		NextScanAt: resp.GetNextScanAtNs(),
+	}, nil
 }
 
 // IgnoreFinding ignores one finding account-wide, or takes that back with undo.

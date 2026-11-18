@@ -60,21 +60,25 @@ func findingsURL(query string) string {
 	return "/api/cloud/findings?" + query
 }
 
-// A filtered user gets no findings and Cloud is never asked: a finding is keyed
-// by names that can belong to containers their filter hides.
-func Test_cloudFindings_filtered_user_gets_none(t *testing.T) {
+// A filtered user gets no findings and never sends a name: a finding is keyed
+// by names that can belong to containers their filter hides. Cloud is still
+// asked, with no names, so they get the instance's review schedule.
+func Test_cloudFindings_filtered_user_gets_schedule_only(t *testing.T) {
 	h := restrictedHandler(t)
 	got := stubFindings(h, &cloud.FindingsResult{Findings: []cloud.Finding{
 		{ID: "k3Xa9", ContainerNames: []string{"dev-allowed"}},
-	}}, nil)
+	}, LastScanAt: 100, NextScanAt: 200}, nil)
 
 	q := url.Values{"container": {"localhost/dev123"}}
 	code, body := findingsRequest(t, h, asRestrictedUser(httptest.NewRequest(http.MethodGet, findingsURL(q.Encode()), nil)))
 
 	require.Equal(t, http.StatusOK, code)
-	assert.Empty(t, body.Findings)
+	assert.Empty(t, body.Findings, "even a finding Cloud returns is not shown")
 	assert.False(t, body.CanIgnore)
-	assert.Zero(t, got.calls)
+	assert.Equal(t, 1, got.calls)
+	assert.Empty(t, got.names)
+	assert.Equal(t, int64(100), body.LastScanAt)
+	assert.Equal(t, int64(200), body.NextScanAt)
 }
 
 // Only containers that resolve are asked about, and the defaults reach Cloud.
@@ -82,7 +86,7 @@ func Test_cloudFindings_resolves_requested_containers(t *testing.T) {
 	h := restrictedHandler(t)
 	got := stubFindings(h, &cloud.FindingsResult{Findings: []cloud.Finding{
 		{ID: "k3Xa9", Severity: "high", Status: "ongoing", Headline: "worker OOM", ContainerNames: []string{"dev-allowed"}, URL: "https://cloud.dozzle.dev/findings/k3Xa9"},
-	}, FixLocked: true}, nil)
+	}, FixLocked: true, LastScanAt: 1_700_000_000_000_000_000, NextScanAt: 1_700_003_600_000_000_000}, nil)
 
 	q := url.Values{"container": {"localhost/dev123", "localhost/missing", "nohost"}}
 	code, body := findingsRequest(t, h, asUnfilteredUser(httptest.NewRequest(http.MethodGet, findingsURL(q.Encode()), nil)))
@@ -96,21 +100,28 @@ func Test_cloudFindings_resolves_requested_containers(t *testing.T) {
 	require.Len(t, body.Findings, 1)
 	assert.Equal(t, []cloud.FindingContainer{{Host: "localhost", ID: "dev123", Name: "dev-allowed"}}, body.Findings[0].Containers)
 	assert.Equal(t, "https://cloud.dozzle.dev/findings/k3Xa9", body.Findings[0].URL)
+	assert.Equal(t, int64(1_700_000_000_000_000_000), body.LastScanAt)
+	assert.Equal(t, int64(1_700_003_600_000_000_000), body.NextScanAt)
 }
 
-// Nothing resolved means nothing to ask Cloud about.
-func Test_cloudFindings_no_containers_skips_cloud(t *testing.T) {
+// Nothing resolved still asks Cloud, with no names, so the home page gets the
+// review schedule.
+func Test_cloudFindings_no_containers_still_asks_cloud(t *testing.T) {
 	h := restrictedHandler(t)
-	got := stubFindings(h, &cloud.FindingsResult{}, nil)
+	got := stubFindings(h, &cloud.FindingsResult{NextScanAt: 300}, nil)
 
 	code, body := findingsRequest(t, h, asUnfilteredUser(httptest.NewRequest(http.MethodGet, findingsURL(url.Values{"container": {"localhost/missing"}}.Encode()), nil)))
 	require.Equal(t, http.StatusOK, code)
 	assert.Empty(t, body.Findings)
-	assert.Zero(t, got.calls)
+	assert.Equal(t, 1, got.calls)
+	assert.Empty(t, got.names)
+	assert.Equal(t, int64(300), body.NextScanAt)
 
-	code, _ = findingsRequest(t, h, asUnfilteredUser(httptest.NewRequest(http.MethodGet, findingsURL(""), nil)))
+	code, body = findingsRequest(t, h, asUnfilteredUser(httptest.NewRequest(http.MethodGet, findingsURL(""), nil)))
 	require.Equal(t, http.StatusOK, code)
-	assert.Zero(t, got.calls)
+	assert.Equal(t, 2, got.calls)
+	assert.Empty(t, got.names)
+	assert.Equal(t, int64(300), body.NextScanAt)
 }
 
 // sameNameHosts resolves one container name on two hosts, the case Cloud cannot

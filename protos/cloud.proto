@@ -340,8 +340,8 @@ message RecentDeploy {
 message GetFindingsRequest {
   // The containers to ask about, by name as Dozzle knows them. Cloud
   // normalises Swarm task names itself (containers.ShortName) and compares
-  // case-insensitively. Empty returns nothing: there is no whole-instance mode,
-  // the findings list lives in Cloud. Server-capped at 100, like GetAlerts.
+  // case-insensitively. Empty returns no findings (there is no whole-instance
+  // mode, the findings list lives in Cloud) but still the review schedule. Server-capped at 100, like GetAlerts.
   repeated string container_names = 1;
   // Which list. "open" is open and ongoing (Cloud's "needs attention"), ""
   // is every status, "resolved" only resolved. Ignored findings are left out
@@ -360,6 +360,13 @@ message GetFindingsResponse {
   // More findings matched than the limit, or the instance had more than Cloud
   // scans per call.
   bool truncated = 3;
+  // When Cloud's last scheduled log review of this instance ran, unix
+  // nanoseconds. 0 when the instance was never reviewed.
+  int64 last_scan_at_ns = 4;
+  // When Cloud's next scheduled log review of this instance runs, unix
+  // nanoseconds. Instance-level, so it comes back even for empty
+  // container_names.
+  int64 next_scan_at_ns = 5;
 }
 
 // One finding from the scheduled log review.

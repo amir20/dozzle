@@ -41,6 +41,10 @@ var findingsFilters = map[string]struct {
 // hidden namesake on another host, one on a host that is down, or a removed
 // one all read the same. Failing closed is the only answer that holds.
 //
+// Cloud is still asked when no name is sent (nothing resolved, or a filtered
+// user), because the answer carries the instance's review schedule, which is
+// about no container. Cloud returns no findings for an empty list.
+//
 //	200 — findings returned (may be empty)
 //	400 — bad filter
 //	503 — cloud not configured
@@ -74,12 +78,13 @@ func (h *handler) cloudFindings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if h.restrictedUser(r) {
-		respond(&cloud.FindingsResult{})
-		return
-	}
+	// A filtered user never sends names: they only get the schedule.
+	restricted := h.restrictedUser(r)
 
 	requested := q["container"]
+	if restricted {
+		requested = nil
+	}
 	if len(requested) > maxAlertContainers {
 		requested = requested[:maxAlertContainers]
 		truncated = true
@@ -127,11 +132,6 @@ func (h *handler) cloudFindings(w http.ResponseWriter, r *http.Request) {
 		byName[c.Name] = append(byName[c.Name], cloud.FindingContainer{Host: c.Host, ID: c.ID, Name: c.Name})
 	}
 
-	if len(names) == 0 {
-		respond(&cloud.FindingsResult{})
-		return
-	}
-
 	ctx, cancel := context.WithTimeout(r.Context(), cloudAlertsTimeout)
 	defer cancel()
 
@@ -176,7 +176,13 @@ func (h *handler) cloudFindings(w http.ResponseWriter, r *http.Request) {
 		findings = append(findings, f)
 	}
 
-	respond(&cloud.FindingsResult{Findings: findings, FixLocked: result.FixLocked, Truncated: result.Truncated})
+	respond(&cloud.FindingsResult{
+		Findings:   findings,
+		FixLocked:  result.FixLocked,
+		Truncated:  result.Truncated,
+		LastScanAt: result.LastScanAt,
+		NextScanAt: result.NextScanAt,
+	})
 }
 
 // ignoreCloudFinding ignores one finding (POST), or takes that back (DELETE).

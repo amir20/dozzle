@@ -48,8 +48,10 @@ func (f *fakeFindingsClient) GetFindings(ctx context.Context, req *pb.GetFinding
 			Locked:    true,
 			Url:       "javascript:alert(1)",
 		}},
-		FixLocked: true,
-		Truncated: true,
+		FixLocked:    true,
+		Truncated:    true,
+		LastScanAtNs: 5,
+		NextScanAtNs: 6,
 	}, nil
 }
 
@@ -78,6 +80,8 @@ func TestGetFindings(t *testing.T) {
 
 	assert.True(t, result.FixLocked)
 	assert.True(t, result.Truncated)
+	assert.Equal(t, int64(5), result.LastScanAt)
+	assert.Equal(t, int64(6), result.NextScanAt)
 	require.Len(t, result.Findings, 2)
 	assert.Equal(t, Finding{
 		ID:             "k3Xa9",

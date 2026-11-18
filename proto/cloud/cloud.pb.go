@@ -1719,8 +1719,8 @@ type GetFindingsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The containers to ask about, by name as Dozzle knows them. Cloud
 	// normalises Swarm task names itself (containers.ShortName) and compares
-	// case-insensitively. Empty returns nothing: there is no whole-instance mode,
-	// the findings list lives in Cloud. Server-capped at 100, like GetAlerts.
+	// case-insensitively. Empty returns no findings (there is no whole-instance
+	// mode, the findings list lives in Cloud) but still the review schedule. Server-capped at 100, like GetAlerts.
 	ContainerNames []string `protobuf:"bytes,1,rep,name=container_names,json=containerNames,proto3" json:"container_names,omitempty"`
 	// Which list. "open" is open and ongoing (Cloud's "needs attention"), ""
 	// is every status, "resolved" only resolved. Ignored findings are left out
@@ -1799,7 +1799,14 @@ type GetFindingsResponse struct {
 	FixLocked bool `protobuf:"varint,2,opt,name=fix_locked,json=fixLocked,proto3" json:"fix_locked,omitempty"`
 	// More findings matched than the limit, or the instance had more than Cloud
 	// scans per call.
-	Truncated     bool `protobuf:"varint,3,opt,name=truncated,proto3" json:"truncated,omitempty"`
+	Truncated bool `protobuf:"varint,3,opt,name=truncated,proto3" json:"truncated,omitempty"`
+	// When Cloud's last scheduled log review of this instance ran, unix
+	// nanoseconds. 0 when the instance was never reviewed.
+	LastScanAtNs int64 `protobuf:"varint,4,opt,name=last_scan_at_ns,json=lastScanAtNs,proto3" json:"last_scan_at_ns,omitempty"`
+	// When Cloud's next scheduled log review of this instance runs, unix
+	// nanoseconds. Instance-level, so it comes back even for empty
+	// container_names.
+	NextScanAtNs  int64 `protobuf:"varint,5,opt,name=next_scan_at_ns,json=nextScanAtNs,proto3" json:"next_scan_at_ns,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1853,6 +1860,20 @@ func (x *GetFindingsResponse) GetTruncated() bool {
 		return x.Truncated
 	}
 	return false
+}
+
+func (x *GetFindingsResponse) GetLastScanAtNs() int64 {
+	if x != nil {
+		return x.LastScanAtNs
+	}
+	return 0
+}
+
+func (x *GetFindingsResponse) GetNextScanAtNs() int64 {
+	if x != nil {
+		return x.NextScanAtNs
+	}
+	return 0
 }
 
 // One finding from the scheduled log review.
@@ -7148,12 +7169,14 @@ const file_cloud_proto_rawDesc = "" +
 	"\x0fcontainer_names\x18\x01 \x03(\tR\x0econtainerNames\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\x12\x18\n" +
 	"\aignored\x18\x03 \x01(\bR\aignored\x12\x14\n" +
-	"\x05limit\x18\x04 \x01(\x05R\x05limit\"~\n" +
+	"\x05limit\x18\x04 \x01(\x05R\x05limit\"\xcc\x01\n" +
 	"\x13GetFindingsResponse\x12*\n" +
 	"\bfindings\x18\x01 \x03(\v2\x0e.cloud.FindingR\bfindings\x12\x1d\n" +
 	"\n" +
 	"fix_locked\x18\x02 \x01(\bR\tfixLocked\x12\x1c\n" +
-	"\ttruncated\x18\x03 \x01(\bR\ttruncated\"\xf2\x03\n" +
+	"\ttruncated\x18\x03 \x01(\bR\ttruncated\x12%\n" +
+	"\x0flast_scan_at_ns\x18\x04 \x01(\x03R\flastScanAtNs\x12%\n" +
+	"\x0fnext_scan_at_ns\x18\x05 \x01(\x03R\fnextScanAtNs\"\xf2\x03\n" +
 	"\aFinding\x12\x1d\n" +
 	"\n" +
 	"finding_id\x18\x01 \x01(\tR\tfindingId\x12\x1a\n" +
