@@ -63,7 +63,7 @@ export function useCloudRail() {
   const { linked } = useCloudSurface();
 
   // One rail on every page. Each panel scopes itself to whatever the page is
-  // about (useViewContext): a log view's containers, or the instance's hosts
+  // about (useViewContext): a log view's containers, or the whole instance
   // where no viewer is mounted. A question across every container is still a
   // question, and the home page is where people ask it.
   const available = computed(() => linked.value);
