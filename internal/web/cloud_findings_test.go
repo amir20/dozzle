@@ -60,16 +60,32 @@ func findingsURL(query string) string {
 	return "/api/cloud/findings?" + query
 }
 
-// A filtered user's request only carries the names of containers they can see,
-// and a container they cannot see is dropped without saying it exists.
-func Test_cloudFindings_scoped_to_viewer(t *testing.T) {
+// A filtered user gets no findings and Cloud is never asked: a finding is keyed
+// by names that can belong to containers their filter hides.
+func Test_cloudFindings_filtered_user_gets_none(t *testing.T) {
+	h := restrictedHandler(t)
+	got := stubFindings(h, &cloud.FindingsResult{Findings: []cloud.Finding{
+		{ID: "k3Xa9", ContainerNames: []string{"dev-allowed"}},
+	}}, nil)
+
+	q := url.Values{"container": {"localhost/dev123"}}
+	code, body := findingsRequest(t, h, asRestrictedUser(httptest.NewRequest(http.MethodGet, findingsURL(q.Encode()), nil)))
+
+	require.Equal(t, http.StatusOK, code)
+	assert.Empty(t, body.Findings)
+	assert.False(t, body.CanIgnore)
+	assert.Zero(t, got.calls)
+}
+
+// Only containers that resolve are asked about, and the defaults reach Cloud.
+func Test_cloudFindings_resolves_requested_containers(t *testing.T) {
 	h := restrictedHandler(t)
 	got := stubFindings(h, &cloud.FindingsResult{Findings: []cloud.Finding{
 		{ID: "k3Xa9", Severity: "high", Status: "ongoing", Headline: "worker OOM", ContainerNames: []string{"dev-allowed"}, URL: "https://cloud.dozzle.dev/findings/k3Xa9"},
 	}, FixLocked: true}, nil)
 
-	q := url.Values{"container": {"localhost/dev123", "localhost/prod456", "localhost/missing", "nohost"}}
-	code, body := findingsRequest(t, h, asRestrictedUser(httptest.NewRequest(http.MethodGet, findingsURL(q.Encode()), nil)))
+	q := url.Values{"container": {"localhost/dev123", "localhost/missing", "nohost"}}
+	code, body := findingsRequest(t, h, asUnfilteredUser(httptest.NewRequest(http.MethodGet, findingsURL(q.Encode()), nil)))
 
 	require.Equal(t, http.StatusOK, code)
 	assert.Equal(t, []string{"dev-allowed"}, got.names)
@@ -82,16 +98,14 @@ func Test_cloudFindings_scoped_to_viewer(t *testing.T) {
 	assert.Equal(t, "https://cloud.dozzle.dev/findings/k3Xa9", body.Findings[0].URL)
 }
 
-// Nothing the caller may see means nothing to ask Cloud about.
-func Test_cloudFindings_no_visible_containers_skips_cloud(t *testing.T) {
+// Nothing resolved means nothing to ask Cloud about.
+func Test_cloudFindings_no_containers_skips_cloud(t *testing.T) {
 	h := restrictedHandler(t)
 	got := stubFindings(h, &cloud.FindingsResult{}, nil)
 
-	q := url.Values{"container": {"localhost/prod456"}}
-	code, body := findingsRequest(t, h, asRestrictedUser(httptest.NewRequest(http.MethodGet, findingsURL(q.Encode()), nil)))
+	code, body := findingsRequest(t, h, asUnfilteredUser(httptest.NewRequest(http.MethodGet, findingsURL(url.Values{"container": {"localhost/missing"}}.Encode()), nil)))
 	require.Equal(t, http.StatusOK, code)
 	assert.Empty(t, body.Findings)
-	assert.False(t, body.FixLocked)
 	assert.Zero(t, got.calls)
 
 	code, _ = findingsRequest(t, h, asUnfilteredUser(httptest.NewRequest(http.MethodGet, findingsURL(""), nil)))
@@ -100,65 +114,18 @@ func Test_cloudFindings_no_visible_containers_skips_cloud(t *testing.T) {
 }
 
 // sameNameHosts resolves one container name on two hosts, the case Cloud cannot
-// tell apart because a finding records names only. A container listed in hidden
-// is invisible to any filtered lookup.
+// tell apart because a finding records names only.
 type sameNameHosts struct {
 	HostService
 	containers map[string]container.Container
-	hidden     map[string]bool
 }
 
 func (s *sameNameHosts) FindContainer(host, id string, labels container.ContainerLabels) (*container.ContainerService, error) {
 	c, ok := s.containers[host+"/"+id]
-	if !ok || (labels.Exists() && s.hidden[host+"/"+id]) {
+	if !ok {
 		return nil, errors.New("not found")
 	}
 	return container.NewContainerService(nil, c), nil
-}
-
-func (s *sameNameHosts) ListAllContainers(labels container.ContainerLabels) ([]container.Container, []error) {
-	var out []container.Container
-	for key, c := range s.containers {
-		if labels.Exists() && s.hidden[key] {
-			continue
-		}
-		out = append(out, c)
-	}
-	return out, nil
-}
-
-// A filtered user is not sent a finding about a name they share with a
-// container on another host that their filter hides: Cloud cannot tell the two
-// apart, so the name is never asked about.
-func Test_cloudFindings_restricted_drops_names_shared_with_hidden_containers(t *testing.T) {
-	h := restrictedHandler(t)
-	h.hostService = &sameNameHosts{HostService: h.hostService, containers: map[string]container.Container{
-		"a/1": {ID: "1", Host: "a", Name: "web"},
-		"b/2": {ID: "2", Host: "b", Name: "web"},
-		"a/3": {ID: "3", Host: "a", Name: "db"},
-	}, hidden: map[string]bool{"b/2": true}}
-	got := stubFindings(h, &cloud.FindingsResult{Findings: []cloud.Finding{
-		{ID: "f1", ContainerNames: []string{"web"}},
-		{ID: "f2", ContainerNames: []string{"db", "web"}},
-	}}, nil)
-
-	q := url.Values{"container": {"a/1", "a/3"}}
-	code, body := findingsRequest(t, h, asRestrictedUser(httptest.NewRequest(http.MethodGet, findingsURL(q.Encode()), nil)))
-
-	require.Equal(t, http.StatusOK, code)
-	assert.Equal(t, []string{"db"}, got.names, "web is shared with a hidden container on host b")
-	require.Len(t, body.Findings, 1)
-	assert.Equal(t, "f2", body.Findings[0].ID)
-	assert.Equal(t, []cloud.FindingContainer{{Host: "a", ID: "3", Name: "db"}}, body.Findings[0].Containers, "web is never tagged")
-	assert.False(t, body.CanIgnore)
-
-	// Only the namesake hidden: nothing left to ask Cloud.
-	got.calls = 0
-	q = url.Values{"container": {"a/1"}}
-	code, body = findingsRequest(t, h, asRestrictedUser(httptest.NewRequest(http.MethodGet, findingsURL(q.Encode()), nil)))
-	require.Equal(t, http.StatusOK, code)
-	assert.Empty(t, body.Findings)
-	assert.Zero(t, got.calls)
 }
 
 // A name on two hosts tags both containers, the name goes to Cloud once, and a

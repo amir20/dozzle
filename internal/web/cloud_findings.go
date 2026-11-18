@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/amir20/dozzle/internal/cloud"
-	"github.com/amir20/dozzle/internal/container"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc/codes"
@@ -36,10 +35,11 @@ var findingsFilters = map[string]struct {
 // exist, and is dropped without a word. Only the first maxAlertContainers are
 // looked up; past that the answer is marked truncated.
 //
-// A name is not unique across hosts, and Cloud cannot tell the hosts apart.
-// For a filtered user a name is only sent when every container carrying it,
-// on any host, is one they may see, so a finding about a hidden namesake never
-// reaches them.
+// A filtered user gets no findings at all. A finding is keyed by container
+// names and can describe several containers at once, with no host, so there is
+// no way to prove every container it talks about is one they may see: a
+// hidden namesake on another host, one on a host that is down, or a removed
+// one all read the same. Failing closed is the only answer that holds.
 //
 //	200 — findings returned (may be empty)
 //	400 — bad filter
@@ -71,6 +71,11 @@ func (h *handler) cloudFindings(w http.ResponseWriter, r *http.Request) {
 	filter, ok := findingsFilters[filterName]
 	if !ok {
 		writeError(w, http.StatusBadRequest, "invalid filter")
+		return
+	}
+
+	if h.restrictedUser(r) {
+		respond(&cloud.FindingsResult{})
 		return
 	}
 
@@ -112,17 +117,6 @@ func (h *handler) cloudFindings(w http.ResponseWriter, r *http.Request) {
 			names = append(names, c.Name)
 		}
 		byName[c.Name] = append(byName[c.Name], cloud.FindingContainer{Host: c.Host, ID: c.ID, Name: c.Name})
-	}
-
-	if h.restrictedUser(r) && len(names) > 0 {
-		names = h.namesOnlyVisible(r, names)
-		// Forget the dropped names too, so a finding that also names one of them
-		// is never mapped back to it.
-		kept := make(map[string][]cloud.FindingContainer, len(names))
-		for _, name := range names {
-			kept[name] = byName[name]
-		}
-		byName = kept
 	}
 
 	if len(names) == 0 {
@@ -175,27 +169,6 @@ func (h *handler) cloudFindings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respond(&cloud.FindingsResult{Findings: findings, FixLocked: result.FixLocked, Truncated: result.Truncated})
-}
-
-// namesOnlyVisible keeps the names whose every container, across all hosts and
-// ignoring every filter, is one the caller may see. A name shared with a
-// container hidden from them is dropped: Cloud would answer for both.
-func (h *handler) namesOnlyVisible(r *http.Request, names []string) []string {
-	visible := h.visibleContainerIDs(r)
-	all, _ := h.hostService.ListAllContainers(container.ContainerLabels{})
-	hidden := make(map[string]struct{})
-	for _, c := range all {
-		if _, ok := visible[c.ID]; !ok {
-			hidden[c.Name] = struct{}{}
-		}
-	}
-	kept := names[:0]
-	for _, name := range names {
-		if _, ok := hidden[name]; !ok {
-			kept = append(kept, name)
-		}
-	}
-	return kept
 }
 
 // ignoreCloudFinding ignores one finding (POST), or takes that back (DELETE).
