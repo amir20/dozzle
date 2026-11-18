@@ -412,7 +412,8 @@
   /* A popover opened with `sheet` on a phone: pinned to the bottom edge above the home
    * indicator instead of hung off its trigger, where a thumb can reach every row. */
   .popover-panel.popover-sheet {
-    inset: auto 0.5rem calc(0.5rem + env(safe-area-inset-bottom)) 0.5rem;
+    inset: auto calc(0.5rem + env(safe-area-inset-right)) calc(0.5rem + env(safe-area-inset-bottom))
+      calc(0.5rem + env(safe-area-inset-left));
     max-width: none;
     max-height: 75svh;
     overflow-y: auto;
