@@ -1,7 +1,7 @@
 ---
 title: En tu Dozzle
 description: Lo que cambia en tu propio Dozzle al enlazarlo con Dozzle Cloud, incluidos Ask Dozzle, el historial de métricas y las alertas que sobreviven a una recarga.
-sourceHash: af42207c220c
+sourceHash: 6f212d9d6aeb
 ---
 
 # En tu Dozzle
@@ -26,7 +26,7 @@ Una franja de iconos en el borde derecho es la forma de encontrarlo: cada icono 
 
 El panel tapa los logs mientras está abierto, así que todo lo que en él apunta de vuelta al flujo (mostrar las líneas, un momento en un gráfico) primero lo cierra y luego desplaza el flujo hasta allí. <kbd>Esc</kbd> lo cierra.
 
-Métricas y Alertas tratan de los contenedores que hay en pantalla, así que solo aparecen en una página que muestre alguno. En la página de inicio o en Configuración, el panel ofrece solo el chat.
+Alertas trata de los contenedores que hay en pantalla, así que solo aparece en una página que muestre alguno. En la página de inicio o en Configuración, Métricas muestra en su lugar todos los hosts.
 
 ### <Icon icon="mdi:message-outline" inline /> Preguntar a Dozzle
 
@@ -39,6 +39,8 @@ Las respuestas terminan en Dozzle en lugar de en un enlace hacia fuera. Cuando l
 ### <Icon icon="mdi:chart-line" inline /> Métricas
 
 Dozzle guarda 300 muestras en el navegador y nada por detrás, así que «¿estaba así hace una hora?» no tiene respuesta local. Este panel relee las muestras que tu instancia lleva enviando todo el tiempo: CPU, memoria, red y disco en la última 1 h, 6 h o 24 h. Cada barra es una media con la muestra más alta dibujada tenuemente detrás, así que un pico breve sigue visible por larga que sea la ventana, y al pasar el cursor sobre cualquier gráfico se leen todos en el mismo instante. Red y disco suman lo que salió y lo que entró a lo largo de la ventana. Pro añade una ventana de 7 días.
+
+En una página sin contenedor, la pestaña muestra en su lugar todos los hosts: CPU y memoria con los contenedores de cada host sumados, en las mismas ventanas. La memoria se dibuja frente al total del host cuando Dozzle lo conoce. La suma de CPU se lee como la carga del host para los contenedores sin límite de CPU; un contenedor con límite informa respecto a ese límite, así que en un host así la suma puede salir alta.
 
 ### <Icon icon="mdi:bell-outline" inline /> Alertas
 

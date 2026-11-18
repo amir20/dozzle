@@ -1,7 +1,7 @@
 ---
 title: Dans votre Dozzle
 description: Ce qui change dans votre propre Dozzle une fois relié à Dozzle Cloud, notamment Demander à Dozzle, l'historique des métriques et les alertes qui survivent à un rechargement.
-sourceHash: af42207c220c
+sourceHash: 6f212d9d6aeb
 ---
 
 # Dans votre Dozzle
@@ -26,7 +26,7 @@ Une bande d'icônes sur le bord droit permet de le trouver : chaque icône ouvre
 
 Le tiroir recouvre les logs tant qu'il est ouvert : tout ce qui, à l'intérieur, renvoie au flux (montrer les lignes, un moment sur un graphique) le ferme d'abord, puis fait défiler le flux jusque-là. <kbd>Esc</kbd> le ferme.
 
-Métriques et Alertes portent sur les conteneurs à l'écran : elles n'apparaissent donc que sur une page qui en affiche un. Sur la page d'accueil ou dans les réglages, le tiroir ne propose que la discussion.
+Alertes porte sur les conteneurs à l'écran : l'onglet n'apparaît donc que sur une page qui en affiche un. Sur la page d'accueil ou dans les réglages, Métriques affiche plutôt tous les hôtes.
 
 ### <Icon icon="mdi:message-outline" inline /> Demander à Dozzle
 
@@ -39,6 +39,8 @@ Ouvrez-le depuis le bouton **Demander à Dozzle** à côté de la barre de reche
 ### <Icon icon="mdi:chart-line" inline /> Métriques
 
 Dozzle garde 300 échantillons dans le navigateur et rien derrière : « est-ce que c'était comme ça il y a une heure ? » n'a donc pas de réponse locale. Ce panneau relit les échantillons que votre instance envoie depuis le début : CPU, mémoire, réseau et disque sur les dernières 1 h, 6 h ou 24 h. Chaque barre est une moyenne, avec l'échantillon le plus haut tracé en transparence derrière elle, pour qu'un pic bref reste visible quelle que soit la longueur de la fenêtre, et survoler n'importe quel graphique les relit tous au même instant. Réseau et disque additionnent ce qui est sorti et ce qui est entré sur la fenêtre. Pro ajoute une fenêtre de 7 jours.
+
+Sur une page sans conteneur, l'onglet affiche plutôt tous les hôtes : CPU et mémoire, avec les conteneurs de chaque hôte additionnés, sur les mêmes fenêtres. La mémoire est tracée par rapport au total de l'hôte quand Dozzle le connaît. La somme CPU se lit comme la charge de l'hôte pour les conteneurs sans limite CPU ; un conteneur qui a une limite est mesuré par rapport à cette limite, si bien que sur un tel hôte la somme peut paraître élevée.
 
 ### <Icon icon="mdi:bell-outline" inline /> Alertes
 

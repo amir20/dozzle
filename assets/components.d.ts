@@ -314,6 +314,7 @@ declare module 'vue' {
     Popup: typeof import('./components/ui/Popup.vue')['default']
     ProBadge: typeof import('./components/cloud/ProBadge.vue')['default']
     RailAlerts: typeof import('./components/cloud/rail/RailAlerts.vue')['default']
+    RailHostMetrics: typeof import('./components/cloud/rail/RailHostMetrics.vue')['default']
     RailMetrics: typeof import('./components/cloud/rail/RailMetrics.vue')['default']
     RandomColorTag: typeof import('./components/ui/RandomColorTag.vue')['default']
     RangeEdgeLogItem: typeof import('./components/logs/entries/RangeEdgeLogItem.vue')['default']
