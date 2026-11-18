@@ -28,6 +28,14 @@
       <header class="flex shrink-0 items-center gap-3 px-6 pt-6">
         <!-- A phone has no rail, so its mark lives here. -->
         <CloudMark v-if="isMobile" />
+        <!-- The panel's own glyph, as the SQL drawer leads with its file icon. A phone
+             already shows the cloud mark here, so the account adds none. -->
+        <component
+          :is="titleIcon"
+          v-if="titleIcon && !(isMobile && panel === 'account')"
+          class="text-primary size-6 shrink-0"
+          aria-hidden="true"
+        />
         <h2 class="min-w-0 flex-1 truncate text-2xl font-bold">{{ title }}</h2>
         <!-- What fired is here; what makes it fire is the notifications page. -->
         <RouterLink
@@ -115,6 +123,7 @@
 </template>
 
 <script lang="ts" setup>
+import mdiCloudOutline from "~icons/mdi/cloud-outline";
 import { cloudPanelHref } from "@/composable/cloud/cloudRail";
 
 // Carries markdown-it, and nobody who never asks a question should download it.
@@ -127,6 +136,9 @@ const { inView, scoped, containers } = useCloudScope();
 const items = useRailItems(() => isMobile.value && !!panel.value);
 const { t } = useI18n();
 
+const titleIcon = computed(() =>
+  panel.value === "account" ? mdiCloudOutline : items.value.find((i) => i.id === panel.value)?.icon,
+);
 const title = computed(() =>
   panel.value === "account" ? t("cloud.title") : (items.value.find((i) => i.id === panel.value)?.label ?? ""),
 );

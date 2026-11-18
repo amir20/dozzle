@@ -798,7 +798,6 @@ cloud-rail:
   window-24h: 24u
   window-7d: 7 d
 cloud-findings:
-  instance: Bevindingen worden per container bijgehouden. Open een container om te zien wat de dagelijkse controle erover heeft opgemerkt, of bekijk alle bevindingen in Dozzle Cloud.
   filter-new: Nieuw
   filter-all: Alle
   filter-ignored: Genegeerd

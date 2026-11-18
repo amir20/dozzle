@@ -797,7 +797,6 @@ cloud-rail:
   window-24h: 24t
   window-7d: 7 d
 cloud-findings:
-  instance: Fund gemmes pr. container. Åbn en container for at se, hvad den daglige gennemgang har bemærket om den, eller se alle fund i Dozzle Cloud.
   filter-new: Nye
   filter-all: Alle
   filter-ignored: Ignorerede

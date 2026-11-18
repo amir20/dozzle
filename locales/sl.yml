@@ -802,7 +802,6 @@ cloud-rail:
   window-24h: 24 h
   window-7d: 7 d
 cloud-findings:
-  instance: Ugotovitve se hranijo za vsak vsebnik posebej. Odprite vsebnik, da vidite, kaj je dnevni pregled opazil pri njem, ali si oglejte vse ugotovitve v Dozzle Cloud.
   filter-new: Nove
   filter-all: Vse
   filter-ignored: Prezrte

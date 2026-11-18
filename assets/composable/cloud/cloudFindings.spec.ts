@@ -7,6 +7,8 @@ import { computed, defineComponent, ref } from "vue";
 import { createI18n } from "vue-i18n";
 
 vi.mock("@/stores/config", () => ({ __esModule: true, default: {}, withBase: (p: string) => p }));
+const known = ref<{ host: string; id: string; name: string; state: string }[]>([]);
+vi.mock("@/stores/container", () => ({ useContainerStore: () => ({ containers: known.value }) }));
 const scope = ref([{ host: "h1", id: "a1", name: "api" }]);
 vi.mock("./cloudScope", () => ({ useCloudScope: () => ({ containers: computed(() => scope.value) }) }));
 const toast = vi.hoisted(() => vi.fn());
@@ -97,6 +99,24 @@ describe("findings scoping", () => {
     expect(result.findings).toEqual([]);
     expect(result.lastScanAt).toBe(1e18);
     expect(result.nextScanAt).toBe(2e18);
+  });
+
+  // The home page, or the chip widened to all: every container this instance
+  // knows is asked about, stopped ones included, deleted ones not.
+  test("with nothing on screen the list asks about every known container", async () => {
+    scope.value = [];
+    known.value = [
+      { host: "h1", id: "b2", name: "worker", state: "exited" },
+      { host: "h1", id: "a1", name: "api", state: "running" },
+      { host: "h1", id: "c3", name: "gone", state: "deleted" },
+    ];
+    const fetchMock = vi.fn().mockResolvedValue(json({ findings: [] }));
+    vi.stubGlobal("fetch", fetchMock);
+    mountFindings();
+    await flushPromises();
+    expect(fetchMock).toHaveBeenLastCalledWith("/api/cloud/findings?container=h1%2Fa1&container=h1%2Fb2&filter=new");
+    known.value = [];
+    scope.value = [{ host: "h1", id: "a1", name: "api" }];
   });
 
   test("a schedule Cloud did not send reads as zero", async () => {

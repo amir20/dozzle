@@ -797,7 +797,6 @@ cloud-rail:
   window-24h: 24 小时
   window-7d: 7 天
 cloud-findings:
-  instance: 调查结果按容器保存。打开一个容器即可查看每日审查发现的问题，或在 Dozzle Cloud 中查看全部调查结果。
   filter-new: 新的
   filter-all: 全部
   filter-ignored: 已忽略

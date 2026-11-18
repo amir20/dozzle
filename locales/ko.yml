@@ -799,7 +799,6 @@ cloud-rail:
   window-24h: 24시간
   window-7d: 7일
 cloud-findings:
-  instance: 조사 결과는 컨테이너별로 보관됩니다. 컨테이너를 열면 일일 검토에서 발견한 내용을 볼 수 있고, 모든 조사 결과는 Dozzle Cloud에서 볼 수 있습니다.
   filter-new: 새 항목
   filter-all: 전체
   filter-ignored: 무시됨

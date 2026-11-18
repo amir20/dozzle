@@ -809,7 +809,6 @@ cloud-rail:
   window-24h: 24j
   window-7d: 7 hr
 cloud-findings:
-  instance: Temuan disimpan per kontainer. Buka kontainer untuk melihat apa yang dicatat oleh peninjauan harian, atau lihat semua temuan di Dozzle Cloud.
   filter-new: Baru
   filter-all: Semua
   filter-ignored: Diabaikan

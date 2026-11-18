@@ -799,7 +799,6 @@ cloud-rail:
   window-24h: 24 godz
   window-7d: 7 dni
 cloud-findings:
-  instance: Ustalenia są przechowywane dla każdego kontenera osobno. Otwórz kontener, aby zobaczyć, co zauważył w nim codzienny przegląd, albo zobacz wszystkie ustalenia w Dozzle Cloud.
   filter-new: Nowe
   filter-all: Wszystkie
   filter-ignored: Ignorowane

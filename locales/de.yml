@@ -797,7 +797,6 @@ cloud-rail:
   window-24h: 24 Std
   window-7d: 7 T
 cloud-findings:
-  instance: Befunde werden pro Container gespeichert. Öffne einen Container, um zu sehen, was die tägliche Prüfung dazu bemerkt hat, oder sieh dir alle Befunde in Dozzle Cloud an.
   filter-new: Neu
   filter-all: Alle
   filter-ignored: Ignoriert

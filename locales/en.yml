@@ -312,7 +312,6 @@ cloud-rail:
   window-24h: 24h
   window-7d: 7d
 cloud-findings:
-  instance: Findings are kept per container. Open a container to see what the daily review noticed about it, or see every finding in Dozzle Cloud.
   filter-new: New
   filter-all: All
   filter-ignored: Ignored

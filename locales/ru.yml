@@ -797,7 +797,6 @@ cloud-rail:
   window-24h: 24 ч
   window-7d: 7 д
 cloud-findings:
-  instance: Находки хранятся для каждого контейнера. Откройте контейнер, чтобы увидеть, что заметил ежедневный анализ, или посмотрите все находки в Dozzle Cloud.
   filter-new: Новые
   filter-all: Все
   filter-ignored: Игнорируемые

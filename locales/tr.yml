@@ -800,7 +800,6 @@ cloud-rail:
   window-24h: 24 sa
   window-7d: 7 g
 cloud-findings:
-  instance: Bulgular konteyner başına tutulur. Günlük incelemenin ne fark ettiğini görmek için bir konteyner açın veya tüm bulguları Dozzle Cloud'da görün.
   filter-new: Yeni
   filter-all: Tümü
   filter-ignored: Yok sayılan

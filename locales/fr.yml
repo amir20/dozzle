@@ -797,7 +797,6 @@ cloud-rail:
   window-24h: 24 h
   window-7d: 7 j
 cloud-findings:
-  instance: Les constats sont conservés par conteneur. Ouvrez un conteneur pour voir ce que l'examen quotidien a relevé à son sujet, ou consultez tous les constats dans Dozzle Cloud.
   filter-new: Nouveaux
   filter-all: Tous
   filter-ignored: Ignorés

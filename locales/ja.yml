@@ -305,7 +305,6 @@ cloud-rail:
   window-24h: 24 時間
   window-7d: 7 日
 cloud-findings:
-  instance: 検出結果はコンテナごとに保存されます。コンテナを開くと毎日のレビューで見つかった内容を確認できます。すべての検出結果は Dozzle Cloud で確認できます。
   filter-new: 新規
   filter-all: すべて
   filter-ignored: 無視中

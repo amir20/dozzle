@@ -55,7 +55,7 @@ export interface CloudFindingsResult {
   nextScanAt: number;
 }
 
-type Scope = { host: string; id: string }[];
+type Scope = { host: string; id: string; name?: string }[];
 
 /** "Show me the lines" for one finding on one container: its newest line, or
  *  the last scan when the review never recorded one. */
@@ -159,8 +159,31 @@ function hasUnseen(findings: CloudFinding[], names: Set<string>) {
   );
 }
 
-export function useCloudFindings(filter: MaybeRefOrGetter<FindingsFilter>) {
+/** The cap the server applies; asking past it only gets the list marked truncated. */
+const MAX_ASKED = 100;
+
+/**
+ * The containers a findings list asks Cloud about: the ones on screen, or with
+ * none on screen (the home page, or the chip widened to all) every container
+ * this instance knows, stopped ones included, since a review often flags one
+ * that is down. Cloud keeps no whole-instance list that Dozzle could filter by
+ * the reader's labels, so the instance is asked for by name like everything else.
+ */
+export function useFindingsScope() {
   const { containers } = useCloudScope();
+  const store = useContainerStore();
+  return computed<{ host: string; id: string; name: string }[]>(() => {
+    if (containers.value.length) return containers.value;
+    return store.containers
+      .filter((c) => c.state !== "deleted")
+      .map((c) => ({ host: c.host, id: c.id, name: c.name }))
+      .sort((a, b) => (a.id < b.id ? -1 : 1))
+      .slice(0, MAX_ASKED);
+  });
+}
+
+export function useCloudFindings(filter: MaybeRefOrGetter<FindingsFilter>) {
+  const containers = useFindingsScope();
   const { t } = useI18n();
   const { showToast } = useToast();
 
@@ -262,7 +285,7 @@ export function useCloudFindings(filter: MaybeRefOrGetter<FindingsFilter>) {
  *  last opened the panel on that container. Asked once per scope, for the
  *  tab's dot. */
 export function useUnseenFindings(enabled: MaybeRefOrGetter<boolean> = true) {
-  const { containers } = useCloudScope();
+  const containers = useFindingsScope();
   const latest = ref<CloudFinding[]>([]);
   const names = computed(() => new Set(containers.value.map((c) => c.name)));
 

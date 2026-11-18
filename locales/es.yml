@@ -304,7 +304,6 @@ cloud-rail:
   window-24h: 24 h
   window-7d: 7 d
 cloud-findings:
-  instance: Los hallazgos se guardan por contenedor. Abre un contenedor para ver lo que la revisión diaria notó sobre él, o mira todos los hallazgos en Dozzle Cloud.
   filter-new: Nuevos
   filter-all: Todos
   filter-ignored: Ignorados

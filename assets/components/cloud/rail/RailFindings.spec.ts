@@ -38,6 +38,7 @@ vi.mock("@/composable/cloud/cloudScope", () => ({
 }));
 vi.mock("@/composable/cloud/cloudFindings", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/composable/cloud/cloudFindings")>()),
+  useFindingsScope: () => computed(() => scope.value),
   useCloudFindings: () => ({
     findings,
     canIgnore,
@@ -143,13 +144,17 @@ describe("<RailFindings />", () => {
     expect(wrapper.text()).toContain("Nothing noticed on 2 containers in the last review.");
   });
 
-  test("the home page keeps the pointer to Cloud and adds the schedule", () => {
-    scope.value = [];
-    lastScanAt.value = Date.now() * 1e6;
-    findings.value = [];
+  // With nothing on screen the instance is asked about, so its findings are listed
+  // here rather than only in Cloud.
+  test("the home page lists the instance's findings, with each one's containers", () => {
+    scope.value = [
+      { host: "h1", id: "a1", name: "api" },
+      { host: "h1", id: "b2", name: "worker" },
+    ];
+    findings.value = [finding];
     const wrapper = mount(RailFindings, { global: { plugins: [i18n], stubs: { RelativeTime: true } } });
-    expect(wrapper.find("[data-schedule]").exists()).toBe(true);
-    expect(wrapper.text()).toContain("Findings are kept per container.");
+    expect(wrapper.text()).toContain("disk filling up");
+    expect(wrapper.text()).toContain("api");
   });
 
   test("with no schedule from Cloud there is no schedule line", () => {

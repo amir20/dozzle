@@ -797,7 +797,6 @@ cloud-rail:
   window-24h: 24 h
   window-7d: 7 g
 cloud-findings:
-  instance: I rilevamenti sono conservati per container. Apri un container per vedere cosa ha notato la revisione giornaliera, oppure guarda tutti i rilevamenti in Dozzle Cloud.
   filter-new: Nuovi
   filter-all: Tutti
   filter-ignored: Ignorati
