@@ -43,12 +43,15 @@ func Test_cloudRoleGatesLinkingNotLooking(t *testing.T) {
 		"GET /api/cloud/search/logs",
 		"POST /api/cloud/feedback",
 		"POST /api/cloud/chat",
+		"GET /api/cloud/findings",
 	}
 	linking := []string{
 		"PATCH /api/cloud/config",
 		"DELETE /api/cloud/config",
 		"POST /api/cloud/link",
 		"GET /api/cloud/callback",
+		"POST /api/cloud/findings/{id}/ignore",
+		"DELETE /api/cloud/findings/{id}/ignore",
 	}
 
 	for _, r := range looking {

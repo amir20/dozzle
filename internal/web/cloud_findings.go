@@ -1,0 +1,223 @@
+package web
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"net/http"
+	"strconv"
+	"strings"
+
+	"github.com/amir20/dozzle/internal/cloud"
+	"github.com/go-chi/chi/v5"
+	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
+
+// findingsFilters maps the three views Dozzle offers to Cloud's list query.
+// "new" is open and ongoing, not ignored: Cloud's "needs attention".
+var findingsFilters = map[string]struct {
+	status  string
+	ignored bool
+}{
+	"new":     {status: "open"},
+	"all":     {status: ""},
+	"ignored": {status: "", ignored: true},
+}
+
+// cloudFindings answers what Cloud's scheduled review found about the
+// containers on screen.
+//
+// A finding records container names only, so each requested host/id is
+// resolved through the caller's own scope first and only the names of the ones
+// they may see go to Cloud. One they cannot see reads as one that does not
+// exist, and is dropped without a word.
+//
+//	200 — findings returned (may be empty)
+//	400 — bad filter, or more than maxAlertContainers containers
+//	503 — cloud not configured
+//	504 — cloud round-trip exceeded the timeout
+//	502 — any other cloud-side error
+func (h *handler) cloudFindings(w http.ResponseWriter, r *http.Request) {
+	if h.config.Cloud.GetFindings == nil {
+		writeError(w, http.StatusServiceUnavailable, "cloud not configured")
+		return
+	}
+
+	q := r.URL.Query()
+
+	filterName := q.Get("filter")
+	if filterName == "" {
+		filterName = "new"
+	}
+	filter, ok := findingsFilters[filterName]
+	if !ok {
+		writeError(w, http.StatusBadRequest, "invalid filter")
+		return
+	}
+
+	requested := q["container"]
+	if len(requested) > maxAlertContainers {
+		writeError(w, http.StatusBadRequest, "too many containers")
+		return
+	}
+
+	limit := int32(20)
+	if v := q.Get("limit"); v != "" {
+		if n, err := strconv.ParseInt(v, 10, 32); err == nil && n > 0 {
+			limit = int32(min(n, 50))
+		}
+	}
+
+	// Several containers can share a name (one per host), so a name maps back
+	// to every container on screen that carries it.
+	labels := h.resolveLabels(r)
+	byName := make(map[string][]cloud.FindingContainer)
+	seen := make(map[string]struct{})
+	var names []string
+	for _, ref := range requested {
+		host, id, found := strings.Cut(ref, "/")
+		if !found || host == "" || id == "" {
+			continue
+		}
+		service, err := h.hostService.FindContainer(host, id, labels)
+		if err != nil {
+			continue
+		}
+		c := service.Container
+		key := c.Host + "/" + c.ID
+		if _, dup := seen[key]; dup {
+			continue
+		}
+		seen[key] = struct{}{}
+		if _, known := byName[c.Name]; !known {
+			names = append(names, c.Name)
+		}
+		byName[c.Name] = append(byName[c.Name], cloud.FindingContainer{Host: c.Host, ID: c.ID, Name: c.Name})
+	}
+
+	if len(names) == 0 {
+		writeFindings(w, &cloud.FindingsResult{})
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(r.Context(), cloudAlertsTimeout)
+	defer cancel()
+
+	result, err := h.config.Cloud.GetFindings(ctx, names, filter.status, filter.ignored, limit)
+	if err != nil {
+		if errors.Is(err, cloud.ErrNotConfigured) {
+			writeError(w, http.StatusServiceUnavailable, "cloud not configured")
+			return
+		}
+		if errors.Is(err, context.DeadlineExceeded) || status.Code(err) == codes.DeadlineExceeded {
+			writeError(w, http.StatusGatewayTimeout, "cloud findings timed out")
+			return
+		}
+		// An older Cloud has no findings RPC. That is an empty list, not an
+		// error banner.
+		if status.Code(err) == codes.Unimplemented {
+			writeFindings(w, &cloud.FindingsResult{})
+			return
+		}
+		log.Warn().Err(err).Msg("cloud findings failed")
+		writeError(w, http.StatusBadGateway, "cloud findings failed")
+		return
+	}
+
+	// Map each finding's names back to the containers asked about. A finding
+	// that maps to none was not about anything this caller asked for, so it is
+	// dropped rather than shown with no container.
+	findings := make([]cloud.Finding, 0, len(result.Findings))
+	for _, f := range result.Findings {
+		f.Containers = []cloud.FindingContainer{}
+		mapped := make(map[string]struct{})
+		for _, name := range f.ContainerNames {
+			if _, done := mapped[name]; done {
+				continue
+			}
+			mapped[name] = struct{}{}
+			f.Containers = append(f.Containers, byName[name]...)
+		}
+		if len(f.Containers) == 0 {
+			continue
+		}
+		findings = append(findings, f)
+	}
+
+	writeFindings(w, &cloud.FindingsResult{Findings: findings, FixLocked: result.FixLocked, Truncated: result.Truncated})
+}
+
+// ignoreCloudFinding ignores one finding (POST), or takes that back (DELETE).
+//
+// Ignoring is account-wide: it changes what Cloud reports and emails for every
+// instance on the account. The route requires the cloud role, and a filtered
+// user is refused here too, since they could otherwise silence a finding about
+// containers they cannot see.
+//
+//	200 — the updated finding
+//	400 — Cloud rejected the id
+//	403 — the caller is confined by a filter
+//	404 — no such finding on this instance
+//	501 — Cloud does not serve this yet
+//	503 — cloud not configured
+//	504 — cloud round-trip exceeded the timeout
+//	502 — any other cloud-side error
+func (h *handler) ignoreCloudFinding(w http.ResponseWriter, r *http.Request) {
+	if h.restrictedUser(r) {
+		writeError(w, http.StatusForbidden, "filtered users cannot ignore findings")
+		return
+	}
+	if h.config.Cloud.IgnoreFinding == nil {
+		writeError(w, http.StatusServiceUnavailable, "cloud not configured")
+		return
+	}
+
+	id := chi.URLParam(r, "id")
+	if id == "" {
+		writeError(w, http.StatusBadRequest, "missing finding id")
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(r.Context(), cloudAlertsTimeout)
+	defer cancel()
+
+	finding, err := h.config.Cloud.IgnoreFinding(ctx, id, r.Method == http.MethodDelete)
+	if err != nil {
+		switch {
+		case errors.Is(err, cloud.ErrNotConfigured):
+			writeError(w, http.StatusServiceUnavailable, "cloud not configured")
+		case errors.Is(err, context.DeadlineExceeded) || status.Code(err) == codes.DeadlineExceeded:
+			writeError(w, http.StatusGatewayTimeout, "cloud timed out")
+		case status.Code(err) == codes.NotFound:
+			writeError(w, http.StatusNotFound, "finding not found")
+		case status.Code(err) == codes.InvalidArgument:
+			writeError(w, http.StatusBadRequest, "invalid finding id")
+		case status.Code(err) == codes.Unimplemented:
+			writeError(w, http.StatusNotImplemented, "cloud does not support ignoring findings yet")
+		default:
+			log.Warn().Err(err).Msg("cloud ignore finding failed")
+			writeError(w, http.StatusBadGateway, "cloud ignore finding failed")
+		}
+		return
+	}
+
+	if finding.Containers == nil {
+		finding.Containers = []cloud.FindingContainer{}
+	}
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(finding); err != nil {
+		log.Error().Err(err).Msg("failed to encode cloud finding")
+	}
+}
+
+func writeFindings(w http.ResponseWriter, result *cloud.FindingsResult) {
+	if result.Findings == nil {
+		result.Findings = []cloud.Finding{}
+	}
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(result); err != nil {
+		log.Error().Err(err).Msg("failed to encode cloud findings")
+	}
+}

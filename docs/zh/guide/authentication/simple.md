@@ -1,7 +1,7 @@
 ---
 title: 简单模式身份验证
 description: 使用 users.yml 文件配置 Dozzle 的简单模式身份验证，并通过过滤器和角色限制每个用户能看到哪些 Docker 容器、能执行哪些操作。
-sourceHash: 6669a5ecbae2
+sourceHash: 55559abc133e
 ---
 
 # <Icon icon="mdi:account-cog-outline" inline /> 简单模式身份验证
@@ -172,7 +172,7 @@ Dozzle 支持以下角色：
 | `update`        | `dozzle_update`        | 把容器更新到较新的镜像。只有同时拥有 `actions` 时才生效。                |
 | `download`      | `dozzle_download`      | 把容器日志下载为文件。                                                   |
 | `notifications` | `dozzle_notifications` | 创建和编辑通知规则与通知目标。                                           |
-| `cloud`         | `dozzle_cloud`         | 关联、解除关联并配置 Dozzle Cloud。                                      |
+| `cloud`         | `dozzle_cloud`         | 关联、解除关联并配置 Dozzle Cloud，以及忽略它的发现。                    |
 | `all`           | `dozzle_all`           | 以上所有角色。`roles` 为空时的默认值。                                   |
 | `none`          | `dozzle_none`          | 没有任何角色。日志仍可查看，受用户过滤器约束。会覆盖其他所有设置。       |
 

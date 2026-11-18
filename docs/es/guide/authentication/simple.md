@@ -1,7 +1,7 @@
 ---
 title: Autenticación simple
 description: Configura la autenticación simple de Dozzle con un archivo users.yml y limita con filtros y roles qué contenedores Docker ve cada usuario y qué puede hacer con ellos.
-sourceHash: 6669a5ecbae2
+sourceHash: 55559abc133e
 ---
 
 # <Icon icon="mdi:account-cog-outline" inline /> Autenticación simple
@@ -172,7 +172,7 @@ Dozzle admite los siguientes roles:
 | `update`        | `dozzle_update`        | Actualizar un contenedor a una imagen más reciente. Solo tiene efecto junto con `actions`.                    |
 | `download`      | `dozzle_download`      | Descargar los logs de un contenedor como archivo.                                                             |
 | `notifications` | `dozzle_notifications` | Crear y editar reglas y destinos de notificación.                                                             |
-| `cloud`         | `dozzle_cloud`         | Vincular, desvincular y configurar Dozzle Cloud.                                                              |
+| `cloud`         | `dozzle_cloud`         | Vincular, desvincular y configurar Dozzle Cloud, e ignorar sus hallazgos.                                     |
 | `all`           | `dozzle_all`           | Todos los roles anteriores. Es el valor por defecto cuando `roles` está vacío.                                |
 | `none`          | `dozzle_none`          | Ningún rol. Los logs siguen siendo visibles, según el filtro del usuario. Anula todo lo demás.                |
 
