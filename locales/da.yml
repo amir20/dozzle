@@ -771,8 +771,7 @@ cloud:
       error: "Enhver error-linje"
 cloud-rail:
   title: Dozzle Cloud
-  chat: Spørg Dozzle
-  ask: Spørg
+  chat: Spørg
   open-account: Abonnement og fakturering
   alerts-retention: "Dozzle Cloud gemmer {n} dags advarselshistorik. | Dozzle Cloud gemmer {n} dages advarselshistorik."
   create-alert: Opret en advarselsregel
@@ -823,7 +822,7 @@ cloud-findings:
   not-reviewed: Ikke gennemgået endnu
   empty-reviewed: "Intet bemærket på {name} i den seneste gennemgang."
 cloud-chat:
-  title: Spørg Dozzle
+  title: Spørg
   close: Luk
   clear: Ryd chatten
   empty: Spørg om det du kigger på. Assistenten kan se denne side og læse dine containeres logs.
@@ -895,7 +894,7 @@ cloud-chat:
   error-unavailable: Assistenten er ikke tilgængelig lige nu.
   error-not-configured: Dozzle Cloud er ikke tilknyttet, så der er ingen assistent at spørge.
   section-ask: Assistent
-  ask-for: Spørg Dozzle om {query}
+  ask-for: Spørg om {query}
   ask-hint: Svarer ud fra det, du kigger på
   ask-shortcut: for at spørge
   visual:

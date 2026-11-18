@@ -86,7 +86,7 @@ export function useRailItems(dots: MaybeRefOrGetter<boolean> = true) {
       dot: unseenFindings.value,
     },
     { id: "alerts" as const, label: t("cloud-rail.alerts"), icon: mdiBellOutline, dot: unseenAlerts.value },
-    { id: "chat" as const, label: t("cloud-rail.ask"), icon: mdiMessageOutline, dot: false },
+    { id: "chat" as const, label: t("cloud-rail.chat"), icon: mdiMessageOutline, dot: false },
     { id: "metrics" as const, label: t("cloud-rail.metrics"), icon: mdiChartLine, dot: false },
   ]);
 }

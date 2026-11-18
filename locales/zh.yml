@@ -771,8 +771,7 @@ cloud:
       error: "任何 error 行"
 cloud-rail:
   title: Dozzle Cloud
-  chat: 询问 Dozzle
-  ask: 提问
+  chat: 提问
   open-account: 计划与账单
   alerts-retention: "Dozzle Cloud 保留 {n} 天的告警历史。 | Dozzle Cloud 保留 {n} 天的告警历史。"
   create-alert: 创建告警规则
@@ -823,7 +822,7 @@ cloud-findings:
   not-reviewed: 尚未审查
   empty-reviewed: "上次审查未在 {name} 上发现任何问题。"
 cloud-chat:
-  title: 问 Dozzle
+  title: 提问
   close: 关闭
   clear: 清除对话
   empty: 就眼前看到的内容提问。助手能看到这个页面，也能读取你的容器日志。
@@ -895,7 +894,7 @@ cloud-chat:
   error-unavailable: 助手当前不可用。
   error-not-configured: 尚未连接 Dozzle Cloud，没有可以提问的助手。
   section-ask: 助手
-  ask-for: 就 {query} 问 Dozzle
+  ask-for: 就 {query} 提问
   ask-hint: 基于你正在查看的内容作答
   ask-shortcut: 提问
   visual:

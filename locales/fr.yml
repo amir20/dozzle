@@ -771,8 +771,7 @@ cloud:
       error: "Toute ligne error"
 cloud-rail:
   title: Dozzle Cloud
-  chat: Demander à Dozzle
-  ask: Demander
+  chat: Demander
   open-account: Forfait et facturation
   alerts-retention: "Dozzle Cloud conserve {n} jour d'historique des alertes. | Dozzle Cloud conserve {n} jours d'historique des alertes."
   create-alert: Créer une règle d'alerte
@@ -823,7 +822,7 @@ cloud-findings:
   not-reviewed: Pas encore analysé
   empty-reviewed: "Rien relevé sur {name} lors de la dernière analyse."
 cloud-chat:
-  title: Demander à Dozzle
+  title: Demander
   close: Fermer
   clear: Effacer la conversation
   empty: Posez une question sur ce que vous regardez. L'assistant voit cette page et peut lire les logs de vos conteneurs.
@@ -895,7 +894,7 @@ cloud-chat:
   error-unavailable: L'assistant n'est pas disponible pour le moment.
   error-not-configured: Dozzle Cloud n'est pas lié, il n'y a donc aucun assistant à interroger.
   section-ask: Assistant
-  ask-for: Demander à Dozzle à propos de {query}
+  ask-for: Demander à propos de {query}
   ask-hint: Répond à partir de ce que vous consultez
   ask-shortcut: pour demander
   visual:

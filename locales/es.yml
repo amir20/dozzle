@@ -277,8 +277,7 @@ placeholder:
   search: Buscar
 cloud-rail:
   title: Dozzle Cloud
-  chat: Preguntar a Dozzle
-  ask: Preguntar
+  chat: Preguntar
   open-account: Plan y facturación
   alerts-retention: "Dozzle Cloud guarda {n} día de historial de alertas. | Dozzle Cloud guarda {n} días de historial de alertas."
   create-alert: Crear una regla de alerta
@@ -329,7 +328,7 @@ cloud-findings:
   not-reviewed: Aún sin revisar
   empty-reviewed: "No se notó nada en {name} en la última revisión."
 cloud-chat:
-  title: Preguntar a Dozzle
+  title: Preguntar
   close: Cerrar
   clear: Borrar el chat
   empty: Pregunta sobre lo que estás viendo. El asistente ve esta página y puede leer los logs de tus contenedores.
@@ -401,7 +400,7 @@ cloud-chat:
   error-unavailable: El asistente no está disponible ahora mismo.
   error-not-configured: Dozzle Cloud no está vinculado, así que no hay ningún asistente al que preguntar.
   section-ask: Asistente
-  ask-for: Preguntar a Dozzle sobre {query}
+  ask-for: Preguntar sobre {query}
   ask-hint: Responde según lo que estás viendo
   ask-shortcut: para preguntar
   visual:

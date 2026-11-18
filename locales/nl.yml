@@ -772,8 +772,7 @@ cloud:
       error: "Elke error-regel"
 cloud-rail:
   title: Dozzle Cloud
-  chat: Vraag Dozzle
-  ask: Vragen
+  chat: Vragen
   open-account: Abonnement en facturatie
   alerts-retention: "Dozzle Cloud bewaart {n} dag aan waarschuwingsgeschiedenis. | Dozzle Cloud bewaart {n} dagen aan waarschuwingsgeschiedenis."
   create-alert: Een waarschuwingsregel maken
@@ -824,7 +823,7 @@ cloud-findings:
   not-reviewed: Nog niet gecontroleerd
   empty-reviewed: "Niets opgemerkt bij {name} in de laatste controle."
 cloud-chat:
-  title: Vraag het Dozzle
+  title: Vragen
   close: Sluiten
   clear: Chat wissen
   empty: Stel een vraag over wat je ziet. De assistent kan deze pagina zien en de logs van je containers lezen.
@@ -896,7 +895,7 @@ cloud-chat:
   error-unavailable: De assistent is nu niet beschikbaar.
   error-not-configured: Dozzle Cloud is niet gekoppeld, dus er is geen assistent om iets aan te vragen.
   section-ask: Assistent
-  ask-for: Dozzle vragen over {query}
+  ask-for: Vragen over {query}
   ask-hint: Antwoordt op basis van wat je bekijkt
   ask-shortcut: om te vragen
   visual:

@@ -771,8 +771,7 @@ cloud:
       error: "Qualquer linha de erro"
 cloud-rail:
   title: Dozzle Cloud
-  chat: Perguntar ao Dozzle
-  ask: Perguntar
+  chat: Perguntar
   open-account: Plano e faturamento
   alerts-retention: "O Dozzle Cloud guarda {n} dia de histórico de alertas. | O Dozzle Cloud guarda {n} dias de histórico de alertas."
   create-alert: Criar uma regra de alerta
@@ -823,7 +822,7 @@ cloud-findings:
   not-reviewed: Ainda não revisado
   empty-reviewed: "Nada notado em {name} na última revisão."
 cloud-chat:
-  title: Perguntar ao Dozzle
+  title: Perguntar
   close: Fechar
   clear: Limpar a conversa
   empty: Pergunta sobre o que estás a ver. O assistente vê esta página e lê os logs dos teus contentores.
@@ -895,7 +894,7 @@ cloud-chat:
   error-unavailable: O assistente está indisponível no momento.
   error-not-configured: O Dozzle Cloud não está vinculado, então não há assistente para perguntar.
   section-ask: Assistente
-  ask-for: Perguntar ao Dozzle sobre {query}
+  ask-for: Perguntar sobre {query}
   ask-hint: Responde com base no que está a ver
   ask-shortcut: para perguntar
   visual:

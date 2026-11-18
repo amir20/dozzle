@@ -774,8 +774,7 @@ cloud:
       error: "Herhangi bir error satırı"
 cloud-rail:
   title: Dozzle Cloud
-  chat: Dozzle'a sor
-  ask: Sor
+  chat: Sor
   open-account: Plan ve faturalandırma
   alerts-retention: "Dozzle Cloud {n} günlük uyarı geçmişi tutar. | Dozzle Cloud {n} günlük uyarı geçmişi tutar."
   create-alert: Uyarı kuralı oluştur
@@ -826,7 +825,7 @@ cloud-findings:
   not-reviewed: Henüz incelenmedi
   empty-reviewed: "Son incelemede {name} üzerinde bir şey fark edilmedi."
 cloud-chat:
-  title: Dozzle'a sor
+  title: Sor
   close: Kapat
   clear: Sohbeti temizle
   empty: Baktığın şeyi sor. Asistan bu sayfayı görebilir ve konteynerlerinin loglarını okuyabilir.
@@ -898,7 +897,7 @@ cloud-chat:
   error-unavailable: Asistan şu anda kullanılamıyor.
   error-not-configured: Dozzle Cloud bağlı değil, bu yüzden soru sorulacak bir asistan yok.
   section-ask: Asistan
-  ask-for: "{query} hakkında Dozzle'a sor"
+  ask-for: "{query} hakkında sor"
   ask-hint: Baktığın şeye göre yanıtlar
   ask-shortcut: sormak için
   visual:

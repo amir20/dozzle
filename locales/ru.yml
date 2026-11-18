@@ -771,8 +771,7 @@ cloud:
       error: "Любая строка error"
 cloud-rail:
   title: Dozzle Cloud
-  chat: Спросить Dozzle
-  ask: Спросить
+  chat: Спросить
   open-account: Тариф и оплата
   alerts-retention: "Dozzle Cloud хранит историю оповещений {n} день. | Dozzle Cloud хранит историю оповещений {n} дней."
   create-alert: Создать правило оповещения
@@ -823,7 +822,7 @@ cloud-findings:
   not-reviewed: Ещё не проверялось
   empty-reviewed: "При последней проверке в {name} ничего не замечено."
 cloud-chat:
-  title: Спросить Dozzle
+  title: Спросить
   close: Закрыть
   clear: Очистить чат
   empty: Спросите о том, что видите. Ассистент видит эту страницу и читает логи ваших контейнеров.
@@ -895,7 +894,7 @@ cloud-chat:
   error-unavailable: Ассистент сейчас недоступен.
   error-not-configured: Dozzle Cloud не подключён, спрашивать некого.
   section-ask: Ассистент
-  ask-for: Спросить Dozzle про {query}
+  ask-for: Спросить про {query}
   ask-hint: Отвечает по тому, что на экране
   ask-shortcut: чтобы спросить
   visual:

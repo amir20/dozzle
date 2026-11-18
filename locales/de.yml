@@ -771,8 +771,7 @@ cloud:
       error: "Jede Fehlerzeile"
 cloud-rail:
   title: Dozzle Cloud
-  chat: Dozzle fragen
-  ask: Fragen
+  chat: Fragen
   open-account: Tarif und Abrechnung
   alerts-retention: "Dozzle Cloud speichert {n} Tag Alarmverlauf. | Dozzle Cloud speichert {n} Tage Alarmverlauf."
   create-alert: Alarmregel erstellen
@@ -823,7 +822,7 @@ cloud-findings:
   not-reviewed: Noch nicht geprüft
   empty-reviewed: "Bei der letzten Prüfung ist an {name} nichts aufgefallen."
 cloud-chat:
-  title: Dozzle fragen
+  title: Fragen
   close: Schließen
   clear: Chat leeren
   empty: Frag zu dem, was du gerade siehst. Der Assistent sieht diese Seite und kann die Logs deiner Container lesen.
@@ -895,7 +894,7 @@ cloud-chat:
   error-unavailable: Der Assistent ist gerade nicht erreichbar.
   error-not-configured: Dozzle Cloud ist nicht verknüpft, es gibt also keinen Assistenten zum Fragen.
   section-ask: Assistent
-  ask-for: Dozzle nach {query} fragen
+  ask-for: Nach {query} fragen
   ask-hint: Antwortet anhand dessen, was du gerade siehst
   ask-shortcut: zum Fragen
   visual:

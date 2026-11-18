@@ -771,8 +771,7 @@ cloud:
       error: "Qualsiasi riga error"
 cloud-rail:
   title: Dozzle Cloud
-  chat: Chiedi a Dozzle
-  ask: Chiedi
+  chat: Chiedi
   open-account: Piano e fatturazione
   alerts-retention: "Dozzle Cloud conserva {n} giorno di cronologia degli avvisi. | Dozzle Cloud conserva {n} giorni di cronologia degli avvisi."
   create-alert: Crea una regola di avviso
@@ -823,7 +822,7 @@ cloud-findings:
   not-reviewed: Non ancora revisionato
   empty-reviewed: "Niente notato su {name} nell'ultima revisione."
 cloud-chat:
-  title: Chiedi a Dozzle
+  title: Chiedi
   close: Chiudi
   clear: Cancella la chat
   empty: Chiedi di quello che stai guardando. L'assistente vede questa pagina e legge i log dei tuoi container.
@@ -895,7 +894,7 @@ cloud-chat:
   error-unavailable: L'assistente non è disponibile in questo momento.
   error-not-configured: Dozzle Cloud non è collegato, quindi non c'è nessun assistente a cui chiedere.
   section-ask: Assistente
-  ask-for: Chiedi a Dozzle di {query}
+  ask-for: Chiedi di {query}
   ask-hint: Risponde in base a ciò che stai guardando
   ask-shortcut: per chiedere
   visual:

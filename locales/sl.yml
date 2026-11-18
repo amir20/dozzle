@@ -776,8 +776,7 @@ cloud:
       error: "Katerakoli vrstica error"
 cloud-rail:
   title: Dozzle Cloud
-  chat: Vprašaj Dozzle
-  ask: Vprašaj
+  chat: Vprašaj
   open-account: Načrt in obračun
   alerts-retention: "Dozzle Cloud hrani zgodovino opozoril {n} dan. | Dozzle Cloud hrani zgodovino opozoril {n} dni."
   create-alert: Ustvari pravilo opozorila
@@ -828,7 +827,7 @@ cloud-findings:
   not-reviewed: Še ni pregledano
   empty-reviewed: "Pri zadnjem pregledu na {name} ni bilo opaženo nič."
 cloud-chat:
-  title: Vprašaj Dozzle
+  title: Vprašaj
   close: Zapri
   clear: Počisti klepet
   empty: Vprašaj o tem, kar gledaš. Pomočnik vidi to stran in bere dnevnike tvojih vsebnikov.
@@ -900,7 +899,7 @@ cloud-chat:
   error-unavailable: Pomočnik trenutno ni na voljo.
   error-not-configured: Dozzle Cloud ni povezan, zato ni pomočnika, ki bi ga vprašali.
   section-ask: Pomočnik
-  ask-for: Vprašaj Dozzle o {query}
+  ask-for: Vprašaj o {query}
   ask-hint: Odgovarja glede na to, kar gledaš
   ask-shortcut: za vprašanje
   visual:
