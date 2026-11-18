@@ -788,6 +788,10 @@ cloud-rail:
   alerts-notified-earlier: 이전에 알림을 받았습니다
   alerts-quiet: "{containers}에서 {n}건 더 일치, 새로 알려드릴 내용은 없습니다 | {containers}에서 {n}건 더 일치, 새로 알려드릴 내용은 없습니다"
   alerts-quiet-containers: "컨테이너 {n}개 | 컨테이너 {n}개"
+  alerts-quiet-alone: "{containers}에서 {n}건 일치, 새로 알려드릴 내용은 없습니다 | {containers}에서 {n}건 일치, 새로 알려드릴 내용은 없습니다"
+  alerts-partial: 모든 일치 항목이 여기에 표시되지는 않습니다.
+  alerts-partial-chart: 모든 일치 항목이 여기에 표시되지는 않습니다. 차트는 전부 셉니다.
+  alerts-capped: 여기서는 처음 {n}개의 컨테이너만 셉니다.
   findings: 조사 결과
   scope: 패널 대상
   scope-n: "컨테이너 {n}개"

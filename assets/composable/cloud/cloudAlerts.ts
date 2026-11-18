@@ -91,6 +91,9 @@ export interface FetchedAlerts {
   buckets?: AlertBucket[];
   /** Set when Cloud could not be asked, so a panel can tell that from "nothing fired". */
   failed?: boolean;
+  /** The list stopped short: more alerts than the limit, or more matches than
+   *  Cloud returns at once. Buckets still count every match. */
+  truncated?: boolean;
 }
 
 /**
@@ -138,6 +141,7 @@ export async function fetchAlerts(
     const body = (await res.json()) as CloudAlertsResponse;
     const result: FetchedAlerts = { alerts: body.hits ?? [], events: body.events ?? [] };
     if (body.buckets?.length) result.buckets = body.buckets;
+    if (body.truncated) result.truncated = true;
     return result;
   } catch {
     return { ...empty, failed: true };

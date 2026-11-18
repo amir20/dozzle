@@ -294,6 +294,10 @@ cloud-rail:
   alerts-notified-earlier: Ya se te avisó antes
   alerts-quiet: "{n} coincidencia más en {containers}, nada nuevo que contarte | {n} coincidencias más en {containers}, nada nuevo que contarte"
   alerts-quiet-containers: "{n} contenedor | {n} contenedores"
+  alerts-quiet-alone: "{n} coincidencia en {containers}, nada nuevo que contarte | {n} coincidencias en {containers}, nada nuevo que contarte"
+  alerts-partial: Aquí no se muestran todas las coincidencias.
+  alerts-partial-chart: Aquí no se muestran todas las coincidencias. El gráfico las cuenta todas.
+  alerts-capped: Aquí solo se cuentan los primeros {n} contenedores.
   findings: Hallazgos
   scope: De qué trata el panel
   scope-n: "{n} contenedores"

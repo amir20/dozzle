@@ -798,6 +798,10 @@ cloud-rail:
   alerts-notified-earlier: Anda sudah diberi tahu sebelumnya
   alerts-quiet: "{n} kecocokan lagi di {containers}, tidak ada yang baru untuk diberitahukan | {n} kecocokan lagi di {containers}, tidak ada yang baru untuk diberitahukan"
   alerts-quiet-containers: "{n} kontainer | {n} kontainer"
+  alerts-quiet-alone: "{n} kecocokan di {containers}, tidak ada yang baru untuk diberitahukan | {n} kecocokan di {containers}, tidak ada yang baru untuk diberitahukan"
+  alerts-partial: Tidak semua kecocokan tercantum di sini.
+  alerts-partial-chart: Tidak semua kecocokan tercantum di sini. Grafik menghitung semuanya.
+  alerts-capped: Hanya {n} kontainer pertama yang dihitung di sini.
   findings: Temuan
   scope: Cakupan panel ini
   scope-n: "{n} kontainer"

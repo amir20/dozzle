@@ -20,13 +20,15 @@ vi.mock("@/composable/cloud/cloudAlerts", () => ({ useCloudAlerts: () => ({ fetc
 // What is on screen, and what the panel asks Cloud about. Empty on screen is
 // the home page or the chip widened to every container.
 const inView = ref<{ host: string; id: string; name: string }[]>([]);
-const instance = [
+const twoContainers = [
   { host: "h", id: "api", name: "api" },
   { host: "h", id: "worker", name: "worker" },
 ];
+const instance = ref(twoContainers);
 vi.mock("@/composable/cloud/cloudScope", () => ({ useCloudScope: () => ({ containers: inView }) }));
 vi.mock("@/composable/cloud/cloudFindings", () => ({
-  useFindingsScope: () => computed(() => (inView.value.length ? inView.value : instance)),
+  MAX_ASKED: 100,
+  useFindingsScope: () => computed(() => (inView.value.length ? inView.value : instance.value)),
 }));
 
 vi.mock("@/stores/container", () => ({
@@ -59,6 +61,11 @@ const i18n = createI18n({
         "alerts-quiet":
           "{n} more match on {containers}, nothing new to tell you | {n} more matches on {containers}, nothing new to tell you",
         "alerts-quiet-containers": "{n} container | {n} containers",
+        "alerts-quiet-alone":
+          "{n} match on {containers}, nothing new to tell you | {n} matches on {containers}, nothing new to tell you",
+        "alerts-partial": "Not every match is listed here.",
+        "alerts-partial-chart": "Not every match is listed here. The chart counts them all.",
+        "alerts-capped": "Only the first {n} containers are counted here.",
         "window-24h": "24h",
         "window-7d": "7d",
       },
@@ -115,6 +122,7 @@ enableAutoUnmount(afterEach);
 
 beforeEach(() => {
   inView.value = [];
+  instance.value = twoContainers;
   fetchAlerts.mockReset();
   markAlertsSeen.mockReset();
   Element.prototype.scrollIntoView = vi.fn();
@@ -244,5 +252,62 @@ describe("<RailAlerts />", () => {
     await flushPromises();
     expect(wrapper.find("[data-chart]").exists()).toBe(false);
     expect(wrapper.findAll("[data-row]")).toHaveLength(1);
+  });
+
+  // With nothing above it, a quiet row is not "more" of anything.
+  test("a day with only quiet matches drops the 'more'", async () => {
+    fetchAlerts.mockResolvedValue({
+      alerts: [],
+      events: [match({ alertId: undefined }), match({ alertId: undefined })],
+    });
+    const wrapper = mountRail();
+    await flushPromises();
+    expect(wrapper.find("[data-quiet]").text()).toBe("2 matches on 1 container, nothing new to tell you");
+  });
+
+  // The chart counts every match; the rows stop where Cloud's list did, and
+  // the panel says so in the reader's words.
+  test("a cut list says the chart counts every match, and nothing when whole", async () => {
+    const hits = [hit()];
+    const events = [match()];
+    fetchAlerts.mockResolvedValue({ alerts: hits, events, buckets: bucketsFor(hits, events), truncated: true });
+    let wrapper = mountRail();
+    await flushPromises();
+    expect(wrapper.find("[data-partial]").text()).toBe("Not every match is listed here. The chart counts them all.");
+    expect(wrapper.find("[data-capped]").exists()).toBe(false);
+
+    // No chart from an older Cloud, so no claim about one.
+    fetchAlerts.mockResolvedValue({ alerts: hits, events, truncated: true });
+    wrapper = mountRail();
+    await flushPromises();
+    expect(wrapper.find("[data-partial]").text()).toBe("Not every match is listed here.");
+
+    fetchAlerts.mockResolvedValue({ alerts: hits, events, buckets: bucketsFor(hits, events) });
+    wrapper = mountRail();
+    await flushPromises();
+    expect(wrapper.find("[data-partial]").exists()).toBe(false);
+  });
+
+  // Past Cloud's cap only the first containers are asked about, and the panel
+  // says so whether or not anything matched, since "nothing fired" would read
+  // as instance-wide. The flag Cloud sends is then about its list alone.
+  test("past the container cap asks for the first 100 and says so", async () => {
+    instance.value = Array.from({ length: 101 }, (_, i) => ({ host: "h", id: `c${i}`, name: `c${i}` }));
+    fetchAlerts.mockResolvedValue({ alerts: [], events: [] });
+    const wrapper = mountRail();
+    await flushPromises();
+
+    expect(fetchAlerts.mock.calls[0][0]).toEqual(instance.value.slice(0, 100).map((c) => c.id));
+    expect(wrapper.find("[data-empty]").exists()).toBe(true);
+    expect(wrapper.find("[data-capped]").text()).toBe("Only the first 100 containers are counted here.");
+    expect(wrapper.find("[data-partial]").exists()).toBe(false);
+  });
+
+  test("a failed load says nothing about the cap", async () => {
+    instance.value = Array.from({ length: 101 }, (_, i) => ({ host: "h", id: `c${i}`, name: `c${i}` }));
+    fetchAlerts.mockResolvedValue({ alerts: [], events: [], failed: true });
+    const wrapper = mountRail();
+    await flushPromises();
+    expect(wrapper.find("[data-capped]").exists()).toBe(false);
   });
 });

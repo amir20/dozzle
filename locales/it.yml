@@ -786,6 +786,10 @@ cloud-rail:
   alerts-notified-earlier: Sei già stato avvisato prima
   alerts-quiet: "{n} altra corrispondenza su {containers}, niente di nuovo da segnalarti | {n} altre corrispondenze su {containers}, niente di nuovo da segnalarti"
   alerts-quiet-containers: "{n} container | {n} container"
+  alerts-quiet-alone: "{n} corrispondenza su {containers}, niente di nuovo da segnalarti | {n} corrispondenze su {containers}, niente di nuovo da segnalarti"
+  alerts-partial: Qui non sono elencate tutte le corrispondenze.
+  alerts-partial-chart: Qui non sono elencate tutte le corrispondenze. Il grafico le conta tutte.
+  alerts-capped: Qui vengono contati solo i primi {n} container.
   findings: Rilevamenti
   scope: Di cosa tratta il pannello
   scope-n: "{n} container"

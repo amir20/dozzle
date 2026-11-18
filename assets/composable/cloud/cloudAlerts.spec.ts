@@ -264,6 +264,19 @@ describe("fetchAlerts", () => {
     expect(await fetchAlerts(["abc"], ms(1000), ms(2000), { linked: true })).not.toHaveProperty("buckets");
     expect(spy.mock.calls[1][0]).not.toContain("buckets=");
   });
+
+  test("passes truncated through, and leaves it off when the list is whole", async () => {
+    const spy = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ hits: [], truncated: true }) });
+    global.fetch = spy;
+    expect(await fetchAlerts(["abc"], ms(1000), ms(2000), { linked: true })).toEqual({
+      alerts: [],
+      events: [],
+      truncated: true,
+    });
+
+    spy.mockResolvedValue({ ok: true, json: async () => ({ hits: [] }) });
+    expect(await fetchAlerts(["abc"], ms(1000), ms(2000), { linked: true })).not.toHaveProperty("truncated");
+  });
 });
 
 describe("attachEvents", () => {

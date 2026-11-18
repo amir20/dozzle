@@ -788,6 +788,10 @@ cloud-rail:
   alerts-notified-earlier: Powiadomiono cię już wcześniej
   alerts-quiet: "Jeszcze {n} dopasowanie na {containers}, nic nowego do przekazania | Jeszcze {n} dopasowań na {containers}, nic nowego do przekazania"
   alerts-quiet-containers: "{n} kontener | {n} kontenerów"
+  alerts-quiet-alone: "{n} dopasowanie na {containers}, nic nowego do przekazania | {n} dopasowań na {containers}, nic nowego do przekazania"
+  alerts-partial: Nie wszystkie dopasowania są tu wymienione.
+  alerts-partial-chart: Nie wszystkie dopasowania są tu wymienione. Wykres liczy je wszystkie.
+  alerts-capped: Liczonych jest tu tylko pierwszych {n} kontenerów.
   findings: Ustalenia
   scope: Czego dotyczy panel
   scope-n: "Kontenery: {n}"

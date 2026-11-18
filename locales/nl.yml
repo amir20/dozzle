@@ -787,6 +787,10 @@ cloud-rail:
   alerts-notified-earlier: Je hebt eerder al een melding gekregen
   alerts-quiet: "Nog {n} treffer op {containers}, niets nieuws te melden | Nog {n} treffers op {containers}, niets nieuws te melden"
   alerts-quiet-containers: "{n} container | {n} containers"
+  alerts-quiet-alone: "{n} treffer op {containers}, niets nieuws te melden | {n} treffers op {containers}, niets nieuws te melden"
+  alerts-partial: Niet elke treffer staat hier.
+  alerts-partial-chart: Niet elke treffer staat hier. De grafiek telt ze allemaal.
+  alerts-capped: Hier tellen alleen de eerste {n} containers mee.
   findings: Bevindingen
   scope: Waar het paneel over gaat
   scope-n: "{n} containers"

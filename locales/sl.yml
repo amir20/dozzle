@@ -791,6 +791,10 @@ cloud-rail:
   alerts-notified-earlier: Obveščeni ste bili že prej
   alerts-quiet: "Še {n} ujemanje v {containers}, nič novega za vas | Še {n} ujemanj v {containers}, nič novega za vas"
   alerts-quiet-containers: "{n} vsebniku | {n} vsebnikih"
+  alerts-quiet-alone: "{n} ujemanje v {containers}, nič novega za vas | {n} ujemanj v {containers}, nič novega za vas"
+  alerts-partial: Tu niso navedena vsa ujemanja.
+  alerts-partial-chart: Tu niso navedena vsa ujemanja. Graf jih šteje vsa.
+  alerts-capped: Tu se šteje samo prvih {n} vsebnikov.
   findings: Ugotovitve
   scope: Na kaj se nanaša plošča
   scope-n: "Vsebnikov: {n}"

@@ -786,6 +786,10 @@ cloud-rail:
   alerts-notified-earlier: Du wurdest schon früher benachrichtigt
   alerts-quiet: "{n} weiterer Treffer auf {containers}, nichts Neues für dich | {n} weitere Treffer auf {containers}, nichts Neues für dich"
   alerts-quiet-containers: "{n} Container | {n} Containern"
+  alerts-quiet-alone: "{n} Treffer auf {containers}, nichts Neues für dich | {n} Treffer auf {containers}, nichts Neues für dich"
+  alerts-partial: Hier werden nicht alle Treffer angezeigt.
+  alerts-partial-chart: Hier werden nicht alle Treffer angezeigt. Das Diagramm zählt sie alle.
+  alerts-capped: Hier werden nur die ersten {n} Container gezählt.
   findings: Befunde
   scope: Worum es in der Leiste geht
   scope-n: "{n} Container"

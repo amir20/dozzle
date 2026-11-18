@@ -789,6 +789,10 @@ cloud-rail:
   alerts-notified-earlier: Daha önce bildirim aldınız
   alerts-quiet: "{containers} üzerinde {n} eşleşme daha, size söylenecek yeni bir şey yok | {containers} üzerinde {n} eşleşme daha, size söylenecek yeni bir şey yok"
   alerts-quiet-containers: "{n} konteyner | {n} konteyner"
+  alerts-quiet-alone: "{containers} üzerinde {n} eşleşme, size söylenecek yeni bir şey yok | {containers} üzerinde {n} eşleşme, size söylenecek yeni bir şey yok"
+  alerts-partial: Tüm eşleşmeler burada listelenmiyor.
+  alerts-partial-chart: Tüm eşleşmeler burada listelenmiyor. Grafik hepsini sayıyor.
+  alerts-capped: Burada yalnızca ilk {n} konteyner sayılıyor.
   findings: Bulgular
   scope: Panelin kapsamı
   scope-n: "{n} konteyner"

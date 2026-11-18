@@ -295,6 +295,10 @@ cloud-rail:
   alerts-notified-earlier: 以前に通知しました
   alerts-quiet: "{containers}でさらに {n} 件一致、新しくお知らせすることはありません | {containers}でさらに {n} 件一致、新しくお知らせすることはありません"
   alerts-quiet-containers: "{n} 個のコンテナ | {n} 個のコンテナ"
+  alerts-quiet-alone: "{containers}で {n} 件一致、新しくお知らせすることはありません | {containers}で {n} 件一致、新しくお知らせすることはありません"
+  alerts-partial: ここにはすべての一致が表示されているわけではありません。
+  alerts-partial-chart: ここにはすべての一致が表示されているわけではありません。グラフはすべてを数えています。
+  alerts-capped: ここでは最初の {n} 個のコンテナだけを数えています。
   findings: 検出結果
   scope: パネルの対象
   scope-n: "{n} 個のコンテナ"

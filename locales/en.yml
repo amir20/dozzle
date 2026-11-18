@@ -302,6 +302,10 @@ cloud-rail:
   alerts-notified-earlier: You were notified earlier
   alerts-quiet: "{n} more match on {containers}, nothing new to tell you | {n} more matches on {containers}, nothing new to tell you"
   alerts-quiet-containers: "{n} container | {n} containers"
+  alerts-quiet-alone: "{n} match on {containers}, nothing new to tell you | {n} matches on {containers}, nothing new to tell you"
+  alerts-partial: Not every match is listed here.
+  alerts-partial-chart: Not every match is listed here. The chart counts them all.
+  alerts-capped: Only the first {n} containers are counted here.
   findings: Findings
   scope: What the panel is about
   scope-n: "{n} containers"

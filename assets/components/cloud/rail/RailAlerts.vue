@@ -107,11 +107,21 @@
               :row="row"
               :hide-container="single"
               :highlighted="highlighted === row.key"
+              :alone="day.rows.length === 1"
             />
           </div>
         </section>
       </div>
     </template>
+
+    <!-- The chart counts every match, the rows only the ones Cloud listed. -->
+    <p v-if="loaded && !failed && truncated && days.length" class="text-base-content/40 mt-3 text-xs" data-partial>
+      {{ buckets ? $t("cloud-rail.alerts-partial-chart") : $t("cloud-rail.alerts-partial") }}
+    </p>
+    <!-- Everything above, the empty state included, is about these containers only. -->
+    <p v-if="loaded && !failed && capped" class="text-base-content/40 mt-3 text-xs" data-capped>
+      {{ $t("cloud-rail.alerts-capped", { n: MAX_ASKED }) }}
+    </p>
   </div>
 </template>
 
@@ -129,13 +139,17 @@ import {
   type TimelineWindow,
 } from "@/composable/cloud/alertsTimeline";
 import { hoverSpan, windowClock, type MetricsHover } from "@/composable/cloud/metricsTime";
+import { MAX_ASKED } from "@/composable/cloud/cloudFindings";
 
 const { markAlertsSeen } = useRecentAlerts();
 const { fetchAlerts } = useCloudAlerts();
 const { containers: inScope } = useCloudScope();
 // The containers on screen, or with none (home, or the chip widened) every
-// container this instance knows, as many as Cloud takes in one ask.
+// container this instance knows. That list runs one past what Cloud takes in
+// one ask, so the panel can tell it was cut; only the first MAX_ASKED are
+// sent, which leaves `truncated` meaning only that Cloud cut the list.
 const scope = useFindingsScope();
+const capped = computed(() => scope.value.length > MAX_ASKED);
 const scoped = computed(() => inScope.value.length > 0);
 const single = computed(() => inScope.value.length === 1);
 const { locale } = useI18n();
@@ -156,6 +170,7 @@ watch(windows, (options) => {
 const hits = ref<CloudAlert[]>([]);
 const events = ref<CloudEvent[]>([]);
 const buckets = ref<AlertBucket[]>();
+const truncated = ref(false);
 const range = ref({ from: 0, to: 0 });
 const loading = ref(false);
 const loaded = ref(false);
@@ -164,7 +179,7 @@ const failed = ref(false);
 let request = 0;
 async function load() {
   const mine = ++request;
-  const ids = scope.value.map((c) => c.id);
+  const ids = scope.value.slice(0, MAX_ASKED).map((c) => c.id);
   const { hours, buckets: count } = TIMELINE_WINDOWS[window.value];
   const to = Date.now();
   const from = to - hours * 3600_000;
@@ -180,6 +195,7 @@ async function load() {
   hits.value = result.alerts;
   events.value = result.events;
   buckets.value = result.buckets;
+  truncated.value = !!result.truncated;
   range.value = { from, to };
   failed.value = !!result.failed;
   loading.value = false;

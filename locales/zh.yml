@@ -786,6 +786,10 @@ cloud-rail:
   alerts-notified-earlier: 之前已通知过你
   alerts-quiet: "{containers}上又匹配了 {n} 次，没有新情况 | {containers}上又匹配了 {n} 次，没有新情况"
   alerts-quiet-containers: "{n} 个容器 | {n} 个容器"
+  alerts-quiet-alone: "{containers}上匹配了 {n} 次，没有新情况 | {containers}上匹配了 {n} 次，没有新情况"
+  alerts-partial: 这里并未列出所有匹配。
+  alerts-partial-chart: 这里并未列出所有匹配，图表则全部计入。
+  alerts-capped: 这里只计入前 {n} 个容器。
   findings: 调查结果
   scope: 面板范围
   scope-n: "{n} 个容器"

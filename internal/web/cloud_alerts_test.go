@@ -3,6 +3,7 @@ package web
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -123,16 +124,38 @@ func TestCloudAlerts_RejectsBadWindow(t *testing.T) {
 	}
 }
 
-func TestCloudAlerts_CapsLimitAndContainers(t *testing.T) {
+func TestCloudAlerts_CapsLimit(t *testing.T) {
 	h, got := alertHandler(t, okResult)
 	require.Equal(t, http.StatusOK, doAlerts(h, "containerIds=abc&from=1&to=2&limit=9999").Code)
 	require.Equal(t, int32(200), got.limit, "limit should be capped, mirroring cloud")
 
-	var ids strings.Builder
-	for i := 0; i <= maxAlertContainers; i++ {
-		ids.WriteString("c,")
+}
+
+// Past the cap the first containers, in request order, are looked up and the
+// answer says it stopped short, rather than the whole request failing.
+func TestCloudAlerts_KeepsFirstContainersPastCap(t *testing.T) {
+	h, got := alertHandler(t, okResult)
+
+	ids := make([]string, maxAlertContainers+1)
+	for i := range ids {
+		ids[i] = fmt.Sprintf("c%03d", i)
 	}
-	require.Equal(t, http.StatusBadRequest, doAlerts(h, "containerIds="+ids.String()+"&from=1&to=2").Code)
+	rr := doAlerts(h, "containerIds="+strings.Join(ids, ",")+"&from=1&to=2")
+	require.Equal(t, http.StatusOK, rr.Code)
+	require.Equal(t, ids[:maxAlertContainers], got.containerIDs)
+
+	var result cloud.AlertResult
+	require.NoError(t, json.Unmarshal(rr.Body.Bytes(), &result))
+	require.True(t, result.Truncated)
+	require.Len(t, result.Hits, 1, "the hits still come back")
+
+	// At the cap nothing is cut, and Cloud's own flag passes through untouched.
+	rr = doAlerts(h, "containerIds="+strings.Join(ids[:maxAlertContainers], ",")+"&from=1&to=2")
+	require.Equal(t, http.StatusOK, rr.Code)
+	require.Len(t, got.containerIDs, maxAlertContainers)
+	result = cloud.AlertResult{}
+	require.NoError(t, json.Unmarshal(rr.Body.Bytes(), &result))
+	require.False(t, result.Truncated)
 }
 
 func TestCloudAlerts_ErrorMapping(t *testing.T) {

@@ -24,7 +24,7 @@
         <span v-else class="text-base-content/60 block text-sm" data-quiet>
           {{
             $t(
-              "cloud-rail.alerts-quiet",
+              alone ? "cloud-rail.alerts-quiet-alone" : "cloud-rail.alerts-quiet",
               { n: row.happened, containers: $t("cloud-rail.alerts-quiet-containers", row.containers.length) },
               row.happened,
             )
@@ -100,7 +100,14 @@ const {
   row,
   hideContainer = false,
   highlighted = false,
-} = defineProps<{ row: TimelineRow; hideContainer?: boolean; highlighted?: boolean }>();
+  alone = false,
+} = defineProps<{
+  row: TimelineRow;
+  hideContainer?: boolean;
+  highlighted?: boolean;
+  /** The only row of its day: a quiet row with no problem above it is not "more". */
+  alone?: boolean;
+}>();
 
 const open = ref(false);
 const store = useContainerStore();

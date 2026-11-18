@@ -21,9 +21,11 @@ import (
 // the logs without alerts than to hold the scroll waiting for them.
 const cloudAlertsTimeout = 1500 * time.Millisecond
 
-// maxAlertContainers mirrors Cloud's own cap. The viewer sends the containers
-// currently on screen, which is a handful even in a merged multi-container
-// view, so anything larger is a misbehaving client.
+// maxAlertContainers mirrors Cloud's own cap. The log viewer sends the
+// containers on screen, a handful even in a merged view, but the cloud rail
+// asks about every container on the instance. Past the cap only the first
+// ones, in request order, are looked up and the answer is marked truncated,
+// the same as /api/cloud/findings.
 const maxAlertContainers = 100
 
 // maxAlertBuckets mirrors Cloud's cap on chart buckets. A week at one bar per
@@ -42,8 +44,8 @@ const maxAlertBuckets = 200
 //
 // Status mapping:
 //
-//	200 — hits returned (may be empty)
-//	400 — malformed window or an oversized container list
+//	200 — hits returned (may be empty; truncated past maxAlertContainers)
+//	400 — malformed window
 //	503 — cloud not configured (no API key) or no GetAlerts func wired
 //	504 — cloud round-trip exceeded the timeout
 //	502 — any other cloud-side error
@@ -84,9 +86,9 @@ func (h *handler) cloudAlerts(w http.ResponseWriter, r *http.Request) {
 		containerIDs = allowed
 	}
 
-	if len(containerIDs) > maxAlertContainers {
-		writeError(w, http.StatusBadRequest, "too many containerIds")
-		return
+	capped := len(containerIDs) > maxAlertContainers
+	if capped {
+		containerIDs = containerIDs[:maxAlertContainers]
 	}
 
 	from, err := strconv.ParseInt(q.Get("from"), 10, 64)
@@ -142,6 +144,7 @@ func (h *handler) cloudAlerts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	result.Truncated = result.Truncated || capped
 	writeAlerts(w, result)
 }
 

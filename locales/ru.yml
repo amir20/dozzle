@@ -786,6 +786,10 @@ cloud-rail:
   alerts-notified-earlier: Вы уже получали уведомление раньше
   alerts-quiet: "Ещё {n} совпадение в {containers}, ничего нового | Ещё {n} совпадений в {containers}, ничего нового"
   alerts-quiet-containers: "{n} контейнере | {n} контейнерах"
+  alerts-quiet-alone: "{n} совпадение в {containers}, ничего нового | {n} совпадений в {containers}, ничего нового"
+  alerts-partial: Здесь показаны не все совпадения.
+  alerts-partial-chart: Здесь показаны не все совпадения. График учитывает их все.
+  alerts-capped: Здесь учитываются только первые {n} контейнеров.
   findings: Находки
   scope: К чему относится панель
   scope-n: "Контейнеров: {n}"

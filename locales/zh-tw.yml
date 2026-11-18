@@ -788,6 +788,10 @@ cloud-rail:
   alerts-notified-earlier: 之前已通知過你
   alerts-quiet: "{containers}上又比對到 {n} 次，沒有新狀況 | {containers}上又比對到 {n} 次，沒有新狀況"
   alerts-quiet-containers: "{n} 個容器 | {n} 個容器"
+  alerts-quiet-alone: "{containers}上比對到 {n} 次，沒有新狀況 | {containers}上比對到 {n} 次，沒有新狀況"
+  alerts-partial: 這裡並未列出所有比對。
+  alerts-partial-chart: 這裡並未列出所有比對，圖表則全部計入。
+  alerts-capped: 這裡只計入前 {n} 個容器。
   findings: 調查結果
   scope: 面板範圍
   scope-n: "{n} 個容器"
