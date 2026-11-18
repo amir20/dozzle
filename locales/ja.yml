@@ -696,9 +696,7 @@ notifications:
     loading: アクティビティを読み込んでいます…
     failed: アクティビティを読み込めませんでした。
     empty: 最近発生したものはありません。
-    still-happening: 継続中
     events: "{n} 件のイベント"
-    suppressed: "· {n} 件を抑制"
     show-lines: 該当する行を表示
     show-moment: 前後のログを表示
     open-in-cloud: Dozzle Cloud で開く

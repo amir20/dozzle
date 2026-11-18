@@ -467,9 +467,7 @@ notifications:
     loading: Aktivität wird geladen…
     failed: Aktivität konnte nicht geladen werden.
     empty: In letzter Zeit wurde nichts ausgelöst.
-    still-happening: passiert weiterhin
     events: "{n} Ereignisse"
-    suppressed: "· {n} unterdrückt"
     show-lines: Zeig mir die Zeilen
     show-moment: Logs drumherum anzeigen
     open-in-cloud: In Dozzle Cloud öffnen

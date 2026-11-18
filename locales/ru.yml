@@ -467,9 +467,7 @@ notifications:
     loading: Загрузка активности…
     failed: Не удалось загрузить активность.
     empty: Недавно ничего не срабатывало.
-    still-happening: всё ещё происходит
     events: "{n} событий"
-    suppressed: "· {n} подавлено"
     show-lines: Показать строки
     show-moment: Показать логи вокруг
     open-in-cloud: Открыть в Dozzle Cloud

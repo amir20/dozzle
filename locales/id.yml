@@ -479,9 +479,7 @@ notifications:
     loading: Memuat aktivitas…
     failed: Tidak dapat memuat aktivitas.
     empty: Belum ada yang terpicu baru-baru ini.
-    still-happening: masih berlangsung
     events: "{n} kejadian"
-    suppressed: "· {n} ditekan"
     show-lines: Tunjukkan barisnya
     show-moment: Lihat log di sekitarnya
     open-in-cloud: Buka di Dozzle Cloud

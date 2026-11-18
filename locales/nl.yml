@@ -468,9 +468,7 @@ notifications:
     loading: Activiteit laden…
     failed: Kon activiteit niet laden.
     empty: Er is recent niets afgegaan.
-    still-happening: gebeurt nog steeds
     events: "{n} gebeurtenissen"
-    suppressed: "· {n} onderdrukt"
     show-lines: Laat me de regels zien
     show-moment: Toon de logs eromheen
     open-in-cloud: Openen in Dozzle Cloud

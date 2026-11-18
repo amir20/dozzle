@@ -83,6 +83,7 @@
 
 <script lang="ts" setup>
 import type { CloudAlert } from "@/composable/cloud/cloudAlerts";
+import { levelPill, levelTint } from "@/composable/cloud/alertsTimeline";
 
 // A row passes its container and the dot shows that container's latest alert. A
 // timeline passes each alert itself, since it marks every one in its window.
@@ -125,29 +126,8 @@ const tone = computed(() => {
 
 // Same tinted circle and chip the alert rows use, so one alert looks like
 // itself wherever it is shown.
-const tint = computed(() => {
-  switch (alert.value?.level) {
-    case "error":
-    case "fatal":
-      return "bg-error/10 text-error";
-    case "warn":
-      return "bg-warning/10 text-warning";
-    default:
-      return "bg-info/10 text-info";
-  }
-});
-
-const pill = computed(() => {
-  switch (alert.value?.level) {
-    case "error":
-    case "fatal":
-      return "status-pill-error";
-    case "warn":
-      return "status-pill-warning";
-    default:
-      return "status-pill-neutral";
-  }
-});
+const tint = computed(() => levelTint(alert.value?.level));
+const pill = computed(() => levelPill(alert.value?.level));
 
 // The cloud drawer is modal over the logs, so it closes too, or the jump would
 // happen out of sight beneath it.

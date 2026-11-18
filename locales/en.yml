@@ -294,6 +294,14 @@ cloud-rail:
   hide: Hide the cloud rail
   show: Show the cloud rail
   alerts-empty-here: Nothing has fired on what you're looking at.
+  alerts-chart: How often your rules matched
+  alerts-chart-scroll: Show this time in the list
+  alerts-matches: "{n} match | {n} matches"
+  alerts-happened: "Happened once | Happened {n} times"
+  alerts-notified: "You were notified once | You were notified {n} times"
+  alerts-notified-earlier: You were notified earlier
+  alerts-quiet: "{n} more match on {containers}, nothing new to tell you | {n} more matches on {containers}, nothing new to tell you"
+  alerts-quiet-containers: "{n} container | {n} containers"
   findings: Findings
   scope: What the panel is about
   scope-n: "{n} containers"
@@ -703,9 +711,7 @@ notifications:
     loading: Loading activity…
     failed: Could not load activity.
     empty: Nothing has fired recently.
-    still-happening: still happening
     events: "{n} events"
-    suppressed: "· {n} suppressed"
     show-lines: Show me the lines
     show-moment: Show logs around it
     open-in-cloud: Open in Dozzle Cloud

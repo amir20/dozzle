@@ -469,9 +469,7 @@ notifications:
     loading: Wczytywanie aktywności…
     failed: Nie udało się wczytać aktywności.
     empty: Ostatnio nic się nie uruchomiło.
-    still-happening: nadal trwa
     events: "{n} zdarzeń"
-    suppressed: "· {n} pominiętych"
     show-lines: Pokaż mi wiersze
     show-moment: Pokaż logi z tego momentu
     open-in-cloud: Otwórz w Dozzle Cloud

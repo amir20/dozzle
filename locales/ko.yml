@@ -469,9 +469,7 @@ notifications:
     loading: 활동을 불러오는 중…
     failed: 활동을 불러올 수 없습니다.
     empty: 최근에 발생한 알림이 없습니다.
-    still-happening: 계속 발생 중
     events: 이벤트 {n}건
-    suppressed: "· {n}건 억제됨"
     show-lines: 해당 로그 보기
     show-moment: 그 시점의 로그 보기
     open-in-cloud: Dozzle Cloud에서 열기

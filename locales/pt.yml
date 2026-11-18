@@ -467,9 +467,7 @@ notifications:
     loading: A carregar atividade…
     failed: Não foi possível carregar a atividade.
     empty: Nada foi acionado recentemente.
-    still-happening: ainda a acontecer
     events: "{n} eventos"
-    suppressed: "· {n} suprimidos"
     show-lines: Mostra-me as linhas
     show-moment: Ver os logs à volta
     open-in-cloud: Abrir no Dozzle Cloud

@@ -472,9 +472,7 @@ notifications:
     loading: Nalaganje dejavnosti…
     failed: Dejavnosti ni bilo mogoče naložiti.
     empty: Nedavno se ni sprožilo nič.
-    still-happening: še vedno se dogaja
     events: "{n} dogodkov"
-    suppressed: "· {n} zadržanih"
     show-lines: Pokaži mi vrstice
     show-moment: Pokaži dnevnike okoli
     open-in-cloud: Odpri v Dozzle Cloud

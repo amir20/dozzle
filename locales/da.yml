@@ -467,9 +467,7 @@ notifications:
     loading: Indlæser aktivitet…
     failed: Kunne ikke indlæse aktivitet.
     empty: Intet er udløst nyligt.
-    still-happening: sker stadig
     events: "{n} hændelser"
-    suppressed: "· {n} undertrykt"
     show-lines: Vis mig linjerne
     show-moment: Vis loggen omkring det
     open-in-cloud: Åbn i Dozzle Cloud
