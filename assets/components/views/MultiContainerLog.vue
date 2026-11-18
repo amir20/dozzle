@@ -1,7 +1,7 @@
 <template>
   <ScrollableView :scrollable="scrollable" v-if="containers.length && ready">
     <template #header>
-      <div class="mx-2 flex items-center gap-1 md:ml-4 md:gap-2">
+      <div class="@container mx-2 flex items-center gap-1 md:ml-4 md:gap-2">
         <octicon:container-24 />
         <ContainerDropdown :containers="containers">{{ $t("label.container", containers.length) }}</ContainerDropdown>
         <MultiContainerStat class="ml-auto" :containers="containers" />

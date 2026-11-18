@@ -1,7 +1,7 @@
 <template>
   <ScrollableView :scrollable="scrollable" v-if="found">
     <template #header>
-      <div class="mx-2 flex items-center gap-2 md:ml-4">
+      <div class="@container mx-2 flex items-center gap-2 md:ml-4">
         <ph:stack-simple />
         <ContainerDropdown :containers="service.containers">{{ service.name }}</ContainerDropdown>
         <MultiContainerStat class="ml-auto" :containers="service.containers" />
