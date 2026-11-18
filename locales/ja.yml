@@ -294,7 +294,6 @@ cloud-rail:
   metrics-no-container: コンテナを開くと履歴を表示します。
   metrics-loading: 履歴を読み込んでいます…
   metrics-failed: 履歴を読み込めませんでした。
-  metrics-empty: この期間の記録はまだありません。
   metrics-peak: ピーク
   metrics-bucket: "{duration} ごとの平均"
   window-1h: 1 時間
@@ -903,7 +902,6 @@ cloud:
   usage-agent-messages: エージェントとのチャット
   usage-log-bytes: インデックス済みデータ
   dashboard: ダッシュボード
-  settings: 設定
   error: 接続エラーです。インスタンスを再リンクしてください。
   error-unavailable: Dozzle Cloud は一時的に利用できません。しばらくしてからもう一度お試しください。
   unlink: リンクを解除

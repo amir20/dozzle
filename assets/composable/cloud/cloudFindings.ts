@@ -49,6 +49,10 @@ export interface CloudFindingsResult {
   /** Whether this reader may ignore a finding. Decided by the server with the
    *  same checks the ignore route enforces; never inferred here. */
   canIgnore?: boolean;
+  /** When Cloud's daily review of this instance last ran and next runs, unix
+   *  nanoseconds. Instance-wide, and sent whatever the scope. 0 when unknown. */
+  lastScanAt: number;
+  nextScanAt: number;
 }
 
 type Scope = { host: string; id: string }[];
@@ -67,9 +71,8 @@ export function findingsUrl(containers: Scope, filter: FindingsFilter) {
 }
 
 /** A finding has no whole-instance list in Dozzle (that lives in Cloud), so an
- *  empty scope asks nothing and gets nothing. */
+ *  empty scope gets no findings, only the review schedule. */
 export async function fetchFindings(containers: Scope, filter: FindingsFilter): Promise<CloudFindingsResult> {
-  if (containers.length === 0) return { findings: [], fixLocked: false, canIgnore: false };
   const res = await fetch(findingsUrl(containers, filter));
   if (!res.ok) throw new Error(`findings: ${res.status}`);
   const body = await res.json();
@@ -78,6 +81,8 @@ export async function fetchFindings(containers: Scope, filter: FindingsFilter): 
     fixLocked: !!body.fixLocked,
     truncated: !!body.truncated,
     canIgnore: !!body.canIgnore,
+    lastScanAt: body.lastScanAt ?? 0,
+    nextScanAt: body.nextScanAt ?? 0,
   };
 }
 
@@ -163,6 +168,8 @@ export function useCloudFindings(filter: MaybeRefOrGetter<FindingsFilter>) {
   const fixLocked = ref(false);
   const truncated = ref(false);
   const canIgnore = ref(false);
+  const lastScanAt = ref(0);
+  const nextScanAt = ref(0);
   const loading = ref(false);
   const failed = ref(false);
 
@@ -178,6 +185,8 @@ export function useCloudFindings(filter: MaybeRefOrGetter<FindingsFilter>) {
       fixLocked.value = result.fixLocked;
       truncated.value = !!result.truncated;
       canIgnore.value = !!result.canIgnore;
+      lastScanAt.value = result.lastScanAt;
+      nextScanAt.value = result.nextScanAt;
     } catch {
       if (mine !== request) return;
       findings.value = [];
@@ -238,6 +247,8 @@ export function useCloudFindings(filter: MaybeRefOrGetter<FindingsFilter>) {
     fixLocked,
     truncated,
     canIgnore,
+    lastScanAt,
+    nextScanAt,
     loading,
     failed,
     reload: load,

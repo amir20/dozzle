@@ -692,7 +692,6 @@ cloud:
   usage-agent-messages: 智能体对话
   usage-log-bytes: 已索引数据
   dashboard: 仪表盘
-  settings: 设置
   error: 连接错误。请重新关联您的实例。
   error-unavailable: Dozzle Cloud 暂时不可用，请稍后重试。
   unlink: 取消关联
@@ -787,7 +786,6 @@ cloud-rail:
   metrics-no-container: 打开一个容器即可查看历史。
   metrics-loading: 正在加载历史…
   metrics-failed: 无法加载历史。
-  metrics-empty: 该时间段还没有记录。
   metrics-peak: 峰值
   metrics-bucket: "{duration} 平均值"
   window-1h: 1 小时

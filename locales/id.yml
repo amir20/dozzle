@@ -704,7 +704,6 @@ cloud:
   usage-agent-messages: Obrolan agen
   usage-log-bytes: Data terindeks
   dashboard: Dasbor
-  settings: Pengaturan
   error: Kesalahan koneksi. Silakan tautkan ulang instans Anda.
   error-unavailable: Dozzle Cloud sedang tidak tersedia. Silakan coba lagi nanti.
   unlink: Lepaskan tautan
@@ -799,7 +798,6 @@ cloud-rail:
   metrics-no-container: Buka kontainer untuk melihat riwayatnya.
   metrics-loading: Memuat riwayat…
   metrics-failed: Riwayat tidak dapat dimuat.
-  metrics-empty: Belum ada rekaman untuk rentang ini.
   metrics-peak: puncak
   metrics-bucket: rata-rata {duration}
   window-1h: 1j

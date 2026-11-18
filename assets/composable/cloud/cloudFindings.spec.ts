@@ -87,11 +87,23 @@ describe("findings scoping", () => {
     expect(url).toBe("/api/cloud/findings?container=h1%2Fa1&container=h2%2Fb2&filter=ignored");
   });
 
-  test("an empty scope asks nothing, since the instance's list lives in Cloud", async () => {
-    const fetchMock = vi.fn();
+  // The instance's list lives in Cloud, but the review schedule is instance-wide,
+  // so an empty scope still asks, for the schedule.
+  test("an empty scope still asks, and gets the review schedule", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(json({ findings: [], lastScanAt: 1e18, nextScanAt: 2e18 }));
     vi.stubGlobal("fetch", fetchMock);
-    expect(await fetchFindings([], "new")).toEqual({ findings: [], fixLocked: false, canIgnore: false });
-    expect(fetchMock).not.toHaveBeenCalled();
+    const result = await fetchFindings([], "new");
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/cloud/findings?filter=new");
+    expect(result.findings).toEqual([]);
+    expect(result.lastScanAt).toBe(1e18);
+    expect(result.nextScanAt).toBe(2e18);
+  });
+
+  test("a schedule Cloud did not send reads as zero", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(json({ findings: [] })));
+    const result = await fetchFindings([{ host: "h1", id: "a1" }], "new");
+    expect(result.lastScanAt).toBe(0);
+    expect(result.nextScanAt).toBe(0);
   });
 
   test("reloads when the scope changes", async () => {

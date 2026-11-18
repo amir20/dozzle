@@ -8,7 +8,7 @@
     Fixed rather than a splitpanes column, and the layout pads the page by
     exactly its width, so the strip never sits over the stream. It is mounted
     only where cloud is linked, so the mark at the top is a statement of where
-    the answers come from and never an advert. It opens the account and usage.
+    the answers come from and never an advert. It opens the account panel.
   -->
   <nav
     class="rail fixed inset-y-0 right-0 z-40 flex flex-col items-center gap-1 border-l py-3"
@@ -16,7 +16,7 @@
     :style="{ width: `${RAIL_WIDTH}px` }"
     :aria-label="$t('cloud-rail.title')"
   >
-    <CloudPopover />
+    <CloudMark />
 
     <div class="bg-base-content/10 my-2 h-px w-6"></div>
 

@@ -692,7 +692,6 @@ cloud:
   usage-agent-messages: Agent-chats
   usage-log-bytes: Indekseret data
   dashboard: Dashboard
-  settings: Indstillinger
   error: Forbindelsesfejl. Gentilknyt venligst din instans.
   error-unavailable: Dozzle Cloud er midlertidigt utilgængelig. Prøv igen senere.
   unlink: Fjern tilknytning
@@ -787,7 +786,6 @@ cloud-rail:
   metrics-no-container: Åbn en container for at se dens historik.
   metrics-loading: Indlæser historik…
   metrics-failed: Kunne ikke indlæse historikken.
-  metrics-empty: Intet registreret for dette vindue endnu.
   metrics-peak: top
   metrics-bucket: "{duration}-gennemsnit"
   window-1h: 1t

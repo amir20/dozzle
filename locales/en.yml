@@ -286,6 +286,11 @@ placeholder:
 cloud-rail:
   title: Dozzle Cloud
   chat: Ask Dozzle
+  ask: Ask
+  open-account: Plan and billing
+  alerts-retention: "Dozzle Cloud keeps {n} day of alert history. | Dozzle Cloud keeps {n} days of alert history."
+  create-alert: Create an alert rule
+  metrics-live: "Live from this browser, last {n} min. Cloud history fills in as stats arrive."
   metrics: Metrics
   alerts: Alerts
   hide: Hide the cloud rail
@@ -301,7 +306,6 @@ cloud-rail:
   metrics-no-container: Open a container to see its history.
   metrics-loading: Loading history…
   metrics-failed: Could not load the history.
-  metrics-empty: Nothing recorded for this window yet.
   metrics-peak: peak
   metrics-bucket: "{duration} averages"
   window-1h: 1h
@@ -328,6 +332,10 @@ cloud-findings:
   undo: Undo
   ignore-failed: Could not update the finding.
   truncated: Not every finding is listed here. Dozzle Cloud has the rest.
+  next-review: "Next review {when}, {time}"
+  last-review: "Last reviewed {when}"
+  not-reviewed: Not reviewed yet
+  empty-reviewed: "Nothing noticed on {name} in the last review."
 cloud-chat:
   title: Ask Dozzle
   close: Close
@@ -906,11 +914,11 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Available on Dozzle Cloud Pro
   plan: Plan
+  account: Account
   usage: Events
   usage-agent-messages: Agent chats
   usage-log-bytes: Data indexed
   dashboard: Dashboard
-  settings: Settings
   error: Connection error. Please re-link your instance.
   error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Unlink

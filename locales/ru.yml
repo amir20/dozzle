@@ -692,7 +692,6 @@ cloud:
   usage-agent-messages: Чаты с агентом
   usage-log-bytes: Проиндексированные данные
   dashboard: Панель управления
-  settings: Настройки
   error: Ошибка подключения. Пожалуйста, привяжите экземпляр повторно.
   error-unavailable: Dozzle Cloud временно недоступен. Попробуйте позже.
   unlink: Отвязать
@@ -787,7 +786,6 @@ cloud-rail:
   metrics-no-container: Откройте контейнер, чтобы увидеть его историю.
   metrics-loading: Загружаю историю…
   metrics-failed: Не удалось загрузить историю.
-  metrics-empty: За этот период данных ещё нет.
   metrics-peak: пик
   metrics-bucket: средние за {duration}
   window-1h: 1 ч

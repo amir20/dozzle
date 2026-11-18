@@ -9,6 +9,16 @@ import type { ViewContext } from "@/composable/logs/viewContext";
  * again rather than carrying "all" to a page that never asked for it.
  */
 const widenedFor = ref<string>();
+/** Whether the widening on screen was the bell's, made only to open its alerts. */
+const widenedByBell = ref(false);
+
+/** Undoes a widening the bell made, and nothing else: one the reader made with
+ *  the chip stays until they narrow it. Called when the drawer closes. */
+export function narrowBellWiden() {
+  if (!widenedByBell.value) return;
+  widenedByBell.value = false;
+  widenedFor.value = undefined;
+}
 
 export function useCloudScope() {
   const view = useViewContext();
@@ -40,7 +50,16 @@ export function useCloudScope() {
     containers,
     scopedView,
     total,
-    widen: () => (widenedFor.value = key.value),
-    narrow: () => (widenedFor.value = undefined),
+    /** `bell` marks a widening the drawer undoes on close. One already in place
+     *  stays the reader's, so the bell never takes it back from them. */
+    widen: (by?: "bell") => {
+      if (by === "bell" && widened.value) return;
+      widenedByBell.value = by === "bell";
+      widenedFor.value = key.value;
+    },
+    narrow: () => {
+      widenedByBell.value = false;
+      widenedFor.value = undefined;
+    },
   };
 }

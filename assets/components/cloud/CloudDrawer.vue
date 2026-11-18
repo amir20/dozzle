@@ -27,7 +27,7 @@
     >
       <header class="flex shrink-0 items-center gap-3 px-6 pt-6">
         <!-- A phone has no rail, so its mark lives here. -->
-        <CloudPopover v-if="isMobile" />
+        <CloudMark v-if="isMobile" />
         <h2 class="min-w-0 flex-1 truncate text-2xl font-bold">{{ title }}</h2>
         <!-- A thread that has run its course is in the way of the next one. -->
         <button
@@ -45,7 +45,8 @@
         </button>
       </header>
 
-      <div v-if="inView.length" class="shrink-0 px-6 pt-4">
+      <!-- The account is the same on every page, so it has no scope to pick. -->
+      <div v-if="inView.length && panel !== 'account'" class="shrink-0 px-6 pt-4">
         <CloudScopeChip />
       </div>
 
@@ -55,6 +56,7 @@
             <RailFindings v-if="panel === 'findings'" />
             <RailAlerts v-else-if="panel === 'alerts'" />
             <ChatPane v-else-if="panel === 'chat'" />
+            <RailAccount v-else-if="panel === 'account'" />
             <!-- A page about one container gets its history; the instance gets every host's. -->
             <RailMetrics v-else-if="scoped" />
             <RailHostMetrics v-else />
@@ -114,14 +116,23 @@ const { inView, scoped, containers } = useCloudScope();
 const items = useRailItems(() => isMobile.value && !!panel.value);
 const { t } = useI18n();
 
-const title = computed(() => items.value.find((i) => i.id === panel.value)?.label ?? "");
+const title = computed(() =>
+  panel.value === "account" ? t("cloud.title") : (items.value.find((i) => i.id === panel.value)?.label ?? ""),
+);
 
 // One container on screen links to that container in Cloud; anything wider to
 // the list this panel is a slice of.
-const one = computed(() => (containers.value.length === 1 ? containers.value[0] : undefined));
+// The account links to plan and billing whatever is on screen.
+const one = computed(() =>
+  panel.value !== "account" && containers.value.length === 1 ? containers.value[0] : undefined,
+);
 const href = computed(() => (panel.value ? cloudPanelHref(panel.value, one.value) : ""));
 const linkLabel = computed(() =>
-  one.value ? t("cloud-rail.open-container", { name: one.value.name }) : t("cloud-rail.open-in-cloud"),
+  panel.value === "account"
+    ? t("cloud-rail.open-account")
+    : one.value
+      ? t("cloud-rail.open-container", { name: one.value.name })
+      : t("cloud-rail.open-in-cloud"),
 );
 
 // Not a native dialog, so Esc is ours to handle. A modal on top (the palette,

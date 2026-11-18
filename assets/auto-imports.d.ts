@@ -23,6 +23,7 @@ declare global {
   const LOG_COOLDOWN_STOPS: typeof import('./composable/notifications/alertForm').LOG_COOLDOWN_STOPS
   const MARKER_START_SLACK_MS: typeof import('./composable/logs/updateMarkers').MARKER_START_SLACK_MS
   const MAX_PATTERN_LINES: typeof import('./composable/cloud/patternMemory').MAX_PATTERN_LINES
+  const MIN_CLOUD_POINTS: typeof import('./composable/cloud/liveMetrics').MIN_CLOUD_POINTS
   const MIN_MENU_WIDTH: typeof import('./stores/settings').MIN_MENU_WIDTH
   const NOT_RUNNING_ERROR: typeof import('./composable/containers/containerActions').NOT_RUNNING_ERROR
   const PREFERENCE_PAGES: typeof import('./composable/app/settingsPages').PREFERENCE_PAGES
@@ -86,6 +87,7 @@ declare global {
   const computedInject: typeof import('@vueuse/core').computedInject
   const computedWithControl: typeof import('@vueuse/core').computedWithControl
   const config: typeof import('./stores/config').default
+  const containerLiveSeries: typeof import('./composable/cloud/liveMetrics').containerLiveSeries
   const containerWorkload: typeof import('./composable/containers/rolloutRestart').containerWorkload
   const controlledComputed: typeof import('@vueuse/core').controlledComputed
   const controlledRef: typeof import('@vueuse/core').controlledRef
@@ -169,6 +171,7 @@ declare global {
   const hiddenColumns: typeof import('./stores/settings').hiddenColumns
   const highlightErrors: typeof import('./stores/settings').highlightErrors
   const highlightSubstringInHtml: typeof import('./utils/index').highlightSubstringInHtml
+  const hostLiveSeries: typeof import('./composable/cloud/liveMetrics').hostLiveSeries
   const hourStyle: typeof import('./stores/settings').hourStyle
   const iconSlugForImage: typeof import('./utils/index').iconSlugForImage
   const iconUrl: typeof import('./utils/index').iconUrl
@@ -201,6 +204,7 @@ declare global {
   const labelPolicy: typeof import('./composable/containers/updatePolicy').labelPolicy
   const lightTheme: typeof import('./stores/settings').lightTheme
   const linesNeedingMemory: typeof import('./composable/cloud/patternMemory').linesNeedingMemory
+  const liveMinutes: typeof import('./composable/cloud/liveMetrics').liveMinutes
   const loadBetween: typeof import('./composable/logs/loadBetween').loadBetween
   const locale: typeof import('./stores/settings').locale
   const logMomentRoute: typeof import('./composable/logs/logJump').logMomentRoute
@@ -225,6 +229,7 @@ declare global {
   const messageKeyOf: typeof import('./composable/logs/similarSearch').messageKeyOf
   const modKey: typeof import('./composable/app/commands').modKey
   const movingAverage: typeof import('./stores/settings').movingAverage
+  const narrowBellWiden: typeof import('./composable/cloud/cloudScope').narrowBellWiden
   const narrowedLevels: typeof import('./composable/logs/viewContext').narrowedLevels
   const newerThanOnScreen: typeof import('./composable/logs/logWindow').newerThanOnScreen
   const newestOnScreen: typeof import('./composable/logs/logWindow').newestOnScreen
@@ -705,6 +710,9 @@ declare global {
   export type { CloudSurfaceState } from './composable/cloud/cloudSurface'
   import('./composable/cloud/cloudSurface')
   // @ts-ignore
+  export type { LivePoint, LiveSeries } from './composable/cloud/liveMetrics'
+  import('./composable/cloud/liveMetrics')
+  // @ts-ignore
   export type { PatternContextHit } from './composable/cloud/patternMemory'
   import('./composable/cloud/patternMemory')
   // @ts-ignore
@@ -814,6 +822,7 @@ declare module 'vue' {
     readonly LOG_COOLDOWN_STOPS: UnwrapRef<typeof import('./composable/notifications/alertForm')['LOG_COOLDOWN_STOPS']>
     readonly MARKER_START_SLACK_MS: UnwrapRef<typeof import('./composable/logs/updateMarkers')['MARKER_START_SLACK_MS']>
     readonly MAX_PATTERN_LINES: UnwrapRef<typeof import('./composable/cloud/patternMemory')['MAX_PATTERN_LINES']>
+    readonly MIN_CLOUD_POINTS: UnwrapRef<typeof import('./composable/cloud/liveMetrics')['MIN_CLOUD_POINTS']>
     readonly NOT_RUNNING_ERROR: UnwrapRef<typeof import('./composable/containers/containerActions')['NOT_RUNNING_ERROR']>
     readonly PREFERENCE_PAGES: UnwrapRef<typeof import('./composable/app/settingsPages')['PREFERENCE_PAGES']>
     readonly RAIL_WIDTH: UnwrapRef<typeof import('./composable/cloud/cloudRail')['RAIL_WIDTH']>
@@ -876,6 +885,7 @@ declare module 'vue' {
     readonly computedInject: UnwrapRef<typeof import('@vueuse/core')['computedInject']>
     readonly computedWithControl: UnwrapRef<typeof import('@vueuse/core')['computedWithControl']>
     readonly config: UnwrapRef<typeof import('./stores/config')['default']>
+    readonly containerLiveSeries: UnwrapRef<typeof import('./composable/cloud/liveMetrics')['containerLiveSeries']>
     readonly containerWorkload: UnwrapRef<typeof import('./composable/containers/rolloutRestart')['containerWorkload']>
     readonly controlledComputed: UnwrapRef<typeof import('@vueuse/core')['controlledComputed']>
     readonly controlledRef: UnwrapRef<typeof import('@vueuse/core')['controlledRef']>
@@ -953,6 +963,7 @@ declare module 'vue' {
     readonly hashCode: UnwrapRef<typeof import('./utils/index')['hashCode']>
     readonly hiddenColumns: UnwrapRef<typeof import('./stores/settings')['hiddenColumns']>
     readonly highlightErrors: UnwrapRef<typeof import('./stores/settings')['highlightErrors']>
+    readonly hostLiveSeries: UnwrapRef<typeof import('./composable/cloud/liveMetrics')['hostLiveSeries']>
     readonly hourStyle: UnwrapRef<typeof import('./stores/settings')['hourStyle']>
     readonly iconSlugForImage: UnwrapRef<typeof import('./utils/index')['iconSlugForImage']>
     readonly iconUrl: UnwrapRef<typeof import('./utils/index')['iconUrl']>
@@ -984,6 +995,7 @@ declare module 'vue' {
     readonly labelPolicy: UnwrapRef<typeof import('./composable/containers/updatePolicy')['labelPolicy']>
     readonly lightTheme: UnwrapRef<typeof import('./stores/settings')['lightTheme']>
     readonly linesNeedingMemory: UnwrapRef<typeof import('./composable/cloud/patternMemory')['linesNeedingMemory']>
+    readonly liveMinutes: UnwrapRef<typeof import('./composable/cloud/liveMetrics')['liveMinutes']>
     readonly loadBetween: UnwrapRef<typeof import('./composable/logs/loadBetween')['loadBetween']>
     readonly locale: UnwrapRef<typeof import('./stores/settings')['locale']>
     readonly logMomentRoute: UnwrapRef<typeof import('./composable/logs/logJump')['logMomentRoute']>
@@ -1007,6 +1019,7 @@ declare module 'vue' {
     readonly messageKeyOf: UnwrapRef<typeof import('./composable/logs/similarSearch')['messageKeyOf']>
     readonly modKey: UnwrapRef<typeof import('./composable/app/commands')['modKey']>
     readonly movingAverage: UnwrapRef<typeof import('./stores/settings')['movingAverage']>
+    readonly narrowBellWiden: UnwrapRef<typeof import('./composable/cloud/cloudScope')['narrowBellWiden']>
     readonly narrowedLevels: UnwrapRef<typeof import('./composable/logs/viewContext')['narrowedLevels']>
     readonly newerThanOnScreen: UnwrapRef<typeof import('./composable/logs/logWindow')['newerThanOnScreen']>
     readonly newestOnScreen: UnwrapRef<typeof import('./composable/logs/logWindow')['newestOnScreen']>

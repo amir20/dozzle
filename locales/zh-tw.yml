@@ -694,7 +694,6 @@ cloud:
   usage-agent-messages: 智慧代理對話
   usage-log-bytes: 已索引資料
   dashboard: 儀表板
-  settings: 設定
   error: 連線錯誤。請重新連結您的實例。
   error-unavailable: Dozzle Cloud 暫時無法使用，請稍後再試。
   unlink: 取消連結
@@ -789,7 +788,6 @@ cloud-rail:
   metrics-no-container: 開啟一個容器即可檢視歷史。
   metrics-loading: 正在載入歷史…
   metrics-failed: 無法載入歷史。
-  metrics-empty: 該時間範圍還沒有記錄。
   metrics-peak: 峰值
   metrics-bucket: "{duration} 平均值"
   window-1h: 1 小時

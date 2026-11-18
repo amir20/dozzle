@@ -1,11 +1,12 @@
 import type { MaybeRefOrGetter } from "vue";
 import { collapseCloudRail } from "@/stores/settings";
+import { narrowBellWiden } from "@/composable/cloud/cloudScope";
 import mdiLightbulbOnOutline from "~icons/mdi/lightbulb-on-outline";
 import mdiBellOutline from "~icons/mdi/bell-outline";
 import mdiMessageOutline from "~icons/mdi/message-outline";
 import mdiChartLine from "~icons/mdi/chart-line";
 
-export type RailPanel = "findings" | "alerts" | "chat" | "metrics";
+export type RailPanel = "findings" | "alerts" | "chat" | "metrics" | "account";
 
 /**
  * Which cloud panel the drawer is showing, if any.
@@ -21,15 +22,18 @@ export type RailPanel = "findings" | "alerts" | "chat" | "metrics";
  */
 const panel = ref<RailPanel>();
 
-/** The panel last opened, so a single "Cloud" entry point (a phone's toolbar
- *  menu, which has no room for three rows) lands where the reader left off. */
-const lastPanel = ref<RailPanel>("chat");
+/** The tab last opened, so a single "Cloud" entry point (a phone's toolbar
+ *  menu, which has no room for three rows) lands where the reader left off.
+ *  The account is not a tab, so it is never where that lands. */
+const lastPanel = ref<Exclude<RailPanel, "account">>("chat");
 /** The icon strip's width. Shared with the layout, which pads the page by it so
  *  the strip never sits over the logs. */
 export const RAIL_WIDTH = 48;
 
 watch(panel, (next) => {
-  if (next) lastPanel.value = next;
+  if (next && next !== "account") lastPanel.value = next;
+  // The bell widened the scope only to open its alerts; closing puts it back.
+  if (!next) narrowBellWiden();
   // Counted on the change, not on ChatPane mounting: the rail remounts with chat
   // still open when navigation leaves and returns to a log view.
   if (next === "chat") trackUsage("cloud.chat");
@@ -85,7 +89,7 @@ export function useRailItems(dots: MaybeRefOrGetter<boolean> = true) {
       dot: unseenFindings.value,
     },
     { id: "alerts" as const, label: t("cloud-rail.alerts"), icon: mdiBellOutline, dot: unseenAlerts.value },
-    { id: "chat" as const, label: t("cloud-rail.chat"), icon: mdiMessageOutline, dot: false },
+    { id: "chat" as const, label: t("cloud-rail.ask"), icon: mdiMessageOutline, dot: false },
     { id: "metrics" as const, label: t("cloud-rail.metrics"), icon: mdiChartLine, dot: false },
   ]);
 }
@@ -97,6 +101,8 @@ export function useRailItems(dots: MaybeRefOrGetter<boolean> = true) {
  */
 export function cloudPanelHref(panel: RailPanel, container?: { host: string; name: string }) {
   const from = `from=dozzle_drawer_${panel}`;
+  // The account is the same whatever is on screen: plan and billing live in settings.
+  if (panel === "account") return `${config.cloudUrl}/settings?${from}`;
   if (container) {
     return `${config.cloudUrl}/metrics/${encodeURIComponent(container.host)}/${encodeURIComponent(container.name)}?${from}`;
   }

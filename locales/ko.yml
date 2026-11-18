@@ -694,7 +694,6 @@ cloud:
   usage-agent-messages: 에이전트 대화
   usage-log-bytes: 색인된 데이터
   dashboard: 대시보드
-  settings: 설정
   error: 연결 오류. 인스턴스를 다시 연결해 주세요.
   error-unavailable: Dozzle Cloud를 일시적으로 사용할 수 없습니다. 나중에 다시 시도해 주세요.
   unlink: 연결 해제
@@ -789,7 +788,6 @@ cloud-rail:
   metrics-no-container: 컨테이너를 열면 기록을 볼 수 있습니다.
   metrics-loading: 기록 불러오는 중…
   metrics-failed: 기록을 불러오지 못했습니다.
-  metrics-empty: 이 구간에 기록된 데이터가 아직 없습니다.
   metrics-peak: 최고
   metrics-bucket: "{duration} 평균"
   window-1h: 1시간

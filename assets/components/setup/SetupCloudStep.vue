@@ -61,7 +61,7 @@ async function next(): Promise<SetupNextResult> {
   busy.value = true;
   writeSetupResume(nextStep ?? "restart");
   try {
-    // Same link flow as CloudPopover, tagged so Cloud can tell where the link came from.
+    // Same link flow as the cloud account panel, tagged so Cloud can tell where the link came from.
     await startCloudLink("setup");
   } catch {
     // Nothing left the page, so there is nothing to resume.

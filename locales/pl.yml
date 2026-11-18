@@ -694,7 +694,6 @@ cloud:
   usage-agent-messages: Czaty z agentem
   usage-log-bytes: Zaindeksowane dane
   dashboard: Panel
-  settings: Ustawienia
   error: Błąd połączenia. Połącz ponownie swoją instancję.
   error-unavailable: Dozzle Cloud jest chwilowo niedostępny. Spróbuj ponownie później.
   unlink: Rozłącz
@@ -789,7 +788,6 @@ cloud-rail:
   metrics-no-container: Otwórz kontener, aby zobaczyć jego historię.
   metrics-loading: Ładowanie historii…
   metrics-failed: Nie udało się wczytać historii.
-  metrics-empty: Nic jeszcze nie zapisano dla tego okna.
   metrics-peak: szczyt
   metrics-bucket: średnie z {duration}
   window-1h: 1 godz

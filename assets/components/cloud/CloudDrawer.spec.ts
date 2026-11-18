@@ -11,7 +11,7 @@ import { isMobile } from "@/composable/ui/media";
 // Writable in this mock, read-only in the real media query.
 const mobile = isMobile as unknown as { value: boolean };
 
-type Panel = "findings" | "alerts" | "chat" | "metrics";
+type Panel = "findings" | "alerts" | "chat" | "metrics" | "account";
 const panel = ref<Panel | undefined>("findings");
 const scoped = ref(true);
 const inView = ref([{ id: "a1", name: "api", host: "h1" }]);
@@ -39,11 +39,18 @@ vi.mock("@/composable/cloud/cloudRail", async (importOriginal) => {
   };
 });
 vi.mock("@/composable/cloud/cloudScope", () => ({
+  narrowBellWiden: vi.fn(),
   useCloudScope: () => ({ inView, scoped, containers: computed(() => (scoped.value ? inView.value : [])) }),
 }));
 vi.mock("@/composable/cloud/cloudChat", () => ({ useCloudChat: () => ({ messages: ref([]), reset: vi.fn() }) }));
 
-const i18n = createI18n({ legacy: false, locale: "en", missingWarn: false, fallbackWarn: false, messages: { en: {} } });
+const i18n = createI18n({
+  legacy: false,
+  locale: "en",
+  missingWarn: false,
+  fallbackWarn: false,
+  messages: { en: { cloud: { title: "Dozzle Cloud" }, "cloud-rail": { "open-account": "Plan and billing" } } },
+});
 
 const stubs = {
   ChatPane: true,
@@ -52,7 +59,8 @@ const stubs = {
   RailMetrics: true,
   RailHostMetrics: true,
   CloudScopeChip: true,
-  CloudPopover: true,
+  CloudMark: true,
+  RailAccount: true,
   Transition: false,
 };
 
@@ -154,9 +162,23 @@ describe("<CloudDrawer />", () => {
     const wrapper = mountDrawer();
     const tabs = wrapper.findAll("nav button");
     expect(tabs.map((b) => b.text())).toEqual(["findings", "alerts", "chat", "metrics"]);
-    expect(wrapper.findComponent({ name: "CloudPopover" }).exists()).toBe(true);
+    expect(wrapper.findComponent({ name: "CloudMark" }).exists()).toBe(true);
 
     await tabs[2].trigger("click");
     expect(openRail).toHaveBeenCalledWith("chat");
+  });
+
+  // The cloud mark opens the account here rather than in a popover: same
+  // drawer, no scope to pick, and the footer goes to plan and billing.
+  test("the account panel has its own title, no scope chip, and links to billing", () => {
+    panel.value = "account";
+    const wrapper = mountDrawer();
+    expect(wrapper.findComponent({ name: "RailAccount" }).exists()).toBe(true);
+    expect(wrapper.find("h2").text()).toBe("Dozzle Cloud");
+    expect(wrapper.findComponent({ name: "CloudScopeChip" }).exists()).toBe(false);
+    expect(wrapper.find("footer a").attributes("href")).toBe(
+      "https://cloud.example/settings?from=dozzle_drawer_account",
+    );
+    expect(wrapper.find("footer").text()).toBe("Plan and billing");
   });
 });

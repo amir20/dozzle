@@ -693,7 +693,6 @@ cloud:
   usage-agent-messages: Agentgesprekken
   usage-log-bytes: Geïndexeerde data
   dashboard: Dashboard
-  settings: Instellingen
   error: Verbindingsfout. Koppel je instantie opnieuw.
   error-unavailable: Dozzle Cloud is tijdelijk niet beschikbaar. Probeer het later opnieuw.
   unlink: Ontkoppelen
@@ -788,7 +787,6 @@ cloud-rail:
   metrics-no-container: Open een container om de geschiedenis te zien.
   metrics-loading: Geschiedenis laden…
   metrics-failed: Kon de geschiedenis niet laden.
-  metrics-empty: Nog niets vastgelegd voor dit venster.
   metrics-peak: piek
   metrics-bucket: "{duration}-gemiddelden"
   window-1h: 1u

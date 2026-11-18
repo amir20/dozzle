@@ -4,6 +4,28 @@
     nobody wrote. Never listed beside alerts, which are the rules someone did.
   -->
   <div class="h-full overflow-y-auto p-4">
+    <!-- When the review runs, on every page: an empty list reads as "nothing
+         yet" only if the reader knows when "yet" ends. -->
+    <div
+      v-if="lastScanAt || nextScanAt"
+      class="border-base-content/15 bg-base-200/40 mb-4 flex items-start gap-3 rounded-lg border p-4"
+      data-schedule
+    >
+      <mdi:calendar-clock class="mt-0.5 size-4 shrink-0 opacity-60" />
+      <div class="min-w-0 text-sm">
+        <div v-if="nextScanAt">
+          {{ $t("cloud-findings.next-review", { when: relative(nextScanAt), time: clock(nextScanAt) }) }}
+        </div>
+        <div class="text-base-content/60" :class="{ 'text-xs': nextScanAt }">
+          {{
+            lastScanAt
+              ? $t("cloud-findings.last-review", { when: relative(lastScanAt) })
+              : $t("cloud-findings.not-reviewed")
+          }}
+        </div>
+      </div>
+    </div>
+
     <!-- The whole instance's findings are a list Cloud keeps; the footer links there. -->
     <p v-if="!containers.length" class="text-base-content/60 text-sm">{{ $t("cloud-findings.instance") }}</p>
 
@@ -24,7 +46,7 @@
       <p v-if="loading && !findings.length" class="text-base-content/60 text-sm">{{ $t("cloud-findings.loading") }}</p>
       <p v-else-if="failed" class="text-base-content/60 text-sm">{{ $t("cloud-findings.failed") }}</p>
       <p v-else-if="!findings.length" class="text-base-content/60 text-sm">
-        {{ $t(`cloud-findings.empty-${filter}`) }}
+        {{ emptyLine }}
       </p>
 
       <div v-else class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
@@ -123,7 +145,34 @@ const expanded = ref<string>();
 
 const { containers } = useCloudScope();
 const single = computed(() => containers.value.length === 1);
-const { findings, truncated, canIgnore, loading, failed, ignore, unignore, markSeen } = useCloudFindings(filter);
+const { findings, truncated, canIgnore, lastScanAt, nextScanAt, loading, failed, ignore, unignore, markSeen } =
+  useCloudFindings(filter);
+const { t, locale } = useI18n();
+
+// Nanoseconds, like every other time on a finding. The shared tick keeps
+// "in 3 hours" honest on a panel left open.
+function relative(ns: number) {
+  void relativeTimeTick.value;
+  return toRelativeTime(new Date(ns / 1e6), locale.value || undefined);
+}
+// The reader's own clock, with the day when it is not today.
+function clock(ns: number) {
+  const date = new Date(ns / 1e6);
+  const today = date.toDateString() === new Date().toDateString();
+  return new Intl.DateTimeFormat(locale.value || undefined, {
+    weekday: today ? undefined : "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: hourStyle.value === "12" ? "h12" : hourStyle.value === "24" ? "h23" : undefined,
+  }).format(date);
+}
+
+// Once a review has run, an empty list is its answer, and says so by name.
+const emptyLine = computed(() => {
+  if (!lastScanAt.value || filter.value === "ignored") return t(`cloud-findings.empty-${filter.value}`);
+  const name = single.value ? containers.value[0].name : t("cloud-rail.scope-n", { n: containers.value.length });
+  return t("cloud-findings.empty-reviewed", { name });
+});
 const { jumpTo } = useLogJump();
 const { closeRail } = useCloudRail();
 

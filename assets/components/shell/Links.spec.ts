@@ -43,7 +43,7 @@ describe("<Links /> bell", () => {
     const bell = mountLinks().find('[data-testid="notifications"]');
     expect(bell.element.tagName).toBe("BUTTON");
     await bell.trigger("click");
-    expect(widen).toHaveBeenCalled();
+    expect(widen).toHaveBeenCalledWith("bell");
     expect(openRail).toHaveBeenCalledWith("alerts");
     expect(widen.mock.invocationCallOrder[0]).toBeLessThan(openRail.mock.invocationCallOrder[0]);
   });

@@ -17,6 +17,11 @@ vi.mock("@/stores/config", () => ({
   default: { base: "", hosts: [{ id: "h1", name: "orbstack", memTotal: 8 * 1024 ** 3, available: true }] },
   withBase: (p: string) => p,
 }));
+// The live samples the panel falls back on, one running container on h1.
+const live = vi.hoisted(() => ({
+  containers: [] as object[],
+}));
+vi.mock("@/stores/container", () => ({ useContainerStore: () => ({ containers: live.containers }) }));
 vi.mock("@/composable/cloud/cloudConfig", () => ({
   useCloudConfig: () => ({ metricsLookbackHours: ref(24), ensureCloudStatus: vi.fn() }),
 }));
@@ -55,8 +60,20 @@ describe("<RailHostMetrics />", () => {
     respond(200, {
       bucket: 60_000,
       hosts: [
-        { hostId: "h1", points: [{ ts: 1, cpu: 10, memoryUsage: 2 * 1024 ** 3 }] },
-        { hostId: "gone", points: [{ ts: 1, cpu: 5, memoryUsage: 1024 }] },
+        {
+          hostId: "h1",
+          points: [
+            { ts: 1, cpu: 10, memoryUsage: 2 * 1024 ** 3 },
+            { ts: 2, cpu: 10, memoryUsage: 2 * 1024 ** 3 },
+          ],
+        },
+        {
+          hostId: "gone",
+          points: [
+            { ts: 1, cpu: 5, memoryUsage: 1024 },
+            { ts: 2, cpu: 5, memoryUsage: 1024 },
+          ],
+        },
       ],
     });
     const wrapper = await render();
@@ -79,5 +96,37 @@ describe("<RailHostMetrics />", () => {
 
     expect(wrapper.text()).toContain("Could not load");
     expect(wrapper.find("[data-host]").exists()).toBe(false);
+  });
+
+  // Local Cloud sends no host series yet: each host's live totals stand in,
+  // summed the way its home page card sums them, and say where they came from.
+  test("with no host series from Cloud, the live totals stand in", async () => {
+    live.containers = [
+      {
+        id: "a",
+        host: "h1",
+        state: "running",
+        statsHistory: [{ cpu: 20, memory: 1, memoryUsage: 1024 ** 3 }],
+        sampledStats: 1,
+      },
+      {
+        id: "b",
+        host: "h1",
+        state: "exited",
+        statsHistory: [{ cpu: 50, memory: 1, memoryUsage: 1024 ** 3 }],
+        sampledStats: 1,
+      },
+    ];
+    respond(200, { bucket: 60_000, hosts: [] });
+    const wrapper = await render();
+
+    const series = wrapper.findAll("[data-series]");
+    expect(series.map((s) => s.find("h3").text())).toEqual(["orbstack"]);
+    const [cpu, memory] = series[0].findAllComponents(BarChartStub);
+    // One running container, so the newest sample is its own: 20% of a core-less host, 1 of 8 GB.
+    expect(cpu.props("chartData").at(-1).value).toBe(20);
+    expect(memory.props("chartData").at(-1).percent).toBe(12.5);
+    expect(wrapper.find("[data-live-note]").exists()).toBe(true);
+    live.containers = [];
   });
 });

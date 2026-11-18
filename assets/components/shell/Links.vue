@@ -89,7 +89,7 @@ const { logoutUrl } = config;
 // containers on screen it showed fewer rows than the dot promised, and reading
 // them never put the dot out.
 function openAllAlerts() {
-  widen();
+  widen("bell");
   openRail("alerts");
 }
 

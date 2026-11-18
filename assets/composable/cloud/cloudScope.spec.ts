@@ -7,7 +7,14 @@ vi.mock("@/stores/container", () => ({ useContainerStore: () => ({ visibleContai
 const route = reactive({ path: "/container/a1" });
 vi.mock("vue-router", () => ({ useRoute: () => route }));
 
-import { useCloudScope } from "./cloudScope";
+import { narrowBellWiden, useCloudScope } from "./cloudScope";
+
+function onContainerPage() {
+  view.value = { containers: [{ id: "a1", name: "api", host: "h1" }], hosts: ["h1"], lines: [] };
+  const scope = useCloudScope();
+  scope.narrow();
+  return scope;
+}
 
 describe("useCloudScope", () => {
   test("starts on the containers on screen and widens to the instance", () => {
@@ -59,5 +66,40 @@ describe("useCloudScope", () => {
     scope.widen();
     expect(scope.scoped.value).toBe(false);
     expect(scope.widened.value).toBe(false);
+  });
+
+  // The bell widens only to open its alerts; closing the drawer puts the page back.
+  test("closing undoes a widening the bell made", () => {
+    const scope = onContainerPage();
+    scope.widen("bell");
+    expect(scope.scoped.value).toBe(false);
+    narrowBellWiden();
+    expect(scope.scoped.value).toBe(true);
+  });
+
+  test("a widening the reader made with the chip survives the close", () => {
+    const scope = onContainerPage();
+    scope.widen();
+    narrowBellWiden();
+    expect(scope.scoped.value).toBe(false);
+    scope.narrow();
+  });
+
+  test("the bell does not take over a widening the reader already made", () => {
+    const scope = onContainerPage();
+    scope.widen();
+    scope.widen("bell");
+    narrowBellWiden();
+    expect(scope.scoped.value).toBe(false);
+    scope.narrow();
+  });
+
+  test("picking all with the chip after the bell keeps it wide", () => {
+    const scope = onContainerPage();
+    scope.widen("bell");
+    scope.widen();
+    narrowBellWiden();
+    expect(scope.scoped.value).toBe(false);
+    scope.narrow();
   });
 });

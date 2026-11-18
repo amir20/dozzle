@@ -692,7 +692,6 @@ cloud:
   usage-agent-messages: Chat con l'agente
   usage-log-bytes: Dati indicizzati
   dashboard: Dashboard
-  settings: Impostazioni
   error: Errore di connessione. Ricollega la tua istanza.
   error-unavailable: Dozzle Cloud non è temporaneamente disponibile. Riprova più tardi.
   unlink: Scollega
@@ -787,7 +786,6 @@ cloud-rail:
   metrics-no-container: Apri un container per vederne la cronologia.
   metrics-loading: Caricamento della cronologia…
   metrics-failed: Impossibile caricare la cronologia.
-  metrics-empty: Non c'è ancora nulla registrato per questo intervallo.
   metrics-peak: picco
   metrics-bucket: medie su {duration}
   window-1h: 1 h

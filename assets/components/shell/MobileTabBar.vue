@@ -108,7 +108,7 @@ const { widen } = useCloudScope();
 const openAlertsSheet = computed(() => cloudLinked.value && unseenAlerts.value);
 
 function openAllAlerts() {
-  widen();
+  widen("bell");
   openRail("alerts");
 }
 

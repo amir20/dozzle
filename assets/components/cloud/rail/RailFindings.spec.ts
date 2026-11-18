@@ -23,6 +23,9 @@ const finding: CloudFinding = {
 const findings = ref<CloudFinding[]>([finding]);
 const canIgnore = ref(false);
 const truncated = ref(false);
+const lastScanAt = ref(0);
+const nextScanAt = ref(0);
+const scope = ref([{ host: "h1", id: "a1", name: "api" }]);
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
@@ -31,7 +34,7 @@ vi.mock("@/stores/config", () => ({
   withBase: (p: string) => p,
 }));
 vi.mock("@/composable/cloud/cloudScope", () => ({
-  useCloudScope: () => ({ containers: computed(() => [{ host: "h1", id: "a1", name: "api" }]) }),
+  useCloudScope: () => ({ containers: computed(() => scope.value) }),
 }));
 vi.mock("@/composable/cloud/cloudFindings", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/composable/cloud/cloudFindings")>()),
@@ -39,6 +42,8 @@ vi.mock("@/composable/cloud/cloudFindings", async (importOriginal) => ({
     findings,
     canIgnore,
     truncated,
+    lastScanAt,
+    nextScanAt,
     loading: ref(false),
     failed: ref(false),
     ignore: vi.fn(),
@@ -54,7 +59,21 @@ const i18n = createI18n({
   locale: "en",
   missingWarn: false,
   fallbackWarn: false,
-  messages: { en: { "cloud-findings": { ignore: "Ignore", truncated: "Not every finding is listed here." } } },
+  messages: {
+    en: {
+      "cloud-findings": {
+        ignore: "Ignore",
+        truncated: "Not every finding is listed here.",
+        instance: "Findings are kept per container.",
+        "next-review": "Next review {when}, {time}",
+        "last-review": "Last reviewed {when}",
+        "not-reviewed": "Not reviewed yet",
+        "empty-new": "Nothing new noticed on what you're looking at.",
+        "empty-reviewed": "Nothing noticed on {name} in the last review.",
+      },
+      "cloud-rail": { "scope-n": "{n} containers" },
+    },
+  },
 });
 
 async function mountExpanded() {
@@ -67,6 +86,10 @@ afterEach(() => {
   findings.value = [finding];
   canIgnore.value = false;
   truncated.value = false;
+  lastScanAt.value = 0;
+  nextScanAt.value = 0;
+  scope.value = [{ host: "h1", id: "a1", name: "api" }];
+  vi.useRealTimers();
 });
 
 describe("<RailFindings />", () => {
@@ -86,5 +109,52 @@ describe("<RailFindings />", () => {
     truncated.value = true;
     await nextTick();
     expect(wrapper.text()).toContain("Not every finding is listed here.");
+  });
+
+  // An empty panel says when the review runs, so "nothing" has an end date.
+  test("states the next and last review, in the reader's time", async () => {
+    vi.useFakeTimers({ now: new Date("2026-11-18T12:00:00Z"), toFake: ["Date"] });
+    nextScanAt.value = new Date("2026-11-18T15:00:00Z").getTime() * 1e6;
+    lastScanAt.value = new Date("2026-11-17T15:00:00Z").getTime() * 1e6;
+    findings.value = [];
+    const wrapper = mount(RailFindings, { global: { plugins: [i18n], stubs: { RelativeTime: true } } });
+    const schedule = wrapper.find("[data-schedule]").text();
+    expect(schedule).toContain("Next review in 3 hours, 03:00 PM");
+    expect(schedule).toContain("Last reviewed yesterday");
+    expect(wrapper.text()).toContain("Nothing noticed on api in the last review.");
+  });
+
+  test("before the first review it says so, and the empty line makes no claim", () => {
+    nextScanAt.value = Date.now() * 1e6 + 3_600_000 * 1e6;
+    findings.value = [];
+    const wrapper = mount(RailFindings, { global: { plugins: [i18n], stubs: { RelativeTime: true } } });
+    expect(wrapper.find("[data-schedule]").text()).toContain("Not reviewed yet");
+    expect(wrapper.text()).toContain("Nothing new noticed on what you're looking at.");
+  });
+
+  test("several containers are counted in the empty line", () => {
+    lastScanAt.value = Date.now() * 1e6;
+    scope.value = [
+      { host: "h1", id: "a1", name: "api" },
+      { host: "h1", id: "b2", name: "web" },
+    ];
+    findings.value = [];
+    const wrapper = mount(RailFindings, { global: { plugins: [i18n], stubs: { RelativeTime: true } } });
+    expect(wrapper.text()).toContain("Nothing noticed on 2 containers in the last review.");
+  });
+
+  test("the home page keeps the pointer to Cloud and adds the schedule", () => {
+    scope.value = [];
+    lastScanAt.value = Date.now() * 1e6;
+    findings.value = [];
+    const wrapper = mount(RailFindings, { global: { plugins: [i18n], stubs: { RelativeTime: true } } });
+    expect(wrapper.find("[data-schedule]").exists()).toBe(true);
+    expect(wrapper.text()).toContain("Findings are kept per container.");
+  });
+
+  test("with no schedule from Cloud there is no schedule line", () => {
+    findings.value = [];
+    const wrapper = mount(RailFindings, { global: { plugins: [i18n], stubs: { RelativeTime: true } } });
+    expect(wrapper.find("[data-schedule]").exists()).toBe(false);
   });
 });

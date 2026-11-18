@@ -692,7 +692,6 @@ cloud:
   usage-agent-messages: Conversas com o agente
   usage-log-bytes: Dados indexados
   dashboard: Painel
-  settings: Configurações
   error: Erro de conexão. Por favor, revincule sua instância.
   error-unavailable: O Dozzle Cloud está temporariamente indisponível. Tente novamente mais tarde.
   unlink: Desvincular
@@ -787,7 +786,6 @@ cloud-rail:
   metrics-no-container: Abra um contêiner para ver o histórico dele.
   metrics-loading: Carregando o histórico…
   metrics-failed: Não foi possível carregar o histórico.
-  metrics-empty: Nada registrado para este intervalo ainda.
   metrics-peak: pico
   metrics-bucket: médias de {duration}
   window-1h: 1 h

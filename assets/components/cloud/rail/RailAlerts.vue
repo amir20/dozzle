@@ -15,9 +15,24 @@
     <p v-else-if="failed" class="text-base-content/60 text-sm">
       {{ $t("notifications.history.failed") }}
     </p>
-    <p v-else-if="!visible.length" class="text-base-content/60 text-sm">
-      {{ scoped ? $t("cloud-rail.alerts-empty-here") : $t("notifications.history.empty") }}
-    </p>
+    <!-- Nothing fired: say how far back that answer reaches, and where a rule
+         that would fire is made. -->
+    <div v-else-if="!visible.length" class="space-y-2 text-sm" data-empty>
+      <p class="text-base-content/60">
+        {{ scoped ? $t("cloud-rail.alerts-empty-here") : $t("notifications.history.empty") }}
+      </p>
+      <p v-if="retentionDays" class="text-base-content/40 text-xs">
+        {{ $t("cloud-rail.alerts-retention", { n: retentionDays }, retentionDays) }}
+      </p>
+      <RouterLink
+        v-if="config.enableNotifications"
+        :to="{ name: '/notifications', query: { action: 'create-alert' } }"
+        class="link inline-block"
+        @click="closeRail()"
+      >
+        {{ $t("cloud-rail.create-alert") }}
+      </RouterLink>
+    </div>
 
     <div v-else class="space-y-6">
       <section v-for="day in days" :key="day.key">
@@ -49,6 +64,9 @@ const { fetchRecentAlerts, refreshRecentAlerts, markAlertsSeen, loading, loaded,
 const { visible, scoped, single } = useViewAlerts();
 const { locale } = useI18n();
 const { closeRail } = useCloudRail();
+const { cloudStatus, ensureCloudStatus } = useCloudConfig();
+const retentionDays = computed(() => cloudStatus.value?.plan.retention_days ?? 0);
+onMounted(ensureCloudStatus);
 
 // The rows are cached for the page, which keeps the bell and the dots on a
 // container table to one request between them. Opening the history re-reads

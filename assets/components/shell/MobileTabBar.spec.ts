@@ -62,7 +62,7 @@ describe("<MobileTabBar /> notifications", () => {
     const tab = mountBar().find('[data-testid="notifications-tab"]');
     expect(tab.element.tagName).toBe("BUTTON");
     await tab.trigger("click");
-    expect(widen).toHaveBeenCalled();
+    expect(widen).toHaveBeenCalledWith("bell");
     expect(openRail).toHaveBeenCalledWith("alerts");
   });
 });

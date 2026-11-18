@@ -697,7 +697,6 @@ cloud:
   usage-agent-messages: Klepeti z agentom
   usage-log-bytes: Indeksirani podatki
   dashboard: Nadzorna plošča
-  settings: Nastavitve
   error: Napaka povezave. Prosimo, ponovno povežite svojo instanco.
   error-unavailable: Dozzle Cloud je začasno nedosegljiv. Poskusite znova pozneje.
   unlink: Prekini povezavo
@@ -792,7 +791,6 @@ cloud-rail:
   metrics-no-container: Odprite vsebnik, da vidite njegovo zgodovino.
   metrics-loading: Nalagam zgodovino…
   metrics-failed: Zgodovine ni bilo mogoče naložiti.
-  metrics-empty: Za to obdobje še ni zapisov.
   metrics-peak: vrh
   metrics-bucket: povprečja po {duration}
   window-1h: 1 h

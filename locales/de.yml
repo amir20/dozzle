@@ -692,7 +692,6 @@ cloud:
   usage-agent-messages: Agent-Chats
   usage-log-bytes: Indexierte Daten
   dashboard: Dashboard
-  settings: Einstellungen
   error: Verbindungsfehler. Bitte verknüpfen Sie Ihre Instanz erneut.
   error-unavailable: Dozzle Cloud ist vorübergehend nicht verfügbar. Bitte versuche es später erneut.
   unlink: Verknüpfung aufheben
@@ -787,7 +786,6 @@ cloud-rail:
   metrics-no-container: Öffne einen Container, um seinen Verlauf zu sehen.
   metrics-loading: Verlauf wird geladen…
   metrics-failed: Der Verlauf konnte nicht geladen werden.
-  metrics-empty: Für diesen Zeitraum wurde noch nichts aufgezeichnet.
   metrics-peak: Spitze
   metrics-bucket: "{duration}-Mittelwerte"
   window-1h: 1 Std

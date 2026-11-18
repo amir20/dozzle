@@ -695,7 +695,6 @@ cloud:
   usage-agent-messages: Aracı sohbetleri
   usage-log-bytes: Dizine eklenen veri
   dashboard: Pano
-  settings: Ayarlar
   error: Bağlantı hatası. Lütfen örneğinizi yeniden bağlayın.
   error-unavailable: Dozzle Cloud geçici olarak kullanılamıyor. Lütfen daha sonra tekrar deneyin.
   unlink: Bağlantıyı kaldır
@@ -790,7 +789,6 @@ cloud-rail:
   metrics-no-container: Geçmişi görmek için bir konteyner açın.
   metrics-loading: Geçmiş yükleniyor…
   metrics-failed: Geçmiş yüklenemedi.
-  metrics-empty: Bu aralık için henüz kayıt yok.
   metrics-peak: tepe
   metrics-bucket: "{duration} ortalamaları"
   window-1h: 1 sa

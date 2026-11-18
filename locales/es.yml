@@ -293,7 +293,6 @@ cloud-rail:
   metrics-no-container: Abre un contenedor para ver su historial.
   metrics-loading: Cargando el historial…
   metrics-failed: No se pudo cargar el historial.
-  metrics-empty: Todavía no hay nada registrado para este intervalo.
   metrics-peak: pico
   metrics-bucket: promedios de {duration}
   window-1h: 1 h
@@ -902,7 +901,6 @@ cloud:
   usage-agent-messages: Chats del agente
   usage-log-bytes: Datos indexados
   dashboard: Panel
-  settings: Configuración
   error: Error de conexión. Por favor, revincule su instancia.
   error-unavailable: Dozzle Cloud no está disponible temporalmente. Inténtalo de nuevo más tarde.
   unlink: Desvincular

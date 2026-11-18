@@ -7,7 +7,7 @@
   <div ref="root" class="h-full [scrollbar-gutter:stable] overflow-y-auto p-4">
     <div class="mb-4 flex items-center gap-2">
       <span class="text-base-content/60 truncate text-xs font-semibold tracking-wide uppercase">
-        {{ $t("label.host-count", hostSeries.length) }}
+        {{ $t("label.host-count", cloudHasData ? hostSeries.length : live.length) }}
       </span>
       <div role="tablist" class="tabs tabs-box tabs-xs ml-auto shrink-0">
         <button
@@ -24,8 +24,12 @@
     </div>
 
     <p v-if="loading" class="text-base-content/60 text-sm">{{ $t("cloud-rail.metrics-loading") }}</p>
-    <p v-else-if="failed" class="text-base-content/60 text-sm">{{ $t("cloud-rail.metrics-failed") }}</p>
-    <p v-else-if="!hostSeries.length" class="text-base-content/60 text-sm">{{ $t("cloud-rail.metrics-empty") }}</p>
+    <!-- Too little in Cloud to draw: each host's live totals from this browser,
+         until Cloud's history fills in. -->
+    <template v-else-if="!cloudHasData">
+      <p v-if="failed" class="text-base-content/60 mb-4 text-sm">{{ $t("cloud-rail.metrics-failed") }}</p>
+      <RailLiveMetrics :series="live" named />
+    </template>
 
     <template v-else>
       <section v-for="host in hostSeries" :key="host.id" class="mb-6 last:mb-0" :data-host="host.id">
@@ -39,8 +43,9 @@
             </span>
           </div>
           <p class="text-base-content/40 mb-1 truncate font-mono text-xs tabular-nums">
-            <span class="text-base-content/60 font-semibold">{{ chart.summary }}</span
-            >{{ chart.limit ? ` / ${chart.limit}` : "" }}
+            <span class="text-base-content/60 font-semibold">{{ chart.summary }}</span>{{
+              chart.limit ? ` / ${chart.limit}` : ""
+            }}
           </p>
           <BarChart :chart-data="chart.data" :bar-class="chart.colorClass" :max="chart.ceiling" class="h-12" />
         </div>
@@ -55,12 +60,15 @@
 
 <script lang="ts" setup>
 import type { BarDataPoint } from "@/components/ui/BarChart.vue";
+import type { Container } from "@/models/Container";
+import { hostLiveSeries, MIN_CLOUD_POINTS } from "@/composable/cloud/liveMetrics";
 
 type HostPoint = { ts: number; cpu: number; memoryUsage: number };
 type HostSeries = { hostId: string; points: HostPoint[] };
 
 const { t } = useI18n();
 const { hosts } = useHosts();
+const store = useContainerStore();
 const { metricsLookbackHours, ensureCloudStatus } = useCloudConfig();
 onMounted(ensureCloudStatus);
 
@@ -122,6 +130,14 @@ async function load() {
 }
 
 watch([window, columns], load, { immediate: true });
+
+const cloudHasData = computed(() => series.value.some((s) => s.points.length >= MIN_CLOUD_POINTS));
+// Every host this instance reaches, summed from the containers' live samples.
+const live = computed(() =>
+  Object.values(hosts.value)
+    .filter((h) => h.available)
+    .map((h) => hostLiveSeries(h, store.containers as Container[])),
+);
 
 const pct = (v: number) => `${v.toFixed(1)}%`;
 const bytes = (v: number) => formatBytes(v, { short: true, decimals: 1 });
