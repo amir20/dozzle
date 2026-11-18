@@ -1,6 +1,5 @@
 import type { MaybeRefOrGetter } from "vue";
 import { collapseCloudRail } from "@/stores/settings";
-import { narrowBellWiden } from "@/composable/cloud/cloudScope";
 import mdiLightbulbOnOutline from "~icons/mdi/lightbulb-on-outline";
 import mdiBellOutline from "~icons/mdi/bell-outline";
 import mdiMessageOutline from "~icons/mdi/message-outline";
@@ -32,8 +31,6 @@ export const RAIL_WIDTH = 48;
 
 watch(panel, (next) => {
   if (next && next !== "account") lastPanel.value = next;
-  // The bell widened the scope only to open its alerts; closing puts it back.
-  if (!next) narrowBellWiden();
   // Counted on the change, not on ChatPane mounting: the rail remounts with chat
   // still open when navigation leaves and returns to a log view.
   if (next === "chat") trackUsage("cloud.chat");

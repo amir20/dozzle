@@ -3,26 +3,17 @@
     <slot name="more-items"></slot>
     <Announcements />
 
-    <!-- With cloud linked the history of what fired is the drawer's Alerts
-         panel, so the bell opens it; otherwise it goes to the rules. -->
-    <component
-      :is="cloudLinked ? 'button' : RouterLink"
+    <!-- Always the rules and destinations. What fired lives in the cloud
+         drawer's Alerts panel, whose rail icon carries the unseen dot. -->
+    <router-link
       v-if="config.enableNotifications"
-      v-bind="cloudLinked ? { type: 'button', onClick: openAllAlerts } : { to: { name: '/notifications' } }"
-      :aria-label="unseenAlerts ? $t('notifications.new-alerts') : $t('title.notifications')"
-      :title="unseenAlerts ? $t('notifications.new-alerts') : undefined"
+      :to="{ name: '/notifications' }"
+      :aria-label="$t('title.notifications')"
       data-testid="notifications"
-      class="btn btn-circle btn-sm relative max-md:hidden"
+      class="btn btn-circle btn-sm max-md:hidden"
     >
       <mdi:bell class="icon-ring size-6" />
-      <!-- Severity rides the dot, the button behind it stays neutral. Same mark
-           the container rows carry, so one glance across the app means the same
-           thing everywhere. -->
-      <span v-if="unseenAlerts" class="absolute end-1 top-1 flex size-1.5">
-        <span class="bg-warning absolute size-full rounded-full opacity-75 motion-safe:animate-ping"></span>
-        <span class="bg-warning relative size-full rounded-full"></span>
-      </span>
-    </component>
+    </router-link>
 
     <router-link
       :to="{ name: '/settings' }"
@@ -78,29 +69,16 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { RouterLink } from "vue-router";
-
-const { linked: cloudLinked } = useCloudSurface();
-const { openRail } = useCloudRail();
-const { widen } = useCloudScope();
 const { logoutUrl } = config;
-
-// The bell's dot is instance-wide, so the panel it opens is too: scoped to the
-// containers on screen it showed fewer rows than the dot promised, and reading
-// them never put the dot out.
-function openAllAlerts() {
-  widen("bell");
-  openRail("alerts");
-}
 
 // simple and oidc hold a session cookie Dozzle issued, so logging out means
 // clearing it. Forward proxy has none: the logout URL is the whole logout there.
 const hasSession = config.authProvider === "simple" || config.authProvider === "oidc";
 
-// The bell is the only place that watches for a fire the reader has not seen, so
-// it owns the polling. Without a cloud link there is nothing to remember and
-// nothing to poll, and the page it opens lands on the rules like it always did.
-const { unseen: unseenAlerts, fetchRecentAlerts, refreshRecentAlerts } = useRecentAlerts();
+// The header is mounted on every page, phone or desktop, so it owns the polling
+// that keeps the rail's and the mobile sheet's unseen dot honest. Without a cloud
+// link there is nothing to remember and nothing to poll.
+const { fetchRecentAlerts, refreshRecentAlerts } = useRecentAlerts();
 
 onMounted(() => fetchRecentAlerts());
 

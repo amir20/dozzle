@@ -29,6 +29,17 @@
         <!-- A phone has no rail, so its mark lives here. -->
         <CloudMark v-if="isMobile" />
         <h2 class="min-w-0 flex-1 truncate text-2xl font-bold">{{ title }}</h2>
+        <!-- What fired is here; what makes it fire is the notifications page. -->
+        <RouterLink
+          v-if="panel === 'alerts' && config.enableNotifications"
+          :to="{ name: '/notifications' }"
+          class="btn btn-sm"
+          data-testid="alert-rules"
+          @click="closeRail()"
+        >
+          <mdi:bell-cog-outline class="size-4" />
+          {{ $t("cloud-rail.alert-rules") }}
+        </RouterLink>
         <!-- A thread that has run its course is in the way of the next one. -->
         <button
           v-if="panel === 'chat' && messages.length"

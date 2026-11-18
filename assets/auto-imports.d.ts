@@ -1019,7 +1019,6 @@ declare module 'vue' {
     readonly messageKeyOf: UnwrapRef<typeof import('./composable/logs/similarSearch')['messageKeyOf']>
     readonly modKey: UnwrapRef<typeof import('./composable/app/commands')['modKey']>
     readonly movingAverage: UnwrapRef<typeof import('./stores/settings')['movingAverage']>
-    readonly narrowBellWiden: UnwrapRef<typeof import('./composable/cloud/cloudScope')['narrowBellWiden']>
     readonly narrowedLevels: UnwrapRef<typeof import('./composable/logs/viewContext')['narrowedLevels']>
     readonly newerThanOnScreen: UnwrapRef<typeof import('./composable/logs/logWindow')['newerThanOnScreen']>
     readonly newestOnScreen: UnwrapRef<typeof import('./composable/logs/logWindow')['newestOnScreen']>

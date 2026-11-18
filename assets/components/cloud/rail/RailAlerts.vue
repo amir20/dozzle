@@ -45,17 +45,6 @@
         </div>
       </section>
     </div>
-
-    <!-- The bell opens this panel once cloud is linked, so the rules are one row away from it. -->
-    <RouterLink
-      v-if="config.enableNotifications"
-      :to="{ name: '/notifications' }"
-      class="hover:bg-base-300 mt-4 flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors"
-      @click="closeRail()"
-    >
-      <mdi:bell-cog-outline class="size-4 opacity-60" />
-      {{ $t("cloud-rail.alert-rules") }}
-    </RouterLink>
   </div>
 </template>
 

@@ -1,7 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
-import { flushPromises, mount } from "@vue/test-utils";
+import { flushPromises, mount, RouterLinkStub } from "@vue/test-utils";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { computed, nextTick, ref } from "vue";
 import { createI18n } from "vue-i18n";
@@ -20,7 +20,7 @@ const openRail = vi.fn((id: Panel) => (panel.value = id));
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
-  default: { cloudUrl: "https://cloud.example", hosts: [] },
+  default: { cloudUrl: "https://cloud.example", hosts: [], enableNotifications: true },
   withBase: (p: string) => p,
 }));
 vi.mock("@/composable/ui/media", async () => {
@@ -39,7 +39,6 @@ vi.mock("@/composable/cloud/cloudRail", async (importOriginal) => {
   };
 });
 vi.mock("@/composable/cloud/cloudScope", () => ({
-  narrowBellWiden: vi.fn(),
   useCloudScope: () => ({ inView, scoped, containers: computed(() => (scoped.value ? inView.value : [])) }),
 }));
 vi.mock("@/composable/cloud/cloudChat", () => ({ useCloudChat: () => ({ messages: ref([]), reset: vi.fn() }) }));
@@ -64,7 +63,11 @@ const stubs = {
   Transition: false,
 };
 
-const mountDrawer = () => mount(CloudDrawer, { attachTo: document.body, global: { plugins: [i18n], stubs } });
+const mountDrawer = () =>
+  mount(CloudDrawer, {
+    attachTo: document.body,
+    global: { plugins: [i18n], stubs: { ...stubs, RouterLink: RouterLinkStub } },
+  });
 
 afterEach(() => {
   closeRail.mockClear();
@@ -96,6 +99,20 @@ describe("<CloudDrawer />", () => {
     panel.value = "metrics";
     await nextTick();
     expect(wrapper.findComponent({ name: "RailHostMetrics" }).exists()).toBe(true);
+  });
+
+  // What fired is in the drawer; what makes it fire is one button away.
+  test("the Alerts panel has a button to the rules, and only that panel", async () => {
+    panel.value = "alerts";
+    const wrapper = mountDrawer();
+    const rules = wrapper.findComponent<typeof RouterLinkStub>('[data-testid="alert-rules"]');
+    expect(rules.props("to")).toEqual({ name: "/notifications" });
+    await rules.trigger("click");
+    expect(closeRail).toHaveBeenCalled();
+
+    panel.value = "findings";
+    await nextTick();
+    expect(wrapper.find('[data-testid="alert-rules"]').exists()).toBe(false);
   });
 
   test("the backdrop and Esc close it", async () => {

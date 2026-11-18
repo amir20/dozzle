@@ -51,25 +51,19 @@
         <mdi:format-list-bulleted class="size-6" />
         <span>{{ $t("mobile-nav.browse") }}</span>
       </button>
-      <!-- Something fired that the reader has not seen: with cloud linked that
-           history is the cloud sheet's Alerts panel, widened to every container
-           so the rows are the ones the dot counted. Otherwise, the rules. -->
-      <component
-        :is="openAlertsSheet ? 'button' : RouterLink"
+      <!-- The rules and destinations, as on a desktop's bell. What fired lives
+           in the cloud sheet's Alerts panel. -->
+      <router-link
         v-if="config.enableNotifications"
-        v-bind="openAlertsSheet ? { type: 'button', onClick: openAllAlerts } : { to: { name: '/notifications' } }"
-        class="tab-item relative"
+        :to="{ name: '/notifications' }"
+        class="tab-item"
         :class="{ active: active === 'notifications' }"
         data-testid="notifications-tab"
         @click="browsing = false"
       >
         <mdi:bell-outline class="size-6" />
         <span>{{ $t("title.notifications") }}</span>
-        <span
-          v-if="unseenAlerts"
-          class="bg-warning absolute top-1.5 left-[calc(50%+0.5rem)] size-2 rounded-full"
-        ></span>
-      </component>
+      </router-link>
       <router-link
         :to="{ name: '/settings' }"
         class="tab-item"
@@ -94,23 +88,11 @@
 </template>
 
 <script lang="ts" setup>
-import { RouterLink } from "vue-router";
-
 defineEmits<{ search: [] }>();
 
 const route = useRoute();
 const browsing = ref(false);
 const compact = useCompactOnScroll();
-const { unseen: unseenAlerts } = useRecentAlerts();
-const { linked: cloudLinked } = useCloudSurface();
-const { openRail } = useCloudRail();
-const { widen } = useCloudScope();
-const openAlertsSheet = computed(() => cloudLinked.value && unseenAlerts.value);
-
-function openAllAlerts() {
-  widen("bell");
-  openRail("alerts");
-}
 
 watch(
   () => route.fullPath,

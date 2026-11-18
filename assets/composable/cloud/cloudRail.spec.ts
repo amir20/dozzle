@@ -8,8 +8,7 @@ vi.mock("@/stores/settings", async (importOriginal) => ({
 }));
 vi.mock("@/composable/ui/media", () => ({ isMobile: ref(false) }));
 vi.mock("@/composable/cloud/cloudSurface", () => ({ useCloudSurface: () => ({ linked: computed(() => true) }) }));
-const narrowBellWiden = vi.hoisted(() => vi.fn());
-vi.mock("@/composable/cloud/cloudScope", () => ({ narrowBellWiden }));
+vi.mock("@/composable/cloud/cloudScope", () => ({ useCloudScope: () => ({ containers: computed(() => []) }) }));
 vi.stubGlobal("trackUsage", vi.fn());
 
 import { cloudPanelHref, useCloudRail } from "./cloudRail";
@@ -19,22 +18,6 @@ describe("cloudRail", () => {
     expect(cloudPanelHref("account", { host: "h1", name: "api" })).toBe(
       "https://cloud.example/settings?from=dozzle_drawer_account",
     );
-  });
-
-  // The bell's widening lasts only as long as the drawer it opened.
-  test("closing the drawer narrows a widening the bell made", async () => {
-    const rail = useCloudRail();
-    rail.openRail("alerts");
-    await nextTick();
-    expect(narrowBellWiden).not.toHaveBeenCalled();
-
-    rail.openRail("findings");
-    await nextTick();
-    expect(narrowBellWiden).not.toHaveBeenCalled();
-
-    rail.closeRail();
-    await nextTick();
-    expect(narrowBellWiden).toHaveBeenCalledOnce();
   });
 
   test("the account is never where a single Cloud entry lands", async () => {

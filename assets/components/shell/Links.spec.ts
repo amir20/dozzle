@@ -8,8 +8,6 @@ import { createI18n } from "vue-i18n";
 import Links from "./Links.vue";
 
 const linked = ref(false);
-const openRail = vi.fn();
-const widen = vi.fn();
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
@@ -17,8 +15,6 @@ vi.mock("@/stores/config", () => ({
   withBase: (p: string) => p,
 }));
 vi.mock("@/composable/cloud/cloudSurface", () => ({ useCloudSurface: () => ({ linked }) }));
-vi.mock("@/composable/cloud/cloudRail", () => ({ useCloudRail: () => ({ openRail }) }));
-vi.mock("@/composable/cloud/cloudScope", () => ({ useCloudScope: () => ({ widen }) }));
 vi.mock("@/composable/cloud/recentAlerts", () => ({
   useRecentAlerts: () => ({ unseen: ref(false), fetchRecentAlerts: vi.fn(), refreshRecentAlerts: vi.fn() }),
 }));
@@ -30,21 +26,12 @@ const mountLinks = () =>
   });
 
 describe("<Links /> bell", () => {
-  test("goes to the rules page while cloud is not linked", () => {
-    linked.value = false;
-    const bell = mountLinks().find('[data-testid="notifications"]');
-    expect(bell.element.tagName).not.toBe("BUTTON");
-  });
-
-  // The dot counts the instance, so the panel shows the instance: scoped to the
-  // containers on screen it listed fewer rows than the dot promised.
-  test("opens the drawer's Alerts panel widened to every container once cloud is linked", async () => {
-    linked.value = true;
-    const bell = mountLinks().find('[data-testid="notifications"]');
-    expect(bell.element.tagName).toBe("BUTTON");
-    await bell.trigger("click");
-    expect(widen).toHaveBeenCalledWith("bell");
-    expect(openRail).toHaveBeenCalledWith("alerts");
-    expect(widen.mock.invocationCallOrder[0]).toBeLessThan(openRail.mock.invocationCallOrder[0]);
+  // What fired lives in the cloud drawer; the bell is always the rules and
+  // destinations, linked or not.
+  test.each([false, true])("goes to the notifications page (cloud linked: %s)", (isLinked) => {
+    linked.value = isLinked;
+    const bell = mountLinks().findComponent(RouterLinkStub);
+    expect(bell.attributes("data-testid")).toBe("notifications");
+    expect(bell.props("to")).toEqual({ name: "/notifications" });
   });
 });
