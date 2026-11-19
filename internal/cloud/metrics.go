@@ -141,9 +141,19 @@ type HostMetricResult struct {
 	Bucket int64 `json:"bucket"`
 }
 
+// HostMetricsQuery is what the host panel asks Cloud for.
+type HostMetricsQuery struct {
+	SinceNs, UntilNs int64
+	Buckets          int32
+	// The one top-container list to compute ("cpu", "memory", "network",
+	// "disk"), or empty for none. TopOnly skips the points and the count.
+	Top     string
+	TopOnly bool
+}
+
 // GetHostMetrics reads back the stats this instance has been pushing, summed
-// per host. Cloud answers for every host on the instance, as totals only.
-func (c *Client) GetHostMetrics(ctx context.Context, sinceNs, untilNs int64, buckets int32) (*HostMetricResult, error) {
+// per host. Cloud answers for every host on the instance.
+func (c *Client) GetHostMetrics(ctx context.Context, q HostMetricsQuery) (*HostMetricResult, error) {
 	apiKey := c.apiKeyFunc()
 	if apiKey == "" {
 		return nil, ErrNotConfigured
@@ -161,9 +171,11 @@ func (c *Client) GetHostMetrics(ctx context.Context, sinceNs, untilNs int64, buc
 	callCtx := metadata.NewOutgoingContext(ctx, metadata.Pairs(mdPairs...))
 
 	resp, err := client.GetHostMetrics(callCtx, &pb.GetHostMetricsRequest{
-		SinceTsNs: sinceNs,
-		UntilTsNs: untilNs,
-		Buckets:   buckets,
+		SinceTsNs: q.SinceNs,
+		UntilTsNs: q.UntilNs,
+		Buckets:   q.Buckets,
+		Top:       q.Top,
+		TopOnly:   q.TopOnly,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("cloud: host metrics: %w", err)

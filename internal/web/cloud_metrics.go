@@ -93,10 +93,28 @@ func (h *handler) cloudHostMetrics(w http.ResponseWriter, r *http.Request) {
 
 	window, buckets := metricsWindow(r)
 	until := time.Now()
+	query := cloud.HostMetricsQuery{
+		SinceNs: until.Add(-window).UnixNano(),
+		UntilNs: until.UnixNano(),
+		Buckets: buckets,
+		Top:     hostTopMetric(r.URL.Query().Get("top")),
+		TopOnly: r.URL.Query().Get("topOnly") == "1",
+	}
+	// The lists name containers, so a filtered reader is never asked about them,
+	// and a request for nothing but a list has nothing left to ask Cloud.
+	restricted := h.restrictedUser(r)
+	if restricted {
+		if query.TopOnly {
+			writeHostMetrics(w, &cloud.HostMetricResult{})
+			return
+		}
+		query.Top = ""
+	}
+
 	ctx, cancel := context.WithTimeout(r.Context(), cloudAlertsTimeout)
 	defer cancel()
 
-	result, err := h.config.Cloud.GetHostMetrics(ctx, until.Add(-window).UnixNano(), until.UnixNano(), buckets)
+	result, err := h.config.Cloud.GetHostMetrics(ctx, query)
 	if err != nil {
 		if errors.Is(err, cloud.ErrNotConfigured) {
 			writeError(w, http.StatusServiceUnavailable, "cloud not configured")
@@ -115,13 +133,26 @@ func (h *handler) cloudHostMetrics(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	if result.Hosts == nil {
-		result.Hosts = []cloud.HostMetrics{}
-	}
-	if h.restrictedUser(r) {
+	if restricted {
 		for i := range result.Hosts {
 			result.Hosts[i].Top = nil
 		}
+	}
+	writeHostMetrics(w, result)
+}
+
+// hostTopMetric passes on only the lists Cloud knows; anything else asks for none.
+func hostTopMetric(v string) string {
+	switch v {
+	case "cpu", "memory", "network", "disk":
+		return v
+	}
+	return ""
+}
+
+func writeHostMetrics(w http.ResponseWriter, result *cloud.HostMetricResult) {
+	if result.Hosts == nil {
+		result.Hosts = []cloud.HostMetrics{}
 	}
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(result); err != nil {

@@ -2425,7 +2425,13 @@ type GetHostMetricsRequest struct {
 	SinceTsNs int64 `protobuf:"varint,1,opt,name=since_ts_ns,json=sinceTsNs,proto3" json:"since_ts_ns,omitempty"`
 	UntilTsNs int64 `protobuf:"varint,2,opt,name=until_ts_ns,json=untilTsNs,proto3" json:"until_ts_ns,omitempty"`
 	// How many points to return per host, as for GetContainerMetricsRequest.
-	Buckets       int32 `protobuf:"varint,3,opt,name=buckets,proto3" json:"buckets,omitempty"`
+	Buckets int32 `protobuf:"varint,3,opt,name=buckets,proto3" json:"buckets,omitempty"`
+	// Which top-container list to compute: "cpu", "memory", "network" or "disk".
+	// Empty for none. The panel shows one list at a time, so it asks for one.
+	Top string `protobuf:"bytes,4,opt,name=top,proto3" json:"top,omitempty"`
+	// Only that list: no points and no container count. Switching the list's
+	// metric needs nothing else, so the charts are not read again.
+	TopOnly       bool `protobuf:"varint,5,opt,name=top_only,json=topOnly,proto3" json:"top_only,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2479,6 +2485,20 @@ func (x *GetHostMetricsRequest) GetBuckets() int32 {
 		return x.Buckets
 	}
 	return 0
+}
+
+func (x *GetHostMetricsRequest) GetTop() string {
+	if x != nil {
+		return x.Top
+	}
+	return ""
+}
+
+func (x *GetHostMetricsRequest) GetTopOnly() bool {
+	if x != nil {
+		return x.TopOnly
+	}
+	return false
 }
 
 type HostMetricPoint struct {
@@ -2670,7 +2690,8 @@ type HostMetricSeries struct {
 	Containers int32 `protobuf:"varint,3,opt,name=containers,proto3" json:"containers,omitempty"`
 	// The heaviest containers on this host over the window, heaviest first, at
 	// most five per list. Across hosts the panel merges these, which is exact:
-	// the instance's top five are always inside the union of each host's.
+	// the instance's top five are always inside the union of each host's. Only
+	// the list the request named in `top` is filled.
 	TopCpu        []*HostTopContainer `protobuf:"bytes,4,rep,name=top_cpu,json=topCpu,proto3" json:"top_cpu,omitempty"`
 	TopMemory     []*HostTopContainer `protobuf:"bytes,5,rep,name=top_memory,json=topMemory,proto3" json:"top_memory,omitempty"`
 	TopNetwork    []*HostTopContainer `protobuf:"bytes,6,rep,name=top_network,json=topNetwork,proto3" json:"top_network,omitempty"`
@@ -7390,11 +7411,13 @@ const file_cloud_proto_rawDesc = "" +
 	"\x10_disk_write_rateJ\x04\b\x06\x10\a\"o\n" +
 	"\x1bGetContainerMetricsResponse\x123\n" +
 	"\x06points\x18\x01 \x03(\v2\x1b.cloud.ContainerMetricPointR\x06points\x12\x1b\n" +
-	"\tbucket_ns\x18\x02 \x01(\x03R\bbucketNs\"q\n" +
+	"\tbucket_ns\x18\x02 \x01(\x03R\bbucketNs\"\x9e\x01\n" +
 	"\x15GetHostMetricsRequest\x12\x1e\n" +
 	"\vsince_ts_ns\x18\x01 \x01(\x03R\tsinceTsNs\x12\x1e\n" +
 	"\vuntil_ts_ns\x18\x02 \x01(\x03R\tuntilTsNs\x12\x18\n" +
-	"\abuckets\x18\x03 \x01(\x05R\abuckets\"\xca\x03\n" +
+	"\abuckets\x18\x03 \x01(\x05R\abuckets\x12\x10\n" +
+	"\x03top\x18\x04 \x01(\tR\x03top\x12\x19\n" +
+	"\btop_only\x18\x05 \x01(\bR\atopOnly\"\xca\x03\n" +
 	"\x0fHostMetricPoint\x12\x13\n" +
 	"\x05ts_ns\x18\x01 \x01(\x03R\x04tsNs\x12\x10\n" +
 	"\x03cpu\x18\x02 \x01(\x01R\x03cpu\x12!\n" +
