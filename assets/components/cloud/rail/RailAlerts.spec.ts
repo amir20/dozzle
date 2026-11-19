@@ -119,8 +119,12 @@ function mountRail() {
 }
 
 enableAutoUnmount(afterEach);
+afterEach(() => vi.useRealTimers());
 
+// Rows are grouped by day, so "a few hours ago" must not cross midnight.
 beforeEach(() => {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date("2026-11-18T15:00:00Z"));
   inView.value = [];
   instance.value = twoContainers;
   fetchAlerts.mockReset();
