@@ -20,13 +20,44 @@
         <span class="text-base-content/60 font-semibold tracking-wide uppercase">{{
           $t("cloud-chat.visual.memory")
         }}</span>
-        <BarChart :chart-data="bars" bar-class="text-secondary" :max="limit ? 100 : undefined" class="mt-1 h-16" />
+        <BarChart
+          :chart-data="bars"
+          bar-class="text-secondary"
+          :max="limit ? 100 : undefined"
+          class="mt-1 h-16"
+          @hover-value="onHover"
+          @hover-end="hovered = null"
+        />
+        <div
+          v-if="range.from && range.to"
+          class="text-base-content/40 mt-2 flex justify-between gap-2 font-mono tabular-nums"
+          data-range
+        >
+          <span class="shrink-0">{{ clock.format(new Date(range.from)) }}</span>
+          <span v-if="moment" class="text-base-content/70 truncate" data-moment>{{ moment }}</span>
+          <span class="shrink-0">{{ clock.format(new Date(range.to)) }}</span>
+        </div>
       </div>
     </template>
 
     <div v-else-if="visual.type === 'cpu_over_time' && visual.points?.length">
       <span class="text-base-content/60 font-semibold tracking-wide uppercase">{{ $t("label.cpu") }}</span>
-      <BarChart :chart-data="cpuBarData" bar-class="text-primary" class="mt-1 h-16" />
+      <BarChart
+        :chart-data="cpuBarData"
+        bar-class="text-primary"
+        class="mt-1 h-16"
+        @hover-value="onHover"
+        @hover-end="hovered = null"
+      />
+      <div
+        v-if="range.from && range.to"
+        class="text-base-content/40 mt-2 flex justify-between gap-2 font-mono tabular-nums"
+        data-range
+      >
+        <span class="shrink-0">{{ clock.format(new Date(range.from)) }}</span>
+        <span v-if="moment" class="text-base-content/70 truncate" data-moment>{{ moment }}</span>
+        <span class="shrink-0">{{ clock.format(new Date(range.to)) }}</span>
+      </div>
     </div>
 
     <SearchVolume
@@ -67,6 +98,7 @@
 <script lang="ts" setup>
 import type { Level } from "@/models/LogEntry";
 import { cpuBars, cpuPeak, factsLine, memoryBars, type ChatVisual } from "@/composable/cloud/chatVisuals";
+import { hoverSpan, spanMiddle, useMetricsClock, windowClock } from "@/composable/cloud/metricsTime";
 
 const { visual } = defineProps<{ visual: ChatVisual }>();
 const { t } = useI18n();
@@ -113,4 +145,35 @@ function rankValue(value: number) {
   if (visual.metric === "cpu") return `${value.toFixed(1)}%`;
   return value.toLocaleString();
 }
+
+// The bars on their own are a shape with no time on it. The window's ends sit
+// under the chart, and the hovered bar's moment and value between them, the
+// same row the metrics rail draws.
+type Hover = { index: number; bars: number; value: number; peak?: number };
+const hovered = ref<Hover | null>(null);
+function onHover(value: number, index: number, bars: number, peak?: number) {
+  hovered.value = { index, bars, value, peak };
+}
+
+// Past a few hours the clock alone is ambiguous, so the date comes along.
+const clock = useMetricsClock(() => windowClock(visual.to - visual.from > 6 * 3600_000 ? "24h" : "1h"));
+const range = computed(() => {
+  const points = visual.points ?? [];
+  return { from: visual.from || points[0]?.ts || 0, to: visual.to || points.at(-1)?.ts || 0 };
+});
+
+const formatPoint = (v: number) =>
+  visual.type === "cpu_over_time" ? `${v.toFixed(1)}%` : formatBytes(v, { decimals: 1 });
+
+const moment = computed(() => {
+  const hover = hovered.value;
+  const points = visual.points ?? [];
+  if (!hover || !points.length) return "";
+  const ts = points[spanMiddle(hoverSpan(points.length, hover))]?.ts;
+  if (ts === undefined) return "";
+  const parts = [clock.value.format(new Date(ts)), formatPoint(hover.value)];
+  if (hover.peak !== undefined && hover.peak > hover.value)
+    parts.push(t("cloud-chat.visual.peak", { peak: formatPoint(hover.peak) }));
+  return parts.join(" · ");
+});
 </script>
