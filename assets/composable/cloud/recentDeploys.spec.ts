@@ -82,3 +82,43 @@ describe("deployOf", () => {
     expect(deployOf(d, { host: "h1", name: "doligence_api.1.short" })).toBe(false);
   });
 });
+
+describe("mergeRecentDeploys with outside changes", () => {
+  test("an update Dozzle made but never pushed is listed once, as Dozzle's", () => {
+    const local = [
+      {
+        host: "h",
+        name: "web",
+        oldId: "w1",
+        newId: "w2",
+        imageRef: "nginx:1.27",
+        at: "2026-11-18T10:00:00Z",
+        source: "dozzle",
+      },
+    ];
+    const cloud: RecentDeploy[] = [
+      {
+        host: "h",
+        name: "web",
+        oldId: "",
+        newId: "w2",
+        imageRef: "nginx:1.27",
+        at: "2026-11-18T10:00:01Z",
+        source: "external",
+      },
+      {
+        host: "h",
+        name: "api",
+        oldId: "",
+        newId: "a2",
+        imageRef: "api:2",
+        at: "2026-11-18T09:00:00Z",
+        source: "external",
+      },
+    ];
+    expect(mergeRecentDeploys(local, cloud).map((d) => `${d.name}:${d.source}`)).toEqual([
+      "web:dozzle",
+      "api:external",
+    ]);
+  });
+});

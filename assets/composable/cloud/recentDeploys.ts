@@ -23,8 +23,12 @@ const key = (u: ContainerUpdate) => `${u.host}/${u.oldId}/${u.newId}`;
 export function mergeRecentDeploys(local: ContainerUpdate[], cloud: RecentDeploy[]): RecentDeploy[] {
   const verdicts = new Map(cloud.map((d) => [key(d), d.verdict]));
   const known = new Set(local.map(key));
+  // Cloud reads an outside change from a start, which names only the container
+  // that started. An update Dozzle made but never pushed (the Update button,
+  // chat) comes back that way too, so it is matched by that container alone.
+  const started = new Set(local.map((u) => `${u.host}/${u.newId}`));
   const merged: RecentDeploy[] = [
-    ...cloud.filter((d) => !known.has(key(d))),
+    ...cloud.filter((d) => !known.has(key(d)) && !(d.source === "external" && started.has(`${d.host}/${d.newId}`))),
     ...local.map((u) => ({ ...u, verdict: verdicts.get(key(u)) })),
   ];
   return merged.sort((a, b) => Date.parse(b.at) - Date.parse(a.at)).slice(0, MAX_RECENT);
