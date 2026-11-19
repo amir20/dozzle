@@ -794,6 +794,19 @@ cloud-rail:
   metrics-failed: Der Verlauf konnte nicht geladen werden.
   metrics-peak: Spitze
   metrics-bucket: "{duration}-Mittelwerte"
+  metrics-hosts-empty: Die Cloud hat noch keinen Verlauf für diese Hosts. Er füllt sich, sobald Statistiken eintreffen.
+  metrics-whole-host: Gesamter Host
+  metrics-containers-summed: "{n} Container summiert"
+  metrics-cpu-avg-host: CPU · Ø Host
+  metrics-hosts: Hosts
+  metrics-hot: CPU-Spitze über 90 %
+  metrics-filter-hosts: "{n} Hosts filtern"
+  metrics-no-host-match: Kein Host passt.
+  metrics-show-all-hosts: "Alle {n} Hosts anzeigen"
+  metrics-show-fewer: Weniger anzeigen
+  metrics-top: Top-Container
+  metrics-top-empty: In diesem Zeitraum wurde nichts gemeldet.
+  metrics-top-note: "Durchschnitt · Spitze über {window}."
   window-1h: 1 Std
   window-6h: 6 Std
   window-24h: 24 Std
@@ -940,7 +953,7 @@ cloud-search:
   hero-title-cloud: "Container und Logs durchsuchen oder eine Frage stellen"
   hero-title-plain: "Container durchsuchen"
   hero-pill-indexed: "Cloud-Index"
-  modal-placeholder-cloud: "Container und Logs durchsuchen…"
+  modal-placeholder-cloud: "Container und Logs durchsuchen oder fragen…"
   modal-placeholder-plain: "Container durchsuchen…"
   container-removed: "Container wurde gelöscht"
   cta-settings: "Cloud-Einstellungen"

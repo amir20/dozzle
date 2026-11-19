@@ -308,6 +308,19 @@ cloud-rail:
   metrics-failed: Could not load the history.
   metrics-peak: peak
   metrics-bucket: "{duration} averages"
+  metrics-hosts-empty: Cloud has no history for these hosts yet. It fills in as stats arrive.
+  metrics-whole-host: Whole host
+  metrics-containers-summed: "{n} containers summed"
+  metrics-cpu-avg-host: CPU · avg host
+  metrics-hosts: Hosts
+  metrics-hot: CPU peaked over 90%
+  metrics-filter-hosts: "Filter {n} hosts"
+  metrics-no-host-match: No host matches.
+  metrics-show-all-hosts: "Show all {n} hosts"
+  metrics-show-fewer: Show fewer
+  metrics-top: Top containers
+  metrics-top-empty: Nothing reported in this window.
+  metrics-top-note: "Average · peak over {window}."
   window-1h: 1h
   window-6h: 6h
   window-24h: 24h
@@ -454,7 +467,7 @@ cloud-search:
   hero-title-cloud: Search containers, logs or ask a question
   hero-title-plain: Search containers
   hero-pill-indexed: Cloud index
-  modal-placeholder-cloud: Search containers and logs…
+  modal-placeholder-cloud: Search containers, logs or ask…
   modal-placeholder-plain: Search containers…
   container-removed: Container has been deleted
   cta-settings: "Cloud settings"

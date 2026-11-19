@@ -799,6 +799,19 @@ cloud-rail:
   metrics-failed: Zgodovine ni bilo mogoče naložiti.
   metrics-peak: vrh
   metrics-bucket: povprečja po {duration}
+  metrics-hosts-empty: Cloud še nima zgodovine za te gostitelje. Zapolni se, ko prispe statistika.
+  metrics-whole-host: Celoten gostitelj
+  metrics-containers-summed: "{n} vsebnikov sešteto"
+  metrics-cpu-avg-host: CPU · povp. gostitelj
+  metrics-hosts: Gostitelji
+  metrics-hot: CPU je dosegel vrh nad 90 %
+  metrics-filter-hosts: "Filtriraj {n} gostiteljev"
+  metrics-no-host-match: Noben gostitelj se ne ujema.
+  metrics-show-all-hosts: "Prikaži vseh {n} gostiteljev"
+  metrics-show-fewer: Prikaži manj
+  metrics-top: Najzahtevnejši vsebniki
+  metrics-top-empty: V tem obdobju ni poročil.
+  metrics-top-note: "Povprečje · vrh v {window}."
   window-1h: 1 h
   window-6h: 6 h
   window-24h: 24 h
@@ -945,7 +958,7 @@ cloud-search:
   hero-title-cloud: "Iščite vsebnike, dnevnike ali postavite vprašanje"
   hero-title-plain: "Iskanje vsebnikov"
   hero-pill-indexed: "Cloud indeks"
-  modal-placeholder-cloud: "Iskanje vsebnikov in dnevnikov…"
+  modal-placeholder-cloud: "Iščite vsebnike, dnevnike ali vprašajte…"
   modal-placeholder-plain: "Iskanje vsebnikov…"
   container-removed: "Vsebnik je bil izbrisan"
   cta-settings: "Nastavitve Cloud"

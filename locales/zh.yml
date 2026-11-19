@@ -794,6 +794,19 @@ cloud-rail:
   metrics-failed: 无法加载历史。
   metrics-peak: 峰值
   metrics-bucket: "{duration} 平均值"
+  metrics-hosts-empty: Cloud 尚无这些主机的历史数据。统计数据到达后会逐步补全。
+  metrics-whole-host: 整个主机
+  metrics-containers-summed: "{n} 个容器合计"
+  metrics-cpu-avg-host: CPU · 主机平均
+  metrics-hosts: 主机
+  metrics-hot: CPU 峰值超过 90%
+  metrics-filter-hosts: "筛选 {n} 个主机"
+  metrics-no-host-match: 没有匹配的主机。
+  metrics-show-all-hosts: "显示全部 {n} 个主机"
+  metrics-show-fewer: 收起
+  metrics-top: 资源占用最高的容器
+  metrics-top-empty: 此时间段内无数据。
+  metrics-top-note: "{window} 内的平均值 · 峰值。"
   window-1h: 1 小时
   window-6h: 6 小时
   window-24h: 24 小时
@@ -940,7 +953,7 @@ cloud-search:
   hero-title-cloud: "搜索容器、日志或提个问题"
   hero-title-plain: "搜索容器"
   hero-pill-indexed: "Cloud 索引"
-  modal-placeholder-cloud: "搜索容器和日志…"
+  modal-placeholder-cloud: "搜索容器、日志或提问…"
   modal-placeholder-plain: "搜索容器…"
   container-removed: "容器已被删除"
   cta-settings: "Cloud 设置"

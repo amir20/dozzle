@@ -806,6 +806,19 @@ cloud-rail:
   metrics-failed: Riwayat tidak dapat dimuat.
   metrics-peak: puncak
   metrics-bucket: rata-rata {duration}
+  metrics-hosts-empty: Cloud belum memiliki riwayat untuk host ini. Riwayat terisi saat statistik masuk.
+  metrics-whole-host: Seluruh host
+  metrics-containers-summed: "{n} kontainer dijumlahkan"
+  metrics-cpu-avg-host: CPU · rata-rata host
+  metrics-hosts: Host
+  metrics-hot: CPU memuncak di atas 90%
+  metrics-filter-hosts: "Saring {n} host"
+  metrics-no-host-match: Tidak ada host yang cocok.
+  metrics-show-all-hosts: "Tampilkan semua {n} host"
+  metrics-show-fewer: Tampilkan lebih sedikit
+  metrics-top: Kontainer teratas
+  metrics-top-empty: Tidak ada yang dilaporkan dalam rentang ini.
+  metrics-top-note: "Rata-rata · puncak selama {window}."
   window-1h: 1j
   window-6h: 6j
   window-24h: 24j
@@ -952,7 +965,7 @@ cloud-search:
   hero-title-cloud: "Cari kontainer, log, atau ajukan pertanyaan"
   hero-title-plain: "Cari kontainer"
   hero-pill-indexed: "Indeks Cloud"
-  modal-placeholder-cloud: "Cari kontainer dan log…"
+  modal-placeholder-cloud: "Cari kontainer, log, atau tanya…"
   modal-placeholder-plain: "Cari kontainer…"
   container-removed: "Kontainer telah dihapus"
   cta-settings: "Pengaturan Cloud"

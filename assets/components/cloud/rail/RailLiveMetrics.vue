@@ -8,7 +8,6 @@
     <!-- One pointer per series, as in the history it stands in for: hovering
          any of its charts marks the same sample on both. -->
     <section v-for="item in charts" :key="item.id" class="mb-6 last:mb-0" :data-series="item.id">
-      <h3 v-if="named" class="mb-2 truncate font-mono text-sm font-semibold">{{ item.name }}</h3>
       <div v-for="chart in item.charts" :key="chart.key" class="mb-3 last:mb-0">
         <div class="mb-1 flex items-baseline justify-between gap-2">
           <span class="text-base-content/60 text-xs font-semibold tracking-wide uppercase">{{ chart.label }}</span>
@@ -57,10 +56,8 @@ import type { BarDataPoint } from "@/components/ui/BarChart.vue";
 import { liveMinutes, type LiveSeries } from "@/composable/cloud/liveMetrics";
 import { hoverSpan, spanMiddle, useMetricsClock, type MetricsHover } from "@/composable/cloud/metricsTime";
 
-const { series, named = false } = defineProps<{
+const { series } = defineProps<{
   series: LiveSeries[];
-  /** Heads each series with its name, for a list of hosts. */
-  named?: boolean;
 }>();
 
 const { t } = useI18n();

@@ -794,6 +794,19 @@ cloud-rail:
   metrics-failed: Не удалось загрузить историю.
   metrics-peak: пик
   metrics-bucket: средние за {duration}
+  metrics-hosts-empty: У Cloud пока нет истории для этих хостов. Она заполнится по мере поступления статистики.
+  metrics-whole-host: Весь хост
+  metrics-containers-summed: "Суммарно контейнеров: {n}"
+  metrics-cpu-avg-host: CPU · сред. по хостам
+  metrics-hosts: Хосты
+  metrics-hot: Пик CPU превысил 90%
+  metrics-filter-hosts: "Фильтр хостов: {n}"
+  metrics-no-host-match: Нет подходящих хостов.
+  metrics-show-all-hosts: "Показать все хосты: {n}"
+  metrics-show-fewer: Показать меньше
+  metrics-top: Самые нагруженные контейнеры
+  metrics-top-empty: За этот период данных нет.
+  metrics-top-note: "Среднее · пик за {window}."
   window-1h: 1 ч
   window-6h: 6 ч
   window-24h: 24 ч
@@ -940,7 +953,7 @@ cloud-search:
   hero-title-cloud: "Ищите контейнеры, логи или задайте вопрос"
   hero-title-plain: "Поиск по контейнерам"
   hero-pill-indexed: "Индекс Cloud"
-  modal-placeholder-cloud: "Поиск по контейнерам и логам…"
+  modal-placeholder-cloud: "Ищите контейнеры, логи или спросите…"
   modal-placeholder-plain: "Поиск по контейнерам…"
   container-removed: "Контейнер был удалён"
   cta-settings: "Настройки Cloud"

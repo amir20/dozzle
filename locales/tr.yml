@@ -797,6 +797,19 @@ cloud-rail:
   metrics-failed: Geçmiş yüklenemedi.
   metrics-peak: tepe
   metrics-bucket: "{duration} ortalamaları"
+  metrics-hosts-empty: Cloud'da bu sunucular için henüz geçmiş yok. İstatistikler geldikçe dolar.
+  metrics-whole-host: Tüm sunucu
+  metrics-containers-summed: "{n} konteyner toplandı"
+  metrics-cpu-avg-host: CPU · ort. sunucu
+  metrics-hosts: Sunucular
+  metrics-hot: CPU %90'ın üzerinde tepe yaptı
+  metrics-filter-hosts: "{n} sunucuyu filtrele"
+  metrics-no-host-match: Eşleşen sunucu yok.
+  metrics-show-all-hosts: "{n} sunucunun tümünü göster"
+  metrics-show-fewer: Daha az göster
+  metrics-top: En yoğun konteynerler
+  metrics-top-empty: Bu aralıkta raporlanan bir şey yok.
+  metrics-top-note: "{window} boyunca ortalama · tepe."
   window-1h: 1 sa
   window-6h: 6 sa
   window-24h: 24 sa
@@ -943,7 +956,7 @@ cloud-search:
   hero-title-cloud: "Konteynerleri, logları ara veya bir soru sor"
   hero-title-plain: "Konteynerleri ara"
   hero-pill-indexed: "Cloud indeksi"
-  modal-placeholder-cloud: "Konteynerleri ve logları ara…"
+  modal-placeholder-cloud: "Konteyner, log ara veya sor…"
   modal-placeholder-plain: "Konteynerleri ara…"
   container-removed: "Konteyner silindi"
   cta-settings: "Cloud ayarları"

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { containerLiveSeries, hostLiveSeries, liveMinutes } from "./liveMetrics";
+import { containerLiveSeries, liveMinutes } from "./liveMetrics";
 import type { Container } from "@/models/Container";
 
 const stat = (cpu: number, memoryUsage: number) => ({ cpu, memory: 0, memoryUsage });
@@ -29,21 +29,6 @@ describe("liveMetrics", () => {
     expect(series.sampledFrom).toBe(1);
     expect(series.memoryLimit).toBe(1000);
     expect(containerLiveSeries(container(), 1).memoryLimit).toBe(0);
-  });
-
-  test("a host sums its running containers per sample, aligned at the newest", () => {
-    const host = { id: "h1", name: "box", nCPU: 2, memTotal: 4096 };
-    const series = hostLiveSeries(host, [
-      container(),
-      container({ id: "b2", statsHistory: [stat(20, 50)], sampledStats: 1 }),
-      container({ id: "c3", state: "exited", statsHistory: [stat(99, 999)], sampledStats: 1 }),
-      container({ id: "d4", host: "h2" }),
-    ]);
-    expect(series.points).toHaveLength(300);
-    expect(series.points.at(-1)).toEqual({ cpu: 50, memoryUsage: 250 });
-    expect(series.points.at(-2)).toEqual({ cpu: 20, memoryUsage: 100 });
-    expect(series.sampledFrom).toBe(298);
-    expect(series.memoryLimit).toBe(4096);
   });
 
   test("the note's minutes round up and never say zero", () => {

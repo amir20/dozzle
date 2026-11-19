@@ -35,31 +35,6 @@ export function containerLiveSeries(container: Container, hostCores: number): Li
   };
 }
 
-/** A host's running containers summed per sample, the same way its home page card does. */
-export function hostLiveSeries(
-  host: { id: string; name: string; nCPU: number; memTotal: number },
-  containers: Container[],
-): LiveSeries {
-  const running = containers.filter((c) => c.host === host.id && c.state === "running");
-  const cores = host.nCPU || 1;
-  const length = 300;
-  const points: LivePoint[] = [];
-  for (let i = length; i >= 1; i--) {
-    let cpu = 0;
-    let memoryUsage = 0;
-    for (const c of running) {
-      const stat = c.statsHistory.at(-i);
-      if (!stat) continue;
-      cpu += stat.cpu / cores;
-      memoryUsage += stat.memoryUsage;
-    }
-    points.push({ cpu, memoryUsage });
-  }
-  // The longest real run: a container newer than the rest adds zero before it existed.
-  const sampled = Math.min(length, Math.max(0, ...running.map((c) => c.sampledStats)));
-  return { id: host.id, name: host.name, points, sampledFrom: length - sampled, memoryLimit: host.memTotal || 0 };
-}
-
 /** How many whole minutes the longest series covers. Samples arrive once a second. */
 export function liveMinutes(series: LiveSeries[]) {
   const sampled = Math.max(0, ...series.map((s) => s.points.length - s.sampledFrom));

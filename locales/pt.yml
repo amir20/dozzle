@@ -794,6 +794,19 @@ cloud-rail:
   metrics-failed: Não foi possível carregar o histórico.
   metrics-peak: pico
   metrics-bucket: médias de {duration}
+  metrics-hosts-empty: O Cloud ainda não tem histórico destes hosts. Ele é preenchido conforme as estatísticas chegam.
+  metrics-whole-host: Host inteiro
+  metrics-containers-summed: "{n} contêineres somados"
+  metrics-cpu-avg-host: CPU · média dos hosts
+  metrics-hosts: Hosts
+  metrics-hot: CPU com pico acima de 90%
+  metrics-filter-hosts: "Filtrar {n} hosts"
+  metrics-no-host-match: Nenhum host corresponde.
+  metrics-show-all-hosts: "Mostrar todos os {n} hosts"
+  metrics-show-fewer: Mostrar menos
+  metrics-top: Principais contêineres
+  metrics-top-empty: Nada reportado neste período.
+  metrics-top-note: "Média · pico em {window}."
   window-1h: 1 h
   window-6h: 6 h
   window-24h: 24 h
@@ -940,7 +953,7 @@ cloud-search:
   hero-title-cloud: "Buscar containers, logs ou fazer uma pergunta"
   hero-title-plain: "Buscar containers"
   hero-pill-indexed: "Índice Cloud"
-  modal-placeholder-cloud: "Buscar containers e logs…"
+  modal-placeholder-cloud: "Buscar containers, logs ou perguntar…"
   modal-placeholder-plain: "Buscar containers…"
   container-removed: "O container foi excluído"
   cta-settings: "Configurações da Cloud"

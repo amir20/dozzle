@@ -794,6 +794,19 @@ cloud-rail:
   metrics-failed: Impossibile caricare la cronologia.
   metrics-peak: picco
   metrics-bucket: medie su {duration}
+  metrics-hosts-empty: Cloud non ha ancora una cronologia per questi host. Si riempie man mano che arrivano le statistiche.
+  metrics-whole-host: Intero host
+  metrics-containers-summed: "{n} container sommati"
+  metrics-cpu-avg-host: CPU · media host
+  metrics-hosts: Host
+  metrics-hot: Picco di CPU oltre il 90%
+  metrics-filter-hosts: "Filtra {n} host"
+  metrics-no-host-match: Nessun host corrisponde.
+  metrics-show-all-hosts: "Mostra tutti i {n} host"
+  metrics-show-fewer: Mostra meno
+  metrics-top: Container principali
+  metrics-top-empty: Nessun dato in questa finestra.
+  metrics-top-note: "Media · picco su {window}."
   window-1h: 1 h
   window-6h: 6 h
   window-24h: 24 h
@@ -940,7 +953,7 @@ cloud-search:
   hero-title-cloud: "Cerca container, log o fai una domanda"
   hero-title-plain: "Cerca container"
   hero-pill-indexed: "Indice Cloud"
-  modal-placeholder-cloud: "Cerca container e log…"
+  modal-placeholder-cloud: "Cerca container, log o chiedi…"
   modal-placeholder-plain: "Cerca container…"
   container-removed: "Il container è stato eliminato"
   cta-settings: "Impostazioni Cloud"

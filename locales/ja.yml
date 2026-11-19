@@ -301,6 +301,19 @@ cloud-rail:
   metrics-failed: 履歴を読み込めませんでした。
   metrics-peak: ピーク
   metrics-bucket: "{duration} ごとの平均"
+  metrics-hosts-empty: これらのホストの履歴はまだ Cloud にありません。統計が届くにつれて埋まります。
+  metrics-whole-host: ホスト全体
+  metrics-containers-summed: "{n} 個のコンテナの合計"
+  metrics-cpu-avg-host: CPU · ホスト平均
+  metrics-hosts: ホスト
+  metrics-hot: CPU のピークが 90% を超えました
+  metrics-filter-hosts: "{n} 台のホストを絞り込む"
+  metrics-no-host-match: 一致するホストはありません。
+  metrics-show-all-hosts: "{n} 台のホストをすべて表示"
+  metrics-show-fewer: 表示を減らす
+  metrics-top: 上位のコンテナ
+  metrics-top-empty: この期間に報告されたものはありません。
+  metrics-top-note: "{window} の平均 · ピーク。"
   window-1h: 1 時間
   window-6h: 6 時間
   window-24h: 24 時間
@@ -447,7 +460,7 @@ cloud-search:
   hero-title-cloud: コンテナやログを検索、または質問
   hero-title-plain: コンテナを検索
   hero-pill-indexed: Cloud インデックス
-  modal-placeholder-cloud: コンテナとログを検索…
+  modal-placeholder-cloud: コンテナやログを検索、または質問…
   modal-placeholder-plain: コンテナを検索…
   container-removed: コンテナは削除されました
   cta-settings: "Cloud 設定"

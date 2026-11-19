@@ -796,6 +796,19 @@ cloud-rail:
   metrics-failed: 기록을 불러오지 못했습니다.
   metrics-peak: 최고
   metrics-bucket: "{duration} 평균"
+  metrics-hosts-empty: 이 호스트들에 대한 Cloud 기록이 아직 없습니다. 통계가 도착하면 채워집니다.
+  metrics-whole-host: 호스트 전체
+  metrics-containers-summed: "컨테이너 {n}개 합산"
+  metrics-cpu-avg-host: CPU · 호스트 평균
+  metrics-hosts: 호스트
+  metrics-hot: CPU 최고치가 90%를 넘었습니다
+  metrics-filter-hosts: "호스트 {n}개 필터"
+  metrics-no-host-match: 일치하는 호스트가 없습니다.
+  metrics-show-all-hosts: "호스트 {n}개 모두 보기"
+  metrics-show-fewer: 간략히 보기
+  metrics-top: 상위 컨테이너
+  metrics-top-empty: 이 기간에 보고된 항목이 없습니다.
+  metrics-top-note: "{window} 동안의 평균 · 최고."
   window-1h: 1시간
   window-6h: 6시간
   window-24h: 24시간
@@ -942,7 +955,7 @@ cloud-search:
   hero-title-cloud: "컨테이너, 로그 검색 또는 질문하기"
   hero-title-plain: "컨테이너 검색"
   hero-pill-indexed: "Cloud 인덱스"
-  modal-placeholder-cloud: "컨테이너 및 로그 검색…"
+  modal-placeholder-cloud: "컨테이너, 로그 검색 또는 질문…"
   modal-placeholder-plain: "컨테이너 검색…"
   container-removed: "컨테이너가 삭제되었습니다"
   cta-settings: "Cloud 설정"

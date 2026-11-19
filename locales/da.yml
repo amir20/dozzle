@@ -794,6 +794,19 @@ cloud-rail:
   metrics-failed: Kunne ikke indlæse historikken.
   metrics-peak: top
   metrics-bucket: "{duration}-gennemsnit"
+  metrics-hosts-empty: Cloud har endnu ingen historik for disse værter. Den udfyldes, efterhånden som statistik kommer ind.
+  metrics-whole-host: Hele værten
+  metrics-containers-summed: "{n} containere lagt sammen"
+  metrics-cpu-avg-host: CPU · gns. vært
+  metrics-hosts: Værter
+  metrics-hot: CPU toppede over 90%
+  metrics-filter-hosts: "Filtrer {n} værter"
+  metrics-no-host-match: Ingen vært matcher.
+  metrics-show-all-hosts: "Vis alle {n} værter"
+  metrics-show-fewer: Vis færre
+  metrics-top: Topcontainere
+  metrics-top-empty: Intet rapporteret i dette tidsrum.
+  metrics-top-note: "Gennemsnit · top over {window}."
   window-1h: 1t
   window-6h: 6t
   window-24h: 24t
@@ -940,7 +953,7 @@ cloud-search:
   hero-title-cloud: "Søg containere, logs eller stil et spørgsmål"
   hero-title-plain: "Søg containere"
   hero-pill-indexed: "Cloud-indeks"
-  modal-placeholder-cloud: "Søg containere og logs…"
+  modal-placeholder-cloud: "Søg containere, logs eller spørg…"
   modal-placeholder-plain: "Søg containere…"
   container-removed: "Containeren er slettet"
   cta-settings: "Cloud-indstillinger"

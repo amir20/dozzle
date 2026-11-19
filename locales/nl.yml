@@ -795,6 +795,19 @@ cloud-rail:
   metrics-failed: Kon de geschiedenis niet laden.
   metrics-peak: piek
   metrics-bucket: "{duration}-gemiddelden"
+  metrics-hosts-empty: Cloud heeft nog geen geschiedenis voor deze hosts. Die vult zich zodra statistieken binnenkomen.
+  metrics-whole-host: Hele host
+  metrics-containers-summed: "{n} containers opgeteld"
+  metrics-cpu-avg-host: CPU · gem. host
+  metrics-hosts: Hosts
+  metrics-hot: CPU piekte boven 90%
+  metrics-filter-hosts: "{n} hosts filteren"
+  metrics-no-host-match: Geen host komt overeen.
+  metrics-show-all-hosts: "Alle {n} hosts tonen"
+  metrics-show-fewer: Minder tonen
+  metrics-top: Topcontainers
+  metrics-top-empty: Niets gerapporteerd in dit venster.
+  metrics-top-note: "Gemiddelde · piek over {window}."
   window-1h: 1u
   window-6h: 6u
   window-24h: 24u
@@ -941,7 +954,7 @@ cloud-search:
   hero-title-cloud: "Zoek containers, logs of stel een vraag"
   hero-title-plain: "Containers zoeken"
   hero-pill-indexed: "Cloud-index"
-  modal-placeholder-cloud: "Containers en logs zoeken…"
+  modal-placeholder-cloud: "Containers, logs zoeken of vragen…"
   modal-placeholder-plain: "Containers zoeken…"
   container-removed: "Container is verwijderd"
   cta-settings: "Cloud-instellingen"

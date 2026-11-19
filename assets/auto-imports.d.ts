@@ -47,6 +47,7 @@ declare global {
   const actionsAllowedOn: typeof import('./composable/containers/hostRestrictions').actionsAllowedOn
   const agentComposeSnippet: typeof import('./composable/setup/setup').agentComposeSnippet
   const agentImage: typeof import('./composable/setup/setup').agentImage
+  const aggregateHosts: typeof import('./composable/cloud/hostMetrics').aggregateHosts
   const aimAt: typeof import('./composable/ui/pointerAim').aimAt
   const aimOwner: typeof import('./composable/ui/pointerAim').aimOwner
   const alertTargetFor: typeof import('./composable/notifications/alertForm').alertTargetFor
@@ -171,7 +172,7 @@ declare global {
   const hiddenColumns: typeof import('./stores/settings').hiddenColumns
   const highlightErrors: typeof import('./stores/settings').highlightErrors
   const highlightSubstringInHtml: typeof import('./utils/index').highlightSubstringInHtml
-  const hostLiveSeries: typeof import('./composable/cloud/liveMetrics').hostLiveSeries
+  const hostStats: typeof import('./composable/cloud/hostMetrics').hostStats
   const hourStyle: typeof import('./stores/settings').hourStyle
   const hoverSpan: typeof import('./composable/cloud/metricsTime').hoverSpan
   const iconSlugForImage: typeof import('./utils/index').iconSlugForImage
@@ -227,6 +228,7 @@ declare global {
   const mergeCloudEvents: typeof import('./composable/cloud/cloudAlerts').mergeCloudEvents
   const mergeDeploys: typeof import('./composable/cloud/cloudAlerts').mergeDeploys
   const mergeRecentDeploys: typeof import('./composable/cloud/recentDeploys').mergeRecentDeploys
+  const mergeTop: typeof import('./composable/cloud/hostMetrics').mergeTop
   const messageKeyOf: typeof import('./composable/logs/similarSearch').messageKeyOf
   const modKey: typeof import('./composable/app/commands').modKey
   const movingAverage: typeof import('./stores/settings').movingAverage
@@ -715,6 +717,9 @@ declare global {
   export type { CloudSurfaceState } from './composable/cloud/cloudSurface'
   import('./composable/cloud/cloudSurface')
   // @ts-ignore
+  export type { HostPoint, Metric, TopContainer, HostSeries, Stat } from './composable/cloud/hostMetrics'
+  import('./composable/cloud/hostMetrics')
+  // @ts-ignore
   export type { LivePoint, LiveSeries } from './composable/cloud/liveMetrics'
   import('./composable/cloud/liveMetrics')
   // @ts-ignore
@@ -853,6 +858,7 @@ declare module 'vue' {
     readonly actionsAllowedOn: UnwrapRef<typeof import('./composable/containers/hostRestrictions')['actionsAllowedOn']>
     readonly agentComposeSnippet: UnwrapRef<typeof import('./composable/setup/setup')['agentComposeSnippet']>
     readonly agentImage: UnwrapRef<typeof import('./composable/setup/setup')['agentImage']>
+    readonly aggregateHosts: UnwrapRef<typeof import('./composable/cloud/hostMetrics')['aggregateHosts']>
     readonly aimAt: UnwrapRef<typeof import('./composable/ui/pointerAim')['aimAt']>
     readonly aimOwner: UnwrapRef<typeof import('./composable/ui/pointerAim')['aimOwner']>
     readonly alertTargetFor: UnwrapRef<typeof import('./composable/notifications/alertForm')['alertTargetFor']>
@@ -971,7 +977,7 @@ declare module 'vue' {
     readonly hashCode: UnwrapRef<typeof import('./utils/index')['hashCode']>
     readonly hiddenColumns: UnwrapRef<typeof import('./stores/settings')['hiddenColumns']>
     readonly highlightErrors: UnwrapRef<typeof import('./stores/settings')['highlightErrors']>
-    readonly hostLiveSeries: UnwrapRef<typeof import('./composable/cloud/liveMetrics')['hostLiveSeries']>
+    readonly hostStats: UnwrapRef<typeof import('./composable/cloud/hostMetrics')['hostStats']>
     readonly hourStyle: UnwrapRef<typeof import('./stores/settings')['hourStyle']>
     readonly hoverSpan: UnwrapRef<typeof import('./composable/cloud/metricsTime')['hoverSpan']>
     readonly iconSlugForImage: UnwrapRef<typeof import('./utils/index')['iconSlugForImage']>
@@ -1025,6 +1031,7 @@ declare module 'vue' {
     readonly mergeCloudEvents: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['mergeCloudEvents']>
     readonly mergeDeploys: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['mergeDeploys']>
     readonly mergeRecentDeploys: UnwrapRef<typeof import('./composable/cloud/recentDeploys')['mergeRecentDeploys']>
+    readonly mergeTop: UnwrapRef<typeof import('./composable/cloud/hostMetrics')['mergeTop']>
     readonly messageKeyOf: UnwrapRef<typeof import('./composable/logs/similarSearch')['messageKeyOf']>
     readonly modKey: UnwrapRef<typeof import('./composable/app/commands')['modKey']>
     readonly movingAverage: UnwrapRef<typeof import('./stores/settings')['movingAverage']>

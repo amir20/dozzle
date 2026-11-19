@@ -796,6 +796,19 @@ cloud-rail:
   metrics-failed: 無法載入歷史。
   metrics-peak: 峰值
   metrics-bucket: "{duration} 平均值"
+  metrics-hosts-empty: Cloud 尚無這些主機的歷史資料。統計資料到達後會逐步補齊。
+  metrics-whole-host: 整台主機
+  metrics-containers-summed: "{n} 個容器加總"
+  metrics-cpu-avg-host: CPU · 主機平均
+  metrics-hosts: 主機
+  metrics-hot: CPU 峰值超過 90%
+  metrics-filter-hosts: "篩選 {n} 台主機"
+  metrics-no-host-match: 沒有符合的主機。
+  metrics-show-all-hosts: "顯示全部 {n} 台主機"
+  metrics-show-fewer: 顯示較少
+  metrics-top: 熱門容器
+  metrics-top-empty: 此時段內沒有回報資料。
+  metrics-top-note: "{window} 內的平均 · 峰值。"
   window-1h: 1 小時
   window-6h: 6 小時
   window-24h: 24 小時
@@ -942,7 +955,7 @@ cloud-search:
   hero-title-cloud: "搜尋容器、日誌或提個問題"
   hero-title-plain: "搜尋容器"
   hero-pill-indexed: "Cloud 索引"
-  modal-placeholder-cloud: "搜尋容器和日誌…"
+  modal-placeholder-cloud: "搜尋容器、日誌或提問…"
   modal-placeholder-plain: "搜尋容器…"
   container-removed: "容器已被刪除"
   cta-settings: "Cloud 設定"
