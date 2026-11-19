@@ -156,7 +156,7 @@ function onHover(value: number, index: number, bars: number, peak?: number) {
 }
 
 // Past a few hours the clock alone is ambiguous, so the date comes along.
-const clock = useMetricsClock(() => windowClock(visual.to - visual.from > 6 * 3600_000 ? "24h" : "1h"));
+const clock = useMetricsClock(() => windowClock(range.value.to - range.value.from > 6 * 3600_000 ? "24h" : "1h"));
 const range = computed(() => {
   const points = visual.points ?? [];
   return { from: visual.from || points[0]?.ts || 0, to: visual.to || points.at(-1)?.ts || 0 };
