@@ -476,7 +476,6 @@ terminal:
   close-search: Tutup pencarian
 notifications:
   history:
-    title: Aktivitas
     loading: Memuat aktivitas…
     failed: Tidak dapat memuat aktivitas.
     empty: Belum ada yang terpicu baru-baru ini.
@@ -493,7 +492,6 @@ notifications:
   add-destination: Tambah tujuan
   alerts: Peringatan
   add-alert: Tambah peringatan
-  new-alerts: Peringatan baru
   prefill-name: Peringatan kesalahan
   prefill-expression: level == "error"
   add: Tambah
@@ -691,9 +689,10 @@ cloud:
   title: Dozzle Cloud
   description: Kendalikan kontainer Anda dari jarak jauh dan gunakan AI untuk menyelidiki masalah di seluruh kluster Anda.
   pitch:
-    findings: Pemindaian AI harian atas error dan peringatan Anda
-    alerts: Peringatan waktu nyata untuk crash dan ambang batas
-    control: Jalankan, hentikan, dan periksa kontainer dari mana saja
+    findings: Membaca log Anda setiap hari dan menandai masalah yang lolos dari aturan
+    alerts: Peringatan di ponsel atau chat, tetap tersimpan setelah refresh atau restart
+    ask: Tanyakan apa saja tentang kontainer, termasuk riwayatnya
+    control: Mulai ulang, perbarui, atau rollback kontainer dari chat
   learn-more: Pelajari lebih lanjut
   link-instance: Tautkan instans
   relink-instance: Tautkan ulang instans
@@ -701,11 +700,11 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Tersedia dengan Dozzle Cloud Pro
   plan: Paket
+  account: Akun
   usage: Event
   usage-agent-messages: Obrolan agen
   usage-log-bytes: Data terindeks
   dashboard: Dasbor
-  settings: Pengaturan
   error: Kesalahan koneksi. Silakan tautkan ulang instans Anda.
   error-unavailable: Dozzle Cloud sedang tidak tersedia. Silakan coba lagi nanti.
   unlink: Lepaskan tautan
@@ -784,25 +783,69 @@ cloud:
       error: "Setiap baris error"
 cloud-rail:
   title: Dozzle Cloud
-  chat: Tanya Dozzle
+  chat: Tanya
+  alerts-retention: "Dozzle Cloud menyimpan riwayat peringatan selama {n} hari. | Dozzle Cloud menyimpan riwayat peringatan selama {n} hari."
+  create-alert: Buat aturan peringatan
+  metrics-live: "Langsung dari browser ini, {n} menit terakhir. Riwayat Cloud terisi saat statistik masuk."
   metrics: Metrik
   alerts: Peringatan
   hide: Sembunyikan bilah cloud
   show: Tampilkan bilah cloud
   alerts-empty-here: Belum ada yang terpicu pada yang sedang Anda lihat.
-  all-activity: Semua aktivitas
+  findings: Temuan
+  scope: Cakupan panel ini
+  scope-n: "{n} kontainer"
+  scope-all: Semua kontainer
+  scope-all-hosts: Semua host
+  alert-rules: Aturan peringatan
   metrics-no-container: Buka kontainer untuk melihat riwayatnya.
   metrics-loading: Memuat riwayat…
   metrics-failed: Riwayat tidak dapat dimuat.
-  metrics-empty: Belum ada rekaman untuk rentang ini.
   metrics-peak: puncak
   metrics-bucket: rata-rata {duration}
+  metrics-hosts-empty: Cloud belum memiliki riwayat untuk host ini. Riwayat terisi saat statistik masuk.
+  metrics-whole-host: Seluruh host
+  metrics-containers-summed: "{n} kontainer dijumlahkan"
+  metrics-cpu-avg-host: CPU · rata-rata host
+  metrics-hosts: Host
+  metrics-hot: CPU memuncak di atas 90%
+  metrics-filter-hosts: "Saring {n} host"
+  metrics-no-host-match: Tidak ada host yang cocok.
+  metrics-show-all-hosts: "Tampilkan semua {n} host"
+  metrics-show-fewer: Tampilkan lebih sedikit
+  metrics-top: Kontainer teratas
+  metrics-top-empty: Tidak ada yang dilaporkan dalam rentang ini.
+  metrics-top-note: "Rata-rata · puncak selama {window}."
   window-1h: 1j
   window-6h: 6j
   window-24h: 24j
   window-7d: 7 hr
+cloud-findings:
+  filter-new: Baru
+  filter-all: Semua
+  filter-ignored: Diabaikan
+  loading: Memuat temuan…
+  failed: Tidak dapat memuat temuan.
+  empty-new: Tidak ada hal baru yang tercatat pada yang sedang Anda lihat.
+  empty-all: Tidak ada temuan pada yang sedang Anda lihat.
+  empty-ignored: Tidak ada yang diabaikan di sini.
+  locked: Detail akan hadir bersama laporan Anda berikutnya
+  resolved: Terselesaikan
+  show-lines: Tunjukkan barisnya
+  ignore: Abaikan
+  unignore: Berhenti mengabaikan
+  investigate: Selidiki
+  ignored: Diabaikan. Tidak akan muncul di laporan dan email.
+  undo: Urungkan
+  ignore-failed: Tidak dapat memperbarui temuan.
+  truncated: Tidak semua temuan tercantum di sini. Dozzle Cloud menyimpan sisanya.
+  next-review: "Tinjauan berikutnya {when}, {time}"
+  last-review: "Terakhir ditinjau {when}"
+  first-review: "Tinjauan pertama {when}, {time}"
+  first-review-hint: Belum ada temuan. Temuan akan muncul di sini setelah tinjauan pertama.
+  empty-reviewed: "Tidak ada yang tercatat pada {name} di tinjauan terakhir."
 cloud-chat:
-  title: Tanya Dozzle
+  title: Tanya
   close: Tutup
   clear: Hapus obrolan
   empty: Tanyakan tentang yang sedang kamu lihat. Asisten bisa melihat halaman ini dan membaca log kontainermu.
@@ -874,7 +917,7 @@ cloud-chat:
   error-unavailable: Asisten sedang tidak tersedia.
   error-not-configured: Dozzle Cloud belum ditautkan, jadi tidak ada asisten untuk ditanya.
   section-ask: Asisten
-  ask-for: Tanya Dozzle tentang {query}
+  ask-for: Tanya tentang {query}
   ask-hint: Menjawab dari apa yang sedang kamu lihat
   ask-shortcut: untuk bertanya
   visual:
@@ -919,7 +962,7 @@ cloud-search:
   hero-title-cloud: "Cari kontainer, log, atau ajukan pertanyaan"
   hero-title-plain: "Cari kontainer"
   hero-pill-indexed: "Indeks Cloud"
-  modal-placeholder-cloud: "Cari kontainer dan log…"
+  modal-placeholder-cloud: "Cari kontainer, log, atau tanya…"
   modal-placeholder-plain: "Cari kontainer…"
   container-removed: "Kontainer telah dihapus"
   cta-settings: "Pengaturan Cloud"

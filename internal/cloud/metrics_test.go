@@ -73,3 +73,35 @@ func TestHostMetricResultFromProto(t *testing.T) {
 	require.Len(t, result.Hosts[0].Points, 1)
 	assert.Equal(t, HostMetricPoint{TS: 1_700_000_000_000, CPU: 42.5, MemoryUsage: 1 << 30}, result.Hosts[0].Points[0])
 }
+
+func TestHostMetricResultFromProtoCarriesPeaksRatesAndTop(t *testing.T) {
+	resp := &pb.GetHostMetricsResponse{
+		Hosts: []*pb.HostMetricSeries{{
+			HostId:     "h1",
+			Containers: 7,
+			Points: []*pb.HostMetricPoint{{
+				TsNs: 1_000_000, Cpu: 10, MemoryUsage: 100,
+				CpuMax: proto.Float64(30), MemoryUsageMax: proto.Int64(150),
+				NetworkRxRate: proto.Float64(1), NetworkTxRate: proto.Float64(2),
+				DiskReadRate: proto.Float64(3), DiskWriteRate: proto.Float64(4),
+			}},
+			TopCpu:    []*pb.HostTopContainer{{Name: "api", Avg: 5, Peak: 9}},
+			TopMemory: []*pb.HostTopContainer{{Name: "db", Avg: 1 << 20, Peak: 1 << 21}},
+		}},
+	}
+
+	host := hostMetricResultFromProto(resp).Hosts[0]
+	assert.Equal(t, int32(7), host.Containers)
+	p := host.Points[0]
+	assert.Equal(t, 30.0, *p.CPUMax)
+	assert.Equal(t, int64(150), *p.MemoryUsageMax)
+	assert.Equal(t, []float64{1, 2, 3, 4}, []float64{*p.NetworkRx, *p.NetworkTx, *p.DiskRead, *p.DiskWrite})
+	require.NotNil(t, host.Top)
+	assert.Equal(t, []HostTopContainer{{Name: "api", Avg: 5, Peak: 9}}, host.Top.CPU)
+	assert.Equal(t, "db", host.Top.Memory[0].Name)
+
+	// An older cloud sends no lists: empty, never null, so the browser reads [].
+	body, err := json.Marshal(host.Top)
+	require.NoError(t, err)
+	assert.JSONEq(t, `{"cpu":[{"name":"api","avg":5,"peak":9}],"memory":[{"name":"db","avg":1048576,"peak":2097152}],"network":[],"disk":[]}`, string(body))
+}

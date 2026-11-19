@@ -139,7 +139,7 @@ type CloudHooks struct {
 	GetContainerMetrics func(ctx context.Context, containerName, hostID string, sinceNs, untilNs int64, buckets int32) (*cloud.MetricResult, error)
 	// GetHostMetrics reads back the same stats summed per host, for every host
 	// on the instance. Nil when cloud is not wired.
-	GetHostMetrics func(ctx context.Context, sinceNs, untilNs int64, buckets int32) (*cloud.HostMetricResult, error)
+	GetHostMetrics func(ctx context.Context, q cloud.HostMetricsQuery) (*cloud.HostMetricResult, error)
 
 	// Chat runs one assistant turn. The handler passes the principal it
 	// resolved from the request, so cloud's tool calls for that turn execute

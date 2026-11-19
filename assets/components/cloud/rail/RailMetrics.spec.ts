@@ -22,7 +22,13 @@ vi.mock("@/composable/logs/viewContext", () => ({
   useViewContext: () => computed(() => ({ containers: [{ id: "abc" }] })),
 }));
 // The deploys Dozzle itself remembers. Tests set them per case.
-const updates = vi.hoisted(() => ({ list: [] as object[], created: 0, memoryLimit: 0 }));
+const updates = vi.hoisted(() => ({
+  list: [] as object[],
+  created: 0,
+  memoryLimit: 0,
+  // The container's live samples, for the fallback while Cloud has too little.
+  live: [] as { cpu: number; memory: number; memoryUsage: number }[],
+}));
 const jump = vi.hoisted(() => ({ jumpTo: vi.fn() }));
 vi.mock("@/composable/logs/logJump", () => ({ useLogJump: () => jump }));
 const rail = vi.hoisted(() => ({ hover: true, closeRail: vi.fn() }));
@@ -50,6 +56,9 @@ vi.mock("@/stores/container", async () => {
             host: "local",
             created: new Date(updates.created),
             memoryLimit: updates.memoryLimit,
+            cpuLimit: 0,
+            statsHistory: updates.live,
+            sampledStats: updates.live.length,
           },
         },
         recentUpdates: updates.list,
@@ -126,6 +135,7 @@ afterEach(() => {
   updates.list.length = 0;
   updates.created = 0;
   updates.memoryLimit = 0;
+  updates.live = [];
   jump.jumpTo.mockReset();
   rail.closeRail.mockReset();
   rail.hover = true;
@@ -148,7 +158,15 @@ describe("<RailMetrics />", () => {
   test("only the newest request's answer is shown", async () => {
     let releaseOld!: () => void;
     const body = (cpu: number) =>
-      new Response(JSON.stringify({ points: [{ ts: 0, cpu, memory: 1, memoryUsage: 1 }], bucket: HOUR }));
+      new Response(
+        JSON.stringify({
+          points: [
+            { ts: 0, cpu, memory: 1, memoryUsage: 1 },
+            { ts: HOUR, cpu, memory: 1, memoryUsage: 1 },
+          ],
+          bucket: HOUR,
+        }),
+      );
     let metrics = 0;
     globalThis.fetch = vi.fn((input: RequestInfo | URL) => {
       const url = String(input);
@@ -242,22 +260,34 @@ describe("<RailMetrics />", () => {
   });
 
   test("an I/O bar is both directions together", async () => {
-    respond([{ ts: 0, cpu: 1, memory: 1, memoryUsage: 1, networkRx: 10, networkTx: 20 }]);
+    const point = { cpu: 1, memory: 1, memoryUsage: 1, networkRx: 10, networkTx: 20 };
+    respond([
+      { ts: 0, ...point },
+      { ts: HOUR, ...point },
+    ]);
     const network = (await render()).findAllComponents(BarChartStub)[2];
 
-    expect(network.props("chartData")).toEqual([{ percent: 30, value: 30 }]);
+    expect(network.props("chartData")[0]).toEqual({ percent: 30, value: 30 });
   });
 
   test("a level chart hands the chart its max only when cloud sent one", async () => {
-    respond([{ ts: 0, cpu: 5, memory: 1, memoryUsage: 1, cpuMax: 12 }]);
+    const point = { cpu: 5, memory: 1, memoryUsage: 1, cpuMax: 12 };
+    respond([
+      { ts: 0, ...point },
+      { ts: HOUR, ...point },
+    ]);
     const [cpu, mem] = (await render()).findAllComponents(BarChartStub);
 
-    expect(cpu.props("chartData")).toEqual([{ percent: 5, value: 5, peakPercent: 12, peak: 12 }]);
-    expect(mem.props("chartData")).toEqual([{ percent: 1, value: 1 }]);
+    expect(cpu.props("chartData")[0]).toEqual({ percent: 5, value: 5, peakPercent: 12, peak: 12 });
+    expect(mem.props("chartData")[0]).toEqual({ percent: 1, value: 1 });
   });
 
   test("leaving the chart clears the readout everywhere", async () => {
-    respond([{ ts: 0, cpu: 5, memory: 1, memoryUsage: 1, cpuMax: 12 }]);
+    const point = { cpu: 5, memory: 1, memoryUsage: 1, cpuMax: 12 };
+    respond([
+      { ts: 0, ...point },
+      { ts: HOUR, ...point },
+    ]);
     const wrapper = await render();
     const cpu = wrapper.findAllComponents(BarChartStub)[0];
     cpu.vm.$emit("hoverValue", 5, 0, 1);
@@ -427,7 +457,10 @@ describe("<RailMetrics />", () => {
   // Docker measures an unlimited container's percent against the host's RAM;
   // drawn against that, 300M of a 32G host is a flat line.
   test("without a limit, memory keeps its own scale even when cloud sent a percent", async () => {
-    respond([{ ts: 0, cpu: 1, memory: 0.9, memoryUsage: 300 }]);
+    respond([
+      { ts: 0, cpu: 1, memory: 0.9, memoryUsage: 300 },
+      { ts: HOUR, cpu: 1, memory: 0.9, memoryUsage: 300 },
+    ]);
     const wrapper = await render();
     const mem = wrapper.findAllComponents(BarChartStub)[1];
 
@@ -480,5 +513,35 @@ describe("<RailMetrics />", () => {
     const ends = wrapper.findAll("[data-range] span").map((s) => s.text());
     expect(ends).toHaveLength(2);
     expect(ends[0]).not.toBe(ends[1]);
+  });
+
+  // Local Cloud often has a point or none for a fresh container; the panel
+  // draws what this browser already holds rather than nothing.
+  test("with fewer than two points from Cloud, the live window stands in", async () => {
+    updates.live = [
+      { cpu: 10, memory: 1, memoryUsage: 100 },
+      { cpu: 30, memory: 1, memoryUsage: 300 },
+    ];
+    respond([{ ts: 0, cpu: 99, memory: 1, memoryUsage: 1 }]);
+    const wrapper = await render();
+
+    expect(wrapper.find("[data-live]").exists()).toBe(true);
+    const [cpu, mem] = wrapper.findAllComponents(BarChartStub);
+    expect(cpu.props("chartData").map((d: { value: number }) => d.value)).toEqual([10, 30]);
+    expect(mem.props("chartData").map((d: { value: number }) => d.value)).toEqual([100, 300]);
+    expect(wrapper.find("[data-live-note]").exists()).toBe(true);
+    expect(wrapper.find("[data-timeline-stub]").exists()).toBe(false);
+  });
+
+  test("Cloud's history replaces the live window once it has two points", async () => {
+    updates.live = [{ cpu: 10, memory: 1, memoryUsage: 100 }];
+    respond([
+      { ts: 0, cpu: 1, memory: 1, memoryUsage: 1 },
+      { ts: HOUR, cpu: 2, memory: 1, memoryUsage: 1 },
+    ]);
+    const wrapper = await render();
+
+    expect(wrapper.find("[data-live]").exists()).toBe(false);
+    expect(wrapper.find("[data-timeline-stub]").exists()).toBe(true);
   });
 });

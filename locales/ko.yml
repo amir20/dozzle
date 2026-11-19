@@ -466,7 +466,6 @@ terminal:
   close-search: 검색 닫기
 notifications:
   history:
-    title: 활동
     loading: 활동을 불러오는 중…
     failed: 활동을 불러올 수 없습니다.
     empty: 최근에 발생한 알림이 없습니다.
@@ -483,7 +482,6 @@ notifications:
   add-destination: 목적지 추가
   alerts: 알림
   add-alert: 알림 추가
-  new-alerts: 새 알림
   add: 추가
   prefill-name: 오류 알림
   prefill-expression: level == "error"
@@ -681,9 +679,10 @@ cloud:
   title: Dozzle Cloud
   description: 원격으로 컨테이너를 제어하고 AI를 사용하여 클러스터 전반의 문제를 조사하세요.
   pitch:
-    findings: 오류와 경고를 매일 AI로 분석
-    alerts: 충돌과 임계값에 대한 실시간 알림
-    control: 어디서나 컨테이너 시작, 중지, 확인
+    findings: 매일 로그를 읽고 규칙으로 못 잡는 문제를 찾아냄
+    alerts: 휴대폰이나 채팅으로 받는 알림, 새로고침이나 재시작 후에도 유지
+    ask: 기록을 포함해 모든 컨테이너에 대해 질문
+    control: 채팅에서 컨테이너 재시작, 업데이트, 롤백
   learn-more: 자세히 알아보기
   link-instance: 인스턴스 연결
   relink-instance: 인스턴스 재연결
@@ -691,11 +690,11 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Dozzle Cloud Pro에서 사용할 수 있습니다
   plan: 플랜
+  account: 계정
   usage: 이벤트
   usage-agent-messages: 에이전트 대화
   usage-log-bytes: 색인된 데이터
   dashboard: 대시보드
-  settings: 설정
   error: 연결 오류. 인스턴스를 다시 연결해 주세요.
   error-unavailable: Dozzle Cloud를 일시적으로 사용할 수 없습니다. 나중에 다시 시도해 주세요.
   unlink: 연결 해제
@@ -774,25 +773,69 @@ cloud:
       error: "모든 error 줄"
 cloud-rail:
   title: Dozzle Cloud
-  chat: Dozzle에게 질문
+  chat: 질문
+  alerts-retention: "Dozzle Cloud는 알림 기록을 {n}일 동안 보관합니다. | Dozzle Cloud는 알림 기록을 {n}일 동안 보관합니다."
+  create-alert: 알림 규칙 만들기
+  metrics-live: "이 브라우저의 실시간 데이터, 최근 {n}분. 통계가 도착하면 Cloud 기록이 채워집니다."
   metrics: 메트릭
   alerts: 알림
   hide: 클라우드 레일 숨기기
   show: 클라우드 레일 표시
   alerts-empty-here: 보고 있는 대상에서 발생한 알림이 없습니다.
-  all-activity: 전체 활동
+  findings: 조사 결과
+  scope: 패널 대상
+  scope-n: "컨테이너 {n}개"
+  scope-all: 모든 컨테이너
+  scope-all-hosts: 모든 호스트
+  alert-rules: 알림 규칙
   metrics-no-container: 컨테이너를 열면 기록을 볼 수 있습니다.
   metrics-loading: 기록 불러오는 중…
   metrics-failed: 기록을 불러오지 못했습니다.
-  metrics-empty: 이 구간에 기록된 데이터가 아직 없습니다.
   metrics-peak: 최고
   metrics-bucket: "{duration} 평균"
+  metrics-hosts-empty: 이 호스트들에 대한 Cloud 기록이 아직 없습니다. 통계가 도착하면 채워집니다.
+  metrics-whole-host: 호스트 전체
+  metrics-containers-summed: "컨테이너 {n}개 합산"
+  metrics-cpu-avg-host: CPU · 호스트 평균
+  metrics-hosts: 호스트
+  metrics-hot: CPU 최고치가 90%를 넘었습니다
+  metrics-filter-hosts: "호스트 {n}개 필터"
+  metrics-no-host-match: 일치하는 호스트가 없습니다.
+  metrics-show-all-hosts: "호스트 {n}개 모두 보기"
+  metrics-show-fewer: 간략히 보기
+  metrics-top: 상위 컨테이너
+  metrics-top-empty: 이 기간에 보고된 항목이 없습니다.
+  metrics-top-note: "{window} 동안의 평균 · 최고."
   window-1h: 1시간
   window-6h: 6시간
   window-24h: 24시간
   window-7d: 7일
+cloud-findings:
+  filter-new: 새 항목
+  filter-all: 전체
+  filter-ignored: 무시됨
+  loading: 조사 결과 불러오는 중…
+  failed: 조사 결과를 불러오지 못했습니다.
+  empty-new: 보고 있는 대상에서 새로 발견된 내용이 없습니다.
+  empty-all: 보고 있는 대상에 대한 조사 결과가 없습니다.
+  empty-ignored: 무시된 항목이 없습니다.
+  locked: 자세한 내용은 다음 리포트와 함께 제공됩니다
+  resolved: 해결됨
+  show-lines: 해당 줄 보기
+  ignore: 무시
+  unignore: 무시 해제
+  investigate: 조사
+  ignored: 무시했습니다. 리포트와 메일에서 제외됩니다.
+  undo: 실행 취소
+  ignore-failed: 조사 결과를 업데이트하지 못했습니다.
+  truncated: 모든 조사 결과가 여기에 표시되지는 않습니다. 나머지는 Dozzle Cloud에 있습니다.
+  next-review: "다음 검토 {when}, {time}"
+  last-review: "마지막 검토 {when}"
+  first-review: "첫 검토 {when}, {time}"
+  first-review-hint: 아직 조사 결과가 없습니다. 첫 검토가 끝나면 여기에 표시됩니다.
+  empty-reviewed: "지난 검토에서 {name}에 발견된 내용이 없습니다."
 cloud-chat:
-  title: Dozzle에 질문
+  title: 질문
   close: 닫기
   clear: 대화 지우기
   empty: 지금 보고 있는 것에 대해 물어보세요. 어시스턴트가 이 페이지를 보고 컨테이너 로그를 읽을 수 있습니다.
@@ -864,7 +907,7 @@ cloud-chat:
   error-unavailable: 지금은 어시스턴트를 사용할 수 없습니다.
   error-not-configured: Dozzle Cloud가 연결되지 않아 질문할 어시스턴트가 없습니다.
   section-ask: 어시스턴트
-  ask-for: "{query}에 대해 Dozzle에 질문"
+  ask-for: "{query}에 대해 질문"
   ask-hint: 보고 있는 화면을 근거로 답합니다
   ask-shortcut: 질문하기
   visual:
@@ -909,7 +952,7 @@ cloud-search:
   hero-title-cloud: "컨테이너, 로그 검색 또는 질문하기"
   hero-title-plain: "컨테이너 검색"
   hero-pill-indexed: "Cloud 인덱스"
-  modal-placeholder-cloud: "컨테이너 및 로그 검색…"
+  modal-placeholder-cloud: "컨테이너, 로그 검색 또는 질문…"
   modal-placeholder-plain: "컨테이너 검색…"
   container-removed: "컨테이너가 삭제되었습니다"
   cta-settings: "Cloud 설정"

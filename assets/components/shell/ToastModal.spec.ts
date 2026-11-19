@@ -5,6 +5,15 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import ToastModal from "./ToastModal.vue";
 
+// The cloud drawer is a fixed panel at z-40 (z-50 on a phone), not a top-layer
+// dialog, so an Undo fired from one of its panels landed underneath it.
+describe("ToastModal layer", () => {
+  test("stacks above the cloud drawer", () => {
+    const wrapper = mount(ToastModal);
+    expect(wrapper.find(".toast").classes()).toContain("z-60");
+  });
+});
+
 describe("ToastModal secondary action", () => {
   test("renders primary, secondary and close together", async () => {
     const { useToast } = await import("@/composable/app/toast");

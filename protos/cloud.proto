@@ -469,6 +469,12 @@ message GetHostMetricsRequest {
   int64 until_ts_ns = 2;
   // How many points to return per host, as for GetContainerMetricsRequest.
   int32 buckets = 3;
+  // Which top-container list to compute: "cpu", "memory", "network" or "disk".
+  // Empty for none. The panel shows one list at a time, so it asks for one.
+  string top = 4;
+  // Only that list: no points and no container count. Switching the list's
+  // metric needs nothing else, so the charts are not read again.
+  bool top_only = 5;
 }
 
 message HostMetricPoint {
@@ -479,11 +485,42 @@ message HostMetricPoint {
   double cpu = 2;
   // The sum of the host's containers' memory, bytes.
   int64 memory_usage = 3;
+  // The highest the host's sum reached inside the bucket, next to the averages
+  // above, for the same reason ContainerMetricPoint carries them. Optional so an
+  // older cloud reads as "no max", not as 0.
+  optional double cpu_max = 4;
+  optional int64 memory_usage_max = 5;
+  // Bytes per second over the bucket, summed across the host's containers, from
+  // the same counters as ContainerMetricPoint. Optional so an older cloud hides
+  // the charts rather than drawing a flat line that reads as "no traffic".
+  optional double network_rx_rate = 6;
+  optional double network_tx_rate = 7;
+  optional double disk_read_rate = 8;
+  optional double disk_write_rate = 9;
+}
+
+// One container's share of a host over the whole window, for the "what is
+// using this host" list. Units follow the list it is in: CPU percent, memory
+// bytes, network and disk bytes per second (both directions added).
+message HostTopContainer {
+  string name = 1;
+  double avg = 2;
+  double peak = 3;
 }
 
 message HostMetricSeries {
   string host_id = 1;
   repeated HostMetricPoint points = 2;
+  // How many containers reported on this host inside the window.
+  int32 containers = 3;
+  // The heaviest containers on this host over the window, heaviest first, at
+  // most five per list. Across hosts the panel merges these, which is exact:
+  // the instance's top five are always inside the union of each host's. Only
+  // the list the request named in `top` is filled.
+  repeated HostTopContainer top_cpu = 4;
+  repeated HostTopContainer top_memory = 5;
+  repeated HostTopContainer top_network = 6;
+  repeated HostTopContainer top_disk = 7;
 }
 
 message GetHostMetricsResponse {

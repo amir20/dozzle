@@ -464,7 +464,6 @@ terminal:
   close-search: Luk søgning
 notifications:
   history:
-    title: Aktivitet
     loading: Indlæser aktivitet…
     failed: Kunne ikke indlæse aktivitet.
     empty: Intet er udløst nyligt.
@@ -481,7 +480,6 @@ notifications:
   add-destination: Tilføj destination
   alerts: Alarmer
   add-alert: Tilføj alarm
-  new-alerts: Nye advarsler
   prefill-name: Fejlalarmer
   prefill-expression: level == "error"
   add: Tilføj
@@ -679,9 +677,10 @@ cloud:
   title: Dozzle Cloud
   description: Styr dine containere eksternt og brug AI til at undersøge problemer på tværs af din klynge.
   pitch:
-    findings: Daglig AI-scanning af dine fejl og advarsler
-    alerts: Realtidsalarmer ved nedbrud og grænseværdier
-    control: Start, stop og inspicér containere hvor som helst
+    findings: Læser dine logs hver dag og fanger problemer, ingen regel opdager
+    alerts: Alarmer på telefon eller chat, gemt efter genindlæsning eller genstart
+    ask: Spørg om enhver container, inklusive historik
+    control: Genstart, opdater eller rul containere tilbage fra chat
   learn-more: Læs mere
   link-instance: Tilknyt instans
   relink-instance: Gentilknyt instans
@@ -689,11 +688,11 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Tilgængelig med Dozzle Cloud Pro
   plan: Plan
+  account: Konto
   usage: Begivenheder
   usage-agent-messages: Agent-chats
   usage-log-bytes: Indekseret data
   dashboard: Dashboard
-  settings: Indstillinger
   error: Forbindelsesfejl. Gentilknyt venligst din instans.
   error-unavailable: Dozzle Cloud er midlertidigt utilgængelig. Prøv igen senere.
   unlink: Fjern tilknytning
@@ -772,25 +771,69 @@ cloud:
       error: "Enhver error-linje"
 cloud-rail:
   title: Dozzle Cloud
-  chat: Spørg Dozzle
+  chat: Spørg
+  alerts-retention: "Dozzle Cloud gemmer {n} dags advarselshistorik. | Dozzle Cloud gemmer {n} dages advarselshistorik."
+  create-alert: Opret en advarselsregel
+  metrics-live: "Live fra denne browser, seneste {n} min. Cloud-historikken udfyldes, efterhånden som statistik kommer ind."
   metrics: Metrikker
   alerts: Advarsler
   hide: Skjul cloud-panelet
   show: Vis cloud-panelet
   alerts-empty-here: Intet er udløst for det, du kigger på.
-  all-activity: Al aktivitet
+  findings: Fund
+  scope: Hvad panelet handler om
+  scope-n: "{n} containere"
+  scope-all: Alle containere
+  scope-all-hosts: Alle værter
+  alert-rules: Advarselsregler
   metrics-no-container: Åbn en container for at se dens historik.
   metrics-loading: Indlæser historik…
   metrics-failed: Kunne ikke indlæse historikken.
-  metrics-empty: Intet registreret for dette vindue endnu.
   metrics-peak: top
   metrics-bucket: "{duration}-gennemsnit"
+  metrics-hosts-empty: Cloud har endnu ingen historik for disse værter. Den udfyldes, efterhånden som statistik kommer ind.
+  metrics-whole-host: Hele værten
+  metrics-containers-summed: "{n} containere lagt sammen"
+  metrics-cpu-avg-host: CPU · gns. vært
+  metrics-hosts: Værter
+  metrics-hot: CPU toppede over 90%
+  metrics-filter-hosts: "Filtrer {n} værter"
+  metrics-no-host-match: Ingen vært matcher.
+  metrics-show-all-hosts: "Vis alle {n} værter"
+  metrics-show-fewer: Vis færre
+  metrics-top: Topcontainere
+  metrics-top-empty: Intet rapporteret i dette tidsrum.
+  metrics-top-note: "Gennemsnit · top over {window}."
   window-1h: 1t
   window-6h: 6t
   window-24h: 24t
   window-7d: 7 d
+cloud-findings:
+  filter-new: Nye
+  filter-all: Alle
+  filter-ignored: Ignorerede
+  loading: Indlæser fund…
+  failed: Kunne ikke indlæse fund.
+  empty-new: Intet nyt bemærket i det, du kigger på.
+  empty-all: Ingen fund i det, du kigger på.
+  empty-ignored: Intet ignoreret her.
+  locked: Detaljerne kommer med din næste rapport
+  resolved: Løst
+  show-lines: Vis mig linjerne
+  ignore: Ignorer
+  unignore: Stop med at ignorere
+  investigate: Undersøg
+  ignored: Ignoreret. Det holdes ude af rapporter og mails.
+  undo: Fortryd
+  ignore-failed: Kunne ikke opdatere fundet.
+  truncated: Ikke alle fund vises her. Dozzle Cloud har resten.
+  next-review: "Næste gennemgang {when}, {time}"
+  last-review: "Sidst gennemgået {when}"
+  first-review: "Første gennemgang {when}, {time}"
+  first-review-hint: Ingen fund endnu. De vises her efter den første gennemgang.
+  empty-reviewed: "Intet bemærket på {name} i den seneste gennemgang."
 cloud-chat:
-  title: Spørg Dozzle
+  title: Spørg
   close: Luk
   clear: Ryd chatten
   empty: Spørg om det du kigger på. Assistenten kan se denne side og læse dine containeres logs.
@@ -862,7 +905,7 @@ cloud-chat:
   error-unavailable: Assistenten er ikke tilgængelig lige nu.
   error-not-configured: Dozzle Cloud er ikke tilknyttet, så der er ingen assistent at spørge.
   section-ask: Assistent
-  ask-for: Spørg Dozzle om {query}
+  ask-for: Spørg om {query}
   ask-hint: Svarer ud fra det, du kigger på
   ask-shortcut: for at spørge
   visual:
@@ -907,7 +950,7 @@ cloud-search:
   hero-title-cloud: "Søg containere, logs eller stil et spørgsmål"
   hero-title-plain: "Søg containere"
   hero-pill-indexed: "Cloud-indeks"
-  modal-placeholder-cloud: "Søg containere og logs…"
+  modal-placeholder-cloud: "Søg containere, logs eller spørg…"
   modal-placeholder-plain: "Søg containere…"
   container-removed: "Containeren er slettet"
   cta-settings: "Cloud-indstillinger"

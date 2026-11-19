@@ -464,7 +464,6 @@ terminal:
   close-search: 关闭搜索
 notifications:
   history:
-    title: 动态
     loading: 正在加载动态…
     failed: 无法加载动态。
     empty: 最近没有任何警报触发。
@@ -481,7 +480,6 @@ notifications:
   add-destination: 添加目标
   alerts: 警报
   add-alert: 添加警报
-  new-alerts: 有新告警
   prefill-name: 错误警报
   prefill-expression: level == "error"
   add: 添加
@@ -679,9 +677,10 @@ cloud:
   title: Dozzle Cloud
   description: 远程控制您的容器，并使用 AI 调查集群中的问题。
   pitch:
-    findings: 每日 AI 扫描您的错误和警告
-    alerts: 崩溃和阈值的实时告警
-    control: 随时随地启动、停止和检查容器
+    findings: 每天读取您的日志，发现规则抓不到的问题
+    alerts: 告警推送到手机或聊天，刷新或重启后仍保留
+    ask: 询问任意容器，包括历史记录
+    control: 在聊天中重启、更新或回滚容器
   learn-more: 了解更多
   link-instance: 关联实例
   relink-instance: 重新关联实例
@@ -689,11 +688,11 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Dozzle Cloud Pro 方案提供
   plan: 计划
+  account: 账户
   usage: 事件
   usage-agent-messages: 智能体对话
   usage-log-bytes: 已索引数据
   dashboard: 仪表盘
-  settings: 设置
   error: 连接错误。请重新关联您的实例。
   error-unavailable: Dozzle Cloud 暂时不可用，请稍后重试。
   unlink: 取消关联
@@ -772,25 +771,69 @@ cloud:
       error: "任何 error 行"
 cloud-rail:
   title: Dozzle Cloud
-  chat: 询问 Dozzle
+  chat: 提问
+  alerts-retention: "Dozzle Cloud 保留 {n} 天的告警历史。 | Dozzle Cloud 保留 {n} 天的告警历史。"
+  create-alert: 创建告警规则
+  metrics-live: "来自此浏览器的实时数据，最近 {n} 分钟。统计数据到达后，Cloud 历史会逐步补全。"
   metrics: 指标
   alerts: 告警
   hide: 隐藏云侧栏
   show: 显示云侧栏
   alerts-empty-here: 当前查看的内容没有触发过告警。
-  all-activity: 全部活动
+  findings: 调查结果
+  scope: 面板范围
+  scope-n: "{n} 个容器"
+  scope-all: 所有容器
+  scope-all-hosts: 所有主机
+  alert-rules: 告警规则
   metrics-no-container: 打开一个容器即可查看历史。
   metrics-loading: 正在加载历史…
   metrics-failed: 无法加载历史。
-  metrics-empty: 该时间段还没有记录。
   metrics-peak: 峰值
   metrics-bucket: "{duration} 平均值"
+  metrics-hosts-empty: Cloud 尚无这些主机的历史数据。统计数据到达后会逐步补全。
+  metrics-whole-host: 整个主机
+  metrics-containers-summed: "{n} 个容器合计"
+  metrics-cpu-avg-host: CPU · 主机平均
+  metrics-hosts: 主机
+  metrics-hot: CPU 峰值超过 90%
+  metrics-filter-hosts: "筛选 {n} 个主机"
+  metrics-no-host-match: 没有匹配的主机。
+  metrics-show-all-hosts: "显示全部 {n} 个主机"
+  metrics-show-fewer: 收起
+  metrics-top: 资源占用最高的容器
+  metrics-top-empty: 此时间段内无数据。
+  metrics-top-note: "{window} 内的平均值 · 峰值。"
   window-1h: 1 小时
   window-6h: 6 小时
   window-24h: 24 小时
   window-7d: 7 天
+cloud-findings:
+  filter-new: 新的
+  filter-all: 全部
+  filter-ignored: 已忽略
+  loading: 正在加载调查结果…
+  failed: 无法加载调查结果。
+  empty-new: 当前查看的内容没有新发现。
+  empty-all: 当前查看的内容没有调查结果。
+  empty-ignored: 这里没有已忽略的项目。
+  locked: 详情将随下一份报告送达
+  resolved: 已解决
+  show-lines: 显示相关日志行
+  ignore: 忽略
+  unignore: 取消忽略
+  investigate: 调查
+  ignored: 已忽略。它不会再出现在报告和邮件中。
+  undo: 撤销
+  ignore-failed: 无法更新该调查结果。
+  truncated: 这里并未列出所有调查结果，其余的在 Dozzle Cloud 中。
+  next-review: "下次审查：{when} {time}"
+  last-review: "上次审查：{when}"
+  first-review: "首次审查：{when} {time}"
+  first-review-hint: 暂无调查结果。首次审查完成后会显示在这里。
+  empty-reviewed: "上次审查未在 {name} 上发现任何问题。"
 cloud-chat:
-  title: 问 Dozzle
+  title: 提问
   close: 关闭
   clear: 清除对话
   empty: 就眼前看到的内容提问。助手能看到这个页面，也能读取你的容器日志。
@@ -862,7 +905,7 @@ cloud-chat:
   error-unavailable: 助手当前不可用。
   error-not-configured: 尚未连接 Dozzle Cloud，没有可以提问的助手。
   section-ask: 助手
-  ask-for: 就 {query} 问 Dozzle
+  ask-for: 就 {query} 提问
   ask-hint: 基于你正在查看的内容作答
   ask-shortcut: 提问
   visual:
@@ -907,7 +950,7 @@ cloud-search:
   hero-title-cloud: "搜索容器、日志或提个问题"
   hero-title-plain: "搜索容器"
   hero-pill-indexed: "Cloud 索引"
-  modal-placeholder-cloud: "搜索容器和日志…"
+  modal-placeholder-cloud: "搜索容器、日志或提问…"
   modal-placeholder-plain: "搜索容器…"
   container-removed: "容器已被删除"
   cta-settings: "Cloud 设置"

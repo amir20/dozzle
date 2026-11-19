@@ -4,11 +4,15 @@
     family as the dropdowns (neutral surface, hairline border, rounded-box)
     rather than a saturated block of color. Severity is carried by the icon
     color alone, which keeps the notice flat and the text at full contrast.
+
+    z-60 puts the layer over the cloud drawer (z-40, z-50 on a phone), which is
+    not a top-layer dialog: an Undo that fires from a panel has to land where
+    the reader can press it.
   -->
   <TransitionGroup
     tag="div"
     name="toast"
-    class="toast toast-end max-md:toast-center max-md:toast-bottom whitespace-normal max-md:w-full max-md:px-2"
+    class="toast toast-end max-md:toast-center max-md:toast-bottom z-60 whitespace-normal max-md:w-full max-md:px-2"
     :style="{
       paddingInlineEnd: railOffset ? `${railOffset}px` : undefined,
       bottom: aboveTabBar ? 'var(--mobile-tabbar-height)' : undefined,

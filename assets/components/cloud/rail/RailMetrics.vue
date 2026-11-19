@@ -31,8 +31,12 @@
       </div>
 
       <p v-if="loading" class="text-base-content/60 text-sm">{{ $t("cloud-rail.metrics-loading") }}</p>
-      <p v-else-if="failed" class="text-base-content/60 text-sm">{{ $t("cloud-rail.metrics-failed") }}</p>
-      <p v-else-if="!points.length" class="text-base-content/60 text-sm">{{ $t("cloud-rail.metrics-empty") }}</p>
+      <!-- Too little in Cloud to draw: the live window this browser already has,
+           until Cloud's history fills in. -->
+      <template v-else-if="points.length < MIN_CLOUD_POINTS">
+        <p v-if="failed" class="text-base-content/60 mb-4 text-sm">{{ $t("cloud-rail.metrics-failed") }}</p>
+        <RailLiveMetrics v-if="live" :key="live.id" :series="[live]" />
+      </template>
 
       <template v-else>
         <!-- One pointer for the whole stack: hovering any chart marks the same
@@ -50,8 +54,9 @@
           <!-- The window in one line, so the shape below has numbers to go with
                it without hovering. Meaningful half emphasised, the rest muted. -->
           <p class="text-base-content/40 mb-1 truncate font-mono text-xs tabular-nums" data-summary>
-            <span class="text-base-content/60 font-semibold">{{ chart.summary }}</span
-            >{{ chart.limit ? ` / ${chart.limit}` : "" }}
+            <span class="text-base-content/60 font-semibold">{{ chart.summary }}</span>{{
+              chart.limit ? ` / ${chart.limit}` : ""
+            }}
           </p>
           <!-- The chart is a button: a bar is a moment, and the logs at that
                moment are the one thing Dozzle can show that Cloud cannot. A bar
@@ -111,6 +116,7 @@ import type { BarDataPoint } from "@/components/ui/BarChart.vue";
 import type { CloudAlert } from "@/composable/cloud/cloudAlerts";
 import { mergeRecentDeploys, useRecentDeploys } from "@/composable/cloud/recentDeploys";
 import { updateKind, updateLabels } from "@/models/ContainerUpdate";
+import { containerLiveSeries, MIN_CLOUD_POINTS } from "@/composable/cloud/liveMetrics";
 
 // The max and rate fields are absent from an older cloud. A missing max falls back
 // to the average; a missing rate hides its chart rather than drawing zeros that
@@ -149,6 +155,9 @@ onMounted(() => (deploysReady = refreshCloudDeploys()));
 // in a 550px column reads as noise. The first in view is the one on screen.
 const containerId = computed(() => view.value.containers[0]?.id);
 const container = computed(() => (containerId.value ? store.allContainersById[containerId.value] : undefined));
+const live = computed(() =>
+  container.value ? containerLiveSeries(container.value, hosts.value[container.value.host]?.nCPU ?? 1) : undefined,
+);
 // Cloud keys these by name, and the host is half that identity, so the lookup
 // goes through the host route the rest of the container API uses.
 const source = computed(() =>

@@ -466,7 +466,6 @@ terminal:
   close-search: Zamknij wyszukiwanie
 notifications:
   history:
-    title: Aktywność
     loading: Wczytywanie aktywności…
     failed: Nie udało się wczytać aktywności.
     empty: Ostatnio nic się nie uruchomiło.
@@ -483,7 +482,6 @@ notifications:
   add-destination: Dodaj miejsce docelowe
   alerts: Alerty
   add-alert: Dodaj alert
-  new-alerts: Nowe alerty
   prefill-name: Alerty o błędach
   prefill-expression: level == "error"
   add: Dodaj
@@ -681,9 +679,10 @@ cloud:
   title: Dozzle Cloud
   description: Zarządzaj kontenerami zdalnie i wykorzystuj AI do badania problemów w całym klastrze.
   pitch:
-    findings: Codzienne skanowanie błędów i ostrzeżeń przez AI
-    alerts: Alerty w czasie rzeczywistym o awariach i przekroczeniach progów
-    control: Uruchamiaj, zatrzymuj i sprawdzaj kontenery z dowolnego miejsca
+    findings: Codziennie czyta logi i wskazuje problemy, których nie wykryje żadna reguła
+    alerts: Alerty na telefon lub czat, zachowane po odświeżeniu i restarcie
+    ask: Pytaj o dowolny kontener, także o jego historię
+    control: Restartuj, aktualizuj i przywracaj kontenery z czatu
   learn-more: Dowiedz się więcej
   link-instance: Połącz instancję
   relink-instance: Połącz ponownie instancję
@@ -691,11 +690,11 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Dostępne w Dozzle Cloud Pro
   plan: Plan
+  account: Konto
   usage: Zdarzenia
   usage-agent-messages: Czaty z agentem
   usage-log-bytes: Zaindeksowane dane
   dashboard: Panel
-  settings: Ustawienia
   error: Błąd połączenia. Połącz ponownie swoją instancję.
   error-unavailable: Dozzle Cloud jest chwilowo niedostępny. Spróbuj ponownie później.
   unlink: Rozłącz
@@ -774,25 +773,69 @@ cloud:
       error: "Dowolna linia error"
 cloud-rail:
   title: Dozzle Cloud
-  chat: Zapytaj Dozzle
+  chat: Zapytaj
+  alerts-retention: "Dozzle Cloud przechowuje historię alertów z {n} dnia. | Dozzle Cloud przechowuje historię alertów z {n} dni."
+  create-alert: Utwórz regułę alertu
+  metrics-live: "Na żywo z tej przeglądarki, ostatnie {n} min. Historia Cloud uzupełni się, gdy napłyną statystyki."
   metrics: Metryki
   alerts: Alerty
   hide: Ukryj pasek cloud
   show: Pokaż pasek cloud
   alerts-empty-here: Nic się nie uruchomiło dla tego, co oglądasz.
-  all-activity: Cała aktywność
+  findings: Ustalenia
+  scope: Czego dotyczy panel
+  scope-n: "Kontenery: {n}"
+  scope-all: Wszystkie kontenery
+  scope-all-hosts: Wszystkie hosty
+  alert-rules: Reguły alertów
   metrics-no-container: Otwórz kontener, aby zobaczyć jego historię.
   metrics-loading: Ładowanie historii…
   metrics-failed: Nie udało się wczytać historii.
-  metrics-empty: Nic jeszcze nie zapisano dla tego okna.
   metrics-peak: szczyt
   metrics-bucket: średnie z {duration}
+  metrics-hosts-empty: Cloud nie ma jeszcze historii dla tych hostów. Uzupełni się, gdy napłyną statystyki.
+  metrics-whole-host: Cały host
+  metrics-containers-summed: "Suma {n} kontenerów"
+  metrics-cpu-avg-host: CPU · śr. host
+  metrics-hosts: Hosty
+  metrics-hot: Szczyt CPU powyżej 90%
+  metrics-filter-hosts: "Filtruj hosty ({n})"
+  metrics-no-host-match: Żaden host nie pasuje.
+  metrics-show-all-hosts: "Pokaż wszystkie hosty ({n})"
+  metrics-show-fewer: Pokaż mniej
+  metrics-top: Najbardziej obciążone kontenery
+  metrics-top-empty: Brak danych w tym okresie.
+  metrics-top-note: "Średnia · szczyt w ciągu {window}."
   window-1h: 1 godz
   window-6h: 6 godz
   window-24h: 24 godz
   window-7d: 7 dni
+cloud-findings:
+  filter-new: Nowe
+  filter-all: Wszystkie
+  filter-ignored: Ignorowane
+  loading: Wczytywanie ustaleń…
+  failed: Nie udało się wczytać ustaleń.
+  empty-new: Nic nowego nie zauważono w tym, co oglądasz.
+  empty-all: Brak ustaleń dla tego, co oglądasz.
+  empty-ignored: Nic tu nie jest ignorowane.
+  locked: Szczegóły pojawią się w następnym raporcie
+  resolved: Rozwiązane
+  show-lines: Pokaż mi linie
+  ignore: Ignoruj
+  unignore: Przestań ignorować
+  investigate: Zbadaj
+  ignored: Zignorowano. Nie będzie pojawiać się w raportach ani mailach.
+  undo: Cofnij
+  ignore-failed: Nie udało się zaktualizować ustalenia.
+  truncated: Nie wszystkie ustalenia są tu wymienione. Resztę znajdziesz w Dozzle Cloud.
+  next-review: "Następny przegląd {when}, {time}"
+  last-review: "Ostatni przegląd {when}"
+  first-review: "Pierwszy przegląd {when}, {time}"
+  first-review-hint: Na razie brak ustaleń. Pojawią się tutaj po pierwszym przeglądzie.
+  empty-reviewed: "W ostatnim przeglądzie nie zauważono niczego w {name}."
 cloud-chat:
-  title: Zapytaj Dozzle
+  title: Zapytaj
   close: Zamknij
   clear: Wyczyść czat
   empty: Zapytaj o to, na co patrzysz. Asystent widzi tę stronę i może czytać logi twoich kontenerów.
@@ -864,7 +907,7 @@ cloud-chat:
   error-unavailable: Asystent jest teraz niedostępny.
   error-not-configured: Dozzle Cloud nie jest połączone, więc nie ma kogo zapytać.
   section-ask: Asystent
-  ask-for: Zapytaj Dozzle o {query}
+  ask-for: Zapytaj o {query}
   ask-hint: Odpowiada na podstawie tego, co oglądasz
   ask-shortcut: aby zapytać
   visual:
@@ -909,7 +952,7 @@ cloud-search:
   hero-title-cloud: "Szukaj kontenerów, logów lub zadaj pytanie"
   hero-title-plain: "Szukaj kontenerów"
   hero-pill-indexed: "Indeks Cloud"
-  modal-placeholder-cloud: "Szukaj kontenerów i logów…"
+  modal-placeholder-cloud: "Szukaj kontenerów, logów lub zapytaj…"
   modal-placeholder-plain: "Szukaj kontenerów…"
   container-removed: "Kontener został usunięty"
   cta-settings: "Ustawienia Cloud"
