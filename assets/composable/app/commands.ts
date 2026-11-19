@@ -1,5 +1,5 @@
 import { defineAsyncComponent, shallowReactive, type Component } from "vue";
-import { Container, powerAction } from "@/models/Container";
+import { Container, canRestart, powerAction } from "@/models/Container";
 import { canUpdate, isSelf, updatesVisible, useImageUpdates } from "@/composable/containers/imageUpdate";
 import { useDrawer } from "@/composable/app/drawer";
 import { useContainerActions } from "@/composable/containers/containerActions";
@@ -115,14 +115,16 @@ export function useContainerCommands(containerRef: Ref<Container | undefined>, o
     const name = container.name;
 
     if (actionsAllowedOn(container.host) && powerAction(container)) {
-      list.push({
-        id: "container.restart",
-        section: "container",
-        icon: carbonRestart,
-        title: title("command-palette.restart-container", "toolbar.restart", name),
-        keywords: "restart reboot",
-        perform: restart,
-      });
+      if (canRestart(container)) {
+        list.push({
+          id: "container.restart",
+          section: "container",
+          icon: carbonRestart,
+          title: title("command-palette.restart-container", "toolbar.restart", name),
+          keywords: "restart reboot",
+          perform: restart,
+        });
+      }
       // Kubernetes has no stop, start or image update for one container, only restart.
       if (config.mode !== "k8s") {
         const power = powerAction(container);
