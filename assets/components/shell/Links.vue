@@ -68,6 +68,19 @@
     </Dropdown>
 
     <CloudLinkPopover v-if="canLinkCloud && !cloudLinked" />
+    <!-- A phone has no rail, so once linked this is how Cloud is reached from any
+         page. It opens on alerts when one fired unseen, else where the reader left off. -->
+    <button
+      v-else-if="isMobile && railAvailable"
+      type="button"
+      class="btn btn-circle btn-sm relative"
+      :aria-label="$t('cloud.title')"
+      data-testid="cloud-open"
+      @click="openCloud(unseenAlerts)"
+    >
+      <mdi:cloud class="icon-float text-info size-6" />
+      <span v-if="unseenAlerts" class="bg-warning absolute end-1 top-1 size-1.5 rounded-full"></span>
+    </button>
   </div>
 </template>
 <script lang="ts" setup>
@@ -81,7 +94,8 @@ const hasSession = config.authProvider === "simple" || config.authProvider === "
 // The header is mounted on every page, phone or desktop, so it owns the polling
 // that keeps the rail's and the mobile sheet's unseen dot honest. Without a cloud
 // link there is nothing to remember and nothing to poll.
-const { fetchRecentAlerts, refreshRecentAlerts } = useRecentAlerts();
+const { unseen: unseenAlerts, fetchRecentAlerts, refreshRecentAlerts } = useRecentAlerts();
+const { available: railAvailable, openCloud } = useCloudRail();
 
 onMounted(() => fetchRecentAlerts());
 
