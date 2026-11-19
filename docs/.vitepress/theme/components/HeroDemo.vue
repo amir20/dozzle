@@ -277,6 +277,44 @@ const netTx = computed(() => rate(at(NET_SERIES, stat.value) * 3.2));
 const netRx = computed(() => rate(at(NET_SERIES, stat.value + 37) * 4.6));
 const diskRx = computed(() => rate(at(NET_SERIES, stat.value + 91) * 0.7));
 
+// The chart the chat answer draws: qbittorrent's memory over the last hour,
+// climbing into its limit and getting OOM killed three times. [x, MB] in a
+// 340-wide plot, hand-placed so the story reads at a glance.
+const MEM_LIMIT = 128;
+const PLOT_W = 340;
+const PLOT_H = 120;
+const MEM_POINTS: [number, number][] = [
+  [0, 72],
+  [24, 77],
+  [48, 81],
+  [72, 86],
+  [96, 92],
+  [120, 97],
+  [144, 102],
+  [168, 107],
+  [192, 112],
+  [216, 117],
+  [240, 122],
+  [258, 127],
+  [261, 128],
+  [263, 38],
+  [275, 74],
+  [287, 108],
+  [295, 128],
+  [297, 40],
+  [305, 82],
+  [315, 116],
+  [323, 128],
+  [325, 42],
+  [333, 70],
+  [340, 86],
+];
+const memY = (mb: number) => +(PLOT_H - (mb / 140) * PLOT_H).toFixed(1);
+const memLine = MEM_POINTS.map(([x, mb], i) => `${i ? "L" : "M"}${x} ${memY(mb)}`).join(" ");
+const memArea = `${memLine} L${PLOT_W} ${PLOT_H} L0 ${PLOT_H} Z`;
+const limitY = memY(MEM_LIMIT);
+const oomKills = MEM_POINTS.filter(([, mb]) => mb === MEM_LIMIT).map(([x]) => x);
+
 const list = ref<HTMLElement>();
 // The panel is the last thing to arrive, so the stream is what the eye lands on
 // first and the answer reads as something that happened rather than chrome that
@@ -452,23 +490,31 @@ const alt = "The Dozzle interface streaming container logs in real time";
 
           <div class="thread">
             <div class="ask">
-              <p>why does qbittorrent keep dropping?</p>
-              <div class="ctx"><i class="i i-eye" />media_sonarr.1 · last 30 min</div>
+              <p>why does qbittorrent keep dropping? chart its memory</p>
+              <div class="ctx"><i class="i i-eye" />media_sonarr.1 · last 60 min</div>
             </div>
 
             <div class="answer">
-              <p>
-                <b>media_qbittorrent.1</b> has failed its health check 3 times since 12:31 PM, and it is the same
-                failure each time.
-              </p>
-              <ul>
-                <li>
-                  Memory held at <b>122M</b> of its <b>128M</b> limit for the last hour, then the process was OOM killed
-                  and restarted.
-                </li>
-                <li>sonarr logged <b>connection refused</b> to 10.0.1.7:8080 fourteen times in the same window.</li>
-              </ul>
-              <p>Raising the memory limit, or capping the disk cache, stops the restarts.</p>
+              <div class="step"><i class="i i-chart" />Read memory stats · media_qbittorrent.1</div>
+              <p><b>media_qbittorrent.1</b> hit its <b>128M</b> limit and was OOM killed 3 times since 12:31 PM.</p>
+
+              <div class="mem-chart">
+                <div class="mem-head">
+                  <span>Memory</span>
+                  <span class="mem-legend"><i class="mem-dot" />OOM kill</span>
+                </div>
+                <svg :viewBox="`0 0 ${PLOT_W} ${PLOT_H}`" class="mem-plot">
+                  <line v-for="y in [30, 60, 90]" :key="y" x1="0" :x2="PLOT_W" :y1="y" :y2="y" class="mem-grid" />
+                  <path :d="memArea" class="mem-area" />
+                  <path :d="memLine" class="mem-line" pathLength="1" />
+                  <line x1="0" :x2="PLOT_W" :y1="limitY" :y2="limitY" class="mem-limit" />
+                  <text x="4" :y="limitY - 3" class="mem-limit-label">limit 128M</text>
+                  <circle v-for="x in oomKills" :key="x" :cx="x" :cy="limitY" r="3" class="mem-kill" />
+                </svg>
+                <div class="mem-axis"><span>11:45</span><span>12:05</span><span>12:25</span><span>12:45</span></div>
+              </div>
+
+              <p>Each restart refills faster than the last. Raising the limit, or capping the disk cache, stops it.</p>
               <span class="answer-action"><i class="i i-arrow-out" />Show me the lines</span>
             </div>
           </div>
@@ -1289,21 +1335,127 @@ const alt = "The Dozzle interface streaming container logs in real time";
 }
 
 .answer p + p,
-.answer ul + p,
-.answer ul {
+.mem-chart + p {
   margin-top: calc(9 * var(--u));
-}
-
-.answer ul {
-  display: flex;
-  flex-direction: column;
-  gap: calc(5 * var(--u));
-  padding-left: calc(14 * var(--u));
-  list-style: disc;
 }
 
 .answer b {
   font-weight: 600;
+}
+
+/* The tool call behind the answer, as the app's step rows show it. */
+.step {
+  display: flex;
+  align-items: center;
+  gap: calc(5 * var(--u));
+  margin-bottom: calc(8 * var(--u));
+  color: color-mix(in oklab, var(--content) 45%, transparent);
+  font-size: calc(11 * var(--u));
+}
+
+.step .i {
+  width: calc(11 * var(--u));
+  height: calc(11 * var(--u));
+}
+
+/* The chart the answer draws: a neutral panel, severity on the marks only. */
+.mem-chart {
+  margin-top: calc(10 * var(--u));
+  padding: calc(9 * var(--u)) calc(10 * var(--u)) calc(7 * var(--u));
+  border: 1px solid color-mix(in oklab, var(--content) 15%, transparent);
+  border-radius: calc(8 * var(--u));
+  background: color-mix(in oklab, var(--base-200) 40%, transparent);
+}
+
+.mem-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: calc(6 * var(--u));
+  font-size: calc(11 * var(--u));
+  font-weight: 600;
+}
+
+.mem-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(4 * var(--u));
+  color: color-mix(in oklab, var(--content) 45%, transparent);
+  font-weight: 400;
+}
+
+.mem-dot {
+  width: calc(6 * var(--u));
+  height: calc(6 * var(--u));
+  border-radius: 999px;
+  background: var(--red);
+}
+
+.mem-plot {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.mem-grid {
+  stroke: color-mix(in oklab, var(--content) 8%, transparent);
+  stroke-width: 1;
+}
+
+.mem-area {
+  fill: color-mix(in oklab, var(--primary) 14%, transparent);
+  opacity: 0;
+  transition: opacity 500ms ease 900ms;
+}
+
+/* Drawn in left to right once the panel has slid open. */
+.mem-line {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 1.75;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 1100ms cubic-bezier(0.22, 1, 0.36, 1) 400ms;
+}
+
+.panel.open .mem-line {
+  stroke-dashoffset: 0;
+}
+
+.panel.open .mem-area,
+.panel.open .mem-kill {
+  opacity: 1;
+}
+
+.mem-limit {
+  stroke: color-mix(in oklab, var(--red) 60%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+}
+
+.mem-limit-label {
+  fill: color-mix(in oklab, var(--red) 80%, transparent);
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, monospace;
+  font-size: 10px;
+}
+
+.mem-kill {
+  fill: var(--red);
+  stroke: var(--base-100);
+  stroke-width: 1.5;
+  opacity: 0;
+  transition: opacity 300ms ease 1300ms;
+}
+
+.mem-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: calc(4 * var(--u));
+  color: color-mix(in oklab, var(--content) 40%, transparent);
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, monospace;
+  font-size: calc(10 * var(--u));
 }
 
 /* Never a link out: driving the stream on screen to the window an answer
@@ -1468,7 +1620,10 @@ const alt = "The Dozzle interface streaming container logs in real time";
 
 @media (prefers-reduced-motion: reduce) {
   .chart i,
-  .panel {
+  .panel,
+  .mem-line,
+  .mem-area,
+  .mem-kill {
     transition: none;
   }
 }
