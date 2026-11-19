@@ -3,7 +3,7 @@ import { describe, expect, test, vi } from "vitest";
 vi.mock("@/stores/config", () => ({ __esModule: true, default: {}, withBase: (p: string) => p }));
 vi.mock("./cloudConfig", () => ({ useCloudConfig: () => ({ cloudConfig: { value: null } }) }));
 
-import { mergeRecentDeploys, type RecentDeploy } from "./recentDeploys";
+import { deployOf, mergeRecentDeploys, type RecentDeploy } from "./recentDeploys";
 
 const update = (newId: string, at: string, extra: Partial<RecentDeploy> = {}): RecentDeploy => ({
   host: "h1",
@@ -67,5 +67,58 @@ describe("mergeRecentDeploys", () => {
     const merged = mergeRecentDeploys([], cloud);
     expect(merged).toHaveLength(20);
     expect(merged[0].newId).toBe("c29");
+  });
+});
+
+describe("deployOf", () => {
+  const d = { host: "h1", name: "doligence_api.1" } as RecentDeploy;
+  test("matches by host and name", () => {
+    expect(deployOf(d, { host: "h1", name: "doligence_api.1" })).toBe(true);
+    expect(deployOf(d, { host: "h2", name: "doligence_api.1" })).toBe(false);
+    expect(deployOf(d, { host: "h1", name: "doligence_api.2" })).toBe(false);
+  });
+  test("matches a Swarm task by the name Cloud keys it with", () => {
+    expect(deployOf(d, { host: "h1", name: "doligence_api.1.g2nvqej3pqziln5h42ag2lz71" })).toBe(true);
+    expect(deployOf(d, { host: "h1", name: "doligence_api.1.short" })).toBe(false);
+  });
+});
+
+describe("mergeRecentDeploys with outside changes", () => {
+  test("an update Dozzle made but never pushed is listed once, as Dozzle's", () => {
+    const local = [
+      {
+        host: "h",
+        name: "web",
+        oldId: "w1",
+        newId: "w2",
+        imageRef: "nginx:1.27",
+        at: "2026-11-18T10:00:00Z",
+        source: "dozzle",
+      },
+    ];
+    const cloud: RecentDeploy[] = [
+      {
+        host: "h",
+        name: "web",
+        oldId: "",
+        newId: "w2",
+        imageRef: "nginx:1.27",
+        at: "2026-11-18T10:00:01Z",
+        source: "external",
+      },
+      {
+        host: "h",
+        name: "api",
+        oldId: "",
+        newId: "a2",
+        imageRef: "api:2",
+        at: "2026-11-18T09:00:00Z",
+        source: "external",
+      },
+    ];
+    expect(mergeRecentDeploys(local, cloud).map((d) => `${d.name}:${d.source}`)).toEqual([
+      "web:dozzle",
+      "api:external",
+    ]);
   });
 });

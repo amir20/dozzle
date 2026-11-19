@@ -672,5 +672,37 @@ onBeforeUnmount(() => {
   abortController?.abort();
 });
 
+// Opens itself, once per profile, when a link lands. Owned here rather than by a
+// header icon so it opens wherever the app shell is, rail or no rail.
+const cloudWelcomeShown = useProfileStorage("cloudWelcomeShown", false);
+const { requested } = useCloudWelcome();
+
+function showWelcome() {
+  if (cloudWelcomeShown.value) return;
+  cloudWelcomeShown.value = true;
+  nextTick(open);
+}
+
+// Handed over by the setup wizard once it closes. Immediate, because the wizard may
+// have closed before this component mounted.
+watch(
+  requested,
+  (value) => {
+    if (!value) return;
+    requested.value = false;
+    showWelcome();
+  },
+  { immediate: true },
+);
+
+onMounted(() => {
+  // Back from linking. When the wizard started the link it has already claimed the
+  // return (and dropped the hash); the pending check keeps that explicit.
+  if (window.location.hash === "#cloudLinked" && !cloudWelcomePending()) {
+    history.replaceState(history.state, "", window.location.pathname + window.location.search);
+    showWelcome();
+  }
+});
+
 defineExpose({ open });
 </script>

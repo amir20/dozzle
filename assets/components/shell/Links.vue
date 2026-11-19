@@ -3,25 +3,17 @@
     <slot name="more-items"></slot>
     <Announcements />
 
+    <!-- Always the rules and destinations. What fired lives in the cloud
+         drawer's Alerts panel, whose rail icon carries the unseen dot. -->
     <router-link
       v-if="config.enableNotifications"
-      :to="{ name: '/notifications', query: unseenAlerts ? { tab: 'activity' } : undefined }"
-      :aria-label="unseenAlerts ? $t('notifications.new-alerts') : $t('title.notifications')"
-      :title="unseenAlerts ? $t('notifications.new-alerts') : undefined"
+      :to="{ name: '/notifications' }"
+      :aria-label="$t('title.notifications')"
       data-testid="notifications"
-      class="btn btn-circle btn-sm relative max-md:hidden"
+      class="btn btn-circle btn-sm max-md:hidden"
     >
       <mdi:bell class="icon-ring size-6" />
-      <!-- Severity rides the dot, the button behind it stays neutral. Same mark
-           the container rows carry, so one glance across the app means the same
-           thing everywhere. -->
-      <span v-if="unseenAlerts" class="absolute end-1 top-1 flex size-1.5">
-        <span class="bg-warning absolute size-full rounded-full opacity-75 motion-safe:animate-ping"></span>
-        <span class="bg-warning relative size-full rounded-full"></span>
-      </span>
     </router-link>
-
-    <CloudPopover v-if="cloudSurfaceMounted" />
 
     <router-link
       :to="{ name: '/settings' }"
@@ -74,20 +66,37 @@
         </div>
       </template>
     </Dropdown>
+
+    <CloudLinkPopover v-if="canLinkCloud && !cloudLinked" />
+    <!-- A phone has no rail, so once linked this is how Cloud is reached from any
+         page. It opens on alerts when one fired unseen, else where the reader left off. -->
+    <button
+      v-else-if="isMobile && railAvailable"
+      type="button"
+      class="btn btn-circle btn-sm relative"
+      :aria-label="$t('cloud.title')"
+      data-testid="cloud-open"
+      @click="openCloud(unseenAlerts)"
+    >
+      <mdi:cloud class="icon-float text-info size-6" />
+      <span v-if="unseenAlerts" class="bg-warning absolute end-1 top-1 size-1.5 rounded-full"></span>
+    </button>
   </div>
 </template>
 <script lang="ts" setup>
-const { mounted: cloudSurfaceMounted } = useCloudSurface();
 const { logoutUrl } = config;
+const { canLink: canLinkCloud, linked: cloudLinked } = useCloudSurface();
 
 // simple and oidc hold a session cookie Dozzle issued, so logging out means
 // clearing it. Forward proxy has none: the logout URL is the whole logout there.
 const hasSession = config.authProvider === "simple" || config.authProvider === "oidc";
 
-// The bell is the only place that watches for a fire the reader has not seen, so
-// it owns the polling. Without a cloud link there is nothing to remember and
-// nothing to poll, and the page it opens lands on the rules like it always did.
+// The header owns the polling that keeps the rail's and the mobile sheet's
+// unseen dot honest on the pages that mount it (home, notifications, settings,
+// search). The log views do not, so the dot there is as fresh as the last of
+// those pages. Without a cloud link there is nothing to remember and nothing to poll.
 const { unseen: unseenAlerts, fetchRecentAlerts, refreshRecentAlerts } = useRecentAlerts();
+const { available: railAvailable, openCloud } = useCloudRail();
 
 onMounted(() => fetchRecentAlerts());
 

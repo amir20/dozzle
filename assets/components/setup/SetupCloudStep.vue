@@ -44,7 +44,7 @@ const { t } = useI18n();
 
 const cloudUrl = config.cloudUrl;
 
-// The same three things the cloud popover leads with, in the same order.
+// What Cloud gives you, told at the wizard's length. CloudPitch is the short form.
 const values = computed(() => [
   { key: "report", icon: MdiRobotOutline, title: t("setup.cloud.report-title"), body: t("setup.cloud.report-body") },
   { key: "alerts", icon: MdiBellRingOutline, title: t("setup.cloud.alerts-title"), body: t("setup.cloud.alerts-body") },
@@ -61,7 +61,7 @@ async function next(): Promise<SetupNextResult> {
   busy.value = true;
   writeSetupResume(nextStep ?? "restart");
   try {
-    // Same link flow as CloudPopover, tagged so Cloud can tell where the link came from.
+    // Same link flow as the cloud account panel, tagged so Cloud can tell where the link came from.
     await startCloudLink("setup");
   } catch {
     // Nothing left the page, so there is nothing to resume.

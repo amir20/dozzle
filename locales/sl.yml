@@ -469,13 +469,10 @@ terminal:
   close-search: Zapri iskanje
 notifications:
   history:
-    title: Dejavnost
     loading: Nalaganje dejavnosti…
     failed: Dejavnosti ni bilo mogoče naložiti.
     empty: Nedavno se ni sprožilo nič.
-    still-happening: še vedno se dogaja
     events: "{n} dogodkov"
-    suppressed: "· {n} zadržanih"
     show-lines: Pokaži mi vrstice
     show-moment: Pokaži dnevnike okoli
     open-in-cloud: Odpri v Dozzle Cloud
@@ -486,7 +483,6 @@ notifications:
   add-destination: Dodaj cilj
   alerts: Opozorila
   add-alert: Dodaj opozorilo
-  new-alerts: Nova opozorila
   prefill-name: Opozorila o napakah
   prefill-expression: level == "error"
   add: Dodaj
@@ -684,9 +680,10 @@ cloud:
   title: Dozzle Cloud
   description: Upravljajte svoje zabojnike na daljavo in uporabite UI za preiskovanje težav v vašem grozdu.
   pitch:
-    findings: Dnevni pregled vaših napak in opozoril z UI
-    alerts: Opozorila v realnem času ob sesutjih in preseženih pragovih
-    control: Zaženite, ustavite in preglejte zabojnike od koder koli
+    findings: Vsak dan prebere vaše dnevnike in označi težave, ki jih ne ujame nobeno pravilo
+    alerts: Opozorila na telefon ali v klepet, ohranjena po osvežitvi ali ponovnem zagonu
+    ask: Vprašajte o katerem koli vsebniku, vključno z zgodovino
+    control: Ponovno zaženite, posodobite ali povrnite vsebnike iz klepeta
   learn-more: Več o tem
   link-instance: Poveži instanco
   relink-instance: Ponovno poveži instanco
@@ -694,11 +691,11 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Na voljo z Dozzle Cloud Pro
   plan: Načrt
+  account: Račun
   usage: Dogodki
   usage-agent-messages: Klepeti z agentom
   usage-log-bytes: Indeksirani podatki
   dashboard: Nadzorna plošča
-  settings: Nastavitve
   error: Napaka povezave. Prosimo, ponovno povežite svojo instanco.
   error-unavailable: Dozzle Cloud je začasno nedosegljiv. Poskusite znova pozneje.
   unlink: Prekini povezavo
@@ -777,25 +774,79 @@ cloud:
       error: "Katerakoli vrstica error"
 cloud-rail:
   title: Dozzle Cloud
-  chat: Vprašaj Dozzle
+  chat: Vprašaj
+  alerts-retention: "Dozzle Cloud hrani zgodovino opozoril {n} dan. | Dozzle Cloud hrani zgodovino opozoril {n} dni."
+  create-alert: Ustvari pravilo opozorila
+  metrics-live: "V živo iz tega brskalnika, zadnjih {n} min. Zgodovina v Cloud se zapolni, ko prispe statistika."
   metrics: Meritve
   alerts: Opozorila
   hide: Skrij oblačno vrstico
   show: Pokaži oblačno vrstico
   alerts-empty-here: Za to, kar gledate, se ni sprožilo nič.
-  all-activity: Vsa dejavnost
+  alerts-chart: Kako pogosto so se vaša pravila ujemala
+  alerts-chart-scroll: Pokaži ta čas na seznamu
+  alerts-matches: "{n} ujemanje | {n} ujemanj"
+  alerts-happened: "Zgodilo se je enkrat | Zgodilo se je {n}-krat"
+  alerts-notified: "Obveščeni ste bili enkrat | Obveščeni ste bili {n}-krat"
+  alerts-notified-earlier: Obveščeni ste bili že prej
+  alerts-quiet: "Še {n} ujemanje v {containers}, nič novega za vas | Še {n} ujemanj v {containers}, nič novega za vas"
+  alerts-quiet-containers: "{n} vsebniku | {n} vsebnikih"
+  alerts-quiet-alone: "{n} ujemanje v {containers}, nič novega za vas | {n} ujemanj v {containers}, nič novega za vas"
+  alerts-partial: Tu niso navedena vsa ujemanja.
+  alerts-partial-chart: Tu niso navedena vsa ujemanja. Graf jih šteje vsa.
+  alerts-capped: Tu se šteje samo prvih {n} vsebnikov.
+  findings: Ugotovitve
+  scope: Na kaj se nanaša plošča
+  scope-n: "Vsebnikov: {n}"
+  scope-all: Vsi vsebniki
+  scope-all-hosts: Vsi gostitelji
+  alert-rules: Pravila opozoril
   metrics-no-container: Odprite vsebnik, da vidite njegovo zgodovino.
   metrics-loading: Nalagam zgodovino…
   metrics-failed: Zgodovine ni bilo mogoče naložiti.
-  metrics-empty: Za to obdobje še ni zapisov.
   metrics-peak: vrh
   metrics-bucket: povprečja po {duration}
+  metrics-hosts-empty: Cloud še nima zgodovine za te gostitelje. Zapolni se, ko prispe statistika.
+  metrics-whole-host: Celoten gostitelj
+  metrics-containers-summed: "{n} vsebnikov sešteto"
+  metrics-cpu-avg-host: CPU · povp. gostitelj
+  metrics-hosts: Gostitelji
+  metrics-hot: CPU je dosegel vrh nad 90 %
+  metrics-filter-hosts: "Filtriraj {n} gostiteljev"
+  metrics-no-host-match: Noben gostitelj se ne ujema.
+  metrics-show-all-hosts: "Prikaži vseh {n} gostiteljev"
+  metrics-show-fewer: Prikaži manj
+  metrics-top: Najzahtevnejši vsebniki
+  metrics-top-empty: V tem obdobju ni poročil.
+  metrics-top-note: "Povprečje · vrh v {window}."
   window-1h: 1 h
   window-6h: 6 h
   window-24h: 24 h
   window-7d: 7 d
+cloud-findings:
+  filter-new: Nove
+  filter-all: Vse
+  filter-ignored: Prezrte
+  loading: Nalaganje ugotovitev…
+  failed: Ugotovitev ni bilo mogoče naložiti.
+  empty-ignored: Tukaj ni nič prezrtega.
+  locked: Podrobnosti pridejo z vašim naslednjim poročilom
+  resolved: Razrešeno
+  show-lines: Pokaži mi vrstice
+  ignore: Prezri
+  unignore: Ne prezri več
+  investigate: Razišči
+  ignored: Prezrto. Ne bo se pojavljalo v poročilih in e-poštnih sporočilih.
+  undo: Razveljavi
+  ignore-failed: Ugotovitve ni bilo mogoče posodobiti.
+  truncated: Tu niso navedene vse ugotovitve. Ostale so v Dozzle Cloud.
+  next-review: "Naslednji pregled {when}, {time}"
+  last-review: "Zadnji pregled {when}"
+  first-review: "Prvi pregled {when}, {time}"
+  first-review-hint: Ugotovitev še ni. Tukaj se bodo prikazale po prvem pregledu.
+  empty-reviewed: "Pri zadnjem pregledu na {name} ni bilo opaženo nič."
 cloud-chat:
-  title: Vprašaj Dozzle
+  title: Vprašaj
   close: Zapri
   clear: Počisti klepet
   empty: Vprašaj o tem, kar gledaš. Pomočnik vidi to stran in bere dnevnike tvojih vsebnikov.
@@ -867,7 +918,7 @@ cloud-chat:
   error-unavailable: Pomočnik trenutno ni na voljo.
   error-not-configured: Dozzle Cloud ni povezan, zato ni pomočnika, ki bi ga vprašali.
   section-ask: Pomočnik
-  ask-for: Vprašaj Dozzle o {query}
+  ask-for: Vprašaj o {query}
   ask-hint: Odgovarja glede na to, kar gledaš
   ask-shortcut: za vprašanje
   visual:
@@ -912,7 +963,7 @@ cloud-search:
   hero-title-cloud: "Iščite vsebnike, dnevnike ali postavite vprašanje"
   hero-title-plain: "Iskanje vsebnikov"
   hero-pill-indexed: "Cloud indeks"
-  modal-placeholder-cloud: "Iskanje vsebnikov in dnevnikov…"
+  modal-placeholder-cloud: "Iščite vsebnike, dnevnike ali vprašajte…"
   modal-placeholder-plain: "Iskanje vsebnikov…"
   container-removed: "Vsebnik je bil izbrisan"
   cta-settings: "Nastavitve Cloud"

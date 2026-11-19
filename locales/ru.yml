@@ -464,13 +464,10 @@ terminal:
   close-search: Закрыть поиск
 notifications:
   history:
-    title: Активность
     loading: Загрузка активности…
     failed: Не удалось загрузить активность.
     empty: Недавно ничего не срабатывало.
-    still-happening: всё ещё происходит
     events: "{n} событий"
-    suppressed: "· {n} подавлено"
     show-lines: Показать строки
     show-moment: Показать логи вокруг
     open-in-cloud: Открыть в Dozzle Cloud
@@ -481,7 +478,6 @@ notifications:
   add-destination: Добавить назначение
   alerts: Оповещения
   add-alert: Добавить оповещение
-  new-alerts: Новые оповещения
   prefill-name: Оповещения об ошибках
   prefill-expression: level == "error"
   add: Добавить
@@ -679,9 +675,10 @@ cloud:
   title: Dozzle Cloud
   description: Управляйте контейнерами удалённо и используйте ИИ для расследования проблем в вашем кластере.
   pitch:
-    findings: Ежедневный ИИ-анализ ваших ошибок и предупреждений
-    alerts: Оповещения в реальном времени о сбоях и превышении порогов
-    control: Запускайте, останавливайте и проверяйте контейнеры откуда угодно
+    findings: Ежедневно читает логи и находит проблемы, которые не ловит ни одно правило
+    alerts: Оповещения на телефон или в чат, сохраняются после обновления и перезапуска
+    ask: Спрашивайте о любом контейнере, включая его историю
+    control: Перезапуск, обновление и откат контейнеров прямо из чата
   learn-more: Узнать больше
   link-instance: Привязать экземпляр
   relink-instance: Привязать повторно
@@ -689,11 +686,11 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Доступно в Dozzle Cloud Pro
   plan: План
+  account: Аккаунт
   usage: События
   usage-agent-messages: Чаты с агентом
   usage-log-bytes: Проиндексированные данные
   dashboard: Панель управления
-  settings: Настройки
   error: Ошибка подключения. Пожалуйста, привяжите экземпляр повторно.
   error-unavailable: Dozzle Cloud временно недоступен. Попробуйте позже.
   unlink: Отвязать
@@ -772,25 +769,79 @@ cloud:
       error: "Любая строка error"
 cloud-rail:
   title: Dozzle Cloud
-  chat: Спросить Dozzle
+  chat: Спросить
+  alerts-retention: "Dozzle Cloud хранит историю оповещений {n} день. | Dozzle Cloud хранит историю оповещений {n} дней."
+  create-alert: Создать правило оповещения
+  metrics-live: "В реальном времени из этого браузера, последние {n} мин. История Cloud заполнится по мере поступления статистики."
   metrics: Метрики
   alerts: Оповещения
   hide: Скрыть панель облака
   show: Показать панель облака
   alerts-empty-here: По тому, что вы смотрите, ничего не срабатывало.
-  all-activity: Вся активность
+  alerts-chart: Как часто срабатывали ваши правила
+  alerts-chart-scroll: Показать это время в списке
+  alerts-matches: "{n} совпадение | {n} совпадений"
+  alerts-happened: "Случилось один раз | Случилось {n} раз"
+  alerts-notified: "Вы получили одно уведомление | Вы получили {n} уведомлений"
+  alerts-notified-earlier: Вы уже получали уведомление раньше
+  alerts-quiet: "Ещё {n} совпадение в {containers}, ничего нового | Ещё {n} совпадений в {containers}, ничего нового"
+  alerts-quiet-containers: "{n} контейнере | {n} контейнерах"
+  alerts-quiet-alone: "{n} совпадение в {containers}, ничего нового | {n} совпадений в {containers}, ничего нового"
+  alerts-partial: Здесь показаны не все совпадения.
+  alerts-partial-chart: Здесь показаны не все совпадения. График учитывает их все.
+  alerts-capped: Здесь учитываются только первые {n} контейнеров.
+  findings: Находки
+  scope: К чему относится панель
+  scope-n: "Контейнеров: {n}"
+  scope-all: Все контейнеры
+  scope-all-hosts: Все хосты
+  alert-rules: Правила оповещений
   metrics-no-container: Откройте контейнер, чтобы увидеть его историю.
   metrics-loading: Загружаю историю…
   metrics-failed: Не удалось загрузить историю.
-  metrics-empty: За этот период данных ещё нет.
   metrics-peak: пик
   metrics-bucket: средние за {duration}
+  metrics-hosts-empty: У Cloud пока нет истории для этих хостов. Она заполнится по мере поступления статистики.
+  metrics-whole-host: Весь хост
+  metrics-containers-summed: "Суммарно контейнеров: {n}"
+  metrics-cpu-avg-host: CPU · сред. по хостам
+  metrics-hosts: Хосты
+  metrics-hot: Пик CPU превысил 90%
+  metrics-filter-hosts: "Фильтр хостов: {n}"
+  metrics-no-host-match: Нет подходящих хостов.
+  metrics-show-all-hosts: "Показать все хосты: {n}"
+  metrics-show-fewer: Показать меньше
+  metrics-top: Самые нагруженные контейнеры
+  metrics-top-empty: За этот период данных нет.
+  metrics-top-note: "Среднее · пик за {window}."
   window-1h: 1 ч
   window-6h: 6 ч
   window-24h: 24 ч
   window-7d: 7 д
+cloud-findings:
+  filter-new: Новые
+  filter-all: Все
+  filter-ignored: Игнорируемые
+  loading: Загрузка находок…
+  failed: Не удалось загрузить находки.
+  empty-ignored: Здесь ничего не игнорируется.
+  locked: Подробности появятся в следующем отчёте
+  resolved: Решено
+  show-lines: Показать строки
+  ignore: Игнорировать
+  unignore: Перестать игнорировать
+  investigate: Расследовать
+  ignored: Игнорируется. Не попадёт в отчёты и письма.
+  undo: Отменить
+  ignore-failed: Не удалось обновить находку.
+  truncated: Здесь показаны не все находки. Остальные есть в Dozzle Cloud.
+  next-review: "Следующая проверка {when}, {time}"
+  last-review: "Последняя проверка {when}"
+  first-review: "Первая проверка {when}, {time}"
+  first-review-hint: Находок пока нет. Они появятся здесь после первой проверки.
+  empty-reviewed: "При последней проверке в {name} ничего не замечено."
 cloud-chat:
-  title: Спросить Dozzle
+  title: Спросить
   close: Закрыть
   clear: Очистить чат
   empty: Спросите о том, что видите. Ассистент видит эту страницу и читает логи ваших контейнеров.
@@ -862,7 +913,7 @@ cloud-chat:
   error-unavailable: Ассистент сейчас недоступен.
   error-not-configured: Dozzle Cloud не подключён, спрашивать некого.
   section-ask: Ассистент
-  ask-for: Спросить Dozzle про {query}
+  ask-for: Спросить про {query}
   ask-hint: Отвечает по тому, что на экране
   ask-shortcut: чтобы спросить
   visual:
@@ -907,7 +958,7 @@ cloud-search:
   hero-title-cloud: "Ищите контейнеры, логи или задайте вопрос"
   hero-title-plain: "Поиск по контейнерам"
   hero-pill-indexed: "Индекс Cloud"
-  modal-placeholder-cloud: "Поиск по контейнерам и логам…"
+  modal-placeholder-cloud: "Ищите контейнеры, логи или спросите…"
   modal-placeholder-plain: "Поиск по контейнерам…"
   container-removed: "Контейнер был удалён"
   cta-settings: "Настройки Cloud"

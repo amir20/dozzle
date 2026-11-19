@@ -20,6 +20,9 @@ describe("shortDigest", () => {
 });
 
 describe("updateLabels", () => {
+  test("an update made outside Dozzle names only the image it started on", () => {
+    expect(updateLabels({ imageRef: "ghcr.io/x/api:v2", source: "external" })).toEqual({ from: "", to: "v2" });
+  });
   test("names the tag alone when no digest is known", () => {
     expect(updateLabels({ imageRef: "app:1.4" })).toEqual({ from: "1.4", to: "1.4" });
   });

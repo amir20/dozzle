@@ -136,11 +136,10 @@ export function useRecentAlerts() {
   /**
    * The same question asked of one set of containers.
    *
-   * A dot has to ask whatever its destination answers. The nav's bell opens the
-   * notifications page, which shows the instance, so it keeps `unseen`. The
-   * rail's bell opens a panel scoped to the view, so an instance-wide dot there
-   * promised rows the panel then filtered away, and the reader who followed it
-   * landed on "nothing has fired on what you're looking at".
+   * A dot has to ask whatever its destination answers. The rail's bell opens a
+   * panel scoped to the view, so an instance-wide dot there promised rows the
+   * panel then filtered away, and the reader who followed it landed on "nothing
+   * has fired on what you're looking at".
    *
    * An empty scope is a view with no containers of its own (home, settings),
    * where the panel shows the instance and so does the dot.

@@ -467,13 +467,10 @@ terminal:
   close-search: Aramayı kapat
 notifications:
   history:
-    title: Etkinlik
     loading: Etkinlik yükleniyor…
     failed: Etkinlik yüklenemedi.
     empty: Son zamanlarda hiçbir şey tetiklenmedi.
-    still-happening: hâlâ sürüyor
     events: "{n} olay"
-    suppressed: "· {n} bastırıldı"
     show-lines: Satırları göster
     show-moment: O andaki günlükleri göster
     open-in-cloud: Dozzle Cloud'da aç
@@ -484,7 +481,6 @@ notifications:
   add-destination: Hedef ekle
   alerts: Uyarılar
   add-alert: Uyarı ekle
-  new-alerts: Yeni uyarılar
   prefill-name: Hata uyarıları
   prefill-expression: level == "error"
   add: Ekle
@@ -682,9 +678,10 @@ cloud:
   title: Dozzle Cloud
   description: Konteynerlerinizi uzaktan kontrol edin ve kümenizde sorunları araştırmak için yapay zeka kullanın.
   pitch:
-    findings: Hatalarınızın ve uyarılarınızın günlük yapay zeka taraması
-    alerts: Çökmeler ve eşik aşımları için gerçek zamanlı uyarılar
-    control: Konteynerleri her yerden başlatın, durdurun ve inceleyin
+    findings: Günlüklerinizi her gün okur, hiçbir kuralın yakalamadığı sorunları bildirir
+    alerts: Telefonunuza veya sohbete uyarılar, yenileme ya da yeniden başlatmadan sonra da korunur
+    ask: Geçmiş dahil, herhangi bir konteyner hakkında soru sorun
+    control: Konteynerleri sohbetten yeniden başlatın, güncelleyin veya geri alın
   learn-more: Daha fazla bilgi
   link-instance: Örneği bağla
   relink-instance: Örneği yeniden bağla
@@ -692,11 +689,11 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Dozzle Cloud Pro ile kullanılabilir
   plan: Plan
+  account: Hesap
   usage: Olaylar
   usage-agent-messages: Aracı sohbetleri
   usage-log-bytes: Dizine eklenen veri
   dashboard: Pano
-  settings: Ayarlar
   error: Bağlantı hatası. Lütfen örneğinizi yeniden bağlayın.
   error-unavailable: Dozzle Cloud geçici olarak kullanılamıyor. Lütfen daha sonra tekrar deneyin.
   unlink: Bağlantıyı kaldır
@@ -775,25 +772,79 @@ cloud:
       error: "Herhangi bir error satırı"
 cloud-rail:
   title: Dozzle Cloud
-  chat: Dozzle'a sor
+  chat: Sor
+  alerts-retention: "Dozzle Cloud {n} günlük uyarı geçmişi tutar. | Dozzle Cloud {n} günlük uyarı geçmişi tutar."
+  create-alert: Uyarı kuralı oluştur
+  metrics-live: "Bu tarayıcıdan canlı, son {n} dk. Cloud geçmişi istatistikler geldikçe dolar."
   metrics: Metrikler
   alerts: Uyarılar
   hide: Cloud çubuğunu gizle
   show: Cloud çubuğunu göster
   alerts-empty-here: Baktığınız şey için hiçbir şey tetiklenmedi.
-  all-activity: Tüm etkinlik
+  alerts-chart: Kurallarınız ne sıklıkla eşleşti
+  alerts-chart-scroll: Bu zamanı listede göster
+  alerts-matches: "{n} eşleşme | {n} eşleşme"
+  alerts-happened: "Bir kez oldu | {n} kez oldu"
+  alerts-notified: "Bir kez bildirim aldınız | {n} kez bildirim aldınız"
+  alerts-notified-earlier: Daha önce bildirim aldınız
+  alerts-quiet: "{containers} üzerinde {n} eşleşme daha, size söylenecek yeni bir şey yok | {containers} üzerinde {n} eşleşme daha, size söylenecek yeni bir şey yok"
+  alerts-quiet-containers: "{n} konteyner | {n} konteyner"
+  alerts-quiet-alone: "{containers} üzerinde {n} eşleşme, size söylenecek yeni bir şey yok | {containers} üzerinde {n} eşleşme, size söylenecek yeni bir şey yok"
+  alerts-partial: Tüm eşleşmeler burada listelenmiyor.
+  alerts-partial-chart: Tüm eşleşmeler burada listelenmiyor. Grafik hepsini sayıyor.
+  alerts-capped: Burada yalnızca ilk {n} konteyner sayılıyor.
+  findings: Bulgular
+  scope: Panelin kapsamı
+  scope-n: "{n} konteyner"
+  scope-all: Tüm konteynerler
+  scope-all-hosts: Tüm ana bilgisayarlar
+  alert-rules: Uyarı kuralları
   metrics-no-container: Geçmişi görmek için bir konteyner açın.
   metrics-loading: Geçmiş yükleniyor…
   metrics-failed: Geçmiş yüklenemedi.
-  metrics-empty: Bu aralık için henüz kayıt yok.
   metrics-peak: tepe
   metrics-bucket: "{duration} ortalamaları"
+  metrics-hosts-empty: Cloud'da bu sunucular için henüz geçmiş yok. İstatistikler geldikçe dolar.
+  metrics-whole-host: Tüm sunucu
+  metrics-containers-summed: "{n} konteyner toplandı"
+  metrics-cpu-avg-host: CPU · ort. sunucu
+  metrics-hosts: Sunucular
+  metrics-hot: CPU %90'ın üzerinde tepe yaptı
+  metrics-filter-hosts: "{n} sunucuyu filtrele"
+  metrics-no-host-match: Eşleşen sunucu yok.
+  metrics-show-all-hosts: "{n} sunucunun tümünü göster"
+  metrics-show-fewer: Daha az göster
+  metrics-top: En yoğun konteynerler
+  metrics-top-empty: Bu aralıkta raporlanan bir şey yok.
+  metrics-top-note: "{window} boyunca ortalama · tepe."
   window-1h: 1 sa
   window-6h: 6 sa
   window-24h: 24 sa
   window-7d: 7 g
+cloud-findings:
+  filter-new: Yeni
+  filter-all: Tümü
+  filter-ignored: Yok sayılan
+  loading: Bulgular yükleniyor…
+  failed: Bulgular yüklenemedi.
+  empty-ignored: Burada yok sayılan bir şey yok.
+  locked: Ayrıntılar bir sonraki raporunuzla gelecek
+  resolved: Çözüldü
+  show-lines: Satırları göster
+  ignore: Yok say
+  unignore: Yok saymayı bırak
+  investigate: İncele
+  ignored: Yok sayıldı. Raporlara ve e-postalara dahil edilmeyecek.
+  undo: Geri al
+  ignore-failed: Bulgu güncellenemedi.
+  truncated: "Tüm bulgular burada listelenmiyor. Geri kalanı Dozzle Cloud'da."
+  next-review: "Sonraki inceleme {when}, {time}"
+  last-review: "Son inceleme {when}"
+  first-review: "İlk inceleme {when}, {time}"
+  first-review-hint: Henüz bulgu yok. İlk incelemeden sonra burada görünürler.
+  empty-reviewed: "Son incelemede {name} üzerinde bir şey fark edilmedi."
 cloud-chat:
-  title: Dozzle'a sor
+  title: Sor
   close: Kapat
   clear: Sohbeti temizle
   empty: Baktığın şeyi sor. Asistan bu sayfayı görebilir ve konteynerlerinin loglarını okuyabilir.
@@ -865,7 +916,7 @@ cloud-chat:
   error-unavailable: Asistan şu anda kullanılamıyor.
   error-not-configured: Dozzle Cloud bağlı değil, bu yüzden soru sorulacak bir asistan yok.
   section-ask: Asistan
-  ask-for: "{query} hakkında Dozzle'a sor"
+  ask-for: "{query} hakkında sor"
   ask-hint: Baktığın şeye göre yanıtlar
   ask-shortcut: sormak için
   visual:
@@ -910,7 +961,7 @@ cloud-search:
   hero-title-cloud: "Konteynerleri, logları ara veya bir soru sor"
   hero-title-plain: "Konteynerleri ara"
   hero-pill-indexed: "Cloud indeksi"
-  modal-placeholder-cloud: "Konteynerleri ve logları ara…"
+  modal-placeholder-cloud: "Konteyner, log ara veya sor…"
   modal-placeholder-plain: "Konteynerleri ara…"
   container-removed: "Konteyner silindi"
   cta-settings: "Cloud ayarları"

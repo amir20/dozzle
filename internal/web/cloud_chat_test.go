@@ -127,3 +127,22 @@ func Test_cloudChat_sendsAnOpaqueUserRef(t *testing.T) {
 	assert.Equal(t, refs[0], refs[1])
 	assert.NotEqual(t, refs[0], refs[2])
 }
+
+// Cloud draws a turn's pictures from instance-wide history, so a filtered user
+// gets the answer without them: a ranking or a run of log lines could name a
+// container outside the filter. Everyone else still gets them.
+func Test_cloudChat_dropsPicturesForAFilteredUser(t *testing.T) {
+	h := chatHandler(t, func(_ context.Context, _ string, _ cloud.ViewContext, _ string, _ cloud.Principal, emit func(cloud.ChatEvent)) error {
+		emit(cloud.ChatEvent{Kind: "done", Text: "prod uses the most memory", Visuals: []cloud.ChatVisual{
+			{Type: "container_ranking", Rows: []cloud.ChatVisualRankRow{{Container: "prod", Value: 900}}},
+		}})
+		return nil
+	})
+
+	filtered := postChat(h, realChatBody, auth.User{Username: "amir", Roles: auth.All, ContainerLabels: devLabels})
+	assert.Contains(t, filtered.Body.String(), "prod uses the most memory")
+	assert.NotContains(t, filtered.Body.String(), "container_ranking")
+
+	everyone := postChat(h, realChatBody, auth.User{Username: "admin", Roles: auth.All})
+	assert.Contains(t, everyone.Body.String(), "container_ranking")
+}

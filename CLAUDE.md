@@ -381,7 +381,7 @@ Plan decisions are computed server-side in Cloud and handed to Dozzle already de
 customer gets shown an upsell for what they already bought. Dozzle renders the gate it
 is given and branches on nothing beyond `isPro` for cosmetics.
 
-One upsell surface: `CloudPopover`. Everywhere else stays silent, per the design
+One upsell surface: the drawer's account panel (`cloud/rail/RailAccount.vue`). Everywhere else stays silent, per the design
 system's rule that `primary` is reserved for the single action a surface wants you to
 take — a findings drawer wants "Show me the lines", not "Upgrade".
 
@@ -475,7 +475,7 @@ rather than matching what is already there.
 - A panel keeps its shape across states. Loading, error and healthy branches of the same
   surface share the header, dividers and footer so nothing reshuffles when state changes.
 - The same concept looks the same everywhere. The cloud account panel is the same parts at
-  three widths: `CloudPopover.vue` (compact), `CloudSettingsCard.vue`, and
+  three widths: `rail/RailAccount.vue` (the drawer), `CloudSettingsCard.vue`, and
   `notifications/CloudDestinationForm.vue`. When a fourth surface needs it, extract a
   component instead of copying the classes.
 - Do not repeat the container's title inside its own content: a drawer header already names

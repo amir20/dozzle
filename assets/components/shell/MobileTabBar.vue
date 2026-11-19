@@ -51,19 +51,18 @@
         <mdi:format-list-bulleted class="size-6" />
         <span>{{ $t("mobile-nav.browse") }}</span>
       </button>
+      <!-- The rules and destinations, as on a desktop's bell. What fired lives
+           in the cloud sheet's Alerts panel. -->
       <router-link
         v-if="config.enableNotifications"
-        :to="{ name: '/notifications', query: unseenAlerts ? { tab: 'activity' } : undefined }"
-        class="tab-item relative"
+        :to="{ name: '/notifications' }"
+        class="tab-item"
         :class="{ active: active === 'notifications' }"
+        data-testid="notifications-tab"
         @click="browsing = false"
       >
         <mdi:bell-outline class="size-6" />
         <span>{{ $t("title.notifications") }}</span>
-        <span
-          v-if="unseenAlerts"
-          class="bg-warning absolute top-1.5 left-[calc(50%+0.5rem)] size-2 rounded-full"
-        ></span>
       </router-link>
       <router-link
         :to="{ name: '/settings' }"
@@ -94,7 +93,6 @@ defineEmits<{ search: [] }>();
 const route = useRoute();
 const browsing = ref(false);
 const compact = useCompactOnScroll();
-const { unseen: unseenAlerts } = useRecentAlerts();
 
 watch(
   () => route.fullPath,

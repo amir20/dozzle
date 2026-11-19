@@ -1,6 +1,12 @@
+import type { MaybeRefOrGetter } from "vue";
 import { collapseCloudRail } from "@/stores/settings";
+import { MAX_ASKED, useFindingsScope } from "@/composable/cloud/cloudFindings";
+import mdiLightbulbOnOutline from "~icons/mdi/lightbulb-on-outline";
+import mdiBellOutline from "~icons/mdi/bell-outline";
+import mdiMessageOutline from "~icons/mdi/message-outline";
+import mdiChartLine from "~icons/mdi/chart-line";
 
-export type RailPanel = "chat" | "metrics" | "alerts";
+export type RailPanel = "findings" | "alerts" | "chat" | "metrics" | "account";
 
 /**
  * Which cloud panel the drawer is showing, if any.
@@ -16,15 +22,16 @@ export type RailPanel = "chat" | "metrics" | "alerts";
  */
 const panel = ref<RailPanel>();
 
-/** The panel last opened, so a single "Cloud" entry point (a phone's toolbar
- *  menu, which has no room for three rows) lands where the reader left off. */
-const lastPanel = ref<RailPanel>("chat");
+/** The tab last opened, so a single "Cloud" entry point (a phone's toolbar
+ *  menu, which has no room for three rows) lands where the reader left off.
+ *  The account is not a tab, so it is never where that lands. */
+const lastPanel = ref<Exclude<RailPanel, "account">>("chat");
 /** The icon strip's width. Shared with the layout, which pads the page by it so
  *  the strip never sits over the logs. */
 export const RAIL_WIDTH = 48;
 
 watch(panel, (next) => {
-  if (next) lastPanel.value = next;
+  if (next && next !== "account") lastPanel.value = next;
   // Counted on the change, not on ChatPane mounting: the rail remounts with chat
   // still open when navigation leaves and returns to a log view.
   if (next === "chat") trackUsage("cloud.chat");
@@ -44,19 +51,47 @@ watch(panel, (next) => {
  */
 export function useViewAlerts() {
   const { alerts, unseenIn } = useRecentAlerts();
-  const view = useViewContext();
+  const { containers } = useCloudScope();
 
-  const ids = computed(() => new Set(view.value.containers.map((c) => c.id)));
+  // Widening the scope chip to every container empties this, which is the
+  // instance, exactly as on a page with no containers of its own.
+  const ids = computed(() => new Set(containers.value.map((c) => c.id)));
   const scoped = computed(() => ids.value.size > 0);
   const single = computed(() => ids.value.size === 1);
 
-  // On a view with no containers of its own (the home page, settings) there is
-  // nothing to scope to, so the panel shows the instance the way the page does.
-  const visible = computed(() =>
-    scoped.value ? alerts.value.filter((a) => ids.value.has(a.containerId)) : alerts.value,
-  );
+  // What the panel asks Cloud about: these containers, or with none on screen
+  // every container this instance knows, cut where Cloud's ask is. The dot
+  // counts the same list, so on a page with no containers of its own an alert
+  // past that cut does not light a dot the panel then has no row for.
+  const findingsScope = useFindingsScope();
+  const asked = computed(() => new Set(findingsScope.value.slice(0, MAX_ASKED).map((c) => c.id)));
+  const visible = computed(() => alerts.value.filter((a) => asked.value.has(a.containerId)));
 
-  return { visible, scoped, single, unseen: unseenIn(ids) };
+  return { visible, scoped, single, unseen: unseenIn(asked) };
+}
+
+/**
+ * The panels in the order every surface lists them: the rail's icons and the
+ * phone sheet's tab bar. What Cloud noticed comes first, then what your own
+ * rules raised, then the question you can ask, then the history.
+ */
+export function useRailItems(dots: MaybeRefOrGetter<boolean> = true) {
+  const { t } = useI18n();
+  const { unseen: unseenAlerts } = useViewAlerts();
+  // Asks Cloud once per scope, so only a surface that is showing the tabs asks.
+  const unseenFindings = useUnseenFindings(dots);
+
+  return computed(() => [
+    {
+      id: "findings" as const,
+      label: t("cloud-rail.findings"),
+      icon: mdiLightbulbOnOutline,
+      dot: unseenFindings.value,
+    },
+    { id: "alerts" as const, label: t("cloud-rail.alerts"), icon: mdiBellOutline, dot: unseenAlerts.value },
+    { id: "chat" as const, label: t("cloud-rail.chat"), icon: mdiMessageOutline, dot: false },
+    { id: "metrics" as const, label: t("cloud-rail.metrics"), icon: mdiChartLine, dot: false },
+  ]);
 }
 
 export function useCloudRail() {
@@ -72,11 +107,18 @@ export function useCloudRail() {
   // logs; the panels it opens live in the drawer. Hidden is a preference, and
   // the tab on the edge brings it back. A phone has no room for a permanent
   // strip, so there the drawer opens from the toolbar or the palette.
-  const mounted = computed(() => available.value && !isMobile.value && !collapseCloudRail.value);
-  const collapsed = computed(() => available.value && !isMobile.value && collapseCloudRail.value);
+  //
+  // The strip is also the drawer's tabs, so a panel opened while it is hidden
+  // (the bell, the palette, the chord) brings it back for as long as the panel
+  // is open. The page does not reflow for that: it sits under the backdrop.
+  const desktop = computed(() => available.value && !isMobile.value);
+  const mounted = computed(() => desktop.value && (!collapseCloudRail.value || !!panel.value));
+  const collapsed = computed(() => desktop.value && collapseCloudRail.value && !panel.value);
 
   /** What the page keeps clear on its right for the strip. */
-  const railOffset = computed(() => (mounted.value ? RAIL_WIDTH : 0));
+  const railOffset = computed(() => (desktop.value && !collapseCloudRail.value ? RAIL_WIDTH : 0));
+  /** Where the drawer's right edge sits: against the strip whenever it is on screen. */
+  const edgeOffset = computed(() => (mounted.value ? RAIL_WIDTH : 0));
 
   function hideRail() {
     collapseCloudRail.value = true;
@@ -110,6 +152,7 @@ export function useCloudRail() {
     mounted,
     collapsed,
     railOffset,
+    edgeOffset,
     openRail,
     openCloud,
     closeRail,

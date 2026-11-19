@@ -278,25 +278,79 @@ placeholder:
   search: 検索
 cloud-rail:
   title: Dozzle Cloud
-  chat: Dozzle に質問
+  chat: 質問
+  alerts-retention: "Dozzle Cloud はアラート履歴を {n} 日間保持します。 | Dozzle Cloud はアラート履歴を {n} 日間保持します。"
+  create-alert: アラートルールを作成
+  metrics-live: "このブラウザからのライブデータ（直近 {n} 分）。統計が届くにつれて Cloud の履歴が埋まります。"
   metrics: メトリクス
   alerts: アラート
   hide: クラウドレールを隠す
   show: クラウドレールを表示
   alerts-empty-here: 表示中の内容では何も発生していません。
-  all-activity: すべてのアクティビティ
+  alerts-chart: ルールが一致した頻度
+  alerts-chart-scroll: この時刻を一覧で表示
+  alerts-matches: "{n} 件の一致 | {n} 件の一致"
+  alerts-happened: "1 回発生 | {n} 回発生"
+  alerts-notified: "1 回通知しました | {n} 回通知しました"
+  alerts-notified-earlier: 以前に通知しました
+  alerts-quiet: "{containers}でさらに {n} 件一致、新しくお知らせすることはありません | {containers}でさらに {n} 件一致、新しくお知らせすることはありません"
+  alerts-quiet-containers: "{n} 個のコンテナ | {n} 個のコンテナ"
+  alerts-quiet-alone: "{containers}で {n} 件一致、新しくお知らせすることはありません | {containers}で {n} 件一致、新しくお知らせすることはありません"
+  alerts-partial: ここにはすべての一致が表示されているわけではありません。
+  alerts-partial-chart: ここにはすべての一致が表示されているわけではありません。グラフはすべてを数えています。
+  alerts-capped: ここでは最初の {n} 個のコンテナだけを数えています。
+  findings: 検出結果
+  scope: パネルの対象
+  scope-n: "{n} 個のコンテナ"
+  scope-all: すべてのコンテナ
+  scope-all-hosts: すべてのホスト
+  alert-rules: アラートルール
   metrics-no-container: コンテナを開くと履歴を表示します。
   metrics-loading: 履歴を読み込んでいます…
   metrics-failed: 履歴を読み込めませんでした。
-  metrics-empty: この期間の記録はまだありません。
   metrics-peak: ピーク
   metrics-bucket: "{duration} ごとの平均"
+  metrics-hosts-empty: これらのホストの履歴はまだ Cloud にありません。統計が届くにつれて埋まります。
+  metrics-whole-host: ホスト全体
+  metrics-containers-summed: "{n} 個のコンテナの合計"
+  metrics-cpu-avg-host: CPU · ホスト平均
+  metrics-hosts: ホスト
+  metrics-hot: CPU のピークが 90% を超えました
+  metrics-filter-hosts: "{n} 台のホストを絞り込む"
+  metrics-no-host-match: 一致するホストはありません。
+  metrics-show-all-hosts: "{n} 台のホストをすべて表示"
+  metrics-show-fewer: 表示を減らす
+  metrics-top: 上位のコンテナ
+  metrics-top-empty: この期間に報告されたものはありません。
+  metrics-top-note: "{window} の平均 · ピーク。"
   window-1h: 1 時間
   window-6h: 6 時間
   window-24h: 24 時間
   window-7d: 7 日
+cloud-findings:
+  filter-new: 新規
+  filter-all: すべて
+  filter-ignored: 無視中
+  loading: 検出結果を読み込んでいます…
+  failed: 検出結果を読み込めませんでした。
+  empty-ignored: 無視している項目はありません。
+  locked: 詳細は次回のレポートで届きます
+  resolved: 解決済み
+  show-lines: 該当行を表示
+  ignore: 無視
+  unignore: 無視を解除
+  investigate: 調査
+  ignored: 無視しました。レポートとメールには含まれません。
+  undo: 元に戻す
+  ignore-failed: 検出結果を更新できませんでした。
+  truncated: ここにはすべての検出結果が表示されているわけではありません。残りは Dozzle Cloud にあります。
+  next-review: "次回のレビュー: {when} {time}"
+  last-review: "最終レビュー: {when}"
+  first-review: "初回のレビュー: {when} {time}"
+  first-review-hint: まだ検出結果はありません。初回のレビュー後、ここに表示されます。
+  empty-reviewed: "前回のレビューでは {name} に問題は見つかりませんでした。"
 cloud-chat:
-  title: Dozzle に質問
+  title: 質問
   close: 閉じる
   clear: チャットをクリア
   empty: 表示中の内容について質問できます。アシスタントはこのページを見て、コンテナのログを読めます。
@@ -368,7 +422,7 @@ cloud-chat:
   error-unavailable: 現在アシスタントを利用できません。
   error-not-configured: Dozzle Cloud がリンクされていないため、質問できるアシスタントがありません。
   section-ask: アシスタント
-  ask-for: "{query} について Dozzle に質問"
+  ask-for: "{query} について質問"
   ask-hint: 表示中の内容をもとに回答します
   ask-shortcut: 質問する
   visual:
@@ -413,7 +467,7 @@ cloud-search:
   hero-title-cloud: コンテナやログを検索、または質問
   hero-title-plain: コンテナを検索
   hero-pill-indexed: Cloud インデックス
-  modal-placeholder-cloud: コンテナとログを検索…
+  modal-placeholder-cloud: コンテナやログを検索、または質問…
   modal-placeholder-plain: コンテナを検索…
   container-removed: コンテナは削除されました
   cta-settings: "Cloud 設定"
@@ -649,13 +703,10 @@ terminal:
   close-search: 検索を閉じる
 notifications:
   history:
-    title: アクティビティ
     loading: アクティビティを読み込んでいます…
     failed: アクティビティを読み込めませんでした。
     empty: 最近発生したものはありません。
-    still-happening: 継続中
     events: "{n} 件のイベント"
-    suppressed: "· {n} 件を抑制"
     show-lines: 該当する行を表示
     show-moment: 前後のログを表示
     open-in-cloud: Dozzle Cloud で開く
@@ -667,7 +718,6 @@ notifications:
   alerts: アラート
   add: 追加
   add-alert: アラートを追加
-  new-alerts: 新しいアラート
   prefill-name: エラーアラート
   prefill-expression: level == "error"
   default-alert-created: "デフォルトのアラートを作成しました。コンテナがエラーで終了すると通知されます。編集や一時停止はいつでもできます。"
@@ -864,9 +914,10 @@ cloud:
   title: Dozzle Cloud
   description: コンテナをリモートで操作し、AI でクラスタ全体の問題を調査できます。
   pitch:
-    findings: エラーと警告を毎日 AI がスキャン
-    alerts: クラッシュやしきい値超過をリアルタイムでアラート
-    control: どこからでもコンテナの開始、停止、調査が可能
+    findings: 毎日ログを読み、ルールでは拾えない問題を検出
+    alerts: スマホやチャットにアラート、リロードや再起動後も保持
+    ask: 履歴も含め、どのコンテナについても質問可能
+    control: チャットからコンテナを再起動、更新、ロールバック
   learn-more: 詳しく見る
   link-instance: インスタンスをリンク
   relink-instance: インスタンスを再リンク
@@ -874,11 +925,11 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Dozzle Cloud Pro で利用できます
   plan: プラン
+  account: アカウント
   usage: イベント
   usage-agent-messages: エージェントとのチャット
   usage-log-bytes: インデックス済みデータ
   dashboard: ダッシュボード
-  settings: 設定
   error: 接続エラーです。インスタンスを再リンクしてください。
   error-unavailable: Dozzle Cloud は一時的に利用できません。しばらくしてからもう一度お試しください。
   unlink: リンクを解除

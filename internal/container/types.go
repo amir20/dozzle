@@ -404,6 +404,11 @@ var (
 	// dev.dozzle.update=check: it is updated outside Dozzle. The UI never
 	// offers one, so the text is not translated.
 	ErrCheckOnly = errors.New("labelled dev.dozzle.update=check, update it outside Dozzle")
+	// ErrSwarmTask refuses a start or restart of a swarm task container. Swarm
+	// replaces a task whose container stops, so starting the old one again
+	// leaves a duplicate the orchestrator no longer manages (#5679). Stop is
+	// fine. The UI never offers either, so the text is not translated.
+	ErrSwarmTask = errors.New("swarm manages this container, restart the service instead")
 	// ErrRollbackUnsupported is returned where a rollback cannot run: a swarm
 	// service, Kubernetes, Dozzle's own container.
 	ErrRollbackUnsupported = errors.New("rollback is not supported")

@@ -145,7 +145,7 @@ func Test_cloudSearchLogs_drops_out_of_scope_hits(t *testing.T) {
 func Test_cloudAlerts_filters_requested_containers(t *testing.T) {
 	h := restrictedHandler(t)
 	var asked []string
-	h.config.Cloud.GetAlerts = func(ctx context.Context, containerIDs []string, hostID string, fromNs, toNs int64, limit int32, includeFollowUps, includeEvents bool) (*cloud.AlertResult, error) {
+	h.config.Cloud.GetAlerts = func(ctx context.Context, containerIDs []string, hostID string, fromNs, toNs int64, limit int32, includeFollowUps, includeEvents bool, buckets int32) (*cloud.AlertResult, error) {
 		asked = containerIDs
 		return &cloud.AlertResult{Hits: []cloud.AlertHit{}}, nil
 	}
@@ -160,7 +160,7 @@ func Test_cloudAlerts_filters_requested_containers(t *testing.T) {
 func Test_cloudAlerts_all_out_of_scope_returns_empty(t *testing.T) {
 	h := restrictedHandler(t)
 	called := false
-	h.config.Cloud.GetAlerts = func(ctx context.Context, containerIDs []string, hostID string, fromNs, toNs int64, limit int32, includeFollowUps, includeEvents bool) (*cloud.AlertResult, error) {
+	h.config.Cloud.GetAlerts = func(ctx context.Context, containerIDs []string, hostID string, fromNs, toNs int64, limit int32, includeFollowUps, includeEvents bool, buckets int32) (*cloud.AlertResult, error) {
 		called = true
 		return &cloud.AlertResult{Hits: []cloud.AlertHit{{AlertID: "leak"}}}, nil
 	}

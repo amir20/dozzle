@@ -115,7 +115,7 @@ type CloudHooks struct {
 	// GetAlerts fetches the alerts that fired on a set of containers inside a
 	// time window, so the log viewer can merge them into the stream on
 	// scrollback. Nil when cloud is not wired.
-	GetAlerts func(ctx context.Context, containerIDs []string, hostID string, fromNs, toNs int64, limit int32, includeFollowUps, includeEvents bool) (*cloud.AlertResult, error)
+	GetAlerts func(ctx context.Context, containerIDs []string, hostID string, fromNs, toNs int64, limit int32, includeFollowUps, includeEvents bool, buckets int32) (*cloud.AlertResult, error)
 
 	// GetRecentAlerts fetches what fired lately across the instance, for the
 	// notifications page and the container dot. Nil when cloud is not wired.
@@ -123,6 +123,12 @@ type CloudHooks struct {
 	// GetRecentDeploys fetches the container updates Cloud recorded lately, with
 	// its verdict on each, for the megaphone. Nil when cloud is not wired.
 	GetRecentDeploys func(ctx context.Context, sinceNs int64, limit int32) ([]cloud.RecentDeploy, error)
+	// GetFindings asks what Cloud's scheduled review found about containers,
+	// by name. Nil when cloud is not wired.
+	GetFindings func(ctx context.Context, containerNames []string, status string, ignored bool, limit int32) (*cloud.FindingsResult, error)
+	// IgnoreFinding ignores one finding account-wide, or undoes that. Nil when
+	// cloud is not wired.
+	IgnoreFinding func(ctx context.Context, findingID string, undo bool) (*cloud.Finding, error)
 	// GetPatternContext asks Cloud's error memory about the lines on screen:
 	// whether each one's pattern is new for its container, or louder than usual.
 	GetPatternContext func(ctx context.Context, lines []cloud.PatternLine, fromNs, toNs int64) ([]cloud.PatternContext, error)
@@ -133,7 +139,7 @@ type CloudHooks struct {
 	GetContainerMetrics func(ctx context.Context, containerName, hostID string, sinceNs, untilNs int64, buckets int32) (*cloud.MetricResult, error)
 	// GetHostMetrics reads back the same stats summed per host, for every host
 	// on the instance. Nil when cloud is not wired.
-	GetHostMetrics func(ctx context.Context, sinceNs, untilNs int64, buckets int32) (*cloud.HostMetricResult, error)
+	GetHostMetrics func(ctx context.Context, q cloud.HostMetricsQuery) (*cloud.HostMetricResult, error)
 
 	// Chat runs one assistant turn. The handler passes the principal it
 	// resolved from the request, so cloud's tool calls for that turn execute
@@ -411,6 +417,7 @@ func createRouter(h *handler) *chi.Mux {
 					r.Get("/alerts", h.cloudAlerts)
 					r.Get("/alerts/recent", h.cloudRecentAlerts)
 					r.Get("/deploys/recent", h.cloudRecentDeploys)
+					r.Get("/findings", h.cloudFindings)
 					r.Post("/patterns", h.cloudPatterns)
 					r.Get("/hosts/{host}/containers/{id}/metrics", h.cloudContainerMetrics)
 					r.Get("/metrics/hosts", h.cloudHostMetrics)
@@ -423,6 +430,10 @@ func createRouter(h *handler) *chi.Mux {
 					// different cloud account for everyone on the instance.
 					r.With(h.requireCloudRole).Patch("/config", h.updateCloudConfig)
 					r.With(h.requireCloudRole).Delete("/config", h.deleteCloudConfig)
+					// Ignoring a finding silences it in Cloud's reports and emails for
+					// the whole account. The handler also refuses a filtered user.
+					r.With(h.requireCloudRole).Post("/findings/{id}/ignore", h.ignoreCloudFinding)
+					r.With(h.requireCloudRole).Delete("/findings/{id}/ignore", h.ignoreCloudFinding)
 					// Linking is a round trip through Dozzle Cloud. /link mints the
 					// state the callback demands back, so a cross-site navigation
 					// carrying the session cookie cannot link the instance to an

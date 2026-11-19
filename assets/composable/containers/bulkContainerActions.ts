@@ -18,7 +18,8 @@ export function bulkPlan(containers: Container[], action: BulkAction): BulkPlan 
   if (action === "start") {
     return { action, targets: containers.filter((c) => powerAction(c) === "start"), skippedSelf: false };
   }
-  const running = containers.filter((c) => c.state === "running");
+  // A swarm task takes a stop, but never a restart: see canRestart.
+  const running = containers.filter((c) => c.state === "running" && (action === "stop" || !c.isSwarm));
   const targets = running.filter((c) => !servesThisPage(c));
   const skippedSelf = targets.length < running.length;
   return { action, targets, skippedSelf };

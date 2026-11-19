@@ -21,10 +21,16 @@ import (
 // the logs without alerts than to hold the scroll waiting for them.
 const cloudAlertsTimeout = 1500 * time.Millisecond
 
-// maxAlertContainers mirrors Cloud's own cap. The viewer sends the containers
-// currently on screen, which is a handful even in a merged multi-container
-// view, so anything larger is a misbehaving client.
+// maxAlertContainers mirrors Cloud's own cap. The log viewer sends the
+// containers on screen, a handful even in a merged view, but the cloud rail
+// asks about every container on the instance. Past the cap only the first
+// ones, in request order, are looked up and the answer is marked truncated,
+// the same as /api/cloud/findings.
 const maxAlertContainers = 100
+
+// maxAlertBuckets mirrors Cloud's cap on chart buckets. A week at one bar per
+// hour is 168, so this leaves room without letting a client ask for thousands.
+const maxAlertBuckets = 200
 
 // cloudAlerts proxies an alert-history lookup to Doligence Cloud over the
 // existing authenticated gRPC connection, so the log viewer can merge alerts
@@ -38,8 +44,8 @@ const maxAlertContainers = 100
 //
 // Status mapping:
 //
-//	200 — hits returned (may be empty)
-//	400 — malformed window or an oversized container list
+//	200 — hits returned (may be empty; truncated past maxAlertContainers)
+//	400 — malformed window
 //	503 — cloud not configured (no API key) or no GetAlerts func wired
 //	504 — cloud round-trip exceeded the timeout
 //	502 — any other cloud-side error
@@ -80,9 +86,9 @@ func (h *handler) cloudAlerts(w http.ResponseWriter, r *http.Request) {
 		containerIDs = allowed
 	}
 
-	if len(containerIDs) > maxAlertContainers {
-		writeError(w, http.StatusBadRequest, "too many containerIds")
-		return
+	capped := len(containerIDs) > maxAlertContainers
+	if capped {
+		containerIDs = containerIDs[:maxAlertContainers]
 	}
 
 	from, err := strconv.ParseInt(q.Get("from"), 10, 64)
@@ -108,10 +114,19 @@ func (h *handler) cloudAlerts(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Buckets are opt-in, like events. Anything unparseable or non-positive
+	// asks for none; anything over the cap is clamped to it.
+	var buckets int32
+	if v := q.Get("buckets"); v != "" {
+		if n, err := strconv.ParseInt(v, 10, 32); err == nil && n > 0 {
+			buckets = int32(min(n, maxAlertBuckets))
+		}
+	}
+
 	ctx, cancel := context.WithTimeout(r.Context(), cloudAlertsTimeout)
 	defer cancel()
 
-	result, err := h.config.Cloud.GetAlerts(ctx, containerIDs, q.Get("hostId"), from, to, limit, q.Get("followUps") == "1", q.Get("events") == "1")
+	result, err := h.config.Cloud.GetAlerts(ctx, containerIDs, q.Get("hostId"), from, to, limit, q.Get("followUps") == "1", q.Get("events") == "1", buckets)
 	if err != nil {
 		if errors.Is(err, cloud.ErrNotConfigured) {
 			writeError(w, http.StatusServiceUnavailable, "cloud not configured")
@@ -129,6 +144,7 @@ func (h *handler) cloudAlerts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	result.Truncated = result.Truncated || capped
 	writeAlerts(w, result)
 }
 

@@ -464,13 +464,10 @@ terminal:
   close-search: Fermer la recherche
 notifications:
   history:
-    title: Activité
     loading: Chargement de l'activité…
     failed: Impossible de charger l'activité.
     empty: Rien ne s'est déclenché récemment.
-    still-happening: toujours en cours
     events: "{n} événements"
-    suppressed: "· {n} supprimés"
     show-lines: Montre-moi les lignes
     show-moment: Voir les logs autour
     open-in-cloud: Ouvrir dans Dozzle Cloud
@@ -481,7 +478,6 @@ notifications:
   add-destination: Ajouter une destination
   alerts: Alertes
   add-alert: Ajouter une alerte
-  new-alerts: Nouvelles alertes
   prefill-name: Alertes d'erreur
   prefill-expression: level == "error"
   add: Ajouter
@@ -679,9 +675,10 @@ cloud:
   title: Dozzle Cloud
   description: Contrôlez vos conteneurs à distance et utilisez l'IA pour examiner les problèmes dans votre cluster.
   pitch:
-    findings: Analyse quotidienne par IA de vos erreurs et avertissements
-    alerts: Alertes en temps réel pour les pannes et les seuils
-    control: Démarrez, arrêtez et inspectez vos conteneurs où que vous soyez
+    findings: Analyse vos logs chaque jour et signale ce qu'aucune règle ne détecte
+    alerts: Alertes sur votre téléphone ou chat, conservées après rechargement ou redémarrage
+    ask: Posez vos questions sur un conteneur, historique compris
+    control: Redémarrez, mettez à jour ou restaurez vos conteneurs depuis le chat
   learn-more: En savoir plus
   link-instance: Lier l'instance
   relink-instance: Relier l'instance
@@ -689,11 +686,11 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Disponible avec Dozzle Cloud Pro
   plan: Plan
+  account: Compte
   usage: Événements
   usage-agent-messages: Discussions avec l'agent
   usage-log-bytes: Données indexées
   dashboard: Tableau de bord
-  settings: Paramètres
   error: Erreur de connexion. Veuillez relier votre instance.
   error-unavailable: Dozzle Cloud est temporairement indisponible. Veuillez réessayer plus tard.
   unlink: Délier
@@ -772,25 +769,79 @@ cloud:
       error: "Toute ligne error"
 cloud-rail:
   title: Dozzle Cloud
-  chat: Demander à Dozzle
+  chat: Demander
+  alerts-retention: "Dozzle Cloud conserve {n} jour d'historique des alertes. | Dozzle Cloud conserve {n} jours d'historique des alertes."
+  create-alert: Créer une règle d'alerte
+  metrics-live: "En direct depuis ce navigateur, dernières {n} min. L'historique Cloud se remplit à mesure que les statistiques arrivent."
   metrics: Métriques
   alerts: Alertes
   hide: Masquer la barre cloud
   show: Afficher la barre cloud
   alerts-empty-here: Rien ne s'est déclenché sur ce que vous regardez.
-  all-activity: Toute l'activité
+  alerts-chart: À quelle fréquence vos règles se sont déclenchées
+  alerts-chart-scroll: Afficher ce moment dans la liste
+  alerts-matches: "{n} correspondance | {n} correspondances"
+  alerts-happened: "Arrivé une fois | Arrivé {n} fois"
+  alerts-notified: "Vous avez été prévenu une fois | Vous avez été prévenu {n} fois"
+  alerts-notified-earlier: Vous avez déjà été prévenu
+  alerts-quiet: "{n} autre correspondance sur {containers}, rien de nouveau à vous signaler | {n} autres correspondances sur {containers}, rien de nouveau à vous signaler"
+  alerts-quiet-containers: "{n} conteneur | {n} conteneurs"
+  alerts-quiet-alone: "{n} correspondance sur {containers}, rien de nouveau à vous signaler | {n} correspondances sur {containers}, rien de nouveau à vous signaler"
+  alerts-partial: Toutes les correspondances ne sont pas listées ici.
+  alerts-partial-chart: Toutes les correspondances ne sont pas listées ici. Le graphique les compte toutes.
+  alerts-capped: Seuls les {n} premiers conteneurs sont comptés ici.
+  findings: Constats
+  scope: Ce que couvre le panneau
+  scope-n: "{n} conteneurs"
+  scope-all: Tous les conteneurs
+  scope-all-hosts: Tous les hôtes
+  alert-rules: Règles d'alerte
   metrics-no-container: Ouvrez un conteneur pour voir son historique.
   metrics-loading: Chargement de l'historique…
   metrics-failed: Impossible de charger l'historique.
-  metrics-empty: Rien d'enregistré pour cette période.
   metrics-peak: pic
   metrics-bucket: moyennes sur {duration}
+  metrics-hosts-empty: Cloud n'a pas encore d'historique pour ces hôtes. Il se remplit à mesure que les statistiques arrivent.
+  metrics-whole-host: Hôte entier
+  metrics-containers-summed: "{n} conteneurs additionnés"
+  metrics-cpu-avg-host: CPU · moy. par hôte
+  metrics-hosts: Hôtes
+  metrics-hot: Pic de CPU au-dessus de 90 %
+  metrics-filter-hosts: "Filtrer {n} hôtes"
+  metrics-no-host-match: Aucun hôte ne correspond.
+  metrics-show-all-hosts: "Afficher les {n} hôtes"
+  metrics-show-fewer: Afficher moins
+  metrics-top: Conteneurs les plus actifs
+  metrics-top-empty: Rien de signalé sur cette période.
+  metrics-top-note: "Moyenne · pic sur {window}."
   window-1h: 1 h
   window-6h: 6 h
   window-24h: 24 h
   window-7d: 7 j
+cloud-findings:
+  filter-new: Nouveaux
+  filter-all: Tous
+  filter-ignored: Ignorés
+  loading: Chargement des constats…
+  failed: Impossible de charger les constats.
+  empty-ignored: Rien d'ignoré ici.
+  locked: Les détails arriveront avec votre prochain rapport
+  resolved: Résolu
+  show-lines: Montrez-moi les lignes
+  ignore: Ignorer
+  unignore: Ne plus ignorer
+  investigate: Investiguer
+  ignored: Ignoré. Il n'apparaîtra plus dans les rapports ni les e-mails.
+  undo: Annuler
+  ignore-failed: Impossible de mettre à jour le constat.
+  truncated: Tous les constats ne sont pas listés ici. Dozzle Cloud a le reste.
+  next-review: "Prochaine analyse {when}, {time}"
+  last-review: "Dernière analyse {when}"
+  first-review: "Première analyse {when}, {time}"
+  first-review-hint: Aucun constat pour l'instant. Ils apparaîtront ici après la première analyse.
+  empty-reviewed: "Rien relevé sur {name} lors de la dernière analyse."
 cloud-chat:
-  title: Demander à Dozzle
+  title: Demander
   close: Fermer
   clear: Effacer la conversation
   empty: Posez une question sur ce que vous regardez. L'assistant voit cette page et peut lire les logs de vos conteneurs.
@@ -862,7 +913,7 @@ cloud-chat:
   error-unavailable: L'assistant n'est pas disponible pour le moment.
   error-not-configured: Dozzle Cloud n'est pas lié, il n'y a donc aucun assistant à interroger.
   section-ask: Assistant
-  ask-for: Demander à Dozzle à propos de {query}
+  ask-for: Demander à propos de {query}
   ask-hint: Répond à partir de ce que vous consultez
   ask-shortcut: pour demander
   visual:
@@ -907,7 +958,7 @@ cloud-search:
   hero-title-cloud: "Rechercher des conteneurs, des logs ou poser une question"
   hero-title-plain: "Rechercher des conteneurs"
   hero-pill-indexed: "Index Cloud"
-  modal-placeholder-cloud: "Rechercher conteneurs et logs…"
+  modal-placeholder-cloud: "Rechercher conteneurs, logs ou poser une question…"
   modal-placeholder-plain: "Rechercher des conteneurs…"
   container-removed: "Le conteneur a été supprimé"
   cta-settings: "Paramètres Cloud"

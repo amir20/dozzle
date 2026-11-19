@@ -466,13 +466,10 @@ terminal:
   close-search: 關閉搜尋
 notifications:
   history:
-    title: 動態
     loading: 正在載入動態…
     failed: 無法載入動態。
     empty: 最近沒有任何警報觸發。
-    still-happening: 仍在持續
     events: "{n} 個事件"
-    suppressed: "· 已抑制 {n} 個"
     show-lines: 查看對應日誌
     show-moment: 查看前後日誌
     open-in-cloud: 在 Dozzle Cloud 中開啟
@@ -483,7 +480,6 @@ notifications:
   add-destination: 新增目標
   alerts: 警報
   add-alert: 新增警報
-  new-alerts: 有新警報
   prefill-name: 錯誤警報
   prefill-expression: level == "error"
   add: 新增
@@ -681,9 +677,10 @@ cloud:
   title: Dozzle Cloud
   description: 遠端控制您的容器，並使用 AI 調查叢集中的問題。
   pitch:
-    findings: 每日 AI 掃描您的錯誤與警告
-    alerts: 當機與門檻的即時警報
-    control: 隨時隨地啟動、停止與檢查容器
+    findings: 每天閱讀您的日誌，找出任何規則都抓不到的問題
+    alerts: 警報直送手機或聊天工具，重新整理或重新啟動後依然保留
+    ask: 詢問任何容器的狀況，包含歷史紀錄
+    control: 在聊天中重新啟動、更新或復原容器
   learn-more: 瞭解更多
   link-instance: 連結實例
   relink-instance: 重新連結實例
@@ -691,11 +688,11 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Dozzle Cloud Pro 方案提供
   plan: 方案
+  account: 帳戶
   usage: 事件
   usage-agent-messages: 智慧代理對話
   usage-log-bytes: 已索引資料
   dashboard: 儀表板
-  settings: 設定
   error: 連線錯誤。請重新連結您的實例。
   error-unavailable: Dozzle Cloud 暫時無法使用，請稍後再試。
   unlink: 取消連結
@@ -774,25 +771,79 @@ cloud:
       error: "任何 error 行"
 cloud-rail:
   title: Dozzle Cloud
-  chat: 詢問 Dozzle
+  chat: 提問
+  alerts-retention: "Dozzle Cloud 保留 {n} 天的警報歷史。 | Dozzle Cloud 保留 {n} 天的警報歷史。"
+  create-alert: 建立警報規則
+  metrics-live: "來自此瀏覽器的即時資料，最近 {n} 分鐘。統計資料到達後，Cloud 歷史會逐步補齊。"
   metrics: 指標
   alerts: 警報
   hide: 隱藏雲端側欄
   show: 顯示雲端側欄
   alerts-empty-here: 目前檢視的內容沒有觸發過警報。
-  all-activity: 全部活動
+  alerts-chart: 規則比對到的頻率
+  alerts-chart-scroll: 在清單中顯示這個時間
+  alerts-matches: "{n} 次比對 | {n} 次比對"
+  alerts-happened: "發生了 1 次 | 發生了 {n} 次"
+  alerts-notified: "已通知你 1 次 | 已通知你 {n} 次"
+  alerts-notified-earlier: 之前已通知過你
+  alerts-quiet: "{containers}上又比對到 {n} 次，沒有新狀況 | {containers}上又比對到 {n} 次，沒有新狀況"
+  alerts-quiet-containers: "{n} 個容器 | {n} 個容器"
+  alerts-quiet-alone: "{containers}上比對到 {n} 次，沒有新狀況 | {containers}上比對到 {n} 次，沒有新狀況"
+  alerts-partial: 這裡並未列出所有比對。
+  alerts-partial-chart: 這裡並未列出所有比對，圖表則全部計入。
+  alerts-capped: 這裡只計入前 {n} 個容器。
+  findings: 調查結果
+  scope: 面板範圍
+  scope-n: "{n} 個容器"
+  scope-all: 所有容器
+  scope-all-hosts: 所有主機
+  alert-rules: 警報規則
   metrics-no-container: 開啟一個容器即可檢視歷史。
   metrics-loading: 正在載入歷史…
   metrics-failed: 無法載入歷史。
-  metrics-empty: 該時間範圍還沒有記錄。
   metrics-peak: 峰值
   metrics-bucket: "{duration} 平均值"
+  metrics-hosts-empty: Cloud 尚無這些主機的歷史資料。統計資料到達後會逐步補齊。
+  metrics-whole-host: 整台主機
+  metrics-containers-summed: "{n} 個容器加總"
+  metrics-cpu-avg-host: CPU · 主機平均
+  metrics-hosts: 主機
+  metrics-hot: CPU 峰值超過 90%
+  metrics-filter-hosts: "篩選 {n} 台主機"
+  metrics-no-host-match: 沒有符合的主機。
+  metrics-show-all-hosts: "顯示全部 {n} 台主機"
+  metrics-show-fewer: 顯示較少
+  metrics-top: 熱門容器
+  metrics-top-empty: 此時段內沒有回報資料。
+  metrics-top-note: "{window} 內的平均 · 峰值。"
   window-1h: 1 小時
   window-6h: 6 小時
   window-24h: 24 小時
   window-7d: 7 天
+cloud-findings:
+  filter-new: 新的
+  filter-all: 全部
+  filter-ignored: 已忽略
+  loading: 正在載入調查結果…
+  failed: 無法載入調查結果。
+  empty-ignored: 這裡沒有已忽略的項目。
+  locked: 詳細資訊將隨下一份報告送達
+  resolved: 已解決
+  show-lines: 顯示相關記錄行
+  ignore: 忽略
+  unignore: 取消忽略
+  investigate: 調查
+  ignored: 已忽略。它不會再出現在報告和電子郵件中。
+  undo: 復原
+  ignore-failed: 無法更新該調查結果。
+  truncated: 這裡並未列出所有調查結果，其餘的在 Dozzle Cloud 中。
+  next-review: "下次審查：{when} {time}"
+  last-review: "上次審查：{when}"
+  first-review: "首次審查：{when} {time}"
+  first-review-hint: 目前還沒有調查結果。首次審查完成後會顯示在這裡。
+  empty-reviewed: "上次審查未在 {name} 上發現任何問題。"
 cloud-chat:
-  title: 問 Dozzle
+  title: 提問
   close: 關閉
   clear: 清除對話
   empty: 就眼前看到的內容提問。助手能看到這個頁面，也能讀取你的容器日誌。
@@ -864,7 +915,7 @@ cloud-chat:
   error-unavailable: 助理目前無法使用。
   error-not-configured: 尚未連結 Dozzle Cloud，沒有可以提問的助理。
   section-ask: 助手
-  ask-for: 就 {query} 問 Dozzle
+  ask-for: 就 {query} 提問
   ask-hint: 根據你正在查看的內容作答
   ask-shortcut: 提問
   visual:
@@ -909,7 +960,7 @@ cloud-search:
   hero-title-cloud: "搜尋容器、日誌或提個問題"
   hero-title-plain: "搜尋容器"
   hero-pill-indexed: "Cloud 索引"
-  modal-placeholder-cloud: "搜尋容器和日誌…"
+  modal-placeholder-cloud: "搜尋容器、日誌或提問…"
   modal-placeholder-plain: "搜尋容器…"
   container-removed: "容器已被刪除"
   cta-settings: "Cloud 設定"

@@ -40,6 +40,22 @@ service CloudToolService {
   // see.
   rpc GetRecentDeploys(GetRecentDeploysRequest) returns (GetRecentDeploysResponse);
 
+  // Dozzle-initiated unary call: what Cloud's scheduled log review found about
+  // the containers on screen. A finding records container NAMES only (the
+  // evidence the review cited, plus the container behind each of its log
+  // patterns), never a container id or host, so Dozzle resolves what it shows
+  // to names first, which is also where it checks the caller may see them.
+  // Scoped server-side to the (user_id, api_key_id) on the connection. A Cloud
+  // without this RPC answers Unimplemented.
+  rpc GetFindings(GetFindingsRequest) returns (GetFindingsResponse);
+
+  // Dozzle-initiated unary call: ignore one finding, or take that back. The
+  // review keeps tracking it; no report, email or worklist raises it again.
+  // Account-wide state, so Dozzle only lets an unfiltered user with the cloud
+  // role call it. Cloud refuses a finding that belongs to another instance of
+  // the same account with NotFound, the same answer as an unknown id.
+  rpc IgnoreFinding(IgnoreFindingRequest) returns (IgnoreFindingResponse);
+
   // Dozzle-initiated unary call: what Cloud remembers about the error and
   // warn lines on screen. Dozzle names each line by (container_id, log_id);
   // Cloud finds the line in the logs it was streamed, groups it into its
@@ -321,6 +337,86 @@ message RecentDeploy {
   DeployHit verdict = 2;
 }
 
+message GetFindingsRequest {
+  // The containers to ask about, by name as Dozzle knows them. Cloud
+  // normalises Swarm task names itself (containers.ShortName) and compares
+  // case-insensitively. Empty returns no findings (there is no whole-instance
+  // mode, the findings list lives in Cloud) but still the review schedule. Server-capped at 100, like GetAlerts.
+  repeated string container_names = 1;
+  // Which list. "open" is open and ongoing (Cloud's "needs attention"), ""
+  // is every status, "resolved" only resolved. Ignored findings are left out
+  // unless ignored is set, and then only ignored ones come back.
+  string status = 2;
+  bool ignored = 3;
+  // Result cap after matching. Default 20, server-capped at 50.
+  int32 limit = 4;
+}
+
+message GetFindingsResponse {
+  repeated Finding findings = 1;
+  // The viewer's plan withholds the fix. Decided in Cloud
+  // (findings.FixLocked); Dozzle renders it, never infers it from an empty fix.
+  bool fix_locked = 2;
+  // More findings matched than the limit, or the instance had more than Cloud
+  // scans per call.
+  bool truncated = 3;
+  // When Cloud's last scheduled log review of this instance ran, unix
+  // nanoseconds. 0 when the instance was never reviewed.
+  int64 last_scan_at_ns = 4;
+  // When Cloud's next scheduled log review of this instance runs, unix
+  // nanoseconds. Instance-level, so it comes back even for empty
+  // container_names.
+  int64 next_scan_at_ns = 5;
+}
+
+// One finding from the scheduled log review.
+message Finding {
+  // Opaque, sqids-encoded. Never a raw row id.
+  string finding_id = 1;
+  // high, medium or low.
+  string severity = 2;
+  // open, ongoing or resolved.
+  string status = 3;
+  // The review has not shown this finding to the user (a throttled report held
+  // it back). headline, why and fix are then empty: they are the diagnosis the
+  // plan withholds, so Cloud never sends them.
+  bool locked = 4;
+  string headline = 5;
+  string why = 6;
+  // Empty when locked, when fix_locked, or when the review wrote none.
+  string fix = 7;
+  // Which of the requested container_names this finding is about, as Dozzle
+  // sent them, so it can map them back to the containers on screen.
+  repeated string container_names = 8;
+  // Distinct review windows it has appeared in ("4th morning running").
+  int32 days_open = 9;
+  // When the reviews first and last saw it (scan times), unix nanoseconds.
+  int64 first_seen_at_ns = 10;
+  int64 last_seen_at_ns = 11;
+  // 0 unless resolved.
+  int64 resolved_at_ns = 12;
+  // Oldest and newest log line behind the finding, unix nanoseconds: the
+  // window "Show me the lines" opens. 0 when the review did not record them
+  // (findings older than that column, retro and config findings).
+  int64 log_first_at_ns = 13;
+  int64 log_last_at_ns = 14;
+  // 0 unless ignored.
+  int64 ignored_at_ns = 15;
+  // The finding's page in Dozzle Cloud.
+  string url = 16;
+}
+
+message IgnoreFindingRequest {
+  string finding_id = 1;
+  // Take an ignore back. Default false means ignore, so a missing field can
+  // never un-ignore something.
+  bool undo = 2;
+}
+
+message IgnoreFindingResponse {
+  Finding finding = 1;
+}
+
 message GetContainerMetricsRequest {
   // Name and host, not the container id: cloud stores these samples keyed by
   // name so a redeploy continues the same line instead of stranding the old
@@ -373,6 +469,12 @@ message GetHostMetricsRequest {
   int64 until_ts_ns = 2;
   // How many points to return per host, as for GetContainerMetricsRequest.
   int32 buckets = 3;
+  // Which top-container list to compute: "cpu", "memory", "network" or "disk".
+  // Empty for none. The panel shows one list at a time, so it asks for one.
+  string top = 4;
+  // Only that list: no points and no container count. Switching the list's
+  // metric needs nothing else, so the charts are not read again.
+  bool top_only = 5;
 }
 
 message HostMetricPoint {
@@ -383,11 +485,42 @@ message HostMetricPoint {
   double cpu = 2;
   // The sum of the host's containers' memory, bytes.
   int64 memory_usage = 3;
+  // The highest the host's sum reached inside the bucket, next to the averages
+  // above, for the same reason ContainerMetricPoint carries them. Optional so an
+  // older cloud reads as "no max", not as 0.
+  optional double cpu_max = 4;
+  optional int64 memory_usage_max = 5;
+  // Bytes per second over the bucket, summed across the host's containers, from
+  // the same counters as ContainerMetricPoint. Optional so an older cloud hides
+  // the charts rather than drawing a flat line that reads as "no traffic".
+  optional double network_rx_rate = 6;
+  optional double network_tx_rate = 7;
+  optional double disk_read_rate = 8;
+  optional double disk_write_rate = 9;
+}
+
+// One container's share of a host over the whole window, for the "what is
+// using this host" list. Units follow the list it is in: CPU percent, memory
+// bytes, network and disk bytes per second (both directions added).
+message HostTopContainer {
+  string name = 1;
+  double avg = 2;
+  double peak = 3;
 }
 
 message HostMetricSeries {
   string host_id = 1;
   repeated HostMetricPoint points = 2;
+  // How many containers reported on this host inside the window.
+  int32 containers = 3;
+  // The heaviest containers on this host over the window, heaviest first, at
+  // most five per list. Across hosts the panel merges these, which is exact:
+  // the instance's top five are always inside the union of each host's. Only
+  // the list the request named in `top` is filled.
+  repeated HostTopContainer top_cpu = 4;
+  repeated HostTopContainer top_memory = 5;
+  repeated HostTopContainer top_network = 6;
+  repeated HostTopContainer top_disk = 7;
 }
 
 message GetHostMetricsResponse {
@@ -944,6 +1077,12 @@ message GetAlertsRequest {
   // alerts they were aggregated into. An alert means a notification was
   // delivered; an event on its own may have been held back.
   bool include_events = 7;
+  // When > 0, also return per-bucket totals over [from_ts_ns, to_ts_ns] split
+  // into this many equal buckets, so a chart's match counts stay exact past
+  // the event cap.
+  // Server-capped (200). 0 = no buckets. An older Cloud ignores it and returns
+  // none.
+  int32 buckets = 8;
 }
 
 message AlertHit {
@@ -1120,4 +1259,22 @@ message GetAlertsResponse {
   // "more alerts in this range" affordance rather than paginating — unlike
   // log search, scrollback windows are already small and bounded.
   bool truncated = 2;
+  // Populated only when buckets > 0, oldest first, one per requested bucket
+  // (empty buckets included). An older Cloud returns none.
+  repeated AlertBucket buckets = 4;
+}
+
+// One equal slice of the requested window. matched is always exact, unlike
+// events, which stop at Cloud's cap. notified is exact while the window holds
+// at most a few thousand matches; past that Cloud may undercount it and sets
+// truncated on the response. Cloud may also shorten a very wide window, so
+// the first bucket's start_ts_ns, not from_ts_ns, is where the chart begins.
+message AlertBucket {
+  // Start of the bucket, unix nanoseconds. The bucket runs to the next one's
+  // start, or to_ts_ns for the last.
+  int64 start_ts_ns = 1;
+  // Matched events in the bucket for the requested containers.
+  int32 matched = 2;
+  // Alerts that sent a notification whose anchor falls in the bucket.
+  int32 notified = 3;
 }

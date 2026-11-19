@@ -277,25 +277,79 @@ placeholder:
   search: Buscar
 cloud-rail:
   title: Dozzle Cloud
-  chat: Preguntar a Dozzle
+  chat: Preguntar
+  alerts-retention: "Dozzle Cloud guarda {n} día de historial de alertas. | Dozzle Cloud guarda {n} días de historial de alertas."
+  create-alert: Crear una regla de alerta
+  metrics-live: "En vivo desde este navegador, últimos {n} min. El historial de Cloud se completa a medida que llegan las estadísticas."
   metrics: Métricas
   alerts: Alertas
   hide: Ocultar la barra de cloud
   show: Mostrar la barra de cloud
   alerts-empty-here: No se ha disparado nada en lo que estás viendo.
-  all-activity: Toda la actividad
+  alerts-chart: Con qué frecuencia coincidieron tus reglas
+  alerts-chart-scroll: Mostrar este momento en la lista
+  alerts-matches: "{n} coincidencia | {n} coincidencias"
+  alerts-happened: "Pasó una vez | Pasó {n} veces"
+  alerts-notified: "Se te avisó una vez | Se te avisó {n} veces"
+  alerts-notified-earlier: Ya se te avisó antes
+  alerts-quiet: "{n} coincidencia más en {containers}, nada nuevo que contarte | {n} coincidencias más en {containers}, nada nuevo que contarte"
+  alerts-quiet-containers: "{n} contenedor | {n} contenedores"
+  alerts-quiet-alone: "{n} coincidencia en {containers}, nada nuevo que contarte | {n} coincidencias en {containers}, nada nuevo que contarte"
+  alerts-partial: Aquí no se muestran todas las coincidencias.
+  alerts-partial-chart: Aquí no se muestran todas las coincidencias. El gráfico las cuenta todas.
+  alerts-capped: Aquí solo se cuentan los primeros {n} contenedores.
+  findings: Hallazgos
+  scope: De qué trata el panel
+  scope-n: "{n} contenedores"
+  scope-all: Todos los contenedores
+  scope-all-hosts: Todos los hosts
+  alert-rules: Reglas de alerta
   metrics-no-container: Abre un contenedor para ver su historial.
   metrics-loading: Cargando el historial…
   metrics-failed: No se pudo cargar el historial.
-  metrics-empty: Todavía no hay nada registrado para este intervalo.
   metrics-peak: pico
   metrics-bucket: promedios de {duration}
+  metrics-hosts-empty: Cloud aún no tiene historial de estos hosts. Se completa a medida que llegan las estadísticas.
+  metrics-whole-host: Host completo
+  metrics-containers-summed: "{n} contenedores sumados"
+  metrics-cpu-avg-host: CPU · media por host
+  metrics-hosts: Hosts
+  metrics-hot: El pico de CPU superó el 90%
+  metrics-filter-hosts: "Filtrar {n} hosts"
+  metrics-no-host-match: Ningún host coincide.
+  metrics-show-all-hosts: "Mostrar los {n} hosts"
+  metrics-show-fewer: Mostrar menos
+  metrics-top: Contenedores principales
+  metrics-top-empty: No se reportó nada en este periodo.
+  metrics-top-note: "Media · pico en {window}."
   window-1h: 1 h
   window-6h: 6 h
   window-24h: 24 h
   window-7d: 7 d
+cloud-findings:
+  filter-new: Nuevos
+  filter-all: Todos
+  filter-ignored: Ignorados
+  loading: Cargando hallazgos…
+  failed: No se pudieron cargar los hallazgos.
+  empty-ignored: Aquí no hay nada ignorado.
+  locked: Los detalles llegan con tu próximo informe
+  resolved: Resuelto
+  show-lines: Muéstrame las líneas
+  ignore: Ignorar
+  unignore: Dejar de ignorar
+  investigate: Investigar
+  ignored: Ignorado. Ya no aparecerá en informes ni correos.
+  undo: Deshacer
+  ignore-failed: No se pudo actualizar el hallazgo.
+  truncated: Aquí no se muestran todos los hallazgos. Dozzle Cloud tiene el resto.
+  next-review: "Próxima revisión {when}, {time}"
+  last-review: "Última revisión {when}"
+  first-review: "Primera revisión {when}, {time}"
+  first-review-hint: Aún no hay hallazgos. Aparecerán aquí después de la primera revisión.
+  empty-reviewed: "No se notó nada en {name} en la última revisión."
 cloud-chat:
-  title: Preguntar a Dozzle
+  title: Preguntar
   close: Cerrar
   clear: Borrar el chat
   empty: Pregunta sobre lo que estás viendo. El asistente ve esta página y puede leer los logs de tus contenedores.
@@ -367,7 +421,7 @@ cloud-chat:
   error-unavailable: El asistente no está disponible ahora mismo.
   error-not-configured: Dozzle Cloud no está vinculado, así que no hay ningún asistente al que preguntar.
   section-ask: Asistente
-  ask-for: Preguntar a Dozzle sobre {query}
+  ask-for: Preguntar sobre {query}
   ask-hint: Responde según lo que estás viendo
   ask-shortcut: para preguntar
   visual:
@@ -412,7 +466,7 @@ cloud-search:
   hero-title-cloud: "Buscar contenedores, logs o hacer una pregunta"
   hero-title-plain: "Buscar contenedores"
   hero-pill-indexed: "Índice Cloud"
-  modal-placeholder-cloud: "Buscar contenedores y logs…"
+  modal-placeholder-cloud: "Buscar contenedores, logs o preguntar…"
   modal-placeholder-plain: "Buscar contenedores…"
   container-removed: "El contenedor ha sido eliminado"
   cta-settings: "Configuración de Cloud"
@@ -648,13 +702,10 @@ terminal:
   close-search: Cerrar búsqueda
 notifications:
   history:
-    title: Actividad
     loading: Cargando actividad…
     failed: No se pudo cargar la actividad.
     empty: No se ha disparado nada recientemente.
-    still-happening: sigue ocurriendo
     events: "{n} eventos"
-    suppressed: "· {n} suprimidos"
     show-lines: Muéstrame las líneas
     show-moment: Ver los logs de ese momento
     open-in-cloud: Abrir en Dozzle Cloud
@@ -665,7 +716,6 @@ notifications:
   add-destination: Añadir destino
   alerts: Alertas
   add-alert: Añadir alerta
-  new-alerts: Nuevas alertas
   prefill-name: Alertas de error
   prefill-expression: level == "error"
   add: Añadir
@@ -863,9 +913,10 @@ cloud:
   title: Dozzle Cloud
   description: Controle sus contenedores de forma remota y use IA para investigar problemas en su clúster.
   pitch:
-    findings: Análisis diario con IA de sus errores y advertencias
-    alerts: Alertas en tiempo real por caídas y umbrales
-    control: Inicie, detenga e inspeccione contenedores desde cualquier lugar
+    findings: Lee sus logs cada día y detecta problemas que ninguna regla capta
+    alerts: Alertas en su móvil o chat, guardadas tras recargar o reiniciar
+    ask: Pregunte sobre cualquier contenedor, historial incluido
+    control: Reinicie, actualice o revierta contenedores desde el chat
   learn-more: Más información
   link-instance: Vincular instancia
   relink-instance: Revincular instancia
@@ -873,11 +924,11 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Disponible con Dozzle Cloud Pro
   plan: Plan
+  account: Cuenta
   usage: Eventos
   usage-agent-messages: Chats del agente
   usage-log-bytes: Datos indexados
   dashboard: Panel
-  settings: Configuración
   error: Error de conexión. Por favor, revincule su instancia.
   error-unavailable: Dozzle Cloud no está disponible temporalmente. Inténtalo de nuevo más tarde.
   unlink: Desvincular

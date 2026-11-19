@@ -465,13 +465,10 @@ terminal:
   close-search: Zoeken sluiten
 notifications:
   history:
-    title: Activiteit
     loading: Activiteit laden…
     failed: Kon activiteit niet laden.
     empty: Er is recent niets afgegaan.
-    still-happening: gebeurt nog steeds
     events: "{n} gebeurtenissen"
-    suppressed: "· {n} onderdrukt"
     show-lines: Laat me de regels zien
     show-moment: Toon de logs eromheen
     open-in-cloud: Openen in Dozzle Cloud
@@ -482,7 +479,6 @@ notifications:
   add-destination: Bestemming toevoegen
   alerts: Waarschuwingen
   add-alert: Waarschuwing toevoegen
-  new-alerts: Nieuwe waarschuwingen
   prefill-name: Foutwaarschuwingen
   prefill-expression: level == "error"
   add: Toevoegen
@@ -680,9 +676,10 @@ cloud:
   title: Dozzle Cloud
   description: Beheer je containers op afstand en gebruik AI om problemen in je cluster te onderzoeken.
   pitch:
-    findings: Dagelijkse AI-scan van je fouten en waarschuwingen
-    alerts: Realtime meldingen bij crashes en drempelwaarden
-    control: Start, stop en inspecteer containers vanaf overal
+    findings: Leest elke dag je logs en signaleert problemen die geen regel vangt
+    alerts: Waarschuwingen op je telefoon of in je chat, bewaard na een refresh of herstart
+    ask: Stel vragen over elke container, inclusief de geschiedenis
+    control: Herstart, update of rol containers terug vanuit de chat
   learn-more: Meer informatie
   link-instance: Instantie koppelen
   relink-instance: Instantie opnieuw koppelen
@@ -690,11 +687,11 @@ cloud:
   pro-badge: Dozzle Cloud Pro
   locked-on-this-plan: Beschikbaar met Dozzle Cloud Pro
   plan: Plan
+  account: Account
   usage: Gebeurtenissen
   usage-agent-messages: Agentgesprekken
   usage-log-bytes: Geïndexeerde data
   dashboard: Dashboard
-  settings: Instellingen
   error: Verbindingsfout. Koppel je instantie opnieuw.
   error-unavailable: Dozzle Cloud is tijdelijk niet beschikbaar. Probeer het later opnieuw.
   unlink: Ontkoppelen
@@ -773,25 +770,79 @@ cloud:
       error: "Elke error-regel"
 cloud-rail:
   title: Dozzle Cloud
-  chat: Vraag Dozzle
+  chat: Vragen
+  alerts-retention: "Dozzle Cloud bewaart {n} dag aan waarschuwingsgeschiedenis. | Dozzle Cloud bewaart {n} dagen aan waarschuwingsgeschiedenis."
+  create-alert: Een waarschuwingsregel maken
+  metrics-live: "Live vanuit deze browser, laatste {n} min. De Cloud-geschiedenis vult zich zodra statistieken binnenkomen."
   metrics: Metrieken
   alerts: Waarschuwingen
   hide: Cloudbalk verbergen
   show: Cloudbalk tonen
   alerts-empty-here: Er is niets afgegaan voor wat je bekijkt.
-  all-activity: Alle activiteit
+  alerts-chart: Hoe vaak je regels overeenkwamen
+  alerts-chart-scroll: Dit tijdstip in de lijst tonen
+  alerts-matches: "{n} treffer | {n} treffers"
+  alerts-happened: "Eén keer gebeurd | {n} keer gebeurd"
+  alerts-notified: "Je hebt één melding gekregen | Je hebt {n} meldingen gekregen"
+  alerts-notified-earlier: Je hebt eerder al een melding gekregen
+  alerts-quiet: "Nog {n} treffer op {containers}, niets nieuws te melden | Nog {n} treffers op {containers}, niets nieuws te melden"
+  alerts-quiet-containers: "{n} container | {n} containers"
+  alerts-quiet-alone: "{n} treffer op {containers}, niets nieuws te melden | {n} treffers op {containers}, niets nieuws te melden"
+  alerts-partial: Niet elke treffer staat hier.
+  alerts-partial-chart: Niet elke treffer staat hier. De grafiek telt ze allemaal.
+  alerts-capped: Hier tellen alleen de eerste {n} containers mee.
+  findings: Bevindingen
+  scope: Waar het paneel over gaat
+  scope-n: "{n} containers"
+  scope-all: Alle containers
+  scope-all-hosts: Alle hosts
+  alert-rules: Waarschuwingsregels
   metrics-no-container: Open een container om de geschiedenis te zien.
   metrics-loading: Geschiedenis laden…
   metrics-failed: Kon de geschiedenis niet laden.
-  metrics-empty: Nog niets vastgelegd voor dit venster.
   metrics-peak: piek
   metrics-bucket: "{duration}-gemiddelden"
+  metrics-hosts-empty: Cloud heeft nog geen geschiedenis voor deze hosts. Die vult zich zodra statistieken binnenkomen.
+  metrics-whole-host: Hele host
+  metrics-containers-summed: "{n} containers opgeteld"
+  metrics-cpu-avg-host: CPU · gem. host
+  metrics-hosts: Hosts
+  metrics-hot: CPU piekte boven 90%
+  metrics-filter-hosts: "{n} hosts filteren"
+  metrics-no-host-match: Geen host komt overeen.
+  metrics-show-all-hosts: "Alle {n} hosts tonen"
+  metrics-show-fewer: Minder tonen
+  metrics-top: Topcontainers
+  metrics-top-empty: Niets gerapporteerd in dit venster.
+  metrics-top-note: "Gemiddelde · piek over {window}."
   window-1h: 1u
   window-6h: 6u
   window-24h: 24u
   window-7d: 7 d
+cloud-findings:
+  filter-new: Nieuw
+  filter-all: Alle
+  filter-ignored: Genegeerd
+  loading: Bevindingen laden…
+  failed: Kon bevindingen niet laden.
+  empty-ignored: Hier wordt niets genegeerd.
+  locked: Details komen met je volgende rapport
+  resolved: Opgelost
+  show-lines: Toon me de regels
+  ignore: Negeren
+  unignore: Niet meer negeren
+  investigate: Onderzoeken
+  ignored: Genegeerd. Deze blijft buiten rapporten en e-mails.
+  undo: Ongedaan maken
+  ignore-failed: Kon de bevinding niet bijwerken.
+  truncated: Niet elke bevinding staat hier. Dozzle Cloud heeft de rest.
+  next-review: "Volgende controle {when}, {time}"
+  last-review: "Laatst gecontroleerd {when}"
+  first-review: "Eerste controle {when}, {time}"
+  first-review-hint: Nog geen bevindingen. Ze verschijnen hier na de eerste controle.
+  empty-reviewed: "Niets opgemerkt bij {name} in de laatste controle."
 cloud-chat:
-  title: Vraag het Dozzle
+  title: Vragen
   close: Sluiten
   clear: Chat wissen
   empty: Stel een vraag over wat je ziet. De assistent kan deze pagina zien en de logs van je containers lezen.
@@ -863,7 +914,7 @@ cloud-chat:
   error-unavailable: De assistent is nu niet beschikbaar.
   error-not-configured: Dozzle Cloud is niet gekoppeld, dus er is geen assistent om iets aan te vragen.
   section-ask: Assistent
-  ask-for: Dozzle vragen over {query}
+  ask-for: Vragen over {query}
   ask-hint: Antwoordt op basis van wat je bekijkt
   ask-shortcut: om te vragen
   visual:
@@ -908,7 +959,7 @@ cloud-search:
   hero-title-cloud: "Zoek containers, logs of stel een vraag"
   hero-title-plain: "Containers zoeken"
   hero-pill-indexed: "Cloud-index"
-  modal-placeholder-cloud: "Containers en logs zoeken…"
+  modal-placeholder-cloud: "Containers, logs zoeken of vragen…"
   modal-placeholder-plain: "Containers zoeken…"
   container-removed: "Container is verwijderd"
   cta-settings: "Cloud-instellingen"

@@ -80,7 +80,12 @@ func (c *ContainerService) InspectVolume(ctx context.Context, name string) (Volu
 	return inspector.InspectVolume(ctx, name)
 }
 
+// Action starts, stops, restarts or removes the container. A swarm task is
+// refused a start or restart, see ErrSwarmTask.
 func (c *ContainerService) Action(ctx context.Context, action ContainerAction) error {
+	if (action == Start || action == Restart) && c.Container.Labels[SwarmServiceIDLabel] != "" {
+		return ErrSwarmTask
+	}
 	return c.clientService.ContainerAction(ctx, c.Container, action)
 }
 

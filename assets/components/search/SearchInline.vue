@@ -36,7 +36,7 @@
       class="border-base-content/15 hover:bg-base-300/60 flex shrink-0 items-center gap-1.5 rounded-r-md border-l px-3 text-sm transition-colors"
       :class="chatOpen ? 'bg-base-300/60 text-base-content' : 'text-base-content/80'"
       :aria-pressed="chatOpen"
-      :title="`${$t('cloud-rail.chat')} (⇧⌘K)`"
+      :title="`${$t('cloud-rail.chat')} (⇧${mod}K)`"
       @click="toggleRail('chat')"
     >
       <mdi:message-outline class="text-primary size-4" />
@@ -48,6 +48,10 @@
 <script lang="ts" setup>
 import { useFuzzySearch } from "@/composable/app/fuzzySearch";
 import { useCloudConfig } from "@/composable/cloud/cloudConfig";
+import { modKey } from "@/composable/app/commands";
+
+// The chord's modifier as this platform names it: ⌘ on a Mac, Ctrl elsewhere.
+const mod = modKey();
 
 const { openSearch } = useFuzzySearch();
 const { cloudConfig } = useCloudConfig();

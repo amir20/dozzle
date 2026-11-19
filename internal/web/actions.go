@@ -71,6 +71,10 @@ func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := containerService.Action(r.Context(), parsedAction); err != nil {
+		if errors.Is(err, container.ErrSwarmTask) {
+			http.Error(w, err.Error(), http.StatusConflict)
+			return
+		}
 		log.Error().Err(err).Msg("error while trying to perform container action")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
