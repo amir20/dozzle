@@ -23,6 +23,7 @@ declare global {
   const LOG_COOLDOWN_STOPS: typeof import('./composable/notifications/alertForm').LOG_COOLDOWN_STOPS
   const MARKER_START_SLACK_MS: typeof import('./composable/logs/updateMarkers').MARKER_START_SLACK_MS
   const MAX_ASKED: typeof import('./composable/cloud/cloudFindings').MAX_ASKED
+  const MAX_BUCKETS: typeof import('./composable/cloud/alertsTimeline').MAX_BUCKETS
   const MAX_PATTERN_LINES: typeof import('./composable/cloud/patternMemory').MAX_PATTERN_LINES
   const MIN_CLOUD_POINTS: typeof import('./composable/cloud/liveMetrics').MIN_CLOUD_POINTS
   const MIN_MENU_WIDTH: typeof import('./stores/settings').MIN_MENU_WIDTH
@@ -848,6 +849,7 @@ declare module 'vue' {
     readonly LOG_COOLDOWN_STOPS: UnwrapRef<typeof import('./composable/notifications/alertForm')['LOG_COOLDOWN_STOPS']>
     readonly MARKER_START_SLACK_MS: UnwrapRef<typeof import('./composable/logs/updateMarkers')['MARKER_START_SLACK_MS']>
     readonly MAX_ASKED: UnwrapRef<typeof import('./composable/cloud/cloudFindings')['MAX_ASKED']>
+    readonly MAX_BUCKETS: UnwrapRef<typeof import('./composable/cloud/alertsTimeline')['MAX_BUCKETS']>
     readonly MAX_PATTERN_LINES: UnwrapRef<typeof import('./composable/cloud/patternMemory')['MAX_PATTERN_LINES']>
     readonly MIN_CLOUD_POINTS: UnwrapRef<typeof import('./composable/cloud/liveMetrics')['MIN_CLOUD_POINTS']>
     readonly NOT_RUNNING_ERROR: UnwrapRef<typeof import('./composable/containers/containerActions')['NOT_RUNNING_ERROR']>

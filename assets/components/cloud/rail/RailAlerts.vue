@@ -133,6 +133,7 @@ import {
   bucketEnd,
   buildTimeline,
   levelDot,
+  MAX_BUCKETS,
   notifiedLevel,
   problemAt,
   rowAt,
@@ -176,11 +177,23 @@ const loading = ref(false);
 const loaded = ref(false);
 const failed = ref(false);
 
+const root = ref<HTMLElement | null>(null);
+// One bar per 5px column, as the metrics charts draw: a fixed 24 left thin bars
+// with wide gaps at drawer width. Capped where Cloud caps a call; the window's
+// own count stands in until the panel has a width.
+const { width: rootWidth } = useElementSize(root);
+const columns = ref(0);
+// Settled before refetching, so a resize does not fire a request per five pixels.
+watchDebounced(rootWidth, (w) => w > 0 && (columns.value = Math.min(MAX_BUCKETS, Math.floor(w / 5))), {
+  debounce: 300,
+});
+
 let request = 0;
 async function load() {
   const mine = ++request;
   const ids = scope.value.slice(0, MAX_ASKED).map((c) => c.id);
-  const { hours, buckets: count } = TIMELINE_WINDOWS[window.value];
+  const { hours, buckets: fallback } = TIMELINE_WINDOWS[window.value];
+  const count = columns.value || fallback;
   const to = Date.now();
   const from = to - hours * 3600_000;
   loading.value = true;
@@ -201,7 +214,7 @@ async function load() {
   loading.value = false;
   loaded.value = true;
 }
-watch([() => scope.value.map((c) => c.id).join(","), window], load, { immediate: true });
+watch([() => scope.value.map((c) => c.id).join(","), window, columns], load, { immediate: true });
 
 // Reads the shared tick so "Today" rolls over at midnight on a page left open.
 const days = computed(() => {
@@ -253,7 +266,6 @@ const hover = computed(() => {
 
 // A bar is a stretch of time, and the list below is the same time a day at a
 // time: clicking one brings its row into view and marks it for a moment.
-const root = ref<HTMLElement | null>(null);
 const highlighted = ref<string>();
 let unmark: ReturnType<typeof setTimeout> | undefined;
 function scrollToHovered() {

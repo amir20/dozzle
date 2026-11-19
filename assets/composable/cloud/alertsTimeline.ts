@@ -12,12 +12,14 @@ import { dayBucket } from "@/utils/date";
  * made). Nothing here leaks that split to the reader.
  */
 
-/** The windows the panel offers, and how finely each is charted. */
+/** The windows the panel offers, and how finely each is charted before the panel has a width. */
 export const TIMELINE_WINDOWS = {
   "24h": { hours: 24, buckets: 24 },
   "7d": { hours: 168, buckets: 28 },
 } as const;
 export type TimelineWindow = keyof typeof TIMELINE_WINDOWS;
+/** Cloud's cap on buckets per call (maxAlertBuckets in internal/web/cloud_alerts.go). */
+export const MAX_BUCKETS = 200;
 
 /** One match, as listed under an expanded row. */
 export interface Occurrence {
