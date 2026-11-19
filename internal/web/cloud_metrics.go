@@ -78,7 +78,8 @@ func (h *handler) cloudContainerMetrics(w http.ResponseWriter, r *http.Request) 
 // summed across each host's containers.
 //
 // Open to a filtered user too. A host's sum takes in containers they cannot
-// see, but only as a total: no name, log or per-container number comes back.
+// see, but only as a total: the top-container lists, the one place names come
+// back, are dropped for them.
 //
 //	200 — hosts returned (may be empty)
 //	503 — cloud not configured
@@ -116,6 +117,11 @@ func (h *handler) cloudHostMetrics(w http.ResponseWriter, r *http.Request) {
 	}
 	if result.Hosts == nil {
 		result.Hosts = []cloud.HostMetrics{}
+	}
+	if h.restrictedUser(r) {
+		for i := range result.Hosts {
+			result.Hosts[i].Top = nil
+		}
 	}
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(result); err != nil {

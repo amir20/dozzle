@@ -27,17 +27,40 @@ func hostMetricsRequest(t *testing.T, h *handler, r *http.Request) (int, cloud.H
 	return rr.Code, body
 }
 
-// A filtered user gets the same host totals: they are sums, with nothing in
-// them that names a container.
-func Test_cloudHostMetrics_answers_a_filtered_user(t *testing.T) {
+// A filtered user gets the same host totals, which are sums, but not the
+// top-container lists: those name containers they may not be allowed to see.
+func Test_cloudHostMetrics_answers_a_filtered_user_without_names(t *testing.T) {
 	h := restrictedHandler(t)
 	h.config.Cloud.GetHostMetrics = func(context.Context, int64, int64, int32) (*cloud.HostMetricResult, error) {
-		return &cloud.HostMetricResult{Hosts: []cloud.HostMetrics{{HostID: "h1"}}}, nil
+		return &cloud.HostMetricResult{Hosts: []cloud.HostMetrics{{
+			HostID:     "h1",
+			Containers: 3,
+			Top:        &cloud.HostTop{CPU: []cloud.HostTopContainer{{Name: "secret-db", Avg: 50, Peak: 90}}},
+		}}}, nil
 	}
 
 	code, body := hostMetricsRequest(t, h, asRestrictedUser(httptest.NewRequest(http.MethodGet, "/api/cloud/metrics/hosts", nil)))
 	assert.Equal(t, http.StatusOK, code)
-	assert.Len(t, body.Hosts, 1)
+	require.Len(t, body.Hosts, 1)
+	assert.Equal(t, int32(3), body.Hosts[0].Containers)
+	assert.Nil(t, body.Hosts[0].Top)
+}
+
+// Everyone else gets the lists as Cloud sent them.
+func Test_cloudHostMetrics_keeps_names_for_an_unfiltered_user(t *testing.T) {
+	h := restrictedHandler(t)
+	h.config.Cloud.GetHostMetrics = func(context.Context, int64, int64, int32) (*cloud.HostMetricResult, error) {
+		return &cloud.HostMetricResult{Hosts: []cloud.HostMetrics{{
+			HostID: "h1",
+			Top:    &cloud.HostTop{CPU: []cloud.HostTopContainer{{Name: "api", Avg: 5, Peak: 9}}},
+		}}}, nil
+	}
+
+	code, body := hostMetricsRequest(t, h, httptest.NewRequest(http.MethodGet, "/api/cloud/metrics/hosts", nil))
+	assert.Equal(t, http.StatusOK, code)
+	require.Len(t, body.Hosts, 1)
+	require.NotNil(t, body.Hosts[0].Top)
+	assert.Equal(t, "api", body.Hosts[0].Top.CPU[0].Name)
 }
 
 func Test_cloudHostMetrics_passes_the_window(t *testing.T) {

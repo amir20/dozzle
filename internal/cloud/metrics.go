@@ -99,12 +99,39 @@ type HostMetricPoint struct {
 	TS          int64   `json:"ts"`
 	CPU         float64 `json:"cpu"`
 	MemoryUsage int64   `json:"memoryUsage"`
+
+	// Absent from an older cloud, as on MetricPoint.
+	CPUMax         *float64 `json:"cpuMax,omitempty"`
+	MemoryUsageMax *int64   `json:"memoryUsageMax,omitempty"`
+	NetworkRx      *float64 `json:"networkRx,omitempty"`
+	NetworkTx      *float64 `json:"networkTx,omitempty"`
+	DiskRead       *float64 `json:"diskRead,omitempty"`
+	DiskWrite      *float64 `json:"diskWrite,omitempty"`
+}
+
+// HostTopContainer is one container's share of a host over the window.
+type HostTopContainer struct {
+	Name string  `json:"name"`
+	Avg  float64 `json:"avg"`
+	Peak float64 `json:"peak"`
+}
+
+// HostTop is a host's heaviest containers, one list per metric.
+type HostTop struct {
+	CPU     []HostTopContainer `json:"cpu"`
+	Memory  []HostTopContainer `json:"memory"`
+	Network []HostTopContainer `json:"network"`
+	Disk    []HostTopContainer `json:"disk"`
 }
 
 // HostMetrics is one host's series.
 type HostMetrics struct {
-	HostID string            `json:"hostId"`
-	Points []HostMetricPoint `json:"points"`
+	HostID     string            `json:"hostId"`
+	Points     []HostMetricPoint `json:"points"`
+	Containers int32             `json:"containers"`
+	// Nil for a reader who may not see every container: the names are theirs to
+	// see only per container, and the totals above already say how busy it is.
+	Top *HostTop `json:"top,omitempty"`
 }
 
 // HostMetricResult is what Cloud remembers about every host on the instance.
@@ -148,11 +175,40 @@ func (c *Client) GetHostMetrics(ctx context.Context, sinceNs, untilNs int64, buc
 func hostMetricResultFromProto(resp *pb.GetHostMetricsResponse) *HostMetricResult {
 	result := &HostMetricResult{Hosts: make([]HostMetrics, 0, len(resp.GetHosts())), Bucket: resp.GetBucketNs() / 1e6}
 	for _, h := range resp.GetHosts() {
-		host := HostMetrics{HostID: h.GetHostId(), Points: make([]HostMetricPoint, 0, len(h.GetPoints()))}
+		host := HostMetrics{
+			HostID:     h.GetHostId(),
+			Points:     make([]HostMetricPoint, 0, len(h.GetPoints())),
+			Containers: h.GetContainers(),
+			Top: &HostTop{
+				CPU:     topFromProto(h.GetTopCpu()),
+				Memory:  topFromProto(h.GetTopMemory()),
+				Network: topFromProto(h.GetTopNetwork()),
+				Disk:    topFromProto(h.GetTopDisk()),
+			},
+		}
 		for _, p := range h.GetPoints() {
-			host.Points = append(host.Points, HostMetricPoint{TS: p.GetTsNs() / 1e6, CPU: p.GetCpu(), MemoryUsage: p.GetMemoryUsage()})
+			host.Points = append(host.Points, HostMetricPoint{
+				TS:             p.GetTsNs() / 1e6,
+				CPU:            p.GetCpu(),
+				MemoryUsage:    p.GetMemoryUsage(),
+				CPUMax:         p.CpuMax,
+				MemoryUsageMax: p.MemoryUsageMax,
+				NetworkRx:      p.NetworkRxRate,
+				NetworkTx:      p.NetworkTxRate,
+				DiskRead:       p.DiskReadRate,
+				DiskWrite:      p.DiskWriteRate,
+			})
 		}
 		result.Hosts = append(result.Hosts, host)
 	}
 	return result
+}
+
+// topFromProto never returns nil, so the browser gets [] rather than null.
+func topFromProto(list []*pb.HostTopContainer) []HostTopContainer {
+	out := make([]HostTopContainer, 0, len(list))
+	for _, c := range list {
+		out = append(out, HostTopContainer{Name: c.GetName(), Avg: c.GetAvg(), Peak: c.GetPeak()})
+	}
+	return out
 }
