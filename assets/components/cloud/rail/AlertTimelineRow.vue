@@ -7,12 +7,20 @@
       @click="open = !open"
     >
       <!-- Severity rides the icon; the row behind it stays neutral. The quiet
-           row has no severity to carry, so its glyph is muted. -->
+           row has no severity to carry, so its glyph is muted. An update is
+           info, as its ring under the metrics charts is. -->
       <span
         class="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full"
-        :class="row.kind === 'problem' ? levelTint(row.level) : 'bg-base-content/10 text-base-content/60'"
+        :class="
+          row.kind === 'problem'
+            ? levelTint(row.level)
+            : row.kind === 'update'
+              ? levelTint('info')
+              : 'bg-base-content/10 text-base-content/60'
+        "
       >
         <mdi:alert-circle-outline v-if="row.kind === 'problem'" class="size-4" />
+        <mdi:update v-else-if="row.kind === 'update'" class="size-4" />
         <mdi:text-search v-else class="size-4" />
       </span>
 
@@ -20,6 +28,16 @@
         <span v-if="row.kind === 'problem'" class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
           <span class="text-sm font-semibold wrap-anywhere">{{ row.headline }}</span>
           <span class="status-pill" :class="levelPill(row.level)">{{ row.level }}</span>
+        </span>
+        <span v-else-if="row.kind === 'update'" class="flex flex-wrap items-baseline gap-x-2 gap-y-1" data-update>
+          <span class="text-sm font-semibold">{{ $t(`update-marker.${row.label}`) }}</span>
+          <span class="font-mono text-xs wrap-anywhere">
+            <template v-if="row.from">
+              <span class="opacity-60">{{ row.from }}</span>
+              <span class="mx-1 opacity-40">&rarr;</span>
+            </template>
+            <span>{{ row.to }}</span>
+          </span>
         </span>
         <span v-else class="text-base-content/60 block text-sm" data-quiet>
           {{
@@ -63,7 +81,7 @@
           clock.format(new Date(o.ts / 1e6))
         }}</span>
         <span v-if="!hideContainer" class="text-base-content/60 max-w-32 shrink-0 truncate font-mono">
-          {{ nameOf(o.containerId) }}
+          {{ row.kind === "update" ? row.name : nameOf(o.containerId) }}
         </span>
         <span
           class="min-w-0 flex-1 truncate font-mono max-sm:order-last max-sm:basis-full max-sm:pb-1"
@@ -105,7 +123,7 @@ const {
   row: TimelineRow;
   hideContainer?: boolean;
   highlighted?: boolean;
-  /** The only row of its day: a quiet row with no problem above it is not "more". */
+  /** No problem shares its day: a quiet row with none above it is not "more". */
   alone?: boolean;
 }>();
 
@@ -121,6 +139,7 @@ const readable = (id: string) => !!store.allContainersById[id];
 // Two names, then a count: a problem across a whole stack would otherwise push
 // the rest of the line off the row.
 const containerList = computed(() => {
+  if (row.kind === "update") return row.name;
   const names = row.containers.map(nameOf);
   return names.length > 2 ? `${names.slice(0, 2).join(", ")} +${names.length - 2}` : names.join(", ");
 });

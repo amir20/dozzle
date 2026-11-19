@@ -8,6 +8,7 @@ import { createI18n } from "vue-i18n";
 import RailAlerts from "./RailAlerts.vue";
 import BarChart from "@/components/ui/BarChart.vue";
 import type { AlertBucket, CloudAlert, CloudEvent, FetchedAlerts } from "@/composable/cloud/cloudAlerts";
+import type { RecentDeploy } from "@/composable/cloud/recentDeploys";
 
 vi.mock("@/stores/config", () => ({ __esModule: true, default: { enableNotifications: true, hosts: [] } }));
 
@@ -37,7 +38,16 @@ vi.mock("@/composable/cloud/cloudFindings", () => ({
 }));
 
 vi.mock("@/stores/container", () => ({
-  useContainerStore: () => ({ allContainersById: { api: { name: "api" }, worker: { name: "worker" } } }),
+  useContainerStore: () => ({
+    allContainersById: { api: { name: "api" }, worker: { name: "worker" } },
+    recentUpdates: [],
+  }),
+}));
+// The updates Cloud remembers, its outside image changes among them.
+const cloudDeploys = ref<RecentDeploy[]>([]);
+vi.mock("@/composable/cloud/recentDeploys", async (original) => ({
+  ...(await original<typeof import("@/composable/cloud/recentDeploys")>()),
+  useRecentDeploys: () => ({ cloudDeploys, refresh: vi.fn() }),
 }));
 
 const closeRail = vi.fn();
@@ -77,6 +87,7 @@ const i18n = createI18n({
         "window-24h": "24h",
         "window-7d": "7d",
       },
+      "update-marker": { updated: "Updated" },
     },
   },
 });
@@ -139,6 +150,7 @@ beforeEach(() => {
   markAlertsSeen.mockReset();
   refreshRecentAlerts.mockReset();
   dotted.value = [];
+  cloudDeploys.value = [];
   Element.prototype.scrollIntoView = vi.fn();
 });
 
@@ -269,6 +281,79 @@ describe("<RailAlerts />", () => {
   });
 
   // With nothing above it, a quiet row is not "more" of anything.
+  // What changed sits among the problems in time order, so a deploy just before
+  // a problem reads right under it. Only the containers in scope, only the window.
+  test("updates in scope sit among the problems by time", async () => {
+    const iso = (h: number) => new Date(Date.now() - h * 3600_000).toISOString();
+    cloudDeploys.value = [
+      {
+        host: "h",
+        name: "api",
+        oldId: "",
+        newId: "api2",
+        imageRef: "ghcr.io/x/api:v2",
+        at: iso(3),
+        source: "external",
+      },
+      { host: "h", name: "worker", oldId: "w1", newId: "w2", imageRef: "worker:1", at: iso(1), source: "schedule" },
+      { host: "h", name: "elsewhere", oldId: "", newId: "e2", imageRef: "e:2", at: iso(1), source: "external" },
+      { host: "h", name: "api", oldId: "", newId: "api1", imageRef: "x:v1", at: iso(30), source: "external" },
+    ];
+    fetchAlerts.mockResolvedValue({ alerts: [hit()], events: [match()] });
+    const wrapper = mountRail();
+    await flushPromises();
+
+    const rows = wrapper.findAll("[data-row]");
+    expect(rows.map((r) => (r.find("[data-update]").exists() ? r.find("[data-update]").text() : "problem"))).toEqual([
+      "Updated1",
+      "problem",
+      "Updatedv2",
+    ]);
+    expect(rows[2].text()).toContain("api");
+    expect(wrapper.find("[data-readout]").text()).toBe("1 match");
+  });
+
+  // The instance's newest updates can all be other containers'; the one in
+  // scope still shows.
+  test("an update in scope shows past newer ones elsewhere", async () => {
+    inView.value = [{ host: "h", id: "api", name: "api" }];
+    const iso = (h: number) => new Date(Date.now() - h * 3600_000).toISOString();
+    cloudDeploys.value = [
+      ...Array.from({ length: 25 }, (_, i) => ({
+        host: "h",
+        name: `other${i}`,
+        oldId: "",
+        newId: `o${i}`,
+        imageRef: "o:2",
+        at: iso(1),
+        source: "external",
+      })),
+      { host: "h", name: "api", oldId: "", newId: "api2", imageRef: "x:v2", at: iso(5), source: "external" },
+    ];
+    fetchAlerts.mockResolvedValue({ alerts: [hit()], events: [match()] });
+    const wrapper = mountRail();
+    await flushPromises();
+    expect(wrapper.findAll("[data-update]").map((u) => u.text())).toEqual(["Updatedv2"]);
+  });
+
+  test("updates alone leave a quiet day without the 'more'", async () => {
+    cloudDeploys.value = [
+      {
+        host: "h",
+        name: "api",
+        oldId: "",
+        newId: "api2",
+        imageRef: "x:v2",
+        at: new Date(Date.now() - 3600_000).toISOString(),
+        source: "external",
+      },
+    ];
+    fetchAlerts.mockResolvedValue({ alerts: [], events: [match({ alertId: undefined })] });
+    const wrapper = mountRail();
+    await flushPromises();
+    expect(wrapper.find("[data-quiet]").text()).toBe("1 match on 1 container, nothing new to tell you");
+  });
+
   test("a day with only quiet matches drops the 'more'", async () => {
     fetchAlerts.mockResolvedValue({
       alerts: [],

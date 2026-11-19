@@ -114,7 +114,7 @@
 <script lang="ts" setup>
 import type { BarDataPoint } from "@/components/ui/BarChart.vue";
 import type { CloudAlert } from "@/composable/cloud/cloudAlerts";
-import { mergeRecentDeploys, useRecentDeploys } from "@/composable/cloud/recentDeploys";
+import { deployOf, mergeRecentDeploys, useRecentDeploys } from "@/composable/cloud/recentDeploys";
 import { updateKind, updateLabels } from "@/models/ContainerUpdate";
 import { containerLiveSeries, MIN_CLOUD_POINTS } from "@/composable/cloud/liveMetrics";
 
@@ -444,8 +444,10 @@ const range = computed(() => {
 const deploys = computed(() => {
   const c = container.value;
   if (!c) return [];
-  return mergeRecentDeploys(store.recentUpdates, cloudDeploys.value).filter(
-    (d) => d.host === c.host && d.name === c.name,
+  // Narrowed before the merge, which keeps only the instance's newest few.
+  return mergeRecentDeploys(
+    store.recentUpdates.filter((d) => deployOf(d, c)),
+    cloudDeploys.value.filter((d) => deployOf(d, c)),
   );
 });
 

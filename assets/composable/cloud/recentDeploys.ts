@@ -23,11 +23,25 @@ const key = (u: ContainerUpdate) => `${u.host}/${u.oldId}/${u.newId}`;
 export function mergeRecentDeploys(local: ContainerUpdate[], cloud: RecentDeploy[]): RecentDeploy[] {
   const verdicts = new Map(cloud.map((d) => [key(d), d.verdict]));
   const known = new Set(local.map(key));
+  // Cloud reads an outside change from a start, which names only the container
+  // that started. An update Dozzle made but never pushed (the Update button,
+  // chat) comes back that way too, so it is matched by that container alone.
+  const started = new Set(local.map((u) => `${u.host}/${u.newId}`));
   const merged: RecentDeploy[] = [
-    ...cloud.filter((d) => !known.has(key(d))),
+    ...cloud.filter((d) => !known.has(key(d)) && !(d.source === "external" && started.has(`${d.host}/${d.newId}`))),
     ...local.map((u) => ({ ...u, verdict: verdicts.get(key(u)) })),
   ];
   return merged.sort((a, b) => Date.parse(b.at) - Date.parse(a.at)).slice(0, MAX_RECENT);
+}
+
+// A Swarm task's container is "service.slot.taskid"; Cloud keys it without the
+// task id (containers.ShortName), which is also what survives a redeploy.
+const SWARM_TASK = /^(.+\.[^.]+)\.[a-z0-9]{25}$/;
+
+/** Whether a deploy, keyed by host and the name Cloud stores, is this container's. */
+export function deployOf(deploy: RecentDeploy, container: { host: string; name: string }): boolean {
+  if (deploy.host !== container.host) return false;
+  return deploy.name === container.name || deploy.name === container.name.replace(SWARM_TASK, "$1");
 }
 
 const cloudDeploys = ref<RecentDeploy[]>([]);

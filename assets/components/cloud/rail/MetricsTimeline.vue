@@ -31,8 +31,11 @@
           <div class="flex flex-col gap-1 p-3 text-sm">
             <span class="font-semibold">{{ $t(`update-marker.${updateKind(mark.deploy)}`) }}</span>
             <span class="font-mono text-xs wrap-anywhere">
-              <span class="opacity-60">{{ updateLabels(mark.deploy).from }}</span>
-              <span class="mx-1 opacity-40">&rarr;</span>
+              <!-- An update made outside Dozzle names only the image it started on. -->
+              <template v-if="updateLabels(mark.deploy).from">
+                <span class="opacity-60">{{ updateLabels(mark.deploy).from }}</span>
+                <span class="mx-1 opacity-40">&rarr;</span>
+              </template>
               <span>{{ updateLabels(mark.deploy).to }}</span>
             </span>
             <span class="text-base-content/60 text-xs">{{ format(mark.ts) }}</span>

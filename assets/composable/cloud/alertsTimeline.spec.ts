@@ -4,6 +4,7 @@
 import { describe, expect, test } from "vitest";
 import { bucketEnd, buildTimeline, problemAt, rowAt } from "./alertsTimeline";
 import type { CloudAlert, CloudEvent } from "./cloudAlerts";
+import type { RecentDeploy } from "./recentDeploys";
 
 // Noon UTC (the suite runs with TZ=UTC), so a few hours either way stays on one day.
 const NOW = new Date("2026-11-18T12:00:00Z");
@@ -165,5 +166,52 @@ describe("chart helpers", () => {
     expect(rowAt(days, start + hour, start + 2 * hour)?.kind).toBe("quiet");
     expect(rowAt(days, start + 5 * hour, start + 6 * hour)?.kind).toBe("quiet");
     expect(rowAt(days, start - 5 * hour, start - 4 * hour)?.kind).toBe("problem");
+  });
+});
+
+describe("buildTimeline with updates", () => {
+  const deploy = (overrides: Partial<RecentDeploy> = {}): RecentDeploy => ({
+    host: "h",
+    name: "api",
+    oldId: "",
+    newId: "api2",
+    imageRef: "ghcr.io/x/api:v2",
+    at: "2026-11-18T08:00:00Z",
+    source: "external",
+    ...overrides,
+  });
+
+  test("an update sits among the problems in time order and counts no matches", () => {
+    const days = buildTimeline(
+      [hit({ ts: at("2026-11-18T09:00:00Z") })],
+      [match({ ts: at("2026-11-18T09:00:00Z") }), match({ alertId: undefined, ts: at("2026-11-18T10:00:00Z") })],
+      "en",
+      NOW,
+      [deploy({ at: "2026-11-18T08:00:00Z" }), deploy({ at: "2026-11-18T11:00:00Z", newId: "api3", imageRef: "x:v3" })],
+    );
+    expect(days).toHaveLength(1);
+    expect(days[0].rows.map((r) => r.kind)).toEqual(["update", "problem", "update", "quiet"]);
+    const outside = days[0].rows[2];
+    expect(outside).toMatchObject({ kind: "update", name: "api", label: "updated", from: "", to: "v2", happened: 0 });
+    expect(outside.occurrences).toEqual([{ ts: at("2026-11-18T08:00:00Z"), containerId: "api2", text: "v2" }]);
+  });
+
+  test("Dozzle's own update names both images", () => {
+    const [day] = buildTimeline([], [], "en", NOW, [
+      deploy({
+        source: "schedule",
+        imageRef: "nginx:latest",
+        fromDigest: "sha256:aaaaaaaaaaaa1",
+        toDigest: "sha256:bbbbbbbbbbbb2",
+      }),
+    ]);
+    expect(day.rows[0]).toMatchObject({ from: "latest (aaaaaaaaaaaa)", to: "latest (bbbbbbbbbbbb)" });
+  });
+
+  test("a bar is never about an update", () => {
+    const days = buildTimeline([], [match({ alertId: undefined, ts: at("2026-11-18T10:00:00Z") })], "en", NOW, [
+      deploy({ at: "2026-11-18T09:00:00Z" }),
+    ]);
+    expect(rowAt(days, at("2026-11-18T08:30:00Z"), at("2026-11-18T09:30:00Z"))?.kind).toBe("quiet");
   });
 });

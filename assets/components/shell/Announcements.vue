@@ -258,7 +258,14 @@ const { recentUpdates, lastAutoPrune, allContainersById, containers } = storeToR
 const { cloudDeploys, refresh: refreshCloudDeploys } = useRecentDeploys();
 // Asked once on load, so the badge counts updates only Cloud remembers, and again on open.
 onMounted(refreshCloudDeploys);
-const updates = computed(() => mergeRecentDeploys(recentUpdates.value, cloudDeploys.value));
+// What Dozzle updated. An image change made outside Dozzle is on the metrics
+// charts and the alerts timeline, but is no update of Dozzle's to announce.
+const updates = computed(() =>
+  mergeRecentDeploys(
+    recentUpdates.value,
+    cloudDeploys.value.filter((d) => d.source !== "external"),
+  ),
+);
 const { t } = useI18n();
 
 // Same rule as the agent pill on HostCard, so the two agree on which hosts are off.
