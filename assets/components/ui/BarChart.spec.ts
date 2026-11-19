@@ -345,8 +345,12 @@ describe("BarChart pointer readout", () => {
     await wrapper.trigger("mousemove", { clientX: xOfBar(wrapper, 2) });
     expect(wrapper.emitted("hoverEnd")).toBeUndefined();
 
+    // test-utils clears emitted() history once unmount finishes, so an emit from
+    // onBeforeUnmount is only observable through a real listener.
+    const onHoverEnd = vi.fn();
+    await wrapper.setProps({ onHoverEnd });
     wrapper.unmount();
-    expect(wrapper.emitted("hoverEnd")).toHaveLength(1);
+    expect(onHoverEnd).toHaveBeenCalledTimes(1);
   });
 
   // The parent owns wholesale series swaps: HostCard's backfill keeps the length at
