@@ -137,12 +137,22 @@ export const lastTransition = (container: Pick<Container, "state" | "startedAt" 
 
 /**
  * Which of start and stop the container takes. Docker refuses to start a paused
- * container but stops one fine, and a deleted one takes neither.
+ * container but stops one fine, and a deleted one takes neither. A stopped swarm
+ * task takes neither too, see `canRestart`.
  */
-export const powerAction = (container: { state: ContainerState }): "start" | "stop" | undefined => {
+export const powerAction = (container: { state: ContainerState; isSwarm?: boolean }): "start" | "stop" | undefined => {
   if (container.state === "deleted") return undefined;
-  return isStopped(container) ? "start" : "stop";
+  if (isStopped(container)) return container.isSwarm ? undefined : "start";
+  return "stop";
 };
+
+/**
+ * Whether the container can be restarted on its own. A swarm task cannot: swarm
+ * replaces it the moment it stops, so starting it again leaves a duplicate the
+ * orchestrator no longer manages (#5679). The host refuses one too.
+ */
+export const canRestart = (container: { state: ContainerState; isSwarm?: boolean }) =>
+  !container.isSwarm && powerAction(container) !== undefined;
 
 export class GroupedContainers {
   constructor(

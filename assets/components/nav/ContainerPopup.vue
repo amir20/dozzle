@@ -129,7 +129,7 @@
 
           <button
             type="button"
-            v-if="power"
+            v-if="canRestart(container)"
             class="nav-btn icon-btn disabled:pointer-events-none disabled:opacity-40"
             :class="{ 'ms-auto': !canStartStop }"
             :disabled="actionStates.stop || actionStates.start || actionStates.restart"
@@ -146,7 +146,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Container, powerAction, uptime } from "@/models/Container";
+import { Container, canRestart, powerAction, uptime } from "@/models/Container";
 import Terminal from "@/components/containers/Terminal.vue";
 import { useStreamedContainers } from "@/composable/containers/streamedContainers";
 

@@ -1,7 +1,17 @@
 import { describe, expect, test, vi } from "vitest";
 import { computed, isReactive, reactive } from "vue";
 import type { ContainerJson } from "@/types/Container";
-import { Container, decodeStats, diskRate, emptyStat, networkRate, uptime, type Stat } from "./Container";
+import {
+  Container,
+  canRestart,
+  decodeStats,
+  powerAction,
+  diskRate,
+  emptyStat,
+  networkRate,
+  uptime,
+  type Stat,
+} from "./Container";
 import { useHosts, type Host } from "@/stores/hosts";
 import { containerFixture } from "@/testing/containerFixture";
 
@@ -27,6 +37,22 @@ function makeContainer(
 function makeStat(partial: Partial<Stat> = {}): Stat {
   return { ...emptyStat(), ...partial };
 }
+
+describe("powerAction and canRestart", () => {
+  test("an ordinary container starts, stops and restarts", () => {
+    expect(powerAction({ state: "running" })).toBe("stop");
+    expect(powerAction({ state: "exited" })).toBe("start");
+    expect(canRestart({ state: "running" })).toBe(true);
+    expect(canRestart({ state: "deleted" })).toBe(false);
+  });
+
+  // Swarm replaces a stopped task, so the old container must not run again (#5679).
+  test("a swarm task only stops", () => {
+    expect(powerAction({ state: "running", isSwarm: true })).toBe("stop");
+    expect(powerAction({ state: "exited", isSwarm: true })).toBeUndefined();
+    expect(canRestart({ state: "running", isSwarm: true })).toBe(false);
+  });
+});
 
 describe("Container.namespace", () => {
   test("prefers dev.dozzle.group over all others", () => {

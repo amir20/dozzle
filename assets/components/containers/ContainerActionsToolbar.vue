@@ -101,7 +101,7 @@
             <carbon:play /> {{ $t("toolbar.start") }}
           </button>
         </li>
-        <li v-if="power">
+        <li v-if="canRestart(container)">
           <button @click="restart()" :disabled="disableRestart">
             <carbon:restart
               :class="{
@@ -199,7 +199,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Container, powerAction } from "@/models/Container";
+import { Container, canRestart, powerAction } from "@/models/Container";
 // Drawer-only, and it drags in apache-arrow; loading it eagerly put both on every log view.
 const LogAnalytics = defineAsyncComponent(() => import("@/components/logs/LogAnalytics.vue"));
 import Terminal from "./Terminal.vue";

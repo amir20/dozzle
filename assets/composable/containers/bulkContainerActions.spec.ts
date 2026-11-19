@@ -92,6 +92,14 @@ describe("bulkPlan", () => {
     expect(names(plan.targets)).toEqual(["web"]);
     expect(plan.skippedSelf).toBe(true);
   });
+
+  test("a swarm task is stopped but never started or restarted", () => {
+    const task = { ...web, name: "task", isSwarm: true } as Container;
+    const stopped = { ...old, name: "stopped-task", isSwarm: true } as Container;
+    expect(names(bulkPlan([web, task], "stop").targets)).toEqual(["web", "task"]);
+    expect(names(bulkPlan([web, task], "restart").targets)).toEqual(["web"]);
+    expect(names(bulkPlan([old, stopped], "start").targets)).toEqual(["old"]);
+  });
 });
 
 describe("runBounded", () => {

@@ -341,7 +341,7 @@ func AvailableTools(deps ToolDeps) []*pb.ToolDefinition {
 		tools = append(tools,
 			&pb.ToolDefinition{
 				Name:           toolStartContainer,
-				Description:    "Start a stopped Docker container",
+				Description:    "Start a stopped Docker container. Not for swarm service containers.",
 				ParametersJson: writeTargetedParams,
 				Scope:          pb.ToolScope_TOOL_SCOPE_CONTAINER,
 			},
@@ -353,7 +353,7 @@ func AvailableTools(deps ToolDeps) []*pb.ToolDefinition {
 			},
 			&pb.ToolDefinition{
 				Name:           toolRestartContainer,
-				Description:    "Restart a Docker container",
+				Description:    "Restart a Docker container. Not for swarm service containers.",
 				ParametersJson: writeTargetedParams,
 				Scope:          pb.ToolScope_TOOL_SCOPE_CONTAINER,
 			},

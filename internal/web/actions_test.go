@@ -95,6 +95,36 @@ func Test_handler_containerActions_start(t *testing.T) {
 	assert.Equal(t, 204, rr.Code)
 }
 
+// A swarm task is refused a start or restart, and the host is never asked: the
+// old container would run beside the task swarm already replaced it with
+// (#5679). Stop goes through, swarm replaces the task.
+func Test_handler_containerActions_swarm_task(t *testing.T) {
+	for action, code := range map[string]int{"start": http.StatusConflict, "restart": http.StatusConflict, "stop": http.StatusNoContent} {
+		t.Run(action, func(t *testing.T) {
+			m := new(MockedClient)
+			c := container.Container{ID: "123", State: "running", Labels: map[string]string{container.SwarmServiceIDLabel: "svc1"}}
+			m.On("FindContainer", mock.Anything, "123").Return(c, nil)
+			m.On("Host").Return(container.Host{ID: "localhost"})
+			m.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{c}, nil)
+			m.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil)
+			m.On("ContainerActions", mock.Anything, container.Stop, c.ID).Return(nil)
+
+			handler := createHandler(m, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
+			req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/"+action, nil)
+			require.NoError(t, err)
+
+			rr := httptest.NewRecorder()
+			handler.ServeHTTP(rr, req)
+			assert.Equal(t, code, rr.Code)
+			if code == http.StatusConflict {
+				assert.Contains(t, rr.Body.String(), container.ErrSwarmTask.Error())
+			}
+			m.AssertNotCalled(t, "ContainerActions", mock.Anything, container.Start, mock.Anything)
+			m.AssertNotCalled(t, "ContainerActions", mock.Anything, container.Restart, mock.Anything)
+		})
+	}
+}
+
 func Test_handler_containerUpdate_up_to_date(t *testing.T) {
 	mockedClient := mockedClient()
 
