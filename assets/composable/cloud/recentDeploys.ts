@@ -30,6 +30,16 @@ export function mergeRecentDeploys(local: ContainerUpdate[], cloud: RecentDeploy
   return merged.sort((a, b) => Date.parse(b.at) - Date.parse(a.at)).slice(0, MAX_RECENT);
 }
 
+// A Swarm task's container is "service.slot.taskid"; Cloud keys it without the
+// task id (containers.ShortName), which is also what survives a redeploy.
+const SWARM_TASK = /^(.+\.[^.]+)\.[a-z0-9]{25}$/;
+
+/** Whether a deploy, keyed by host and the name Cloud stores, is this container's. */
+export function deployOf(deploy: RecentDeploy, container: { host: string; name: string }): boolean {
+  if (deploy.host !== container.host) return false;
+  return deploy.name === container.name || deploy.name === container.name.replace(SWARM_TASK, "$1");
+}
+
 const cloudDeploys = ref<RecentDeploy[]>([]);
 
 /**

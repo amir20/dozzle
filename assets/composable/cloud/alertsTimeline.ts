@@ -1,4 +1,6 @@
 import type { AlertBucket, CloudAlert, CloudEvent } from "./cloudAlerts";
+import type { RecentDeploy } from "./recentDeploys";
+import { updateKind, updateLabels } from "@/models/ContainerUpdate";
 import { dayBucket } from "@/utils/date";
 
 /**
@@ -10,6 +12,9 @@ import { dayBucket } from "@/utils/date";
  *
  * Cloud speaks in alerts (one notification each) and events (each match a rule
  * made). Nothing here leaks that split to the reader.
+ *
+ * Updates sit among the problems in time order, one row each, so what changed
+ * just before something started failing reads right above it.
  */
 
 /** The windows the panel offers, and how finely each is charted before the panel has a width. */
@@ -55,7 +60,19 @@ export interface QuietRow extends RowBase {
   kind: "quiet";
 }
 
-export type TimelineRow = ProblemRow | QuietRow;
+/** One container update: Dozzle's own, or an image change made outside it. */
+export interface UpdateRow extends RowBase {
+  kind: "update";
+  /** The container's name, which outlives the container the update started. */
+  name: string;
+  /** The update-marker.* key that labels it. */
+  label: "updated" | "undone" | "rolled-back";
+  /** Empty when only the new image is known (an update made outside Dozzle). */
+  from: string;
+  to: string;
+}
+
+export type TimelineRow = ProblemRow | QuietRow | UpdateRow;
 
 export interface TimelineDay {
   key: number;
@@ -84,15 +101,17 @@ type Draft = {
  * Splits a window's alerts and matches into days, then rows.
  *
  * `hits` are Cloud's alert anchors (followUps included, so an alert still
- * matching today carries its headline even if it first fired yesterday), and
- * `events` the matches. Days come newest first, rows inside a day by their
- * newest occurrence, and the day's quiet row last.
+ * matching today carries its headline even if it first fired yesterday),
+ * `events` the matches, and `deploys` the updates already narrowed to the
+ * window and scope. Days come newest first, problems and updates inside a day
+ * by their newest occurrence, and the day's quiet row last.
  */
 export function buildTimeline(
   hits: CloudAlert[],
   events: CloudEvent[],
   locale: string | undefined,
   now: Date = new Date(),
+  deploys: RecentDeploy[] = [],
 ): TimelineDay[] {
   const byAlert = new Map<string, CloudAlert>();
   for (const hit of hits) {
@@ -179,18 +198,40 @@ export function buildTimeline(
     }
   }
 
+  for (const deploy of deploys) {
+    const ts = Date.parse(deploy.at) * 1e6;
+    const labels = updateLabels(deploy);
+    // A tag with no digest either side says nothing by naming it twice.
+    const { to } = labels;
+    const from = labels.from === to ? "" : labels.from;
+    const draft = draftFor(ts, `update:${deploy.host}/${deploy.oldId}/${deploy.newId}@${deploy.at}`, () => ({
+      kind: "update",
+      key: "",
+      name: deploy.name,
+      label: updateKind(deploy),
+      from,
+      to,
+      containers: [],
+      happened: 0,
+      latest: 0,
+      occurrences: [],
+    }));
+    if (draft) add(draft, { ts, containerId: deploy.newId, text: from ? `${from} → ${to}` : to });
+  }
+
   return [...days.values()]
     .sort((a, b) => b.key - a.key)
     .map((day) => {
       const rows = [...day.drafts.values()].map(({ row, containers, origins }) => {
         row.containers = [...containers];
-        row.happened += row.occurrences.length;
+        // An update is not a match: it never adds to what the rules caught.
+        if (row.kind !== "update") row.happened += row.occurrences.length;
         row.occurrences.sort((a, b) => b.ts - a.ts);
         if (row.kind === "problem") row.notified = origins.size;
         return row;
       });
-      const problems = rows.filter((r) => r.kind === "problem").sort((a, b) => b.latest - a.latest);
-      return { key: day.key, label: day.label, rows: [...problems, ...rows.filter((r) => r.kind === "quiet")] };
+      const timed = rows.filter((r) => r.kind !== "quiet").sort((a, b) => b.latest - a.latest);
+      return { key: day.key, label: day.label, rows: [...timed, ...rows.filter((r) => r.kind === "quiet")] };
     });
 }
 
@@ -212,6 +253,8 @@ export function rowAt(days: TimelineDay[], from: number, to: number): TimelineRo
   let nearestGap = Infinity;
   for (const day of days) {
     for (const row of day.rows) {
+      // The chart counts matches; an update is never what a bar is about.
+      if (row.kind === "update") continue;
       const count = row.occurrences.filter((o) => o.ts >= from && o.ts < to).length;
       if (count > bestCount || (count === bestCount && count > 0 && best?.kind === "quiet" && row.kind === "problem")) {
         best = row;

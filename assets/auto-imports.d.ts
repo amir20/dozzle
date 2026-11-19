@@ -133,6 +133,7 @@ declare global {
   const defineAsyncComponent: typeof import('vue').defineAsyncComponent
   const defineComponent: typeof import('vue').defineComponent
   const defineStore: typeof import('pinia').defineStore
+  const deployOf: typeof import('./composable/cloud/recentDeploys').deployOf
   const dismissedImageUpdates: typeof import('./composable/app/storage').dismissedImageUpdates
   const dismissedLinkHint: typeof import('./composable/app/storage').dismissedLinkHint
   const downloadFrom: typeof import('./composable/logs/copyLogs').downloadFrom
@@ -707,7 +708,7 @@ declare global {
   export type { UsageKey } from './composable/app/usage'
   import('./composable/app/usage')
   // @ts-ignore
-  export type { TimelineWindow, Occurrence, ProblemRow, QuietRow, TimelineRow, TimelineDay } from './composable/cloud/alertsTimeline'
+  export type { TimelineWindow, Occurrence, ProblemRow, QuietRow, UpdateRow, TimelineRow, TimelineDay } from './composable/cloud/alertsTimeline'
   import('./composable/cloud/alertsTimeline')
   // @ts-ignore
   export type { ChatVisualPoint, ChatVisualFacts, ChatVisual } from './composable/cloud/chatVisuals'
@@ -955,6 +956,7 @@ declare module 'vue' {
     readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
     readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
     readonly defineStore: UnwrapRef<typeof import('pinia')['defineStore']>
+    readonly deployOf: UnwrapRef<typeof import('./composable/cloud/recentDeploys')['deployOf']>
     readonly dismissedImageUpdates: UnwrapRef<typeof import('./composable/app/storage')['dismissedImageUpdates']>
     readonly dismissedLinkHint: UnwrapRef<typeof import('./composable/app/storage')['dismissedLinkHint']>
     readonly drawerContext: UnwrapRef<typeof import('./composable/app/drawer')['drawerContext']>

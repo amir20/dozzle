@@ -108,7 +108,7 @@
               :row="row"
               :hide-container="single"
               :highlighted="highlighted === row.key"
-              :alone="day.rows.length === 1"
+              :alone="!day.rows.some((r) => r.kind === 'problem')"
             />
           </div>
         </section>
@@ -142,6 +142,7 @@ import {
 } from "@/composable/cloud/alertsTimeline";
 import { hoverSpan, windowClock, type MetricsHover } from "@/composable/cloud/metricsTime";
 import { MAX_ASKED } from "@/composable/cloud/cloudFindings";
+import { deployOf, mergeRecentDeploys, useRecentDeploys } from "@/composable/cloud/recentDeploys";
 
 const { markAlertsSeen, loaded: recentLoaded, fetchRecentAlerts, refreshRecentAlerts } = useRecentAlerts();
 // What the rail's dot counts, in this panel's scope.
@@ -230,10 +231,23 @@ onMounted(() => {
   else load();
 });
 
+// The updates in the window, on the containers in scope: Dozzle's own and the
+// ones only Cloud remembers, including image changes made outside Dozzle.
+const store = useContainerStore();
+const { cloudDeploys, refresh: refreshCloudDeploys } = useRecentDeploys();
+onMounted(refreshCloudDeploys);
+const deploys = computed(() => {
+  const { from, to } = range.value;
+  return mergeRecentDeploys(store.recentUpdates, cloudDeploys.value).filter((d) => {
+    const at = Date.parse(d.at);
+    return at >= from && at <= to && scope.value.some((c) => deployOf(d, c));
+  });
+});
+
 // Reads the shared tick so "Today" rolls over at midnight on a page left open.
 const days = computed(() => {
   void relativeTimeTick.value;
-  return buildTimeline(hits.value, events.value, locale.value);
+  return buildTimeline(hits.value, events.value, locale.value, undefined, deploys.value);
 });
 
 const clock = useMetricsClock(() => windowClock(window.value));
