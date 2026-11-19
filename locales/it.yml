@@ -818,7 +818,8 @@ cloud-findings:
   truncated: Qui non sono elencati tutti i rilevamenti. Dozzle Cloud ha il resto.
   next-review: "Prossima revisione {when}, {time}"
   last-review: "Ultima revisione {when}"
-  not-reviewed: Non ancora revisionato
+  first-review: "Prima revisione {when}, {time}"
+  first-review-hint: I rilevamenti compariranno qui dopo l'esecuzione.
   empty-reviewed: "Niente notato su {name} nell'ultima revisione."
 cloud-chat:
   title: Chiedi

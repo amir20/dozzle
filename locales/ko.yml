@@ -820,7 +820,8 @@ cloud-findings:
   truncated: 모든 조사 결과가 여기에 표시되지는 않습니다. 나머지는 Dozzle Cloud에 있습니다.
   next-review: "다음 검토 {when}, {time}"
   last-review: "마지막 검토 {when}"
-  not-reviewed: 아직 검토되지 않음
+  first-review: "첫 검토 {when}, {time}"
+  first-review-hint: 검토가 실행되면 여기에 조사 결과가 표시됩니다.
   empty-reviewed: "지난 검토에서 {name}에 발견된 내용이 없습니다."
 cloud-chat:
   title: 질문

@@ -818,7 +818,8 @@ cloud-findings:
   truncated: 这里并未列出所有调查结果，其余的在 Dozzle Cloud 中。
   next-review: "下次审查：{when} {time}"
   last-review: "上次审查：{when}"
-  not-reviewed: 尚未审查
+  first-review: "首次审查：{when} {time}"
+  first-review-hint: 审查完成后，调查结果会显示在这里。
   empty-reviewed: "上次审查未在 {name} 上发现任何问题。"
 cloud-chat:
   title: 提问

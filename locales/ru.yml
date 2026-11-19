@@ -818,7 +818,8 @@ cloud-findings:
   truncated: Здесь показаны не все находки. Остальные есть в Dozzle Cloud.
   next-review: "Следующая проверка {when}, {time}"
   last-review: "Последняя проверка {when}"
-  not-reviewed: Ещё не проверялось
+  first-review: "Первая проверка {when}, {time}"
+  first-review-hint: Находки появятся здесь после её завершения.
   empty-reviewed: "При последней проверке в {name} ничего не замечено."
 cloud-chat:
   title: Спросить

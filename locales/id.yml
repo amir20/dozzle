@@ -830,7 +830,8 @@ cloud-findings:
   truncated: Tidak semua temuan tercantum di sini. Dozzle Cloud menyimpan sisanya.
   next-review: "Tinjauan berikutnya {when}, {time}"
   last-review: "Terakhir ditinjau {when}"
-  not-reviewed: Belum ditinjau
+  first-review: "Tinjauan pertama {when}, {time}"
+  first-review-hint: Temuan akan muncul di sini setelah tinjauan berjalan.
   empty-reviewed: "Tidak ada yang tercatat pada {name} di tinjauan terakhir."
 cloud-chat:
   title: Tanya

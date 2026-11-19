@@ -823,7 +823,8 @@ cloud-findings:
   truncated: Tu niso navedene vse ugotovitve. Ostale so v Dozzle Cloud.
   next-review: "Naslednji pregled {when}, {time}"
   last-review: "Zadnji pregled {when}"
-  not-reviewed: Še ni pregledano
+  first-review: "Prvi pregled {when}, {time}"
+  first-review-hint: Ugotovitve se bodo prikazale tukaj, ko se izvede.
   empty-reviewed: "Pri zadnjem pregledu na {name} ni bilo opaženo nič."
 cloud-chat:
   title: Vprašaj

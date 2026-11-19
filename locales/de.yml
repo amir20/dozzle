@@ -818,7 +818,8 @@ cloud-findings:
   truncated: Hier werden nicht alle Befunde angezeigt. Dozzle Cloud hat den Rest.
   next-review: "Nächste Prüfung {when}, {time}"
   last-review: "Zuletzt geprüft {when}"
-  not-reviewed: Noch nicht geprüft
+  first-review: "Erste Prüfung {when}, {time}"
+  first-review-hint: Befunde erscheinen hier, sobald sie gelaufen ist.
   empty-reviewed: "Bei der letzten Prüfung ist an {name} nichts aufgefallen."
 cloud-chat:
   title: Fragen

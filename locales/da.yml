@@ -818,7 +818,8 @@ cloud-findings:
   truncated: Ikke alle fund vises her. Dozzle Cloud har resten.
   next-review: "Næste gennemgang {when}, {time}"
   last-review: "Sidst gennemgået {when}"
-  not-reviewed: Ikke gennemgået endnu
+  first-review: "Første gennemgang {when}, {time}"
+  first-review-hint: Fund vises her, når den har kørt.
   empty-reviewed: "Intet bemærket på {name} i den seneste gennemgang."
 cloud-chat:
   title: Spørg

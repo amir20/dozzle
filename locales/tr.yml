@@ -821,7 +821,8 @@ cloud-findings:
   truncated: "Tüm bulgular burada listelenmiyor. Geri kalanı Dozzle Cloud'da."
   next-review: "Sonraki inceleme {when}, {time}"
   last-review: "Son inceleme {when}"
-  not-reviewed: Henüz incelenmedi
+  first-review: "İlk inceleme {when}, {time}"
+  first-review-hint: Bulgular, inceleme çalıştıktan sonra burada görünür.
   empty-reviewed: "Son incelemede {name} üzerinde bir şey fark edilmedi."
 cloud-chat:
   title: Sor

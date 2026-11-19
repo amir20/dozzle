@@ -68,7 +68,8 @@ const i18n = createI18n({
         instance: "Findings are kept per container.",
         "next-review": "Next review {when}, {time}",
         "last-review": "Last reviewed {when}",
-        "not-reviewed": "Not reviewed yet",
+        "first-review": "First review {when}, {time}",
+        "first-review-hint": "Findings show up here after it runs.",
         "empty-new": "Nothing new noticed on what you're looking at.",
         "empty-reviewed": "Nothing noticed on {name} in the last review.",
       },
@@ -125,12 +126,17 @@ describe("<RailFindings />", () => {
     expect(wrapper.text()).toContain("Nothing noticed on api in the last review.");
   });
 
-  test("before the first review it says so, and the empty line makes no claim", () => {
+  // Before any review there is no answer, so nothing may read as one: no
+  // "nothing noticed", and no filters over a list that cannot exist yet.
+  test("before the first review the schedule is the whole panel", () => {
     nextScanAt.value = Date.now() * 1e6 + 3_600_000 * 1e6;
     findings.value = [];
     const wrapper = mount(RailFindings, { global: { plugins: [i18n], stubs: { RelativeTime: true } } });
-    expect(wrapper.find("[data-schedule]").text()).toContain("Not reviewed yet");
-    expect(wrapper.text()).toContain("Nothing new noticed on what you're looking at.");
+    const schedule = wrapper.find("[data-schedule]").text();
+    expect(schedule).toContain("First review");
+    expect(schedule).toContain("Findings show up here after it runs.");
+    expect(wrapper.text()).not.toContain("Nothing new noticed");
+    expect(wrapper.find('[role="tablist"]').exists()).toBe(false);
   });
 
   test("several containers are counted in the empty line", () => {

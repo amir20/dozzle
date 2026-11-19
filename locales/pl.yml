@@ -820,7 +820,8 @@ cloud-findings:
   truncated: Nie wszystkie ustalenia są tu wymienione. Resztę znajdziesz w Dozzle Cloud.
   next-review: "Następny przegląd {when}, {time}"
   last-review: "Ostatni przegląd {when}"
-  not-reviewed: Jeszcze nie przejrzano
+  first-review: "Pierwszy przegląd {when}, {time}"
+  first-review-hint: Wyniki pojawią się tutaj po jego zakończeniu.
   empty-reviewed: "W ostatnim przeglądzie nie zauważono niczego w {name}."
 cloud-chat:
   title: Zapytaj

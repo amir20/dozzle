@@ -818,7 +818,8 @@ cloud-findings:
   truncated: Tous les constats ne sont pas listés ici. Dozzle Cloud a le reste.
   next-review: "Prochaine analyse {when}, {time}"
   last-review: "Dernière analyse {when}"
-  not-reviewed: Pas encore analysé
+  first-review: "Première analyse {when}, {time}"
+  first-review-hint: Les constats apparaîtront ici après son exécution.
   empty-reviewed: "Rien relevé sur {name} lors de la dernière analyse."
 cloud-chat:
   title: Demander

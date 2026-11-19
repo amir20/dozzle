@@ -820,7 +820,8 @@ cloud-findings:
   truncated: 這裡並未列出所有調查結果，其餘的在 Dozzle Cloud 中。
   next-review: "下次審查：{when} {time}"
   last-review: "上次審查：{when}"
-  not-reviewed: 尚未審查
+  first-review: "首次審查：{when} {time}"
+  first-review-hint: 審查完成後，調查結果會顯示在這裡。
   empty-reviewed: "上次審查未在 {name} 上發現任何問題。"
 cloud-chat:
   title: 提問

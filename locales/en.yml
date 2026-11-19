@@ -332,7 +332,8 @@ cloud-findings:
   truncated: Not every finding is listed here. Dozzle Cloud has the rest.
   next-review: "Next review {when}, {time}"
   last-review: "Last reviewed {when}"
-  not-reviewed: Not reviewed yet
+  first-review: "First review {when}, {time}"
+  first-review-hint: Findings show up here after it runs.
   empty-reviewed: "Nothing noticed on {name} in the last review."
 cloud-chat:
   title: Ask

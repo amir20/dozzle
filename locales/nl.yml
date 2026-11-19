@@ -819,7 +819,8 @@ cloud-findings:
   truncated: Niet elke bevinding staat hier. Dozzle Cloud heeft de rest.
   next-review: "Volgende controle {when}, {time}"
   last-review: "Laatst gecontroleerd {when}"
-  not-reviewed: Nog niet gecontroleerd
+  first-review: "Eerste controle {when}, {time}"
+  first-review-hint: Bevindingen verschijnen hier zodra die is uitgevoerd.
   empty-reviewed: "Niets opgemerkt bij {name} in de laatste controle."
 cloud-chat:
   title: Vragen
