@@ -218,10 +218,18 @@ describe("fetchAlerts", () => {
   // outage must cost the user their alerts, never their logs.
   test("degrades to no alerts when cloud fails", async () => {
     global.fetch = vi.fn().mockRejectedValue(new Error("cloud down"));
-    expect(await fetchAlerts(["abc"], ms(0), ms(1), { linked: true })).toEqual({ alerts: [], events: [] });
+    expect(await fetchAlerts(["abc"], ms(0), ms(1), { linked: true })).toEqual({
+      alerts: [],
+      events: [],
+      failed: true,
+    });
 
     global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 502 });
-    expect(await fetchAlerts(["abc"], ms(0), ms(1), { linked: true })).toEqual({ alerts: [], events: [] });
+    expect(await fetchAlerts(["abc"], ms(0), ms(1), { linked: true })).toEqual({
+      alerts: [],
+      events: [],
+      failed: true,
+    });
   });
 
   test("sends the window as unix nanoseconds", async () => {
@@ -234,6 +242,40 @@ describe("fetchAlerts", () => {
     expect(url).toContain("containerIds=abc%2Cdef");
     expect(url).toContain(`from=${ns(1000)}`);
     expect(url).toContain(`to=${ns(2000)}`);
+  });
+
+  // The chart's counts ride along only when asked for, and an older Cloud that
+  // sends none leaves the field off, which is how the panel knows to hide it.
+  test("asks for buckets and passes them through, or leaves them off", async () => {
+    const buckets = [{ startTs: ns(1000), matched: 3, notified: 1 }];
+    const spy = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ hits: [], buckets }) });
+    global.fetch = spy;
+
+    expect(await fetchAlerts(["abc"], ms(1000), ms(2000), { linked: true, buckets: 24, limit: 200 })).toEqual({
+      alerts: [],
+      events: [],
+      buckets,
+    });
+    const url = spy.mock.calls[0][0] as string;
+    expect(url).toContain("buckets=24");
+    expect(url).toContain("limit=200");
+
+    spy.mockResolvedValue({ ok: true, json: async () => ({ hits: [] }) });
+    expect(await fetchAlerts(["abc"], ms(1000), ms(2000), { linked: true })).not.toHaveProperty("buckets");
+    expect(spy.mock.calls[1][0]).not.toContain("buckets=");
+  });
+
+  test("passes truncated through, and leaves it off when the list is whole", async () => {
+    const spy = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ hits: [], truncated: true }) });
+    global.fetch = spy;
+    expect(await fetchAlerts(["abc"], ms(1000), ms(2000), { linked: true })).toEqual({
+      alerts: [],
+      events: [],
+      truncated: true,
+    });
+
+    spy.mockResolvedValue({ ok: true, json: async () => ({ hits: [] }) });
+    expect(await fetchAlerts(["abc"], ms(1000), ms(2000), { linked: true })).not.toHaveProperty("truncated");
   });
 });
 

@@ -470,9 +470,7 @@ notifications:
     loading: Etkinlik yükleniyor…
     failed: Etkinlik yüklenemedi.
     empty: Son zamanlarda hiçbir şey tetiklenmedi.
-    still-happening: hâlâ sürüyor
     events: "{n} olay"
-    suppressed: "· {n} bastırıldı"
     show-lines: Satırları göster
     show-moment: O andaki günlükleri göster
     open-in-cloud: Dozzle Cloud'da aç
@@ -783,6 +781,18 @@ cloud-rail:
   hide: Cloud çubuğunu gizle
   show: Cloud çubuğunu göster
   alerts-empty-here: Baktığınız şey için hiçbir şey tetiklenmedi.
+  alerts-chart: Kurallarınız ne sıklıkla eşleşti
+  alerts-chart-scroll: Bu zamanı listede göster
+  alerts-matches: "{n} eşleşme | {n} eşleşme"
+  alerts-happened: "Bir kez oldu | {n} kez oldu"
+  alerts-notified: "Bir kez bildirim aldınız | {n} kez bildirim aldınız"
+  alerts-notified-earlier: Daha önce bildirim aldınız
+  alerts-quiet: "{containers} üzerinde {n} eşleşme daha, size söylenecek yeni bir şey yok | {containers} üzerinde {n} eşleşme daha, size söylenecek yeni bir şey yok"
+  alerts-quiet-containers: "{n} konteyner | {n} konteyner"
+  alerts-quiet-alone: "{containers} üzerinde {n} eşleşme, size söylenecek yeni bir şey yok | {containers} üzerinde {n} eşleşme, size söylenecek yeni bir şey yok"
+  alerts-partial: Tüm eşleşmeler burada listelenmiyor.
+  alerts-partial-chart: Tüm eşleşmeler burada listelenmiyor. Grafik hepsini sayıyor.
+  alerts-capped: Burada yalnızca ilk {n} konteyner sayılıyor.
   findings: Bulgular
   scope: Panelin kapsamı
   scope-n: "{n} konteyner"

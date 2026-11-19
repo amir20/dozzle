@@ -21,6 +21,22 @@ type AlertResult struct {
 	// Truncated means the window held more anchors than the limit allowed, so
 	// the viewer is not seeing all of them.
 	Truncated bool `json:"truncated,omitempty"`
+	// Buckets is the window split into equal slices with exact counts, oldest
+	// first, populated only when they were asked for. Empty from a Cloud that
+	// predates them, which the caller reads as "no chart".
+	Buckets []AlertBucket `json:"buckets,omitempty"`
+}
+
+// AlertBucket is one equal slice of the requested window. Unlike Events, the
+// counts do not stop at Cloud's event cap.
+type AlertBucket struct {
+	// StartTs is the bucket's start, unix nanoseconds like every other time
+	// here. It runs to the next bucket's start, or the window's end.
+	StartTs int64 `json:"startTs"`
+	// Matched is the events the rules matched in the bucket.
+	Matched int32 `json:"matched"`
+	// Notified is the alerts that sent a notification anchored in the bucket.
+	Notified int32 `json:"notified"`
 }
 
 // AlertHit is one alert anchored inside the requested window, scoped
@@ -114,7 +130,7 @@ type DeployHit struct {
 // metadata; this client passes only the per-request fields below. Unlike
 // SearchLogs this does not depend on the streamLogs opt-in — alerts live in
 // Cloud's own database rather than the log store.
-func (c *Client) GetAlerts(ctx context.Context, containerIDs []string, hostID string, fromNs, toNs int64, limit int32, includeFollowUps, includeEvents bool) (*AlertResult, error) {
+func (c *Client) GetAlerts(ctx context.Context, containerIDs []string, hostID string, fromNs, toNs int64, limit int32, includeFollowUps, includeEvents bool, buckets int32) (*AlertResult, error) {
 	apiKey := c.apiKeyFunc()
 	if apiKey == "" {
 		return nil, ErrNotConfigured
@@ -139,6 +155,7 @@ func (c *Client) GetAlerts(ctx context.Context, containerIDs []string, hostID st
 		Limit:            limit,
 		IncludeFollowUps: includeFollowUps,
 		IncludeEvents:    includeEvents,
+		Buckets:          buckets,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("cloud: alerts: %w", err)
@@ -189,7 +206,18 @@ func alertResultFromProto(resp *pb.GetAlertsResponse) *AlertResult {
 			Deploy:      deployHitFromProto(e.GetDeploy()),
 		})
 	}
-	return &AlertResult{Hits: hits, Events: events, Truncated: resp.GetTruncated()}
+	var buckets []AlertBucket
+	if bs := resp.GetBuckets(); len(bs) > 0 {
+		buckets = make([]AlertBucket, 0, len(bs))
+		for _, b := range bs {
+			buckets = append(buckets, AlertBucket{
+				StartTs:  b.GetStartTsNs(),
+				Matched:  b.GetMatched(),
+				Notified: b.GetNotified(),
+			})
+		}
+	}
+	return &AlertResult{Hits: hits, Events: events, Truncated: resp.GetTruncated(), Buckets: buckets}
 }
 
 // deployHitFromProto converts a deploy verdict. nil stays nil: only deploy

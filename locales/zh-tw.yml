@@ -469,9 +469,7 @@ notifications:
     loading: 正在載入動態…
     failed: 無法載入動態。
     empty: 最近沒有任何警報觸發。
-    still-happening: 仍在持續
     events: "{n} 個事件"
-    suppressed: "· 已抑制 {n} 個"
     show-lines: 查看對應日誌
     show-moment: 查看前後日誌
     open-in-cloud: 在 Dozzle Cloud 中開啟
@@ -782,6 +780,18 @@ cloud-rail:
   hide: 隱藏雲端側欄
   show: 顯示雲端側欄
   alerts-empty-here: 目前檢視的內容沒有觸發過警報。
+  alerts-chart: 規則比對到的頻率
+  alerts-chart-scroll: 在清單中顯示這個時間
+  alerts-matches: "{n} 次比對 | {n} 次比對"
+  alerts-happened: "發生了 1 次 | 發生了 {n} 次"
+  alerts-notified: "已通知你 1 次 | 已通知你 {n} 次"
+  alerts-notified-earlier: 之前已通知過你
+  alerts-quiet: "{containers}上又比對到 {n} 次，沒有新狀況 | {containers}上又比對到 {n} 次，沒有新狀況"
+  alerts-quiet-containers: "{n} 個容器 | {n} 個容器"
+  alerts-quiet-alone: "{containers}上比對到 {n} 次，沒有新狀況 | {containers}上比對到 {n} 次，沒有新狀況"
+  alerts-partial: 這裡並未列出所有比對。
+  alerts-partial-chart: 這裡並未列出所有比對，圖表則全部計入。
+  alerts-capped: 這裡只計入前 {n} 個容器。
   findings: 調查結果
   scope: 面板範圍
   scope-n: "{n} 個容器"

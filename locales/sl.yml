@@ -472,9 +472,7 @@ notifications:
     loading: Nalaganje dejavnosti…
     failed: Dejavnosti ni bilo mogoče naložiti.
     empty: Nedavno se ni sprožilo nič.
-    still-happening: še vedno se dogaja
     events: "{n} dogodkov"
-    suppressed: "· {n} zadržanih"
     show-lines: Pokaži mi vrstice
     show-moment: Pokaži dnevnike okoli
     open-in-cloud: Odpri v Dozzle Cloud
@@ -785,6 +783,18 @@ cloud-rail:
   hide: Skrij oblačno vrstico
   show: Pokaži oblačno vrstico
   alerts-empty-here: Za to, kar gledate, se ni sprožilo nič.
+  alerts-chart: Kako pogosto so se vaša pravila ujemala
+  alerts-chart-scroll: Pokaži ta čas na seznamu
+  alerts-matches: "{n} ujemanje | {n} ujemanj"
+  alerts-happened: "Zgodilo se je enkrat | Zgodilo se je {n}-krat"
+  alerts-notified: "Obveščeni ste bili enkrat | Obveščeni ste bili {n}-krat"
+  alerts-notified-earlier: Obveščeni ste bili že prej
+  alerts-quiet: "Še {n} ujemanje v {containers}, nič novega za vas | Še {n} ujemanj v {containers}, nič novega za vas"
+  alerts-quiet-containers: "{n} vsebniku | {n} vsebnikih"
+  alerts-quiet-alone: "{n} ujemanje v {containers}, nič novega za vas | {n} ujemanj v {containers}, nič novega za vas"
+  alerts-partial: Tu niso navedena vsa ujemanja.
+  alerts-partial-chart: Tu niso navedena vsa ujemanja. Graf jih šteje vsa.
+  alerts-capped: Tu se šteje samo prvih {n} vsebnikov.
   findings: Ugotovitve
   scope: Na kaj se nanaša plošča
   scope-n: "Vsebnikov: {n}"

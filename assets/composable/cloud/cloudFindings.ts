@@ -161,7 +161,7 @@ function hasUnseen(findings: CloudFinding[], names: Set<string>) {
 
 /** The cap the server applies. One past it is sent so the server keeps its own
  *  limit and marks the answer truncated, rather than this cut hiding the rest. */
-const MAX_ASKED = 100;
+export const MAX_ASKED = 100;
 
 /**
  * The containers a findings list asks Cloud about: the ones on screen, or with

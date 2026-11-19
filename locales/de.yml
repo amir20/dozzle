@@ -467,9 +467,7 @@ notifications:
     loading: Aktivität wird geladen…
     failed: Aktivität konnte nicht geladen werden.
     empty: In letzter Zeit wurde nichts ausgelöst.
-    still-happening: passiert weiterhin
     events: "{n} Ereignisse"
-    suppressed: "· {n} unterdrückt"
     show-lines: Zeig mir die Zeilen
     show-moment: Logs drumherum anzeigen
     open-in-cloud: In Dozzle Cloud öffnen
@@ -780,6 +778,18 @@ cloud-rail:
   hide: Cloud-Leiste ausblenden
   show: Cloud-Leiste einblenden
   alerts-empty-here: Für das, was du gerade ansiehst, wurde nichts ausgelöst.
+  alerts-chart: Wie oft deine Regeln zugetroffen haben
+  alerts-chart-scroll: Diesen Zeitpunkt in der Liste zeigen
+  alerts-matches: "{n} Treffer | {n} Treffer"
+  alerts-happened: "Einmal passiert | {n}-mal passiert"
+  alerts-notified: "Du wurdest einmal benachrichtigt | Du wurdest {n}-mal benachrichtigt"
+  alerts-notified-earlier: Du wurdest schon früher benachrichtigt
+  alerts-quiet: "{n} weiterer Treffer auf {containers}, nichts Neues für dich | {n} weitere Treffer auf {containers}, nichts Neues für dich"
+  alerts-quiet-containers: "{n} Container | {n} Containern"
+  alerts-quiet-alone: "{n} Treffer auf {containers}, nichts Neues für dich | {n} Treffer auf {containers}, nichts Neues für dich"
+  alerts-partial: Hier werden nicht alle Treffer angezeigt.
+  alerts-partial-chart: Hier werden nicht alle Treffer angezeigt. Das Diagramm zählt sie alle.
+  alerts-capped: Hier werden nur die ersten {n} Container gezählt.
   findings: Befunde
   scope: Worum es in der Leiste geht
   scope-n: "{n} Container"

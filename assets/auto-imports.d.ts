@@ -22,6 +22,8 @@ declare global {
   const K8sOwner: typeof import('./stores/k8s').K8sOwner
   const LOG_COOLDOWN_STOPS: typeof import('./composable/notifications/alertForm').LOG_COOLDOWN_STOPS
   const MARKER_START_SLACK_MS: typeof import('./composable/logs/updateMarkers').MARKER_START_SLACK_MS
+  const MAX_ASKED: typeof import('./composable/cloud/cloudFindings').MAX_ASKED
+  const MAX_BUCKETS: typeof import('./composable/cloud/alertsTimeline').MAX_BUCKETS
   const MAX_PATTERN_LINES: typeof import('./composable/cloud/patternMemory').MAX_PATTERN_LINES
   const MIN_CLOUD_POINTS: typeof import('./composable/cloud/liveMetrics').MIN_CLOUD_POINTS
   const MIN_MENU_WIDTH: typeof import('./stores/settings').MIN_MENU_WIDTH
@@ -40,6 +42,7 @@ declare global {
   const SHOWN_STATUSES: typeof import('./composable/cloud/patternMemory').SHOWN_STATUSES
   const SetupError: typeof import('./composable/setup/setup').SetupError
   const TEMPLATE_VARIABLES: typeof import('./composable/editor/templateEditor').TEMPLATE_VARIABLES
+  const TIMELINE_WINDOWS: typeof import('./composable/cloud/alertsTimeline').TIMELINE_WINDOWS
   const UPDATE_CONTAINERS_MODES: typeof import('./composable/containers/updatePolicy').UPDATE_CONTAINERS_MODES
   const UPDATE_LABEL: typeof import('./composable/containers/updatePolicy').UPDATE_LABEL
   const USAGE_FLUSH_INTERVAL: typeof import('./composable/app/usage').USAGE_FLUSH_INTERVAL
@@ -63,6 +66,8 @@ declare global {
   const autoResetRef: typeof import('@vueuse/core').autoResetRef
   const autoUpdates: typeof import('./composable/containers/updatePolicy').autoUpdates
   const automaticRedirect: typeof import('./stores/settings').automaticRedirect
+  const bucketEnd: typeof import('./composable/cloud/alertsTimeline').bucketEnd
+  const buildTimeline: typeof import('./composable/cloud/alertsTimeline').buildTimeline
   const buildViewContext: typeof import('./composable/logs/viewContext').buildViewContext
   const bulkPlan: typeof import('./composable/containers/bulkContainerActions').bulkPlan
   const bulkReplan: typeof import('./composable/containers/bulkContainerActions').bulkReplan
@@ -204,6 +209,9 @@ declare global {
   const isStreamLog: typeof import('./composable/cloud/alertMerger').isStreamLog
   const isViewContextOwner: typeof import('./composable/logs/viewContext').isViewContextOwner
   const labelPolicy: typeof import('./composable/containers/updatePolicy').labelPolicy
+  const levelDot: typeof import('./composable/cloud/alertsTimeline').levelDot
+  const levelPill: typeof import('./composable/cloud/alertsTimeline').levelPill
+  const levelTint: typeof import('./composable/cloud/alertsTimeline').levelTint
   const lightTheme: typeof import('./stores/settings').lightTheme
   const linesNeedingMemory: typeof import('./composable/cloud/patternMemory').linesNeedingMemory
   const liveMinutes: typeof import('./composable/cloud/liveMetrics').liveMinutes
@@ -239,6 +247,7 @@ declare global {
   const nextCompact: typeof import('./composable/ui/compactOnScroll').nextCompact
   const nextTick: typeof import('vue').nextTick
   const notOnScreen: typeof import('./composable/logs/logWindow').notOnScreen
+  const notifiedLevel: typeof import('./composable/cloud/alertsTimeline').notifiedLevel
   const olderCursor: typeof import('./composable/logs/logLoader').olderCursor
   const onActivated: typeof import('vue').onActivated
   const onBeforeMount: typeof import('vue').onBeforeMount
@@ -272,6 +281,7 @@ declare global {
   const persistentVisibleKeysForContainer: typeof import('./composable/app/storage').persistentVisibleKeysForContainer
   const pinnedContainers: typeof import('./composable/app/storage').pinnedContainers
   const postContainerLogs: typeof import('./composable/logs/containerLogs').postContainerLogs
+  const problemAt: typeof import('./composable/cloud/alertsTimeline').problemAt
   const provide: typeof import('vue').provide
   const provideLocal: typeof import('@vueuse/core').provideLocal
   const provideLoggingContext: typeof import('./composable/logs/logContext').provideLoggingContext
@@ -307,6 +317,7 @@ declare global {
   const riskyContainers: typeof import('./composable/containers/updatePolicy').riskyContainers
   const rolloutWorkload: typeof import('./composable/containers/rolloutRestart').rolloutWorkload
   const routeKind: typeof import('./composable/logs/viewContext').routeKind
+  const rowAt: typeof import('./composable/cloud/alertsTimeline').rowAt
   const runBounded: typeof import('./composable/containers/bulkContainerActions').runBounded
   const safeRedirect: typeof import('./composable/ui/safeRedirect').safeRedirect
   const scrollContextKey: typeof import('./composable/logs/scrollContext').scrollContextKey
@@ -696,10 +707,13 @@ declare global {
   export type { UsageKey } from './composable/app/usage'
   import('./composable/app/usage')
   // @ts-ignore
+  export type { TimelineWindow, Occurrence, ProblemRow, QuietRow, TimelineRow, TimelineDay } from './composable/cloud/alertsTimeline'
+  import('./composable/cloud/alertsTimeline')
+  // @ts-ignore
   export type { ChatVisualPoint, ChatVisualFacts, ChatVisual } from './composable/cloud/chatVisuals'
   import('./composable/cloud/chatVisuals')
   // @ts-ignore
-  export type { CloudAlert, CloudEvent } from './composable/cloud/cloudAlerts'
+  export type { CloudAlert, CloudEvent, AlertBucket, FetchedAlerts } from './composable/cloud/cloudAlerts'
   import('./composable/cloud/cloudAlerts')
   // @ts-ignore
   export type { ChatStep, ChatMessage } from './composable/cloud/cloudChat'
@@ -834,6 +848,8 @@ declare module 'vue' {
     readonly K8sOwner: UnwrapRef<typeof import('./stores/k8s')['K8sOwner']>
     readonly LOG_COOLDOWN_STOPS: UnwrapRef<typeof import('./composable/notifications/alertForm')['LOG_COOLDOWN_STOPS']>
     readonly MARKER_START_SLACK_MS: UnwrapRef<typeof import('./composable/logs/updateMarkers')['MARKER_START_SLACK_MS']>
+    readonly MAX_ASKED: UnwrapRef<typeof import('./composable/cloud/cloudFindings')['MAX_ASKED']>
+    readonly MAX_BUCKETS: UnwrapRef<typeof import('./composable/cloud/alertsTimeline')['MAX_BUCKETS']>
     readonly MAX_PATTERN_LINES: UnwrapRef<typeof import('./composable/cloud/patternMemory')['MAX_PATTERN_LINES']>
     readonly MIN_CLOUD_POINTS: UnwrapRef<typeof import('./composable/cloud/liveMetrics')['MIN_CLOUD_POINTS']>
     readonly NOT_RUNNING_ERROR: UnwrapRef<typeof import('./composable/containers/containerActions')['NOT_RUNNING_ERROR']>
@@ -851,6 +867,7 @@ declare module 'vue' {
     readonly SHOWN_STATUSES: UnwrapRef<typeof import('./composable/cloud/patternMemory')['SHOWN_STATUSES']>
     readonly SetupError: UnwrapRef<typeof import('./composable/setup/setup')['SetupError']>
     readonly TEMPLATE_VARIABLES: UnwrapRef<typeof import('./composable/editor/templateEditor')['TEMPLATE_VARIABLES']>
+    readonly TIMELINE_WINDOWS: UnwrapRef<typeof import('./composable/cloud/alertsTimeline')['TIMELINE_WINDOWS']>
     readonly UPDATE_CONTAINERS_MODES: UnwrapRef<typeof import('./composable/containers/updatePolicy')['UPDATE_CONTAINERS_MODES']>
     readonly UPDATE_LABEL: UnwrapRef<typeof import('./composable/containers/updatePolicy')['UPDATE_LABEL']>
     readonly USAGE_FLUSH_INTERVAL: UnwrapRef<typeof import('./composable/app/usage')['USAGE_FLUSH_INTERVAL']>
@@ -874,6 +891,8 @@ declare module 'vue' {
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
     readonly autoUpdates: UnwrapRef<typeof import('./composable/containers/updatePolicy')['autoUpdates']>
     readonly automaticRedirect: UnwrapRef<typeof import('./stores/settings')['automaticRedirect']>
+    readonly bucketEnd: UnwrapRef<typeof import('./composable/cloud/alertsTimeline')['bucketEnd']>
+    readonly buildTimeline: UnwrapRef<typeof import('./composable/cloud/alertsTimeline')['buildTimeline']>
     readonly buildViewContext: UnwrapRef<typeof import('./composable/logs/viewContext')['buildViewContext']>
     readonly bulkPlan: UnwrapRef<typeof import('./composable/containers/bulkContainerActions')['bulkPlan']>
     readonly bulkReplan: UnwrapRef<typeof import('./composable/containers/bulkContainerActions')['bulkReplan']>
@@ -1007,6 +1026,9 @@ declare module 'vue' {
     readonly isStreamLog: UnwrapRef<typeof import('./composable/cloud/alertMerger')['isStreamLog']>
     readonly isViewContextOwner: UnwrapRef<typeof import('./composable/logs/viewContext')['isViewContextOwner']>
     readonly labelPolicy: UnwrapRef<typeof import('./composable/containers/updatePolicy')['labelPolicy']>
+    readonly levelDot: UnwrapRef<typeof import('./composable/cloud/alertsTimeline')['levelDot']>
+    readonly levelPill: UnwrapRef<typeof import('./composable/cloud/alertsTimeline')['levelPill']>
+    readonly levelTint: UnwrapRef<typeof import('./composable/cloud/alertsTimeline')['levelTint']>
     readonly lightTheme: UnwrapRef<typeof import('./stores/settings')['lightTheme']>
     readonly linesNeedingMemory: UnwrapRef<typeof import('./composable/cloud/patternMemory')['linesNeedingMemory']>
     readonly liveMinutes: UnwrapRef<typeof import('./composable/cloud/liveMetrics')['liveMinutes']>
@@ -1040,6 +1062,7 @@ declare module 'vue' {
     readonly nextCompact: UnwrapRef<typeof import('./composable/ui/compactOnScroll')['nextCompact']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
     readonly notOnScreen: UnwrapRef<typeof import('./composable/logs/logWindow')['notOnScreen']>
+    readonly notifiedLevel: UnwrapRef<typeof import('./composable/cloud/alertsTimeline')['notifiedLevel']>
     readonly olderCursor: UnwrapRef<typeof import('./composable/logs/logLoader')['olderCursor']>
     readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>
     readonly onBeforeMount: UnwrapRef<typeof import('vue')['onBeforeMount']>
@@ -1072,6 +1095,7 @@ declare module 'vue' {
     readonly persistentVisibleKeysForContainer: UnwrapRef<typeof import('./composable/app/storage')['persistentVisibleKeysForContainer']>
     readonly pinnedContainers: UnwrapRef<typeof import('./composable/app/storage')['pinnedContainers']>
     readonly postContainerLogs: UnwrapRef<typeof import('./composable/logs/containerLogs')['postContainerLogs']>
+    readonly problemAt: UnwrapRef<typeof import('./composable/cloud/alertsTimeline')['problemAt']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideLocal: UnwrapRef<typeof import('@vueuse/core')['provideLocal']>
     readonly provideLoggingContext: UnwrapRef<typeof import('./composable/logs/logContext')['provideLoggingContext']>
@@ -1106,6 +1130,7 @@ declare module 'vue' {
     readonly riskyContainers: UnwrapRef<typeof import('./composable/containers/updatePolicy')['riskyContainers']>
     readonly rolloutWorkload: UnwrapRef<typeof import('./composable/containers/rolloutRestart')['rolloutWorkload']>
     readonly routeKind: UnwrapRef<typeof import('./composable/logs/viewContext')['routeKind']>
+    readonly rowAt: UnwrapRef<typeof import('./composable/cloud/alertsTimeline')['rowAt']>
     readonly runBounded: UnwrapRef<typeof import('./composable/containers/bulkContainerActions')['runBounded']>
     readonly safeRedirect: UnwrapRef<typeof import('./composable/ui/safeRedirect')['safeRedirect']>
     readonly scrollContextKey: UnwrapRef<typeof import('./composable/logs/scrollContext')['scrollContextKey']>

@@ -469,9 +469,7 @@ notifications:
     loading: 활동을 불러오는 중…
     failed: 활동을 불러올 수 없습니다.
     empty: 최근에 발생한 알림이 없습니다.
-    still-happening: 계속 발생 중
     events: 이벤트 {n}건
-    suppressed: "· {n}건 억제됨"
     show-lines: 해당 로그 보기
     show-moment: 그 시점의 로그 보기
     open-in-cloud: Dozzle Cloud에서 열기
@@ -782,6 +780,18 @@ cloud-rail:
   hide: 클라우드 레일 숨기기
   show: 클라우드 레일 표시
   alerts-empty-here: 보고 있는 대상에서 발생한 알림이 없습니다.
+  alerts-chart: 규칙이 일치한 빈도
+  alerts-chart-scroll: 이 시간을 목록에서 보기
+  alerts-matches: "{n}건 일치 | {n}건 일치"
+  alerts-happened: "1번 발생 | {n}번 발생"
+  alerts-notified: "1번 알림을 받았습니다 | {n}번 알림을 받았습니다"
+  alerts-notified-earlier: 이전에 알림을 받았습니다
+  alerts-quiet: "{containers}에서 {n}건 더 일치, 새로 알려드릴 내용은 없습니다 | {containers}에서 {n}건 더 일치, 새로 알려드릴 내용은 없습니다"
+  alerts-quiet-containers: "컨테이너 {n}개 | 컨테이너 {n}개"
+  alerts-quiet-alone: "{containers}에서 {n}건 일치, 새로 알려드릴 내용은 없습니다 | {containers}에서 {n}건 일치, 새로 알려드릴 내용은 없습니다"
+  alerts-partial: 모든 일치 항목이 여기에 표시되지는 않습니다.
+  alerts-partial-chart: 모든 일치 항목이 여기에 표시되지는 않습니다. 차트는 전부 셉니다.
+  alerts-capped: 여기서는 처음 {n}개의 컨테이너만 셉니다.
   findings: 조사 결과
   scope: 패널 대상
   scope-n: "컨테이너 {n}개"

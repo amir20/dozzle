@@ -286,6 +286,18 @@ cloud-rail:
   hide: Ocultar la barra de cloud
   show: Mostrar la barra de cloud
   alerts-empty-here: No se ha disparado nada en lo que estás viendo.
+  alerts-chart: Con qué frecuencia coincidieron tus reglas
+  alerts-chart-scroll: Mostrar este momento en la lista
+  alerts-matches: "{n} coincidencia | {n} coincidencias"
+  alerts-happened: "Pasó una vez | Pasó {n} veces"
+  alerts-notified: "Se te avisó una vez | Se te avisó {n} veces"
+  alerts-notified-earlier: Ya se te avisó antes
+  alerts-quiet: "{n} coincidencia más en {containers}, nada nuevo que contarte | {n} coincidencias más en {containers}, nada nuevo que contarte"
+  alerts-quiet-containers: "{n} contenedor | {n} contenedores"
+  alerts-quiet-alone: "{n} coincidencia en {containers}, nada nuevo que contarte | {n} coincidencias en {containers}, nada nuevo que contarte"
+  alerts-partial: Aquí no se muestran todas las coincidencias.
+  alerts-partial-chart: Aquí no se muestran todas las coincidencias. El gráfico las cuenta todas.
+  alerts-capped: Aquí solo se cuentan los primeros {n} contenedores.
   findings: Hallazgos
   scope: De qué trata el panel
   scope-n: "{n} contenedores"
@@ -695,9 +707,7 @@ notifications:
     loading: Cargando actividad…
     failed: No se pudo cargar la actividad.
     empty: No se ha disparado nada recientemente.
-    still-happening: sigue ocurriendo
     events: "{n} eventos"
-    suppressed: "· {n} suprimidos"
     show-lines: Muéstrame las líneas
     show-moment: Ver los logs de ese momento
     open-in-cloud: Abrir en Dozzle Cloud

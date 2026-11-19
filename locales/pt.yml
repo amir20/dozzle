@@ -467,9 +467,7 @@ notifications:
     loading: A carregar atividade…
     failed: Não foi possível carregar a atividade.
     empty: Nada foi acionado recentemente.
-    still-happening: ainda a acontecer
     events: "{n} eventos"
-    suppressed: "· {n} suprimidos"
     show-lines: Mostra-me as linhas
     show-moment: Ver os logs à volta
     open-in-cloud: Abrir no Dozzle Cloud
@@ -780,6 +778,18 @@ cloud-rail:
   hide: Ocultar a barra do cloud
   show: Mostrar a barra do cloud
   alerts-empty-here: Nada disparou no que você está vendo.
+  alerts-chart: Com que frequência as suas regras corresponderam
+  alerts-chart-scroll: Mostrar este momento na lista
+  alerts-matches: "{n} correspondência | {n} correspondências"
+  alerts-happened: "Aconteceu uma vez | Aconteceu {n} vezes"
+  alerts-notified: "Você foi avisado uma vez | Você foi avisado {n} vezes"
+  alerts-notified-earlier: Você já foi avisado antes
+  alerts-quiet: "Mais {n} correspondência em {containers}, nada de novo para contar | Mais {n} correspondências em {containers}, nada de novo para contar"
+  alerts-quiet-containers: "{n} contêiner | {n} contêineres"
+  alerts-quiet-alone: "{n} correspondência em {containers}, nada de novo para contar | {n} correspondências em {containers}, nada de novo para contar"
+  alerts-partial: Nem todas as correspondências estão listadas aqui.
+  alerts-partial-chart: Nem todas as correspondências estão listadas aqui. O gráfico conta todas.
+  alerts-capped: Aqui só contam os primeiros {n} contêineres.
   findings: Descobertas
   scope: Do que trata o painel
   scope-n: "{n} contêineres"

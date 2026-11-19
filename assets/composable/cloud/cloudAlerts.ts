@@ -66,9 +66,33 @@ export interface CloudEvent {
   deploy?: DeployVerdict;
 }
 
+/** One equal slice of the asked window, with exact counts past Cloud's event cap. */
+export interface AlertBucket {
+  /** Unix nanoseconds. Runs to the next bucket's start, the last to the window's end. */
+  startTs: number;
+  /** Matches the rules found in the slice. */
+  matched: number;
+  /** Notifications sent from the slice. */
+  notified: number;
+}
+
 interface CloudAlertsResponse {
   hits: CloudAlert[];
   events?: CloudEvent[];
+  truncated?: boolean;
+  /** Absent from a Cloud that predates them. */
+  buckets?: AlertBucket[];
+}
+
+export interface FetchedAlerts {
+  alerts: CloudAlert[];
+  events: CloudEvent[];
+  /** Only when asked for and Cloud knows how; absent otherwise. */
+  buckets?: AlertBucket[];
+  /** Set when Cloud could not be asked, so a panel can tell that from "nothing fired". */
+  failed?: boolean;
+  /** The list stopped short: more alerts than the limit, or more matches than
+   *  Cloud returns at once. Buckets still count every match. */
   truncated?: boolean;
 }
 
@@ -91,8 +115,10 @@ export async function fetchAlerts(
     signal,
     followUps,
     events,
-  }: { linked: boolean; signal?: AbortSignal; followUps?: boolean; events?: boolean },
-): Promise<{ alerts: CloudAlert[]; events: CloudEvent[] }> {
+    buckets,
+    limit,
+  }: { linked: boolean; signal?: AbortSignal; followUps?: boolean; events?: boolean; buckets?: number; limit?: number },
+): Promise<FetchedAlerts> {
   const empty = { alerts: [], events: [] };
   // Backstop, not the primary gate — callers check availability before doing
   // any of the work of assembling a window. Kept so a new caller that forgets
@@ -106,14 +132,19 @@ export async function fetchAlerts(
   });
   if (followUps) params.set("followUps", "1");
   if (events) params.set("events", "1");
+  if (buckets) params.set("buckets", String(buckets));
+  if (limit) params.set("limit", String(limit));
 
   try {
     const res = await fetch(withBase(`/api/cloud/alerts?${params}`), { signal });
-    if (!res.ok) return empty;
+    if (!res.ok) return { ...empty, failed: true };
     const body = (await res.json()) as CloudAlertsResponse;
-    return { alerts: body.hits ?? [], events: body.events ?? [] };
+    const result: FetchedAlerts = { alerts: body.hits ?? [], events: body.events ?? [] };
+    if (body.buckets?.length) result.buckets = body.buckets;
+    if (body.truncated) result.truncated = true;
+    return result;
   } catch {
-    return empty;
+    return { ...empty, failed: true };
   }
 }
 
@@ -131,7 +162,7 @@ export function useCloudAlerts() {
       containerIDs: string[],
       from: Date,
       to: Date,
-      opts: { followUps?: boolean; events?: boolean; signal?: AbortSignal } = {},
+      opts: { followUps?: boolean; events?: boolean; buckets?: number; limit?: number; signal?: AbortSignal } = {},
     ) => fetchAlerts(containerIDs, from, to, { linked: available.value, ...opts }),
   };
 }

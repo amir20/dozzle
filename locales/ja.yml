@@ -287,6 +287,18 @@ cloud-rail:
   hide: クラウドレールを隠す
   show: クラウドレールを表示
   alerts-empty-here: 表示中の内容では何も発生していません。
+  alerts-chart: ルールが一致した頻度
+  alerts-chart-scroll: この時刻を一覧で表示
+  alerts-matches: "{n} 件の一致 | {n} 件の一致"
+  alerts-happened: "1 回発生 | {n} 回発生"
+  alerts-notified: "1 回通知しました | {n} 回通知しました"
+  alerts-notified-earlier: 以前に通知しました
+  alerts-quiet: "{containers}でさらに {n} 件一致、新しくお知らせすることはありません | {containers}でさらに {n} 件一致、新しくお知らせすることはありません"
+  alerts-quiet-containers: "{n} 個のコンテナ | {n} 個のコンテナ"
+  alerts-quiet-alone: "{containers}で {n} 件一致、新しくお知らせすることはありません | {containers}で {n} 件一致、新しくお知らせすることはありません"
+  alerts-partial: ここにはすべての一致が表示されているわけではありません。
+  alerts-partial-chart: ここにはすべての一致が表示されているわけではありません。グラフはすべてを数えています。
+  alerts-capped: ここでは最初の {n} 個のコンテナだけを数えています。
   findings: 検出結果
   scope: パネルの対象
   scope-n: "{n} 個のコンテナ"
@@ -696,9 +708,7 @@ notifications:
     loading: アクティビティを読み込んでいます…
     failed: アクティビティを読み込めませんでした。
     empty: 最近発生したものはありません。
-    still-happening: 継続中
     events: "{n} 件のイベント"
-    suppressed: "· {n} 件を抑制"
     show-lines: 該当する行を表示
     show-moment: 前後のログを表示
     open-in-cloud: Dozzle Cloud で開く

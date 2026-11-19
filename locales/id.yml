@@ -479,9 +479,7 @@ notifications:
     loading: Memuat aktivitas…
     failed: Tidak dapat memuat aktivitas.
     empty: Belum ada yang terpicu baru-baru ini.
-    still-happening: masih berlangsung
     events: "{n} kejadian"
-    suppressed: "· {n} ditekan"
     show-lines: Tunjukkan barisnya
     show-moment: Lihat log di sekitarnya
     open-in-cloud: Buka di Dozzle Cloud
@@ -792,6 +790,18 @@ cloud-rail:
   hide: Sembunyikan bilah cloud
   show: Tampilkan bilah cloud
   alerts-empty-here: Belum ada yang terpicu pada yang sedang Anda lihat.
+  alerts-chart: Seberapa sering aturan Anda cocok
+  alerts-chart-scroll: Tampilkan waktu ini di daftar
+  alerts-matches: "{n} kecocokan | {n} kecocokan"
+  alerts-happened: "Terjadi sekali | Terjadi {n} kali"
+  alerts-notified: "Anda diberi tahu sekali | Anda diberi tahu {n} kali"
+  alerts-notified-earlier: Anda sudah diberi tahu sebelumnya
+  alerts-quiet: "{n} kecocokan lagi di {containers}, tidak ada yang baru untuk diberitahukan | {n} kecocokan lagi di {containers}, tidak ada yang baru untuk diberitahukan"
+  alerts-quiet-containers: "{n} kontainer | {n} kontainer"
+  alerts-quiet-alone: "{n} kecocokan di {containers}, tidak ada yang baru untuk diberitahukan | {n} kecocokan di {containers}, tidak ada yang baru untuk diberitahukan"
+  alerts-partial: Tidak semua kecocokan tercantum di sini.
+  alerts-partial-chart: Tidak semua kecocokan tercantum di sini. Grafik menghitung semuanya.
+  alerts-capped: Hanya {n} kontainer pertama yang dihitung di sini.
   findings: Temuan
   scope: Cakupan panel ini
   scope-n: "{n} kontainer"

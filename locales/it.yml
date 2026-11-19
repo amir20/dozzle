@@ -467,9 +467,7 @@ notifications:
     loading: Caricamento attività…
     failed: Impossibile caricare l'attività.
     empty: Nulla è scattato di recente.
-    still-happening: ancora in corso
     events: "{n} eventi"
-    suppressed: "· {n} soppressi"
     show-lines: Mostrami le righe
     show-moment: Mostra i log intorno
     open-in-cloud: Apri in Dozzle Cloud
@@ -780,6 +778,18 @@ cloud-rail:
   hide: Nascondi la barra cloud
   show: Mostra la barra cloud
   alerts-empty-here: Non è scattato nulla su ciò che stai guardando.
+  alerts-chart: Quante volte le tue regole hanno trovato corrispondenze
+  alerts-chart-scroll: Mostra questo momento nell'elenco
+  alerts-matches: "{n} corrispondenza | {n} corrispondenze"
+  alerts-happened: "Successo una volta | Successo {n} volte"
+  alerts-notified: "Sei stato avvisato una volta | Sei stato avvisato {n} volte"
+  alerts-notified-earlier: Sei già stato avvisato prima
+  alerts-quiet: "{n} altra corrispondenza su {containers}, niente di nuovo da segnalarti | {n} altre corrispondenze su {containers}, niente di nuovo da segnalarti"
+  alerts-quiet-containers: "{n} container | {n} container"
+  alerts-quiet-alone: "{n} corrispondenza su {containers}, niente di nuovo da segnalarti | {n} corrispondenze su {containers}, niente di nuovo da segnalarti"
+  alerts-partial: Qui non sono elencate tutte le corrispondenze.
+  alerts-partial-chart: Qui non sono elencate tutte le corrispondenze. Il grafico le conta tutte.
+  alerts-capped: Qui vengono contati solo i primi {n} container.
   findings: Rilevamenti
   scope: Di cosa tratta il pannello
   scope-n: "{n} container"

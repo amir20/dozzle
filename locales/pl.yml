@@ -469,9 +469,7 @@ notifications:
     loading: Wczytywanie aktywności…
     failed: Nie udało się wczytać aktywności.
     empty: Ostatnio nic się nie uruchomiło.
-    still-happening: nadal trwa
     events: "{n} zdarzeń"
-    suppressed: "· {n} pominiętych"
     show-lines: Pokaż mi wiersze
     show-moment: Pokaż logi z tego momentu
     open-in-cloud: Otwórz w Dozzle Cloud
@@ -782,6 +780,18 @@ cloud-rail:
   hide: Ukryj pasek cloud
   show: Pokaż pasek cloud
   alerts-empty-here: Nic się nie uruchomiło dla tego, co oglądasz.
+  alerts-chart: Jak często pasowały twoje reguły
+  alerts-chart-scroll: Pokaż ten moment na liście
+  alerts-matches: "{n} dopasowanie | {n} dopasowań"
+  alerts-happened: "Wydarzyło się raz | Wydarzyło się {n} razy"
+  alerts-notified: "Powiadomiono cię raz | Powiadomiono cię {n} razy"
+  alerts-notified-earlier: Powiadomiono cię już wcześniej
+  alerts-quiet: "Jeszcze {n} dopasowanie na {containers}, nic nowego do przekazania | Jeszcze {n} dopasowań na {containers}, nic nowego do przekazania"
+  alerts-quiet-containers: "{n} kontener | {n} kontenerów"
+  alerts-quiet-alone: "{n} dopasowanie na {containers}, nic nowego do przekazania | {n} dopasowań na {containers}, nic nowego do przekazania"
+  alerts-partial: Nie wszystkie dopasowania są tu wymienione.
+  alerts-partial-chart: Nie wszystkie dopasowania są tu wymienione. Wykres liczy je wszystkie.
+  alerts-capped: Liczonych jest tu tylko pierwszych {n} kontenerów.
   findings: Ustalenia
   scope: Czego dotyczy panel
   scope-n: "Kontenery: {n}"

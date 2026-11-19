@@ -1077,6 +1077,12 @@ message GetAlertsRequest {
   // alerts they were aggregated into. An alert means a notification was
   // delivered; an event on its own may have been held back.
   bool include_events = 7;
+  // When > 0, also return per-bucket totals over [from_ts_ns, to_ts_ns] split
+  // into this many equal buckets, so a chart's match counts stay exact past
+  // the event cap.
+  // Server-capped (200). 0 = no buckets. An older Cloud ignores it and returns
+  // none.
+  int32 buckets = 8;
 }
 
 message AlertHit {
@@ -1253,4 +1259,22 @@ message GetAlertsResponse {
   // "more alerts in this range" affordance rather than paginating — unlike
   // log search, scrollback windows are already small and bounded.
   bool truncated = 2;
+  // Populated only when buckets > 0, oldest first, one per requested bucket
+  // (empty buckets included). An older Cloud returns none.
+  repeated AlertBucket buckets = 4;
+}
+
+// One equal slice of the requested window. matched is always exact, unlike
+// events, which stop at Cloud's cap. notified is exact while the window holds
+// at most a few thousand matches; past that Cloud may undercount it and sets
+// truncated on the response. Cloud may also shorten a very wide window, so
+// the first bucket's start_ts_ns, not from_ts_ns, is where the chart begins.
+message AlertBucket {
+  // Start of the bucket, unix nanoseconds. The bucket runs to the next one's
+  // start, or to_ts_ns for the last.
+  int64 start_ts_ns = 1;
+  // Matched events in the bucket for the requested containers.
+  int32 matched = 2;
+  // Alerts that sent a notification whose anchor falls in the bucket.
+  int32 notified = 3;
 }

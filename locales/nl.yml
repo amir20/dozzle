@@ -468,9 +468,7 @@ notifications:
     loading: Activiteit laden…
     failed: Kon activiteit niet laden.
     empty: Er is recent niets afgegaan.
-    still-happening: gebeurt nog steeds
     events: "{n} gebeurtenissen"
-    suppressed: "· {n} onderdrukt"
     show-lines: Laat me de regels zien
     show-moment: Toon de logs eromheen
     open-in-cloud: Openen in Dozzle Cloud
@@ -781,6 +779,18 @@ cloud-rail:
   hide: Cloudbalk verbergen
   show: Cloudbalk tonen
   alerts-empty-here: Er is niets afgegaan voor wat je bekijkt.
+  alerts-chart: Hoe vaak je regels overeenkwamen
+  alerts-chart-scroll: Dit tijdstip in de lijst tonen
+  alerts-matches: "{n} treffer | {n} treffers"
+  alerts-happened: "Eén keer gebeurd | {n} keer gebeurd"
+  alerts-notified: "Je hebt één melding gekregen | Je hebt {n} meldingen gekregen"
+  alerts-notified-earlier: Je hebt eerder al een melding gekregen
+  alerts-quiet: "Nog {n} treffer op {containers}, niets nieuws te melden | Nog {n} treffers op {containers}, niets nieuws te melden"
+  alerts-quiet-containers: "{n} container | {n} containers"
+  alerts-quiet-alone: "{n} treffer op {containers}, niets nieuws te melden | {n} treffers op {containers}, niets nieuws te melden"
+  alerts-partial: Niet elke treffer staat hier.
+  alerts-partial-chart: Niet elke treffer staat hier. De grafiek telt ze allemaal.
+  alerts-capped: Hier tellen alleen de eerste {n} containers mee.
   findings: Bevindingen
   scope: Waar het paneel over gaat
   scope-n: "{n} containers"

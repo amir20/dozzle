@@ -467,9 +467,7 @@ notifications:
     loading: Загрузка активности…
     failed: Не удалось загрузить активность.
     empty: Недавно ничего не срабатывало.
-    still-happening: всё ещё происходит
     events: "{n} событий"
-    suppressed: "· {n} подавлено"
     show-lines: Показать строки
     show-moment: Показать логи вокруг
     open-in-cloud: Открыть в Dozzle Cloud
@@ -780,6 +778,18 @@ cloud-rail:
   hide: Скрыть панель облака
   show: Показать панель облака
   alerts-empty-here: По тому, что вы смотрите, ничего не срабатывало.
+  alerts-chart: Как часто срабатывали ваши правила
+  alerts-chart-scroll: Показать это время в списке
+  alerts-matches: "{n} совпадение | {n} совпадений"
+  alerts-happened: "Случилось один раз | Случилось {n} раз"
+  alerts-notified: "Вы получили одно уведомление | Вы получили {n} уведомлений"
+  alerts-notified-earlier: Вы уже получали уведомление раньше
+  alerts-quiet: "Ещё {n} совпадение в {containers}, ничего нового | Ещё {n} совпадений в {containers}, ничего нового"
+  alerts-quiet-containers: "{n} контейнере | {n} контейнерах"
+  alerts-quiet-alone: "{n} совпадение в {containers}, ничего нового | {n} совпадений в {containers}, ничего нового"
+  alerts-partial: Здесь показаны не все совпадения.
+  alerts-partial-chart: Здесь показаны не все совпадения. График учитывает их все.
+  alerts-capped: Здесь учитываются только первые {n} контейнеров.
   findings: Находки
   scope: К чему относится панель
   scope-n: "Контейнеров: {n}"
