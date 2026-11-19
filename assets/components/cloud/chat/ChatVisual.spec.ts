@@ -103,6 +103,37 @@ describe("ChatVisual", () => {
     expect(bars.props("chartData").map((b: { percent: number }) => b.percent)).toEqual([0.1, 0.2]);
   });
 
+  test("CPU over time names the window's ends, and the hovered bar's moment and value", async () => {
+    const day = 24 * 3600_000;
+    const from = Date.UTC(2026, 10, 12, 12);
+    const wrapper = render({
+      type: "cpu_over_time",
+      container: "api",
+      from,
+      to: from + 7 * day,
+      points: [
+        { ts: from, cpu: 5, memory: 0, memoryUsage: 0 },
+        { ts: from + 5 * day, cpu: 6.5, cpuMax: 58, memory: 0, memoryUsage: 0 },
+      ],
+    });
+    const axis = wrapper.find("[data-range]");
+    expect(axis.text()).toContain("Nov 12");
+    expect(axis.text()).toContain("Nov 19");
+    expect(wrapper.find("[data-moment]").exists()).toBe(false);
+
+    const bars = wrapper.findComponent(BarChartStub);
+    bars.vm.$emit("hoverValue", 6.5, 1, 2, 58);
+    await wrapper.vm.$nextTick();
+    const moment = wrapper.find("[data-moment]").text();
+    expect(moment).toContain("Nov 17");
+    expect(moment).toContain("6.5%");
+    expect(moment).toContain("peak 58.0%");
+
+    bars.vm.$emit("hoverEnd");
+    await wrapper.vm.$nextTick();
+    expect(wrapper.find("[data-moment]").exists()).toBe(false);
+  });
+
   test("CPU over time with no series draws no chart", () => {
     const wrapper = render({ type: "cpu_over_time", container: "rook", from: 0, to: 1, points: [] });
     expect(wrapper.findComponent(BarChartStub).exists()).toBe(false);
