@@ -25,8 +25,8 @@ vi.mock("@/composable/cloud/cloudFindings", () => ({
 
 // One alert inside the cut, one on the container past it, both unseen.
 const alerts = ref([
-  { id: "a1", containerId: "c005", ts: 2 },
-  { id: "a2", containerId: "c100", ts: 3 },
+  { alertId: "a1", containerId: "c005", ts: 2 },
+  { alertId: "a2", containerId: "c100", ts: 3 },
 ]);
 vi.mock("@/composable/cloud/recentAlerts", async () => {
   const { computed, toValue } = await import("vue");
@@ -46,10 +46,10 @@ describe("useViewAlerts", () => {
   // panel's cut would light a dot the panel has no row for.
   test("on a page with no containers, counts only the ones the panel asks about", () => {
     const { visible, unseen } = useViewAlerts();
-    expect(visible.value.map((a) => a.id)).toEqual(["a1"]);
+    expect(visible.value.map((a) => a.alertId)).toEqual(["a1"]);
     expect(unseen.value).toBe(true);
 
-    alerts.value = [{ id: "a2", containerId: "c100", ts: 3 }];
+    alerts.value = [{ alertId: "a2", containerId: "c100", ts: 3 }];
     expect(visible.value).toEqual([]);
     expect(unseen.value).toBe(false);
   });
