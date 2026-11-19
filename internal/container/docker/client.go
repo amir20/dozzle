@@ -540,7 +540,7 @@ func (d *Client) ContainerCreate(ctx context.Context, inspectResp docker.Inspect
 
 	spec := swap.ReplacementSpec(inspectResp, oldImage, name)
 	if d.host.Runtime == "podman" {
-		swap.ForPodman(spec.HostConfig)
+		swap.ForPodman(spec.HostConfig, inspectResp)
 	}
 	resp, err := d.cli.ContainerCreate(ctx, spec)
 	if err != nil {

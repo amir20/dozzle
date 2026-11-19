@@ -161,7 +161,7 @@ func newSwap(cli API, old dcontainer.InspectResponse, opts Options) *swap {
 func (s *swap) spec(oldImage *image.InspectResponse, image string, labels map[string]string) client.ContainerCreateOptions {
 	spec := ReplacementSpec(s.old, oldImage, s.name)
 	if s.opts.Podman {
-		ForPodman(spec.HostConfig)
+		ForPodman(spec.HostConfig, s.old)
 	}
 	if s.opts.NetworkMode != "" {
 		spec.HostConfig.NetworkMode = dcontainer.NetworkMode(s.opts.NetworkMode)

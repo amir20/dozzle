@@ -273,6 +273,30 @@ func TestSwapMemorySwappiness(t *testing.T) {
 	assert.Equal(t, &zero, swapped(&zero, false), "on docker a 0 was set on purpose")
 }
 
+func TestSwapSELinuxLevel(t *testing.T) {
+	fastTimings(t)
+	swapped := func(processLabel string, securityOpt []string, podman bool) []string {
+		f := newFake()
+		old := f.containers[appID]
+		old.ProcessLabel = processLabel
+		old.HostConfig.SecurityOpt = securityOpt
+		f.containers[appID] = old
+		_, err := swapApp(f, Options{Podman: podman})
+		require.NoError(t, err)
+		return f.created[0].HostConfig.SecurityOpt
+	}
+	const label = "system_u:system_r:container_t:s0:c123,c456"
+
+	// Podman drops the :Z from a relabelled bind, so the replacement keeps the
+	// old level or it cannot read the files relabelled for it (#5662).
+	assert.Equal(t, []string{"label=level:s0:c123,c456"}, swapped(label, nil, true))
+	assert.Equal(t, []string{"no-new-privileges", "label=level:s0:c123,c456"}, swapped(label, []string{"no-new-privileges"}, true))
+	assert.Equal(t, []string{"label=disable"}, swapped(label, []string{"label=disable"}, true), "labelling turned off stays off")
+	assert.Equal(t, []string{"label=level:s0:c1,c2"}, swapped(label, []string{"label=level:s0:c1,c2"}, true), "an explicit level is kept")
+	assert.Empty(t, swapped("", nil, true), "no SELinux, nothing to keep")
+	assert.Empty(t, swapped(label, nil, false), "docker keeps the :Z in its binds")
+}
+
 func TestIsPodman(t *testing.T) {
 	assert.True(t, IsPodman(client.ServerVersionResult{Components: []system.ComponentVersion{{Name: "Podman Engine"}}}))
 	assert.True(t, IsPodman(client.ServerVersionResult{Platform: client.PlatformInfo{Name: "linux/amd64/fedora-43 Podman"}}))
