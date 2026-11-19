@@ -171,7 +171,7 @@ Dozzle supports the following roles:
 | `update`        | `dozzle_update`        | Update a container to a newer image. Only takes effect alongside `actions`.                        |
 | `download`      | `dozzle_download`      | Download container logs as a file.                                                                 |
 | `notifications` | `dozzle_notifications` | Create and edit notification rules and destinations.                                               |
-| `cloud`         | `dozzle_cloud`         | Link, unlink and configure Dozzle Cloud.                                                           |
+| `cloud`         | `dozzle_cloud`         | Link, unlink and configure Dozzle Cloud, and ignore its findings.                                  |
 | `all`           | `dozzle_all`           | Every role above. This is the default when `roles` is empty.                                       |
 | `none`          | `dozzle_none`          | No roles. Logs are still viewable, subject to the user's filter. Overrides anything else.          |
 

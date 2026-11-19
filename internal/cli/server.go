@@ -181,6 +181,8 @@ func (c ServerCmd) Run(args Args, certs embed.FS) error {
 		GetRecentAlerts:   cloudClient.GetRecentAlerts,
 		GetRecentDeploys:  cloudClient.GetRecentDeploys,
 		GetPatternContext: cloudClient.GetPatternContext,
+		GetFindings:       cloudClient.GetFindings,
+		IgnoreFinding:     cloudClient.IgnoreFinding,
 
 		GetContainerMetrics: cloudClient.GetContainerMetrics,
 		GetHostMetrics:      cloudClient.GetHostMetrics,

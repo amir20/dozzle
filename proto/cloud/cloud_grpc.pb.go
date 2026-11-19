@@ -24,6 +24,8 @@ const (
 	CloudToolService_GetAlerts_FullMethodName           = "/cloud.CloudToolService/GetAlerts"
 	CloudToolService_GetRecentAlerts_FullMethodName     = "/cloud.CloudToolService/GetRecentAlerts"
 	CloudToolService_GetRecentDeploys_FullMethodName    = "/cloud.CloudToolService/GetRecentDeploys"
+	CloudToolService_GetFindings_FullMethodName         = "/cloud.CloudToolService/GetFindings"
+	CloudToolService_IgnoreFinding_FullMethodName       = "/cloud.CloudToolService/IgnoreFinding"
 	CloudToolService_GetPatternContext_FullMethodName   = "/cloud.CloudToolService/GetPatternContext"
 	CloudToolService_GetContainerMetrics_FullMethodName = "/cloud.CloudToolService/GetContainerMetrics"
 	CloudToolService_GetHostMetrics_FullMethodName      = "/cloud.CloudToolService/GetHostMetrics"
@@ -65,6 +67,20 @@ type CloudToolServiceClient interface {
 	// heard of a Dozzle user, so Dozzle narrows the answer to what the viewer may
 	// see.
 	GetRecentDeploys(ctx context.Context, in *GetRecentDeploysRequest, opts ...grpc.CallOption) (*GetRecentDeploysResponse, error)
+	// Dozzle-initiated unary call: what Cloud's scheduled log review found about
+	// the containers on screen. A finding records container NAMES only (the
+	// evidence the review cited, plus the container behind each of its log
+	// patterns), never a container id or host, so Dozzle resolves what it shows
+	// to names first, which is also where it checks the caller may see them.
+	// Scoped server-side to the (user_id, api_key_id) on the connection. A Cloud
+	// without this RPC answers Unimplemented.
+	GetFindings(ctx context.Context, in *GetFindingsRequest, opts ...grpc.CallOption) (*GetFindingsResponse, error)
+	// Dozzle-initiated unary call: ignore one finding, or take that back. The
+	// review keeps tracking it; no report, email or worklist raises it again.
+	// Account-wide state, so Dozzle only lets an unfiltered user with the cloud
+	// role call it. Cloud refuses a finding that belongs to another instance of
+	// the same account with NotFound, the same answer as an unknown id.
+	IgnoreFinding(ctx context.Context, in *IgnoreFindingRequest, opts ...grpc.CallOption) (*IgnoreFindingResponse, error)
 	// Dozzle-initiated unary call: what Cloud remembers about the error and
 	// warn lines on screen. Dozzle names each line by (container_id, log_id);
 	// Cloud finds the line in the logs it was streamed, groups it into its
@@ -166,6 +182,26 @@ func (c *cloudToolServiceClient) GetRecentDeploys(ctx context.Context, in *GetRe
 	return out, nil
 }
 
+func (c *cloudToolServiceClient) GetFindings(ctx context.Context, in *GetFindingsRequest, opts ...grpc.CallOption) (*GetFindingsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetFindingsResponse)
+	err := c.cc.Invoke(ctx, CloudToolService_GetFindings_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cloudToolServiceClient) IgnoreFinding(ctx context.Context, in *IgnoreFindingRequest, opts ...grpc.CallOption) (*IgnoreFindingResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(IgnoreFindingResponse)
+	err := c.cc.Invoke(ctx, CloudToolService_IgnoreFinding_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *cloudToolServiceClient) GetPatternContext(ctx context.Context, in *GetPatternContextRequest, opts ...grpc.CallOption) (*GetPatternContextResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetPatternContextResponse)
@@ -253,6 +289,20 @@ type CloudToolServiceServer interface {
 	// heard of a Dozzle user, so Dozzle narrows the answer to what the viewer may
 	// see.
 	GetRecentDeploys(context.Context, *GetRecentDeploysRequest) (*GetRecentDeploysResponse, error)
+	// Dozzle-initiated unary call: what Cloud's scheduled log review found about
+	// the containers on screen. A finding records container NAMES only (the
+	// evidence the review cited, plus the container behind each of its log
+	// patterns), never a container id or host, so Dozzle resolves what it shows
+	// to names first, which is also where it checks the caller may see them.
+	// Scoped server-side to the (user_id, api_key_id) on the connection. A Cloud
+	// without this RPC answers Unimplemented.
+	GetFindings(context.Context, *GetFindingsRequest) (*GetFindingsResponse, error)
+	// Dozzle-initiated unary call: ignore one finding, or take that back. The
+	// review keeps tracking it; no report, email or worklist raises it again.
+	// Account-wide state, so Dozzle only lets an unfiltered user with the cloud
+	// role call it. Cloud refuses a finding that belongs to another instance of
+	// the same account with NotFound, the same answer as an unknown id.
+	IgnoreFinding(context.Context, *IgnoreFindingRequest) (*IgnoreFindingResponse, error)
 	// Dozzle-initiated unary call: what Cloud remembers about the error and
 	// warn lines on screen. Dozzle names each line by (container_id, log_id);
 	// Cloud finds the line in the logs it was streamed, groups it into its
@@ -315,6 +365,12 @@ func (UnimplementedCloudToolServiceServer) GetRecentAlerts(context.Context, *Get
 }
 func (UnimplementedCloudToolServiceServer) GetRecentDeploys(context.Context, *GetRecentDeploysRequest) (*GetRecentDeploysResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetRecentDeploys not implemented")
+}
+func (UnimplementedCloudToolServiceServer) GetFindings(context.Context, *GetFindingsRequest) (*GetFindingsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetFindings not implemented")
+}
+func (UnimplementedCloudToolServiceServer) IgnoreFinding(context.Context, *IgnoreFindingRequest) (*IgnoreFindingResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method IgnoreFinding not implemented")
 }
 func (UnimplementedCloudToolServiceServer) GetPatternContext(context.Context, *GetPatternContextRequest) (*GetPatternContextResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetPatternContext not implemented")
@@ -431,6 +487,42 @@ func _CloudToolService_GetRecentDeploys_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CloudToolService_GetFindings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFindingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CloudToolServiceServer).GetFindings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CloudToolService_GetFindings_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CloudToolServiceServer).GetFindings(ctx, req.(*GetFindingsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CloudToolService_IgnoreFinding_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IgnoreFindingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CloudToolServiceServer).IgnoreFinding(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CloudToolService_IgnoreFinding_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CloudToolServiceServer).IgnoreFinding(ctx, req.(*IgnoreFindingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _CloudToolService_GetPatternContext_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetPatternContextRequest)
 	if err := dec(in); err != nil {
@@ -532,6 +624,14 @@ var CloudToolService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetRecentDeploys",
 			Handler:    _CloudToolService_GetRecentDeploys_Handler,
+		},
+		{
+			MethodName: "GetFindings",
+			Handler:    _CloudToolService_GetFindings_Handler,
+		},
+		{
+			MethodName: "IgnoreFinding",
+			Handler:    _CloudToolService_IgnoreFinding_Handler,
 		},
 		{
 			MethodName: "GetPatternContext",

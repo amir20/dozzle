@@ -39,16 +39,23 @@ type exchangeTokenResponse struct {
 // label-restricted user must not be able to link, unlink or reconfigure it.
 func (h *handler) requireCloudRole(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if h.config.Authorization.Provider != NONE {
-			user := auth.UserFromContext(r.Context())
-			if user == nil || !user.Roles.Has(auth.Cloud) {
-				log.Warn().Msg("user is not permitted to manage cloud")
-				http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-				return
-			}
+		if !h.hasCloudRole(r) {
+			log.Warn().Msg("user is not permitted to manage cloud")
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			return
 		}
 		next.ServeHTTP(w, r)
 	})
+}
+
+// hasCloudRole is the check requireCloudRole enforces, for handlers that need
+// to tell the UI up front whether a role-gated route would let the caller in.
+func (h *handler) hasCloudRole(r *http.Request) bool {
+	if h.config.Authorization.Provider == NONE {
+		return true
+	}
+	user := auth.UserFromContext(r.Context())
+	return user != nil && user.Roles.Has(auth.Cloud)
 }
 
 func (h *handler) cloudCallback(w http.ResponseWriter, r *http.Request) {
