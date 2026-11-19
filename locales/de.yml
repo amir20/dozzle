@@ -785,6 +785,7 @@ cloud-rail:
   scope: Worum es in der Leiste geht
   scope-n: "{n} Container"
   scope-all: Alle Container
+  scope-all-hosts: Alle Hosts
   open-in-cloud: In Dozzle Cloud öffnen
   open-container: "{name} in Dozzle Cloud öffnen"
   alert-rules: Alarmregeln
@@ -819,7 +820,7 @@ cloud-findings:
   next-review: "Nächste Prüfung {when}, {time}"
   last-review: "Zuletzt geprüft {when}"
   first-review: "Erste Prüfung {when}, {time}"
-  first-review-hint: Befunde erscheinen hier, sobald sie gelaufen ist.
+  first-review-hint: Noch keine Befunde. Sie erscheinen hier nach der ersten Prüfung.
   empty-reviewed: "Bei der letzten Prüfung ist an {name} nichts aufgefallen."
 cloud-chat:
   title: Fragen

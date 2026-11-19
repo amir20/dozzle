@@ -790,6 +790,7 @@ cloud-rail:
   scope: Na kaj se nanaša plošča
   scope-n: "Vsebnikov: {n}"
   scope-all: Vsi vsebniki
+  scope-all-hosts: Vsi gostitelji
   open-in-cloud: Odpri v Dozzle Cloud
   open-container: "Odpri {name} v Dozzle Cloud"
   alert-rules: Pravila opozoril
@@ -824,7 +825,7 @@ cloud-findings:
   next-review: "Naslednji pregled {when}, {time}"
   last-review: "Zadnji pregled {when}"
   first-review: "Prvi pregled {when}, {time}"
-  first-review-hint: Ugotovitve se bodo prikazale tukaj, ko se izvede.
+  first-review-hint: Ugotovitev še ni. Tukaj se bodo prikazale po prvem pregledu.
   empty-reviewed: "Pri zadnjem pregledu na {name} ni bilo opaženo nič."
 cloud-chat:
   title: Vprašaj

@@ -65,7 +65,8 @@
       </header>
 
       <!-- The account is the same on every page, so it has no scope to pick. -->
-      <div v-if="inView.length && panel !== 'account'" class="shrink-0 px-6 pt-4">
+      <!-- px-4 matches the panels' own padding, so the chip lines up with what is under it. -->
+      <div v-if="inView.length && panel !== 'account'" class="shrink-0 px-4 pt-4">
         <CloudScopeChip />
       </div>
 

@@ -292,6 +292,7 @@ cloud-rail:
   scope: パネルの対象
   scope-n: "{n} 個のコンテナ"
   scope-all: すべてのコンテナ
+  scope-all-hosts: すべてのホスト
   open-in-cloud: Dozzle Cloud で開く
   open-container: "{name} を Dozzle Cloud で開く"
   alert-rules: アラートルール
@@ -326,7 +327,7 @@ cloud-findings:
   next-review: "次回のレビュー: {when} {time}"
   last-review: "最終レビュー: {when}"
   first-review: "初回のレビュー: {when} {time}"
-  first-review-hint: レビューの実行後、ここに検出結果が表示されます。
+  first-review-hint: まだ検出結果はありません。初回のレビュー後、ここに表示されます。
   empty-reviewed: "前回のレビューでは {name} に問題は見つかりませんでした。"
 cloud-chat:
   title: 質問

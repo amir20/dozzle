@@ -291,6 +291,7 @@ cloud-rail:
   scope: De qué trata el panel
   scope-n: "{n} contenedores"
   scope-all: Todos los contenedores
+  scope-all-hosts: Todos los hosts
   open-in-cloud: Abrir en Dozzle Cloud
   open-container: "Abrir {name} en Dozzle Cloud"
   alert-rules: Reglas de alerta
@@ -325,7 +326,7 @@ cloud-findings:
   next-review: "Próxima revisión {when}, {time}"
   last-review: "Última revisión {when}"
   first-review: "Primera revisión {when}, {time}"
-  first-review-hint: Los hallazgos aparecerán aquí después de que se ejecute.
+  first-review-hint: Aún no hay hallazgos. Aparecerán aquí después de la primera revisión.
   empty-reviewed: "No se notó nada en {name} en la última revisión."
 cloud-chat:
   title: Preguntar

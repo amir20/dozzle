@@ -797,6 +797,7 @@ cloud-rail:
   scope: Cakupan panel ini
   scope-n: "{n} kontainer"
   scope-all: Semua kontainer
+  scope-all-hosts: Semua host
   open-in-cloud: Buka di Dozzle Cloud
   open-container: "Buka {name} di Dozzle Cloud"
   alert-rules: Aturan peringatan
@@ -831,7 +832,7 @@ cloud-findings:
   next-review: "Tinjauan berikutnya {when}, {time}"
   last-review: "Terakhir ditinjau {when}"
   first-review: "Tinjauan pertama {when}, {time}"
-  first-review-hint: Temuan akan muncul di sini setelah tinjauan berjalan.
+  first-review-hint: Belum ada temuan. Temuan akan muncul di sini setelah tinjauan pertama.
   empty-reviewed: "Tidak ada yang tercatat pada {name} di tinjauan terakhir."
 cloud-chat:
   title: Tanya

@@ -28,7 +28,14 @@
 
 <script lang="ts" setup>
 const { inView, scoped, total, widen, narrow } = useCloudScope();
+const { panel } = useCloudRail();
+const { hosts } = useHosts();
 const { t } = useI18n();
+
+// Widened, Metrics is about the hosts rather than a list of containers, so its
+// wide side says so and counts hosts.
+const hostWide = computed(() => panel.value === "metrics");
+const hostCount = computed(() => Object.values(hosts.value).filter((h) => h.available).length);
 
 const segments = computed(() => [
   {
@@ -42,9 +49,9 @@ const segments = computed(() => [
   },
   {
     id: "all",
-    label: t("cloud-rail.scope-all"),
+    label: hostWide.value ? t("cloud-rail.scope-all-hosts") : t("cloud-rail.scope-all"),
     mono: false,
-    count: total.value,
+    count: hostWide.value ? hostCount.value : total.value,
     active: !scoped.value,
     select: widen,
   },

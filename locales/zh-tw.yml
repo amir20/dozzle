@@ -787,6 +787,7 @@ cloud-rail:
   scope: 面板範圍
   scope-n: "{n} 個容器"
   scope-all: 所有容器
+  scope-all-hosts: 所有主機
   open-in-cloud: 在 Dozzle Cloud 中開啟
   open-container: "在 Dozzle Cloud 中開啟 {name}"
   alert-rules: 警報規則
@@ -821,7 +822,7 @@ cloud-findings:
   next-review: "下次審查：{when} {time}"
   last-review: "上次審查：{when}"
   first-review: "首次審查：{when} {time}"
-  first-review-hint: 審查完成後，調查結果會顯示在這裡。
+  first-review-hint: 目前還沒有調查結果。首次審查完成後會顯示在這裡。
   empty-reviewed: "上次審查未在 {name} 上發現任何問題。"
 cloud-chat:
   title: 提問

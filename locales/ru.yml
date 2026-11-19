@@ -785,6 +785,7 @@ cloud-rail:
   scope: К чему относится панель
   scope-n: "Контейнеров: {n}"
   scope-all: Все контейнеры
+  scope-all-hosts: Все хосты
   open-in-cloud: Открыть в Dozzle Cloud
   open-container: "Открыть {name} в Dozzle Cloud"
   alert-rules: Правила оповещений
@@ -819,7 +820,7 @@ cloud-findings:
   next-review: "Следующая проверка {when}, {time}"
   last-review: "Последняя проверка {when}"
   first-review: "Первая проверка {when}, {time}"
-  first-review-hint: Находки появятся здесь после её завершения.
+  first-review-hint: Находок пока нет. Они появятся здесь после первой проверки.
   empty-reviewed: "При последней проверке в {name} ничего не замечено."
 cloud-chat:
   title: Спросить

@@ -788,6 +788,7 @@ cloud-rail:
   scope: Panelin kapsamı
   scope-n: "{n} konteyner"
   scope-all: Tüm konteynerler
+  scope-all-hosts: Tüm ana bilgisayarlar
   open-in-cloud: Dozzle Cloud'da aç
   open-container: "{name} öğesini Dozzle Cloud'da aç"
   alert-rules: Uyarı kuralları
@@ -822,7 +823,7 @@ cloud-findings:
   next-review: "Sonraki inceleme {when}, {time}"
   last-review: "Son inceleme {when}"
   first-review: "İlk inceleme {when}, {time}"
-  first-review-hint: Bulgular, inceleme çalıştıktan sonra burada görünür.
+  first-review-hint: Henüz bulgu yok. İlk incelemeden sonra burada görünürler.
   empty-reviewed: "Son incelemede {name} üzerinde bir şey fark edilmedi."
 cloud-chat:
   title: Sor

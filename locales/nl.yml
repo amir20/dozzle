@@ -786,6 +786,7 @@ cloud-rail:
   scope: Waar het paneel over gaat
   scope-n: "{n} containers"
   scope-all: Alle containers
+  scope-all-hosts: Alle hosts
   open-in-cloud: Openen in Dozzle Cloud
   open-container: "{name} openen in Dozzle Cloud"
   alert-rules: Waarschuwingsregels
@@ -820,7 +821,7 @@ cloud-findings:
   next-review: "Volgende controle {when}, {time}"
   last-review: "Laatst gecontroleerd {when}"
   first-review: "Eerste controle {when}, {time}"
-  first-review-hint: Bevindingen verschijnen hier zodra die is uitgevoerd.
+  first-review-hint: Nog geen bevindingen. Ze verschijnen hier na de eerste controle.
   empty-reviewed: "Niets opgemerkt bij {name} in de laatste controle."
 cloud-chat:
   title: Vragen

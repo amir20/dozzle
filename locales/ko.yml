@@ -787,6 +787,7 @@ cloud-rail:
   scope: 패널 대상
   scope-n: "컨테이너 {n}개"
   scope-all: 모든 컨테이너
+  scope-all-hosts: 모든 호스트
   open-in-cloud: Dozzle Cloud에서 열기
   open-container: "Dozzle Cloud에서 {name} 열기"
   alert-rules: 알림 규칙
@@ -821,7 +822,7 @@ cloud-findings:
   next-review: "다음 검토 {when}, {time}"
   last-review: "마지막 검토 {when}"
   first-review: "첫 검토 {when}, {time}"
-  first-review-hint: 검토가 실행되면 여기에 조사 결과가 표시됩니다.
+  first-review-hint: 아직 조사 결과가 없습니다. 첫 검토가 끝나면 여기에 표시됩니다.
   empty-reviewed: "지난 검토에서 {name}에 발견된 내용이 없습니다."
 cloud-chat:
   title: 질문
