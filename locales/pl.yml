@@ -826,8 +826,6 @@ cloud-findings:
   filter-ignored: Ignorowane
   loading: Wczytywanie ustaleń…
   failed: Nie udało się wczytać ustaleń.
-  empty-new: Nic nowego nie zauważono w tym, co oglądasz.
-  empty-all: Brak ustaleń dla tego, co oglądasz.
   empty-ignored: Nic tu nie jest ignorowane.
   locked: Szczegóły pojawią się w następnym raporcie
   resolved: Rozwiązane

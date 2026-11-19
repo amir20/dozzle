@@ -70,7 +70,6 @@ const i18n = createI18n({
         "last-review": "Last reviewed {when}",
         "first-review": "First review {when}, {time}",
         "first-review-hint": "No findings yet. They show up here after the first review.",
-        "empty-new": "Nothing new noticed on what you're looking at.",
         "empty-reviewed": "Nothing noticed on {name} in the last review.",
       },
       "cloud-rail": { "scope-n": "{n} containers" },

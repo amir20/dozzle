@@ -824,8 +824,6 @@ cloud-findings:
   filter-ignored: Ignorés
   loading: Chargement des constats…
   failed: Impossible de charger les constats.
-  empty-new: Rien de nouveau relevé sur ce que vous regardez.
-  empty-all: Aucun constat sur ce que vous regardez.
   empty-ignored: Rien d'ignoré ici.
   locked: Les détails arriveront avec votre prochain rapport
   resolved: Résolu

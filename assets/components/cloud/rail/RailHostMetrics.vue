@@ -124,7 +124,11 @@
           <div class="flex items-center gap-2">
             <template v-if="current">
               <span class="truncate font-mono text-base font-semibold">{{ current.name }}</span>
-              <span v-if="current.type" class="status-pill" :class="current.type === 'agent' ? 'secondary' : 'neutral'">
+              <span
+                v-if="current.type"
+                class="status-pill"
+                :class="current.type === 'agent' ? 'status-pill-secondary' : 'status-pill-neutral'"
+              >
                 {{ current.type }}
               </span>
             </template>

@@ -333,8 +333,6 @@ cloud-findings:
   filter-ignored: 無視中
   loading: 検出結果を読み込んでいます…
   failed: 検出結果を読み込めませんでした。
-  empty-new: 表示中の内容に新しい検出結果はありません。
-  empty-all: 表示中の内容に検出結果はありません。
   empty-ignored: 無視している項目はありません。
   locked: 詳細は次回のレポートで届きます
   resolved: 解決済み

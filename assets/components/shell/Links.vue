@@ -91,9 +91,10 @@ const { canLink: canLinkCloud, linked: cloudLinked } = useCloudSurface();
 // clearing it. Forward proxy has none: the logout URL is the whole logout there.
 const hasSession = config.authProvider === "simple" || config.authProvider === "oidc";
 
-// The header is mounted on every page, phone or desktop, so it owns the polling
-// that keeps the rail's and the mobile sheet's unseen dot honest. Without a cloud
-// link there is nothing to remember and nothing to poll.
+// The header owns the polling that keeps the rail's and the mobile sheet's
+// unseen dot honest on the pages that mount it (home, notifications, settings,
+// search). The log views do not, so the dot there is as fresh as the last of
+// those pages. Without a cloud link there is nothing to remember and nothing to poll.
 const { unseen: unseenAlerts, fetchRecentAlerts, refreshRecentAlerts } = useRecentAlerts();
 const { available: railAvailable, openCloud } = useCloudRail();
 

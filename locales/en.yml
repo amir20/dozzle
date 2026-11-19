@@ -340,8 +340,6 @@ cloud-findings:
   filter-ignored: Ignored
   loading: Loading findings…
   failed: Could not load findings.
-  empty-new: Nothing new noticed on what you're looking at.
-  empty-all: No findings on what you're looking at.
   empty-ignored: Nothing ignored here.
   locked: Details arrive with your next report
   resolved: Resolved

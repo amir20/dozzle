@@ -105,9 +105,22 @@ func (h *handler) cloudChat(w http.ResponseWriter, r *http.Request) {
 		flusher.Flush()
 	}
 
+	// Cloud draws a turn's pictures from the instance's stored history, scoped
+	// to the instance and not to this user's filter, so a ranking or a run of
+	// log lines can name containers a filtered user cannot see. Those users get
+	// the answer without the pictures, as /api/cloud/metrics/hosts drops its top
+	// lists for them.
+	send := emit
+	if h.restrictedUser(r) {
+		send = func(event cloud.ChatEvent) {
+			event.Visuals = nil
+			emit(event)
+		}
+	}
+
 	// r.Context() cancels when the browser goes away, which closes the stream
 	// and ends the turn rather than paying cloud to finish talking to nobody.
-	err := h.config.Cloud.Chat(r.Context(), req.Message, req.View, ref, principal, emit)
+	err := h.config.Cloud.Chat(r.Context(), req.Message, req.View, ref, principal, send)
 	if err != nil {
 		// The text is a fallback for anything reading this stream raw; the
 		// browser renders the code in the reader's own language.
