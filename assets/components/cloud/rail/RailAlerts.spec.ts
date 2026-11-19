@@ -12,7 +12,12 @@ import type { AlertBucket, CloudAlert, CloudEvent, FetchedAlerts } from "@/compo
 vi.mock("@/stores/config", () => ({ __esModule: true, default: { enableNotifications: true, hosts: [] } }));
 
 const markAlertsSeen = vi.fn();
-vi.mock("@/composable/cloud/recentAlerts", () => ({ useRecentAlerts: () => ({ markAlertsSeen }) }));
+const refreshRecentAlerts = vi.fn();
+vi.mock("@/composable/cloud/recentAlerts", () => ({
+  useRecentAlerts: () => ({ markAlertsSeen, loaded: ref(true), fetchRecentAlerts: vi.fn(), refreshRecentAlerts }),
+}));
+// What the rail's dot counts in this scope.
+const dotted = ref<{ id: string; containerId: string; ts: number }[]>([]);
 
 const fetchAlerts = vi.fn<(...args: unknown[]) => Promise<FetchedAlerts>>();
 vi.mock("@/composable/cloud/cloudAlerts", () => ({ useCloudAlerts: () => ({ fetchAlerts }) }));
@@ -36,7 +41,10 @@ vi.mock("@/stores/container", () => ({
 }));
 
 const closeRail = vi.fn();
-vi.mock("@/composable/cloud/cloudRail", () => ({ useCloudRail: () => ({ closeRail }) }));
+vi.mock("@/composable/cloud/cloudRail", () => ({
+  useCloudRail: () => ({ closeRail }),
+  useViewAlerts: () => ({ visible: dotted }),
+}));
 vi.mock("@/composable/cloud/cloudConfig", () => ({
   useCloudConfig: () => ({ cloudStatus: ref({ plan: { retention_days: 30 } }), ensureCloudStatus: vi.fn() }),
 }));
@@ -129,6 +137,8 @@ beforeEach(() => {
   instance.value = twoContainers;
   fetchAlerts.mockReset();
   markAlertsSeen.mockReset();
+  refreshRecentAlerts.mockReset();
+  dotted.value = [];
   Element.prototype.scrollIntoView = vi.fn();
 });
 
@@ -313,5 +323,16 @@ describe("<RailAlerts />", () => {
     const wrapper = mountRail();
     await flushPromises();
     expect(wrapper.find("[data-capped]").exists()).toBe(false);
+  });
+  // The dot counts recent alerts the timeline can leave out, such as one on a
+  // container since recreated. Opening the panel has to clear it anyway.
+  test("opening the panel clears what the rail's dot counted, even off the timeline", async () => {
+    const gone = { id: "old", containerId: "recreated", ts: ago(1) };
+    dotted.value = [gone];
+    fetchAlerts.mockResolvedValue({ alerts: [], events: [] });
+    mountRail();
+    await flushPromises();
+    expect(refreshRecentAlerts).toHaveBeenCalled();
+    expect(markAlertsSeen).toHaveBeenCalledWith(gone);
   });
 });

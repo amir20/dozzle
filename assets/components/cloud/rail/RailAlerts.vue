@@ -142,7 +142,10 @@ import {
 import { hoverSpan, windowClock, type MetricsHover } from "@/composable/cloud/metricsTime";
 import { MAX_ASKED } from "@/composable/cloud/cloudFindings";
 
-const { markAlertsSeen } = useRecentAlerts();
+const { markAlertsSeen, loaded: recentLoaded, fetchRecentAlerts, refreshRecentAlerts } = useRecentAlerts();
+// What the rail's dot counts, in this panel's scope.
+const { visible: dotted } = useViewAlerts();
+onMounted(() => (recentLoaded.value ? refreshRecentAlerts() : fetchRecentAlerts()));
 const { fetchAlerts } = useCloudAlerts();
 const { containers: inScope } = useCloudScope();
 // The containers on screen, or with none (home, or the chip widened) every
@@ -287,5 +290,11 @@ onBeforeUnmount(() => clearTimeout(unmark));
 watchEffect(() => {
   const newest = hits.value.reduce<CloudAlert | undefined>((n, h) => (!n || h.ts > n.ts ? h : n), undefined);
   if (newest) markAlertsSeen(newest);
+});
+// The dot counts recent alerts the timeline can leave out (a container since
+// recreated, or older than the window), so opening the panel also clears what
+// the dot counted in this scope; otherwise it stays lit with nothing to show.
+watchEffect(() => {
+  if (dotted.value.length) markAlertsSeen(dotted.value[0]);
 });
 </script>
