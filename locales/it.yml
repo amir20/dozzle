@@ -772,7 +772,6 @@ cloud:
 cloud-rail:
   title: Dozzle Cloud
   chat: Chiedi
-  open-account: Piano e fatturazione
   alerts-retention: "Dozzle Cloud conserva {n} giorno di cronologia degli avvisi. | Dozzle Cloud conserva {n} giorni di cronologia degli avvisi."
   create-alert: Crea una regola di avviso
   metrics-live: "In diretta da questo browser, ultimi {n} min. La cronologia Cloud si riempie man mano che arrivano le statistiche."
@@ -786,8 +785,6 @@ cloud-rail:
   scope-n: "{n} container"
   scope-all: Tutti i container
   scope-all-hosts: Tutti gli host
-  open-in-cloud: Apri in Dozzle Cloud
-  open-container: "Apri {name} in Dozzle Cloud"
   alert-rules: Regole di avviso
   metrics-no-container: Apri un container per vederne la cronologia.
   metrics-loading: Caricamento della cronologia…

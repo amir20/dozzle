@@ -887,7 +887,6 @@ declare module 'vue' {
     readonly clearAim: UnwrapRef<typeof import('./composable/ui/pointerAim')['clearAim']>
     readonly clearCloudWelcomePending: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['clearCloudWelcomePending']>
     readonly clearSetupResume: UnwrapRef<typeof import('./composable/setup/setup')['clearSetupResume']>
-    readonly cloudPanelHref: UnwrapRef<typeof import('./composable/cloud/cloudRail')['cloudPanelHref']>
     readonly cloudWelcomePending: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['cloudWelcomePending']>
     readonly collapseCloudRail: UnwrapRef<typeof import('./stores/settings')['collapseCloudRail']>
     readonly collapseNav: UnwrapRef<typeof import('./stores/settings')['collapseNav']>

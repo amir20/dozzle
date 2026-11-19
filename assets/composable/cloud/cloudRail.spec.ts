@@ -11,15 +11,9 @@ vi.mock("@/composable/cloud/cloudSurface", () => ({ useCloudSurface: () => ({ li
 vi.mock("@/composable/cloud/cloudScope", () => ({ useCloudScope: () => ({ containers: computed(() => []) }) }));
 vi.stubGlobal("trackUsage", vi.fn());
 
-import { cloudPanelHref, useCloudRail } from "./cloudRail";
+import { useCloudRail } from "./cloudRail";
 
 describe("cloudRail", () => {
-  test("the account links to plan and billing, whatever is on screen", () => {
-    expect(cloudPanelHref("account", { host: "h1", name: "api" })).toBe(
-      "https://cloud.example/settings?from=dozzle_drawer_account",
-    );
-  });
-
   test("the account is never where a single Cloud entry lands", async () => {
     const rail = useCloudRail();
     rail.openRail("chat");

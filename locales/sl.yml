@@ -777,7 +777,6 @@ cloud:
 cloud-rail:
   title: Dozzle Cloud
   chat: Vprašaj
-  open-account: Načrt in obračun
   alerts-retention: "Dozzle Cloud hrani zgodovino opozoril {n} dan. | Dozzle Cloud hrani zgodovino opozoril {n} dni."
   create-alert: Ustvari pravilo opozorila
   metrics-live: "V živo iz tega brskalnika, zadnjih {n} min. Zgodovina v Cloud se zapolni, ko prispe statistika."
@@ -791,8 +790,6 @@ cloud-rail:
   scope-n: "Vsebnikov: {n}"
   scope-all: Vsi vsebniki
   scope-all-hosts: Vsi gostitelji
-  open-in-cloud: Odpri v Dozzle Cloud
-  open-container: "Odpri {name} v Dozzle Cloud"
   alert-rules: Pravila opozoril
   metrics-no-container: Odprite vsebnik, da vidite njegovo zgodovino.
   metrics-loading: Nalagam zgodovino…

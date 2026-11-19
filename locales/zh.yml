@@ -772,7 +772,6 @@ cloud:
 cloud-rail:
   title: Dozzle Cloud
   chat: 提问
-  open-account: 计划与账单
   alerts-retention: "Dozzle Cloud 保留 {n} 天的告警历史。 | Dozzle Cloud 保留 {n} 天的告警历史。"
   create-alert: 创建告警规则
   metrics-live: "来自此浏览器的实时数据，最近 {n} 分钟。统计数据到达后，Cloud 历史会逐步补全。"
@@ -786,8 +785,6 @@ cloud-rail:
   scope-n: "{n} 个容器"
   scope-all: 所有容器
   scope-all-hosts: 所有主机
-  open-in-cloud: 在 Dozzle Cloud 中打开
-  open-container: "在 Dozzle Cloud 中打开 {name}"
   alert-rules: 告警规则
   metrics-no-container: 打开一个容器即可查看历史。
   metrics-loading: 正在加载历史…

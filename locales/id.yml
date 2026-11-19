@@ -784,7 +784,6 @@ cloud:
 cloud-rail:
   title: Dozzle Cloud
   chat: Tanya
-  open-account: Paket dan tagihan
   alerts-retention: "Dozzle Cloud menyimpan riwayat peringatan selama {n} hari. | Dozzle Cloud menyimpan riwayat peringatan selama {n} hari."
   create-alert: Buat aturan peringatan
   metrics-live: "Langsung dari browser ini, {n} menit terakhir. Riwayat Cloud terisi saat statistik masuk."
@@ -798,8 +797,6 @@ cloud-rail:
   scope-n: "{n} kontainer"
   scope-all: Semua kontainer
   scope-all-hosts: Semua host
-  open-in-cloud: Buka di Dozzle Cloud
-  open-container: "Buka {name} di Dozzle Cloud"
   alert-rules: Aturan peringatan
   metrics-no-container: Buka kontainer untuk melihat riwayatnya.
   metrics-loading: Memuat riwayat…

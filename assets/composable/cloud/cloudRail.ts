@@ -91,22 +91,6 @@ export function useRailItems(dots: MaybeRefOrGetter<boolean> = true) {
   ]);
 }
 
-/**
- * The footer link out of a panel, tagged so Cloud counts where people came
- * from. A single container links to the closest thing Cloud has to its page,
- * its metrics; anything wider links to the list the panel is a slice of.
- */
-export function cloudPanelHref(panel: RailPanel, container?: { host: string; name: string }) {
-  const from = `from=dozzle_drawer_${panel}`;
-  // The account is the same whatever is on screen: plan and billing live in settings.
-  if (panel === "account") return `${config.cloudUrl}/settings?${from}`;
-  if (container) {
-    return `${config.cloudUrl}/metrics/${encodeURIComponent(container.host)}/${encodeURIComponent(container.name)}?${from}`;
-  }
-  const path = { findings: "/findings", alerts: "/alerts", chat: "", metrics: "/metrics" }[panel];
-  return `${config.cloudUrl}${path}?${from}`;
-}
-
 export function useCloudRail() {
   const { linked } = useCloudSurface();
 

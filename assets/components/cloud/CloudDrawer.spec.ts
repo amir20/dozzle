@@ -27,10 +27,8 @@ vi.mock("@/composable/ui/media", async () => {
   const { ref } = await import("vue");
   return { isMobile: ref(false), canHover: ref(true), isMac: true };
 });
-vi.mock("@/composable/cloud/cloudRail", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/composable/cloud/cloudRail")>();
+vi.mock("@/composable/cloud/cloudRail", () => {
   return {
-    cloudPanelHref: actual.cloudPanelHref,
     useCloudRail: () => ({ panel, railOffset: ref(48), openRail, closeRail }),
     useRailItems: () =>
       computed(() =>
@@ -48,7 +46,7 @@ const i18n = createI18n({
   locale: "en",
   missingWarn: false,
   fallbackWarn: false,
-  messages: { en: { cloud: { title: "Dozzle Cloud" }, "cloud-rail": { "open-account": "Plan and billing" } } },
+  messages: { en: { cloud: { title: "Dozzle Cloud" } } },
 });
 
 const stubs = {
@@ -85,20 +83,15 @@ describe("<CloudDrawer />", () => {
     expect(wrapper.findComponent({ name: "CloudScopeChip" }).exists()).toBe(true);
   });
 
-  test("the footer links to the container in Cloud, and to the panel's list once widened", async () => {
+  // Widened, metrics are every host's.
+  test("metrics widened to the instance show every host", async () => {
     const wrapper = mountDrawer();
-    expect(wrapper.find("footer a").attributes("href")).toBe(
-      "https://cloud.example/metrics/h1/api?from=dozzle_drawer_findings",
-    );
-
     scoped.value = false;
-    panel.value = "alerts";
-    await nextTick();
-    expect(wrapper.find("footer a").attributes("href")).toBe("https://cloud.example/alerts?from=dozzle_drawer_alerts");
-    // Widened, metrics are every host's.
     panel.value = "metrics";
     await nextTick();
     expect(wrapper.findComponent({ name: "RailHostMetrics" }).exists()).toBe(true);
+    // Nothing links out at the bottom: each panel links to Cloud where it has something to open.
+    expect(wrapper.find("footer").exists()).toBe(false);
   });
 
   // What fired is in the drawer; what makes it fire is one button away.
@@ -186,16 +179,12 @@ describe("<CloudDrawer />", () => {
   });
 
   // The cloud mark opens the account here rather than in a popover: same
-  // drawer, no scope to pick, and the footer goes to plan and billing.
-  test("the account panel has its own title, no scope chip, and links to billing", () => {
+  // drawer, with no scope to pick.
+  test("the account panel has its own title and no scope chip", () => {
     panel.value = "account";
     const wrapper = mountDrawer();
     expect(wrapper.findComponent({ name: "RailAccount" }).exists()).toBe(true);
     expect(wrapper.find("h2").text()).toBe("Dozzle Cloud");
     expect(wrapper.findComponent({ name: "CloudScopeChip" }).exists()).toBe(false);
-    expect(wrapper.find("footer a").attributes("href")).toBe(
-      "https://cloud.example/settings?from=dozzle_drawer_account",
-    );
-    expect(wrapper.find("footer").text()).toBe("Plan and billing");
   });
 });

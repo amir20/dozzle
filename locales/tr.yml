@@ -775,7 +775,6 @@ cloud:
 cloud-rail:
   title: Dozzle Cloud
   chat: Sor
-  open-account: Plan ve faturalandırma
   alerts-retention: "Dozzle Cloud {n} günlük uyarı geçmişi tutar. | Dozzle Cloud {n} günlük uyarı geçmişi tutar."
   create-alert: Uyarı kuralı oluştur
   metrics-live: "Bu tarayıcıdan canlı, son {n} dk. Cloud geçmişi istatistikler geldikçe dolar."
@@ -789,8 +788,6 @@ cloud-rail:
   scope-n: "{n} konteyner"
   scope-all: Tüm konteynerler
   scope-all-hosts: Tüm ana bilgisayarlar
-  open-in-cloud: Dozzle Cloud'da aç
-  open-container: "{name} öğesini Dozzle Cloud'da aç"
   alert-rules: Uyarı kuralları
   metrics-no-container: Geçmişi görmek için bir konteyner açın.
   metrics-loading: Geçmiş yükleniyor…

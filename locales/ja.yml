@@ -279,7 +279,6 @@ placeholder:
 cloud-rail:
   title: Dozzle Cloud
   chat: 質問
-  open-account: プランと請求
   alerts-retention: "Dozzle Cloud はアラート履歴を {n} 日間保持します。 | Dozzle Cloud はアラート履歴を {n} 日間保持します。"
   create-alert: アラートルールを作成
   metrics-live: "このブラウザからのライブデータ（直近 {n} 分）。統計が届くにつれて Cloud の履歴が埋まります。"
@@ -293,8 +292,6 @@ cloud-rail:
   scope-n: "{n} 個のコンテナ"
   scope-all: すべてのコンテナ
   scope-all-hosts: すべてのホスト
-  open-in-cloud: Dozzle Cloud で開く
-  open-container: "{name} を Dozzle Cloud で開く"
   alert-rules: アラートルール
   metrics-no-container: コンテナを開くと履歴を表示します。
   metrics-loading: 履歴を読み込んでいます…

@@ -774,7 +774,6 @@ cloud:
 cloud-rail:
   title: Dozzle Cloud
   chat: 질문
-  open-account: 플랜 및 결제
   alerts-retention: "Dozzle Cloud는 알림 기록을 {n}일 동안 보관합니다. | Dozzle Cloud는 알림 기록을 {n}일 동안 보관합니다."
   create-alert: 알림 규칙 만들기
   metrics-live: "이 브라우저의 실시간 데이터, 최근 {n}분. 통계가 도착하면 Cloud 기록이 채워집니다."
@@ -788,8 +787,6 @@ cloud-rail:
   scope-n: "컨테이너 {n}개"
   scope-all: 모든 컨테이너
   scope-all-hosts: 모든 호스트
-  open-in-cloud: Dozzle Cloud에서 열기
-  open-container: "Dozzle Cloud에서 {name} 열기"
   alert-rules: 알림 규칙
   metrics-no-container: 컨테이너를 열면 기록을 볼 수 있습니다.
   metrics-loading: 기록 불러오는 중…

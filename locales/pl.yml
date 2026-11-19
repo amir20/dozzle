@@ -774,7 +774,6 @@ cloud:
 cloud-rail:
   title: Dozzle Cloud
   chat: Zapytaj
-  open-account: Plan i rozliczenia
   alerts-retention: "Dozzle Cloud przechowuje historię alertów z {n} dnia. | Dozzle Cloud przechowuje historię alertów z {n} dni."
   create-alert: Utwórz regułę alertu
   metrics-live: "Na żywo z tej przeglądarki, ostatnie {n} min. Historia Cloud uzupełni się, gdy napłyną statystyki."
@@ -788,8 +787,6 @@ cloud-rail:
   scope-n: "Kontenery: {n}"
   scope-all: Wszystkie kontenery
   scope-all-hosts: Wszystkie hosty
-  open-in-cloud: Otwórz w Dozzle Cloud
-  open-container: "Otwórz {name} w Dozzle Cloud"
   alert-rules: Reguły alertów
   metrics-no-container: Otwórz kontener, aby zobaczyć jego historię.
   metrics-loading: Ładowanie historii…

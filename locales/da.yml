@@ -772,7 +772,6 @@ cloud:
 cloud-rail:
   title: Dozzle Cloud
   chat: Spørg
-  open-account: Abonnement og fakturering
   alerts-retention: "Dozzle Cloud gemmer {n} dags advarselshistorik. | Dozzle Cloud gemmer {n} dages advarselshistorik."
   create-alert: Opret en advarselsregel
   metrics-live: "Live fra denne browser, seneste {n} min. Cloud-historikken udfyldes, efterhånden som statistik kommer ind."
@@ -786,8 +785,6 @@ cloud-rail:
   scope-n: "{n} containere"
   scope-all: Alle containere
   scope-all-hosts: Alle værter
-  open-in-cloud: Åbn i Dozzle Cloud
-  open-container: "Åbn {name} i Dozzle Cloud"
   alert-rules: Advarselsregler
   metrics-no-container: Åbn en container for at se dens historik.
   metrics-loading: Indlæser historik…

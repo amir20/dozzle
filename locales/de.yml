@@ -772,7 +772,6 @@ cloud:
 cloud-rail:
   title: Dozzle Cloud
   chat: Fragen
-  open-account: Tarif und Abrechnung
   alerts-retention: "Dozzle Cloud speichert {n} Tag Alarmverlauf. | Dozzle Cloud speichert {n} Tage Alarmverlauf."
   create-alert: Alarmregel erstellen
   metrics-live: "Live aus diesem Browser, letzte {n} Min. Der Cloud-Verlauf füllt sich, sobald Statistiken eintreffen."
@@ -786,8 +785,6 @@ cloud-rail:
   scope-n: "{n} Container"
   scope-all: Alle Container
   scope-all-hosts: Alle Hosts
-  open-in-cloud: In Dozzle Cloud öffnen
-  open-container: "{name} in Dozzle Cloud öffnen"
   alert-rules: Alarmregeln
   metrics-no-container: Öffne einen Container, um seinen Verlauf zu sehen.
   metrics-loading: Verlauf wird geladen…

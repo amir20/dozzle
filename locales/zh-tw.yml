@@ -774,7 +774,6 @@ cloud:
 cloud-rail:
   title: Dozzle Cloud
   chat: 提問
-  open-account: 方案與帳單
   alerts-retention: "Dozzle Cloud 保留 {n} 天的警報歷史。 | Dozzle Cloud 保留 {n} 天的警報歷史。"
   create-alert: 建立警報規則
   metrics-live: "來自此瀏覽器的即時資料，最近 {n} 分鐘。統計資料到達後，Cloud 歷史會逐步補齊。"
@@ -788,8 +787,6 @@ cloud-rail:
   scope-n: "{n} 個容器"
   scope-all: 所有容器
   scope-all-hosts: 所有主機
-  open-in-cloud: 在 Dozzle Cloud 中開啟
-  open-container: "在 Dozzle Cloud 中開啟 {name}"
   alert-rules: 警報規則
   metrics-no-container: 開啟一個容器即可檢視歷史。
   metrics-loading: 正在載入歷史…

@@ -772,7 +772,6 @@ cloud:
 cloud-rail:
   title: Dozzle Cloud
   chat: Спросить
-  open-account: Тариф и оплата
   alerts-retention: "Dozzle Cloud хранит историю оповещений {n} день. | Dozzle Cloud хранит историю оповещений {n} дней."
   create-alert: Создать правило оповещения
   metrics-live: "В реальном времени из этого браузера, последние {n} мин. История Cloud заполнится по мере поступления статистики."
@@ -786,8 +785,6 @@ cloud-rail:
   scope-n: "Контейнеров: {n}"
   scope-all: Все контейнеры
   scope-all-hosts: Все хосты
-  open-in-cloud: Открыть в Dozzle Cloud
-  open-container: "Открыть {name} в Dozzle Cloud"
   alert-rules: Правила оповещений
   metrics-no-container: Откройте контейнер, чтобы увидеть его историю.
   metrics-loading: Загружаю историю…

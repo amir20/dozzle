@@ -773,7 +773,6 @@ cloud:
 cloud-rail:
   title: Dozzle Cloud
   chat: Vragen
-  open-account: Abonnement en facturatie
   alerts-retention: "Dozzle Cloud bewaart {n} dag aan waarschuwingsgeschiedenis. | Dozzle Cloud bewaart {n} dagen aan waarschuwingsgeschiedenis."
   create-alert: Een waarschuwingsregel maken
   metrics-live: "Live vanuit deze browser, laatste {n} min. De Cloud-geschiedenis vult zich zodra statistieken binnenkomen."
@@ -787,8 +786,6 @@ cloud-rail:
   scope-n: "{n} containers"
   scope-all: Alle containers
   scope-all-hosts: Alle hosts
-  open-in-cloud: Openen in Dozzle Cloud
-  open-container: "{name} openen in Dozzle Cloud"
   alert-rules: Waarschuwingsregels
   metrics-no-container: Open een container om de geschiedenis te zien.
   metrics-loading: Geschiedenis laden…

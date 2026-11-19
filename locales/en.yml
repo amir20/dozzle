@@ -286,7 +286,6 @@ placeholder:
 cloud-rail:
   title: Dozzle Cloud
   chat: Ask
-  open-account: Plan and billing
   alerts-retention: "Dozzle Cloud keeps {n} day of alert history. | Dozzle Cloud keeps {n} days of alert history."
   create-alert: Create an alert rule
   metrics-live: "Live from this browser, last {n} min. Cloud history fills in as stats arrive."
@@ -300,8 +299,6 @@ cloud-rail:
   scope-n: "{n} containers"
   scope-all: All containers
   scope-all-hosts: All hosts
-  open-in-cloud: Open in Dozzle Cloud
-  open-container: "Open {name} in Dozzle Cloud"
   alert-rules: Alert rules
   metrics-no-container: Open a container to see its history.
   metrics-loading: Loading history…

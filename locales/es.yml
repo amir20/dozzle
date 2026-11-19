@@ -278,7 +278,6 @@ placeholder:
 cloud-rail:
   title: Dozzle Cloud
   chat: Preguntar
-  open-account: Plan y facturación
   alerts-retention: "Dozzle Cloud guarda {n} día de historial de alertas. | Dozzle Cloud guarda {n} días de historial de alertas."
   create-alert: Crear una regla de alerta
   metrics-live: "En vivo desde este navegador, últimos {n} min. El historial de Cloud se completa a medida que llegan las estadísticas."
@@ -292,8 +291,6 @@ cloud-rail:
   scope-n: "{n} contenedores"
   scope-all: Todos los contenedores
   scope-all-hosts: Todos los hosts
-  open-in-cloud: Abrir en Dozzle Cloud
-  open-container: "Abrir {name} en Dozzle Cloud"
   alert-rules: Reglas de alerta
   metrics-no-container: Abre un contenedor para ver su historial.
   metrics-loading: Cargando el historial…

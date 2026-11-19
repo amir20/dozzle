@@ -70,7 +70,11 @@
         <CloudScopeChip />
       </div>
 
-      <div class="relative mt-2 min-h-0 flex-1">
+      <!-- On a phone the tab bar floats over the bottom, so the panel stops above it. -->
+      <div
+        class="relative mt-2 min-h-0 flex-1"
+        :style="isMobile ? { marginBottom: 'var(--mobile-tabbar-height)' } : undefined"
+      >
         <Transition name="cloud-fade">
           <div :key="panel" class="absolute inset-0">
             <RailFindings v-if="panel === 'findings'" />
@@ -83,22 +87,6 @@
           </div>
         </Transition>
       </div>
-
-      <footer
-        class="bg-base-100 border-base-content/10 shrink-0 border-t px-4 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]"
-        :style="isMobile ? { paddingBottom: 'var(--mobile-tabbar-height)' } : undefined"
-      >
-        <a
-          :href="href"
-          target="_blank"
-          rel="noreferrer noopener"
-          class="hover:bg-base-300 flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors"
-        >
-          <mdi:cloud-outline class="size-4 shrink-0 opacity-60" />
-          <span class="min-w-0 flex-1 truncate">{{ linkLabel }}</span>
-          <mdi:open-in-new class="size-3.5 shrink-0 opacity-40" />
-        </a>
-      </footer>
 
       <nav
         v-if="isMobile"
@@ -125,14 +113,13 @@
 
 <script lang="ts" setup>
 import mdiCloudOutline from "~icons/mdi/cloud-outline";
-import { cloudPanelHref } from "@/composable/cloud/cloudRail";
 
 // Carries markdown-it, and nobody who never asks a question should download it.
 const ChatPane = defineAsyncComponent(() => import("@/components/cloud/chat/ChatPane.vue"));
 
 const { panel, edgeOffset, openRail, closeRail } = useCloudRail();
 const { messages, reset: resetChat } = useCloudChat();
-const { inView, scoped, containers } = useCloudScope();
+const { inView, scoped } = useCloudScope();
 // The labels are needed everywhere; the dots only where this draws the tabs.
 const items = useRailItems(() => isMobile.value && !!panel.value);
 const { t } = useI18n();
@@ -142,21 +129,6 @@ const titleIcon = computed(() =>
 );
 const title = computed(() =>
   panel.value === "account" ? t("cloud.title") : (items.value.find((i) => i.id === panel.value)?.label ?? ""),
-);
-
-// One container on screen links to that container in Cloud; anything wider to
-// the list this panel is a slice of.
-// The account links to plan and billing whatever is on screen.
-const one = computed(() =>
-  panel.value !== "account" && containers.value.length === 1 ? containers.value[0] : undefined,
-);
-const href = computed(() => (panel.value ? cloudPanelHref(panel.value, one.value) : ""));
-const linkLabel = computed(() =>
-  panel.value === "account"
-    ? t("cloud-rail.open-account")
-    : one.value
-      ? t("cloud-rail.open-container", { name: one.value.name })
-      : t("cloud-rail.open-in-cloud"),
 );
 
 // Not a native dialog, so Esc is ours to handle. A modal on top (the palette,
