@@ -142,7 +142,7 @@ import {
 } from "@/composable/cloud/alertsTimeline";
 import { hoverSpan, windowClock, type MetricsHover } from "@/composable/cloud/metricsTime";
 import { MAX_ASKED } from "@/composable/cloud/cloudFindings";
-import { deployOf, mergeRecentDeploys, useRecentDeploys } from "@/composable/cloud/recentDeploys";
+import { deployOf, mergeRecentDeploys, useRecentDeploys, type RecentDeploy } from "@/composable/cloud/recentDeploys";
 
 const { markAlertsSeen, loaded: recentLoaded, fetchRecentAlerts, refreshRecentAlerts } = useRecentAlerts();
 // What the rail's dot counts, in this panel's scope.
@@ -238,10 +238,13 @@ const { cloudDeploys, refresh: refreshCloudDeploys } = useRecentDeploys();
 onMounted(refreshCloudDeploys);
 const deploys = computed(() => {
   const { from, to } = range.value;
-  return mergeRecentDeploys(store.recentUpdates, cloudDeploys.value).filter((d) => {
+  // Narrowed before the merge, which keeps only the newest few: across the whole
+  // instance those could all be other containers' and leave these out.
+  const wanted = (d: RecentDeploy) => {
     const at = Date.parse(d.at);
     return at >= from && at <= to && scope.value.some((c) => deployOf(d, c));
-  });
+  };
+  return mergeRecentDeploys(store.recentUpdates.filter(wanted), cloudDeploys.value.filter(wanted));
 });
 
 // Reads the shared tick so "Today" rolls over at midnight on a page left open.

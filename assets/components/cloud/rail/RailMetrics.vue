@@ -444,7 +444,11 @@ const range = computed(() => {
 const deploys = computed(() => {
   const c = container.value;
   if (!c) return [];
-  return mergeRecentDeploys(store.recentUpdates, cloudDeploys.value).filter((d) => deployOf(d, c));
+  // Narrowed before the merge, which keeps only the instance's newest few.
+  return mergeRecentDeploys(
+    store.recentUpdates.filter((d) => deployOf(d, c)),
+    cloudDeploys.value.filter((d) => deployOf(d, c)),
+  );
 });
 
 // Memory against the container's limit. Scaled to its own peak, a steady

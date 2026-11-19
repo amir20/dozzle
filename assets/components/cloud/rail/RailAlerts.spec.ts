@@ -313,6 +313,29 @@ describe("<RailAlerts />", () => {
     expect(wrapper.find("[data-readout]").text()).toBe("1 match");
   });
 
+  // The instance's newest updates can all be other containers'; the one in
+  // scope still shows.
+  test("an update in scope shows past newer ones elsewhere", async () => {
+    inView.value = [{ host: "h", id: "api", name: "api" }];
+    const iso = (h: number) => new Date(Date.now() - h * 3600_000).toISOString();
+    cloudDeploys.value = [
+      ...Array.from({ length: 25 }, (_, i) => ({
+        host: "h",
+        name: `other${i}`,
+        oldId: "",
+        newId: `o${i}`,
+        imageRef: "o:2",
+        at: iso(1),
+        source: "external",
+      })),
+      { host: "h", name: "api", oldId: "", newId: "api2", imageRef: "x:v2", at: iso(5), source: "external" },
+    ];
+    fetchAlerts.mockResolvedValue({ alerts: [hit()], events: [match()] });
+    const wrapper = mountRail();
+    await flushPromises();
+    expect(wrapper.findAll("[data-update]").map((u) => u.text())).toEqual(["Updatedv2"]);
+  });
+
   test("updates alone leave a quiet day without the 'more'", async () => {
     cloudDeploys.value = [
       {
