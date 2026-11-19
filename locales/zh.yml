@@ -824,8 +824,6 @@ cloud-findings:
   filter-ignored: 已忽略
   loading: 正在加载调查结果…
   failed: 无法加载调查结果。
-  empty-new: 当前查看的内容没有新发现。
-  empty-all: 当前查看的内容没有调查结果。
   empty-ignored: 这里没有已忽略的项目。
   locked: 详情将随下一份报告送达
   resolved: 已解决

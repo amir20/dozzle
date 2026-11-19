@@ -824,8 +824,6 @@ cloud-findings:
   filter-ignored: Ignoriert
   loading: Befunde werden geladen…
   failed: Befunde konnten nicht geladen werden.
-  empty-new: Bei dem, was du gerade ansiehst, ist nichts Neues aufgefallen.
-  empty-all: Keine Befunde zu dem, was du gerade ansiehst.
   empty-ignored: Hier wird nichts ignoriert.
   locked: Details kommen mit deinem nächsten Bericht
   resolved: Behoben

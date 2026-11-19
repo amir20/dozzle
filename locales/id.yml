@@ -836,8 +836,6 @@ cloud-findings:
   filter-ignored: Diabaikan
   loading: Memuat temuan…
   failed: Tidak dapat memuat temuan.
-  empty-new: Tidak ada hal baru yang tercatat pada yang sedang Anda lihat.
-  empty-all: Tidak ada temuan pada yang sedang Anda lihat.
   empty-ignored: Tidak ada yang diabaikan di sini.
   locked: Detail akan hadir bersama laporan Anda berikutnya
   resolved: Terselesaikan

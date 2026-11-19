@@ -826,8 +826,6 @@ cloud-findings:
   filter-ignored: 무시됨
   loading: 조사 결과 불러오는 중…
   failed: 조사 결과를 불러오지 못했습니다.
-  empty-new: 보고 있는 대상에서 새로 발견된 내용이 없습니다.
-  empty-all: 보고 있는 대상에 대한 조사 결과가 없습니다.
   empty-ignored: 무시된 항목이 없습니다.
   locked: 자세한 내용은 다음 리포트와 함께 제공됩니다
   resolved: 해결됨

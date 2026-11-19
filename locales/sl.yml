@@ -829,8 +829,6 @@ cloud-findings:
   filter-ignored: Prezrte
   loading: Nalaganje ugotovitev…
   failed: Ugotovitev ni bilo mogoče naložiti.
-  empty-new: Pri tem, kar gledate, ni bilo opaženo nič novega.
-  empty-all: Za to, kar gledate, ni ugotovitev.
   empty-ignored: Tukaj ni nič prezrtega.
   locked: Podrobnosti pridejo z vašim naslednjim poročilom
   resolved: Razrešeno

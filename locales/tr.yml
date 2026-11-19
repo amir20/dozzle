@@ -827,8 +827,6 @@ cloud-findings:
   filter-ignored: Yok sayılan
   loading: Bulgular yükleniyor…
   failed: Bulgular yüklenemedi.
-  empty-new: Baktığınız şeyde yeni bir şey fark edilmedi.
-  empty-all: Baktığınız şeyde bulgu yok.
   empty-ignored: Burada yok sayılan bir şey yok.
   locked: Ayrıntılar bir sonraki raporunuzla gelecek
   resolved: Çözüldü

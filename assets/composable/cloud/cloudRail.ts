@@ -1,5 +1,6 @@
 import type { MaybeRefOrGetter } from "vue";
 import { collapseCloudRail } from "@/stores/settings";
+import { MAX_ASKED, useFindingsScope } from "@/composable/cloud/cloudFindings";
 import mdiLightbulbOnOutline from "~icons/mdi/lightbulb-on-outline";
 import mdiBellOutline from "~icons/mdi/bell-outline";
 import mdiMessageOutline from "~icons/mdi/message-outline";
@@ -58,13 +59,15 @@ export function useViewAlerts() {
   const scoped = computed(() => ids.value.size > 0);
   const single = computed(() => ids.value.size === 1);
 
-  // On a view with no containers of its own (the home page, settings) there is
-  // nothing to scope to, so the panel shows the instance the way the page does.
-  const visible = computed(() =>
-    scoped.value ? alerts.value.filter((a) => ids.value.has(a.containerId)) : alerts.value,
-  );
+  // What the panel asks Cloud about: these containers, or with none on screen
+  // every container this instance knows, cut where Cloud's ask is. The dot
+  // counts the same list, so on a page with no containers of its own an alert
+  // past that cut does not light a dot the panel then has no row for.
+  const findingsScope = useFindingsScope();
+  const asked = computed(() => new Set(findingsScope.value.slice(0, MAX_ASKED).map((c) => c.id)));
+  const visible = computed(() => alerts.value.filter((a) => asked.value.has(a.containerId)));
 
-  return { visible, scoped, single, unseen: unseenIn(ids) };
+  return { visible, scoped, single, unseen: unseenIn(asked) };
 }
 
 /**

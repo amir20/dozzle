@@ -825,8 +825,6 @@ cloud-findings:
   filter-ignored: Genegeerd
   loading: Bevindingen laden…
   failed: Kon bevindingen niet laden.
-  empty-new: Niets nieuws opgemerkt in wat je bekijkt.
-  empty-all: Geen bevindingen voor wat je bekijkt.
   empty-ignored: Hier wordt niets genegeerd.
   locked: Details komen met je volgende rapport
   resolved: Opgelost

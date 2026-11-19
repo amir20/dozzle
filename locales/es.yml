@@ -332,8 +332,6 @@ cloud-findings:
   filter-ignored: Ignorados
   loading: Cargando hallazgos…
   failed: No se pudieron cargar los hallazgos.
-  empty-new: No se ha notado nada nuevo en lo que estás viendo.
-  empty-all: No hay hallazgos en lo que estás viendo.
   empty-ignored: Aquí no hay nada ignorado.
   locked: Los detalles llegan con tu próximo informe
   resolved: Resuelto

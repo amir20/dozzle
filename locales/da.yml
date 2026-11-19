@@ -824,8 +824,6 @@ cloud-findings:
   filter-ignored: Ignorerede
   loading: Indlæser fund…
   failed: Kunne ikke indlæse fund.
-  empty-new: Intet nyt bemærket i det, du kigger på.
-  empty-all: Ingen fund i det, du kigger på.
   empty-ignored: Intet ignoreret her.
   locked: Detaljerne kommer med din næste rapport
   resolved: Løst
