@@ -186,11 +186,10 @@ const root = ref<HTMLElement | null>(null);
 // with wide gaps at drawer width. Capped where Cloud caps a call; the window's
 // own count stands in until the panel has a width.
 const { width: rootWidth } = useElementSize(root);
+const columnsFor = (w: number) => Math.min(MAX_BUCKETS, Math.floor(w / 5));
 const columns = ref(0);
 // Settled before refetching, so a resize does not fire a request per five pixels.
-watchDebounced(rootWidth, (w) => w > 0 && (columns.value = Math.min(MAX_BUCKETS, Math.floor(w / 5))), {
-  debounce: 300,
-});
+watchDebounced(rootWidth, (w) => w > 0 && (columns.value = columnsFor(w)), { debounce: 300 });
 
 let request = 0;
 async function load() {
@@ -218,7 +217,18 @@ async function load() {
   loading.value = false;
   loaded.value = true;
 }
-watch([() => scope.value.map((c) => c.id).join(","), window, columns], load, { immediate: true });
+watch([() => scope.value.map((c) => c.id).join(","), window, columns], load);
+// The first ask waits for the panel's width, read once on mount, so opening the
+// panel is one request at the real column count rather than the fallback's and
+// then a second once the debounce settles. The content box, as useElementSize
+// measures it, so the debounced value matches and asks nothing more.
+onMounted(() => {
+  const el = root.value;
+  const style = el && getComputedStyle(el);
+  const w = el && style ? el.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) : 0;
+  if (w > 0) columns.value = columnsFor(w);
+  else load();
+});
 
 // Reads the shared tick so "Today" rolls over at midnight on a page left open.
 const days = computed(() => {
