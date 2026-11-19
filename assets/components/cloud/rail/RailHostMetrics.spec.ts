@@ -115,7 +115,9 @@ describe("<RailHostMetrics />", () => {
     });
     const wrapper = await render();
 
-    expect(vi.mocked(globalThis.fetch).mock.calls[0][0]).toBe("/api/cloud/metrics/hosts?window=24h&buckets=110");
+    expect(vi.mocked(globalThis.fetch).mock.calls[0][0]).toBe(
+      "/api/cloud/metrics/hosts?window=24h&buckets=110&top=cpu",
+    );
     expect(text(wrapper.find("[data-subject]"))).toContain("All hosts");
     expect(text(wrapper.find("[data-subject]"))).toContain("8 containers summed");
     const { cpu, memory, network, disk } = charts(wrapper);
@@ -294,5 +296,42 @@ describe("<RailHostMetrics />", () => {
     await flushPromises();
     expect(text(wrapper.find("[data-subject]"))).not.toContain("Whole host");
     expect(text(wrapper.find("[data-subject]"))).toContain("12 containers summed");
+  });
+
+  // Cloud computes one list per request: the charts' read brings the one on
+  // screen, a tab switch asks for only its own, and switching back is free.
+  test("a top tab is fetched on its own, once per window", async () => {
+    state.hosts = { h1: { name: "orbstack" } };
+    respond(200, {
+      bucket: 60_000,
+      hosts: [{ ...series("h1", [10, 30], GB), top: { cpu: [{ name: "api", avg: 5, peak: 9 }] } }],
+    });
+    const wrapper = await render();
+    const fetchMock = vi.mocked(globalThis.fetch);
+    expect(fetchMock.mock.calls[0][0]).toContain("&top=cpu");
+    expect(fetchMock.mock.calls).toHaveLength(1);
+
+    fetchMock.mockImplementation(
+      async () =>
+        new Response(
+          JSON.stringify({
+            hosts: [{ hostId: "h1", points: [], top: { memory: [{ name: "db", avg: GB, peak: GB }] } }],
+          }),
+        ),
+    );
+    const tabs = () => wrapper.findAll("[data-top]")[0].element.parentElement!.querySelectorAll('[role="tab"]');
+    const memTab = [...tabs()].find((t) => t.textContent?.trim() === "MEM") as HTMLElement;
+    memTab.click();
+    await flushPromises();
+    expect(fetchMock.mock.calls).toHaveLength(2);
+    expect(fetchMock.mock.calls[1][0]).toBe("/api/cloud/metrics/hosts?window=24h&top=memory&topOnly=1");
+    expect(wrapper.find("[data-top]").text()).toContain("db");
+    // The charts were not read again.
+    expect(wrapper.findAll("[data-chart]").length).toBeGreaterThan(0);
+
+    ([...tabs()].find((t) => t.textContent?.trim() === "CPU") as HTMLElement).click();
+    await flushPromises();
+    expect(fetchMock.mock.calls).toHaveLength(2);
+    expect(wrapper.find("[data-top]").text()).toContain("api");
   });
 });

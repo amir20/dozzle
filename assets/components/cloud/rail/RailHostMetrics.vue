@@ -244,7 +244,7 @@
       <!-- What is using it: the heaviest containers over the window, each one
            click from its page. Absent for a reader with a container filter, who
            gets the totals but not the names. -->
-      <template v-if="topRows">
+      <template v-if="topNamed">
         <div class="mt-6 mb-2 flex items-center gap-2">
           <h4 class="text-base-content/60 text-xs font-semibold tracking-wide uppercase">
             {{ $t("cloud-rail.metrics-top") }}
@@ -254,7 +254,7 @@
         <div class="border-base-content/15 bg-base-200/40 rounded-lg border p-1" data-top>
           <component
             :is="row.to ? RouterLink : 'div'"
-            v-for="row in topRows"
+            v-for="row in topRows ?? []"
             :key="`${row.hostId}/${row.name}`"
             :to="row.to"
             class="flex items-center gap-3 rounded-md px-2 py-1.5"
@@ -274,7 +274,10 @@
               >
             </span>
           </component>
-          <p v-if="!topRows.length" class="text-base-content/60 px-2 py-1.5 text-sm">
+          <p v-if="!topRows" class="text-base-content/60 px-2 py-1.5 text-sm">
+            {{ $t("cloud-rail.metrics-loading") }}
+          </p>
+          <p v-else-if="!topRows.length" class="text-base-content/60 px-2 py-1.5 text-sm">
             {{ $t("cloud-rail.metrics-top-empty") }}
           </p>
         </div>
@@ -337,16 +340,29 @@ const measure = () => (columns.value = Math.min(1000, Math.max(1, Math.floor(roo
 watchDebounced(rootWidth, (w) => w > 0 && measure(), { debounce: 300 });
 watch(rootWidth, (w) => w > 0 && columns.value === 0 && measure(), { immediate: true });
 
+// The top-container list on screen. Cloud computes one list per request: the
+// charts' read brings the one showing, and a tab switch asks for only its own,
+// kept for the window so switching back costs nothing.
+const topRank = ref<Metric>("cpu");
+const topLists = ref<Partial<Record<Metric, Record<string, TopContainer[]>>>>({});
+// False when the server sent no lists: a reader with a container filter.
+const topNamed = ref(true);
+const listsOf = (hosts: HostSeries[], metric: Metric) =>
+  Object.fromEntries(hosts.map((h) => [h.hostId, h.top?.[metric] ?? []]));
+
 // Only the newest request may write; see RailMetrics.
 let latest = 0;
 async function load() {
   if (columns.value === 0) return;
   const request = ++latest;
   const current = () => request === latest;
+  const metric = topRank.value;
   loading.value = true;
   failed.value = false;
   try {
-    const res = await fetch(withBase(`/api/cloud/metrics/hosts?window=${window.value}&buckets=${columns.value}`));
+    const res = await fetch(
+      withBase(`/api/cloud/metrics/hosts?window=${window.value}&buckets=${columns.value}&top=${metric}`),
+    );
     if (!current()) return;
     if (!res.ok) {
       // 503 is an unlinked instance, which the drawer is not offered on anyway.
@@ -356,8 +372,11 @@ async function load() {
     }
     const body = await res.json();
     if (!current()) return;
-    series.value = body.hosts ?? [];
+    const answered: HostSeries[] = body.hosts ?? [];
+    series.value = answered;
     bucket.value = body.bucket ?? 0;
+    topNamed.value = answered.length === 0 || answered.some((h) => h.top);
+    topLists.value = { [metric]: listsOf(answered, metric) };
   } catch {
     if (!current()) return;
     failed.value = true;
@@ -365,8 +384,28 @@ async function load() {
   } finally {
     if (current()) loading.value = false;
   }
+  // The tab changed while the charts were being read: that read brought the old list.
+  if (current() && !failed.value && topRank.value !== metric) void loadTop(topRank.value);
 }
 watch([window, columns], load, { immediate: true });
+
+let latestTop = 0;
+async function loadTop(metric: Metric) {
+  if (!topNamed.value || topLists.value[metric] || loading.value) return;
+  const request = ++latestTop;
+  const forWindow = window.value;
+  try {
+    const res = await fetch(withBase(`/api/cloud/metrics/hosts?window=${forWindow}&top=${metric}&topOnly=1`));
+    if (!res.ok) return;
+    const body = await res.json();
+    // A window switch while this was out started a fresh read that brings its own list.
+    if (request !== latestTop || forWindow !== window.value) return;
+    topLists.value = { ...topLists.value, [metric]: listsOf(body.hosts ?? [], metric) };
+  } catch {
+    // Best effort: the list stays on its loading line and the charts are untouched.
+  }
+}
+watch(topRank, loadTop);
 
 const pct = (v: number) => `${v.toFixed(1)}%`;
 const bytes = (v: number) => formatBytes(v, { short: true, decimals: 1 });
@@ -387,7 +426,6 @@ const hosts = computed(() =>
         type: known?.type,
         containers: s.containers ?? 0,
         points: s.points,
-        top: s.top,
         stats,
         hot: stats.cpu.peak > 90,
       };
@@ -625,13 +663,14 @@ const rankedHosts = computed(() => {
 
 // The heaviest containers, for the host on screen or across all of them. A row
 // links to its container when Dozzle still has one by that name on that host.
-const topRank = ref<Metric>("cpu");
+// Null while the list for the chosen metric is on its way.
 const topRows = computed(() => {
-  const scope = current.value ? [current.value] : hosts.value;
-  if (scope.some((h) => !h.top)) return undefined;
   const metric = topRank.value;
+  const lists = topLists.value[metric];
+  if (!lists) return null;
+  const scope = current.value ? [current.value] : hosts.value;
   const merged = mergeTop(
-    scope.map((h) => ({ hostId: h.id, list: h.top![metric] })),
+    scope.map((h) => ({ hostId: h.id, list: lists[h.id] ?? [] })),
     5,
   );
   const first = Math.max(1e-9, merged[0]?.avg ?? 0);

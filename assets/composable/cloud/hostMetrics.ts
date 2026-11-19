@@ -22,8 +22,9 @@ export type HostSeries = {
   hostId: string;
   points: HostPoint[];
   containers?: number;
-  /** Absent for a reader with a container filter: the totals, not the names. */
-  top?: Record<Metric, TopContainer[]>;
+  /** Only the list the request named. Absent for a reader with a container
+   *  filter: the totals, not the names. */
+  top?: Partial<Record<Metric, TopContainer[]>>;
 };
 
 const sumDefined = (xs: (number | undefined)[]) =>

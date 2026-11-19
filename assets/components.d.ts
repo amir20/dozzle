@@ -251,7 +251,6 @@ declare module 'vue' {
     'Mdi:remote': typeof import('~icons/mdi/remote')['default']
     'Mdi:restart': typeof import('~icons/mdi/restart')['default']
     'Mdi:restore': typeof import('~icons/mdi/restore')['default']
-    'Mdi:robotOutline': typeof import('~icons/mdi/robot-outline')['default']
     'Mdi:rocketLaunchOutline': typeof import('~icons/mdi/rocket-launch-outline')['default']
     'Mdi:satelliteVariant': typeof import('~icons/mdi/satellite-variant')['default']
     'Mdi:scriptTextOutline': typeof import('~icons/mdi/script-text-outline')['default']
