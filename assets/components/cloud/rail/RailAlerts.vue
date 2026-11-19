@@ -90,7 +90,8 @@
           ></span>
         </div>
         <div class="text-base-content/40 mt-1 flex justify-between font-mono text-xs tabular-nums" data-range>
-          <span>{{ clock.format(new Date(range.from)) }}</span>
+          <!-- Cloud may shorten a wide window; the bars start at the first bucket. -->
+          <span>{{ clock.format(new Date(buckets?.[0] ? buckets[0].startTs / 1e6 : range.from)) }}</span>
           <span>{{ clock.format(new Date(range.to)) }}</span>
         </div>
       </div>
@@ -287,14 +288,22 @@ onBeforeUnmount(() => clearTimeout(unmark));
 // The panel is open, so whatever it is showing has been looked at, and only
 // that: the watermark moves to the newest alert on screen, never the
 // instance's. An effect because the rows usually land after the panel opens.
+// Origins only: a follow-up anchor carries the time of a later batch folded in
+// silently, and marking that would put out dots for alerts elsewhere nobody saw.
+// Nothing is marked while the panel shows a failure instead of rows.
+const showing = computed(() => loaded.value && !failed.value);
 watchEffect(() => {
-  const newest = hits.value.reduce<CloudAlert | undefined>((n, h) => (!n || h.ts > n.ts ? h : n), undefined);
+  if (!showing.value) return;
+  const newest = hits.value.reduce<CloudAlert | undefined>(
+    (n, h) => (h.isOrigin && (!n || h.ts > n.ts) ? h : n),
+    undefined,
+  );
   if (newest) markAlertsSeen(newest);
 });
 // The dot counts recent alerts the timeline can leave out (a container since
 // recreated, or older than the window), so opening the panel also clears what
 // the dot counted in this scope; otherwise it stays lit with nothing to show.
 watchEffect(() => {
-  if (dotted.value.length) markAlertsSeen(dotted.value[0]);
+  if (showing.value && dotted.value.length) markAlertsSeen(dotted.value[0]);
 });
 </script>

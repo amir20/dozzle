@@ -335,4 +335,23 @@ describe("<RailAlerts />", () => {
     expect(refreshRecentAlerts).toHaveBeenCalled();
     expect(markAlertsSeen).toHaveBeenCalledWith(gone);
   });
+  // A follow-up anchor carries a later batch's time; marking it would put out
+  // dots for alerts on other containers that were never on screen.
+  test("marks only origin alerts seen, never a follow-up anchor", async () => {
+    const origin = hit({ ts: ago(3) });
+    const anchor = hit({ ts: ago(0.1), isOrigin: false });
+    fetchAlerts.mockResolvedValue({ alerts: [origin, anchor], events: [] });
+    mountRail();
+    await flushPromises();
+    expect(markAlertsSeen).toHaveBeenCalledWith(origin);
+    expect(markAlertsSeen).not.toHaveBeenCalledWith(anchor);
+  });
+
+  test("a panel that failed to load marks nothing seen", async () => {
+    dotted.value = [{ id: "a", containerId: "api", ts: ago(1) }];
+    fetchAlerts.mockResolvedValue({ alerts: [hit()], events: [], failed: true });
+    mountRail();
+    await flushPromises();
+    expect(markAlertsSeen).not.toHaveBeenCalled();
+  });
 });
