@@ -66,10 +66,13 @@
         </div>
       </template>
     </Dropdown>
+
+    <CloudLinkPopover v-if="canLinkCloud && !cloudLinked" />
   </div>
 </template>
 <script lang="ts" setup>
 const { logoutUrl } = config;
+const { canLink: canLinkCloud, linked: cloudLinked } = useCloudSurface();
 
 // simple and oidc hold a session cookie Dozzle issued, so logging out means
 // clearing it. Forward proxy has none: the logout URL is the whole logout there.

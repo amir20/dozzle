@@ -894,9 +894,10 @@ cloud:
   title: Dozzle Cloud
   description: コンテナをリモートで操作し、AI でクラスタ全体の問題を調査できます。
   pitch:
-    findings: エラーと警告を毎日 AI がスキャン
-    alerts: クラッシュやしきい値超過をリアルタイムでアラート
-    control: どこからでもコンテナの開始、停止、調査が可能
+    findings: 毎日ログを読み、ルールでは拾えない問題を検出
+    alerts: スマホやチャットにアラート、リロードや再起動後も保持
+    ask: 履歴も含め、どのコンテナについても質問可能
+    control: チャットからコンテナを再起動、更新、ロールバック
   learn-more: 詳しく見る
   link-instance: インスタンスをリンク
   relink-instance: インスタンスを再リンク

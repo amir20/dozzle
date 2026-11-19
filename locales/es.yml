@@ -893,9 +893,10 @@ cloud:
   title: Dozzle Cloud
   description: Controle sus contenedores de forma remota y use IA para investigar problemas en su clúster.
   pitch:
-    findings: Análisis diario con IA de sus errores y advertencias
-    alerts: Alertas en tiempo real por caídas y umbrales
-    control: Inicie, detenga e inspeccione contenedores desde cualquier lugar
+    findings: Lee sus logs cada día y detecta problemas que ninguna regla capta
+    alerts: Alertas en su móvil o chat, guardadas tras recargar o reiniciar
+    ask: Pregunte sobre cualquier contenedor, historial incluido
+    control: Reinicie, actualice o revierta contenedores desde el chat
   learn-more: Más información
   link-instance: Vincular instancia
   relink-instance: Revincular instancia

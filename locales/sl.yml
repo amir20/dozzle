@@ -682,9 +682,10 @@ cloud:
   title: Dozzle Cloud
   description: Upravljajte svoje zabojnike na daljavo in uporabite UI za preiskovanje težav v vašem grozdu.
   pitch:
-    findings: Dnevni pregled vaših napak in opozoril z UI
-    alerts: Opozorila v realnem času ob sesutjih in preseženih pragovih
-    control: Zaženite, ustavite in preglejte zabojnike od koder koli
+    findings: Vsak dan prebere vaše dnevnike in označi težave, ki jih ne ujame nobeno pravilo
+    alerts: Opozorila na telefon ali v klepet, ohranjena po osvežitvi ali ponovnem zagonu
+    ask: Vprašajte o katerem koli vsebniku, vključno z zgodovino
+    control: Ponovno zaženite, posodobite ali povrnite vsebnike iz klepeta
   learn-more: Več o tem
   link-instance: Poveži instanco
   relink-instance: Ponovno poveži instanco

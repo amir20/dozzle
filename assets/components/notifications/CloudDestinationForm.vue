@@ -111,22 +111,11 @@
       Not linked. Same shell as the linked state, so linking does not reshuffle the
       drawer: the pitch rows are replaced by the key and the meter. The header above
       already carries the title and the pitch sentence, so this branch opens on the
-      three concrete things you get rather than restating them.
+      concrete things you get rather than restating them.
     -->
     <div v-else class="divide-base-content/10 border-base-content/10 -mx-4 divide-y border-y">
       <ul class="text-base-content/70 space-y-2.5 p-4 text-sm">
-        <li class="flex items-start gap-2">
-          <mdi:robot-outline class="text-info mt-0.5 size-4 shrink-0" />
-          <span>{{ $t("cloud.pitch.findings") }}</span>
-        </li>
-        <li class="flex items-start gap-2">
-          <mdi:bell-ring-outline class="text-info mt-0.5 size-4 shrink-0" />
-          <span>{{ $t("cloud.pitch.alerts") }}</span>
-        </li>
-        <li class="flex items-start gap-2">
-          <mdi:remote class="text-info mt-0.5 size-4 shrink-0" />
-          <span>{{ $t("cloud.pitch.control") }}</span>
-        </li>
+        <CloudPitch />
       </ul>
 
       <div class="flex gap-2 p-4">

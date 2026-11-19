@@ -689,9 +689,10 @@ cloud:
   title: Dozzle Cloud
   description: Kendalikan kontainer Anda dari jarak jauh dan gunakan AI untuk menyelidiki masalah di seluruh kluster Anda.
   pitch:
-    findings: Pemindaian AI harian atas error dan peringatan Anda
-    alerts: Peringatan waktu nyata untuk crash dan ambang batas
-    control: Jalankan, hentikan, dan periksa kontainer dari mana saja
+    findings: Membaca log Anda setiap hari dan menandai masalah yang lolos dari aturan
+    alerts: Peringatan di ponsel atau chat, tetap tersimpan setelah refresh atau restart
+    ask: Tanyakan apa saja tentang kontainer, termasuk riwayatnya
+    control: Mulai ulang, perbarui, atau rollback kontainer dari chat
   learn-more: Pelajari lebih lanjut
   link-instance: Tautkan instans
   relink-instance: Tautkan ulang instans

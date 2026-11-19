@@ -677,9 +677,10 @@ cloud:
   title: Dozzle Cloud
   description: Controlla i tuoi container da remoto e usa l'AI per investigare problemi nel tuo cluster.
   pitch:
-    findings: Scansione AI quotidiana dei tuoi errori e avvisi
-    alerts: Avvisi in tempo reale per crash e soglie
-    control: Avvia, ferma e ispeziona i container da ovunque
+    findings: Legge i tuoi log ogni giorno e segnala i problemi che nessuna regola rileva
+    alerts: Avvisi su telefono o chat, conservati dopo un refresh o un riavvio
+    ask: Chiedi di qualsiasi container, cronologia inclusa
+    control: Riavvia, aggiorna o ripristina i container dalla chat
   learn-more: Scopri di più
   link-instance: Collega istanza
   relink-instance: Ricollega istanza
