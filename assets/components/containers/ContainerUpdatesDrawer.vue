@@ -32,7 +32,12 @@
           </div>
           <div class="min-w-0 flex-1">
             <div class="truncate text-sm font-medium">{{ item.name }}</div>
-            <div class="text-base-content/60 truncate font-mono text-xs">{{ item.image }}</div>
+            <div class="text-base-content/60 truncate font-mono text-xs">
+              {{ item.image }}
+              <template v-if="multipleHosts">
+                <span class="text-base-content/40"> · {{ hosts[item.host]?.name ?? item.host }}</span>
+              </template>
+            </div>
             <div v-if="item.error" class="text-base-content/60 mt-1 text-xs wrap-anywhere">
               {{ updateErrorText(item.error, $t) }}
             </div>
