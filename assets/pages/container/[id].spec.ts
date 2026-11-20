@@ -95,6 +95,18 @@ describe("container page redirect", () => {
     expect(currentId()).toBe("new");
   });
 
+  test("follows a container an update renamed out of the way", async () => {
+    const store = useContainerStore();
+    store.containers = [oldRunning()];
+    await open("old");
+
+    const renamed = oldStopped();
+    renamed.name = "app-dozzle-old-0123456789ab";
+    store.containers = [renamed, newRunning()];
+    await flushPromises();
+    expect(currentId()).toBe("new");
+  });
+
   test("switching from the running replacement to the stopped original stays put", async () => {
     useContainerStore().containers = [oldStopped(), newRunning()];
     await open("new");
