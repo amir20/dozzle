@@ -151,6 +151,16 @@ function startProvider(event: MouseEvent, provider: { name: string; loginUrl: st
   window.location.replace(loginUrlFor(provider));
 }
 
+// With no password form and a single provider, this page is one button, so go
+// straight to the provider instead. It still shows after a failed callback (or
+// it would loop), right after logout (or the user is signed straight back in),
+// and on ?direct for reaching it when the provider is misconfigured.
+const loggedOut = consumeLoggedOut();
+if (!passwordLogin && oauthProviders.length === 1 && !oauthError && !params.has("direct") && !loggedOut) {
+  pendingProvider.value = oauthProviders[0].name;
+  window.location.replace(loginUrlFor(oauthProviders[0]));
+}
+
 async function onLogin() {
   loading.value = true;
   const response = await fetch(withBase("/api/token"), {

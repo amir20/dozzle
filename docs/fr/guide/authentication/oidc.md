@@ -1,7 +1,7 @@
 ---
 title: OpenID Connect
 description: Utilisez OpenID Connect avec Keycloak, Authentik, Authelia ou Zitadel comme base des utilisateurs de Dozzle, avec les rôles et les filtres de conteneurs lus dans le token.
-sourceHash: daeef1a424a5
+sourceHash: bbe07a4022c1
 ---
 
 # <Icon icon="mdi:shield-account" inline /> OpenID Connect
@@ -111,6 +111,12 @@ Un utilisateur sans claim de filtres voit tous les conteneurs que l'instance Doz
 Le claim `sub` est l'identifiant stable de l'utilisateur. Il sert de clé au répertoire de profil sous `/data`, les réglages suivent donc la personne même si son nom d'utilisateur ou son email change chez le fournisseur. Le nom affiché dans le menu est `name`, avec repli sur `preferred_username`, puis `email`, puis `sub`. `email` et `picture` alimentent l'avatar, et une URL `picture` est utilisée quand le fournisseur en envoie une. Dozzle récupère lui-même cette image et uniquement depuis des adresses publiques, une image hébergée sur un réseau privé retombe donc sur Gravatar.
 
 Contrairement au fournisseur `simple`, l'email n'a pas besoin d'être vérifié ici. Il est seulement affiché, jamais comparé à quoi que ce soit, un émetteur qui n'accorde aucun scope email fonctionne donc très bien.
+
+## Connexion
+
+Dozzle n'a pas de formulaire de mot de passe sous `oidc`, la page de connexion saute donc son propre bouton et envoie directement le navigateur au fournisseur. Si le fournisseur a encore une session, l'utilisateur revient dans Dozzle sans voir aucune des deux pages de connexion.
+
+La page de connexion s'affiche quand même après une connexion échouée, pour qu'une configuration cassée ne tourne pas en boucle, et juste après une déconnexion, pour que l'utilisateur ne soit pas reconnecté aussitôt. Pour y accéder à tout autre moment, ouvrez `/login?direct=1`.
 
 ## Sessions
 

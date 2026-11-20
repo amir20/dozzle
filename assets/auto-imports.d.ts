@@ -93,6 +93,7 @@ declare global {
   const computedInject: typeof import('@vueuse/core').computedInject
   const computedWithControl: typeof import('@vueuse/core').computedWithControl
   const config: typeof import('./stores/config').default
+  const consumeLoggedOut: typeof import('./composable/app/loggedOut').consumeLoggedOut
   const containerLiveSeries: typeof import('./composable/cloud/liveMetrics').containerLiveSeries
   const containerWorkload: typeof import('./composable/containers/rolloutRestart').containerWorkload
   const controlledComputed: typeof import('@vueuse/core').controlledComputed
@@ -229,6 +230,7 @@ declare global {
   const mapWritableState: typeof import('pinia').mapWritableState
   const markCloudWelcomePending: typeof import('./composable/cloud/cloudWelcome').markCloudWelcomePending
   const markFindingsSeen: typeof import('./composable/cloud/cloudFindings').markFindingsSeen
+  const markLoggedOut: typeof import('./composable/app/loggedOut').markLoggedOut
   const markRaw: typeof import('vue').markRaw
   const memoryBars: typeof import('./composable/cloud/chatVisuals').memoryBars
   const menuWidth: typeof import('./stores/settings').menuWidth
@@ -918,6 +920,7 @@ declare module 'vue' {
     readonly computedInject: UnwrapRef<typeof import('@vueuse/core')['computedInject']>
     readonly computedWithControl: UnwrapRef<typeof import('@vueuse/core')['computedWithControl']>
     readonly config: UnwrapRef<typeof import('./stores/config')['default']>
+    readonly consumeLoggedOut: UnwrapRef<typeof import('./composable/app/loggedOut')['consumeLoggedOut']>
     readonly containerLiveSeries: UnwrapRef<typeof import('./composable/cloud/liveMetrics')['containerLiveSeries']>
     readonly containerWorkload: UnwrapRef<typeof import('./composable/containers/rolloutRestart')['containerWorkload']>
     readonly controlledComputed: UnwrapRef<typeof import('@vueuse/core')['controlledComputed']>
@@ -1046,6 +1049,7 @@ declare module 'vue' {
     readonly mapWritableState: UnwrapRef<typeof import('pinia')['mapWritableState']>
     readonly markCloudWelcomePending: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['markCloudWelcomePending']>
     readonly markFindingsSeen: UnwrapRef<typeof import('./composable/cloud/cloudFindings')['markFindingsSeen']>
+    readonly markLoggedOut: UnwrapRef<typeof import('./composable/app/loggedOut')['markLoggedOut']>
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
     readonly memoryBars: UnwrapRef<typeof import('./composable/cloud/chatVisuals')['memoryBars']>
     readonly menuWidth: UnwrapRef<typeof import('./stores/settings')['menuWidth']>
