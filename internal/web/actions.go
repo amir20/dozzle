@@ -131,7 +131,8 @@ func (h *handler) containerUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := <-errCh; err != nil {
-		log.Error().Err(err).Msg("container update failed")
+		log.Error().Err(err).Str("container", containerService.Container.Name).Msg("container update failed")
+		return
 	}
 
 	log.Info().Str("container", containerService.Container.Name).Msg("container update completed")
