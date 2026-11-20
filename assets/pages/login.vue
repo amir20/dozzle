@@ -151,12 +151,23 @@ function startProvider(event: MouseEvent, provider: { name: string; loginUrl: st
   window.location.replace(loginUrlFor(provider));
 }
 
-// With no password form and a single provider, this page is one button, so go
-// straight to the provider instead. It still shows after a failed callback (or
+// Under oidc this page is one button, so go straight to the provider instead.
+// simple can end up with one button too (one provider, no passwords in
+// users.yml), but that page has always been there and is left alone. It still shows after a failed callback (or
 // it would loop), right after logout (or the user is signed straight back in),
-// and on ?direct for reaching it when the provider is misconfigured.
+// when it already redirected moments ago (a session that did not stick), and on
+// ?direct for reaching it when the provider is misconfigured. Order matters:
+// the logout mark is consumed on every visit, the redirect claim only when the
+// rest allow one.
 const loggedOut = consumeLoggedOut();
-if (!passwordLogin && oauthProviders.length === 1 && !oauthError && !params.has("direct") && !loggedOut) {
+if (
+  config.authProvider === "oidc" &&
+  oauthProviders.length === 1 &&
+  !oauthError &&
+  !params.has("direct") &&
+  !loggedOut &&
+  claimAutoLogin()
+) {
   pendingProvider.value = oauthProviders[0].name;
   window.location.replace(loginUrlFor(oauthProviders[0]));
 }

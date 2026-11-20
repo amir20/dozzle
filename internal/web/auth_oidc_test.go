@@ -58,6 +58,8 @@ func Test_createRoutes_oidc_login_page_offers_only_the_provider(t *testing.T) {
 	require.Equal(t, http.StatusOK, rr.Code)
 	body := rr.Body.String()
 	assert.Contains(t, body, `"passwordLogin":false`)
+	// The page goes straight to the provider only under oidc, so it has to know.
+	assert.Contains(t, body, `"authProvider":"oidc"`)
 	assert.Contains(t, body, `"name":"Keycloak"`)
 	assert.Contains(t, body, `/api/auth/login?provider=oidc`)
 }

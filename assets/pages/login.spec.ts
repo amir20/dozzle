@@ -7,6 +7,7 @@ import { createI18n } from "vue-i18n";
 
 const config = vi.hoisted(() => ({
   base: "",
+  authProvider: "oidc" as "oidc" | "simple",
   passwordLogin: false as boolean | undefined,
   oauthProviders: [] as { name: string; loginUrl: string; icon: string }[],
 }));
@@ -29,6 +30,7 @@ function visit(search: string) {
 afterEach(() => {
   vi.unstubAllGlobals();
   sessionStorage.clear();
+  config.authProvider = "oidc";
   config.passwordLogin = false;
   config.oauthProviders = [];
 });
@@ -57,14 +59,27 @@ describe("login page", () => {
     expect(visit("")).toHaveBeenCalledOnce();
   });
 
-  test("stays when there is a password form", () => {
-    config.passwordLogin = true;
-    config.oauthProviders = [github];
+  test("stops after one automatic redirect when the session does not stick", () => {
+    config.oauthProviders = [sso];
+    expect(visit("")).toHaveBeenCalledOnce();
     expect(visit("")).not.toHaveBeenCalled();
   });
 
-  test("stays when there is more than one provider to choose from", () => {
-    config.oauthProviders = [sso, github];
+  test("redirects again once the loop window has passed", () => {
+    config.oauthProviders = [sso];
+    vi.useFakeTimers();
+    try {
+      expect(visit("")).toHaveBeenCalledOnce();
+      vi.advanceTimersByTime(16_000);
+      expect(visit("")).toHaveBeenCalledOnce();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test("stays under simple, even when GitHub is the only way in", () => {
+    config.authProvider = "simple";
+    config.oauthProviders = [github];
     expect(visit("")).not.toHaveBeenCalled();
   });
 });

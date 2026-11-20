@@ -181,8 +181,11 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// authProvider is known to anyone who loads the login page anyway, and that
+	// page needs it: under oidc it goes straight to the provider.
 	config := map[string]any{
-		"base": base,
+		"base":         base,
+		"authProvider": h.config.Authorization.Provider,
 	}
 
 	// The login page renders one button per provider while nobody is
@@ -201,7 +204,6 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 			return hosts[i].Name < hosts[j].Name
 		})
 
-		config["authProvider"] = h.config.Authorization.Provider
 		config["version"] = h.config.Version
 		config["hostname"] = h.config.Hostname
 		config["mode"] = h.config.Mode
