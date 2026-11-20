@@ -294,8 +294,8 @@ cloud-rail:
   metrics-live: "Live from this browser, last {n} min. Cloud history fills in as stats arrive."
   metrics: Metrics
   alerts: Alerts
-  hide: Hide the cloud rail
-  show: Show the cloud rail
+  hide: Hide the right toolbar
+  show: Show the right toolbar
   alerts-empty-here: Nothing has fired on what you're looking at.
   alerts-chart: How often your rules matched
   alerts-chart-scroll: Show this time in the list

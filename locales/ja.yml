@@ -287,8 +287,8 @@ cloud-rail:
   metrics-live: "このブラウザからのライブデータ（直近 {n} 分）。統計が届くにつれて Cloud の履歴が埋まります。"
   metrics: メトリクス
   alerts: アラート
-  hide: クラウドレールを隠す
-  show: クラウドレールを表示
+  hide: 右側のツールバーを隠す
+  show: 右側のツールバーを表示
   alerts-empty-here: 表示中の内容では何も発生していません。
   alerts-chart: ルールが一致した頻度
   alerts-chart-scroll: この時刻を一覧で表示

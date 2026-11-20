@@ -780,8 +780,8 @@ cloud-rail:
   metrics-live: "이 브라우저의 실시간 데이터, 최근 {n}분. 통계가 도착하면 Cloud 기록이 채워집니다."
   metrics: 메트릭
   alerts: 알림
-  hide: 클라우드 레일 숨기기
-  show: 클라우드 레일 표시
+  hide: 오른쪽 도구 모음 숨기기
+  show: 오른쪽 도구 모음 표시
   alerts-empty-here: 보고 있는 대상에서 발생한 알림이 없습니다.
   alerts-chart: 규칙이 일치한 빈도
   alerts-chart-scroll: 이 시간을 목록에서 보기

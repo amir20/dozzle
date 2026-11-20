@@ -778,8 +778,8 @@ cloud-rail:
   metrics-live: "Live fra denne browser, seneste {n} min. Cloud-historikken udfyldes, efterhånden som statistik kommer ind."
   metrics: Metrikker
   alerts: Advarsler
-  hide: Skjul cloud-panelet
-  show: Vis cloud-panelet
+  hide: Skjul højre værktøjslinje
+  show: Vis højre værktøjslinje
   alerts-empty-here: Intet er udløst for det, du kigger på.
   alerts-chart: Hvor ofte dine regler matchede
   alerts-chart-scroll: Vis dette tidspunkt i listen

@@ -286,8 +286,8 @@ cloud-rail:
   metrics-live: "En vivo desde este navegador, últimos {n} min. El historial de Cloud se completa a medida que llegan las estadísticas."
   metrics: Métricas
   alerts: Alertas
-  hide: Ocultar la barra de cloud
-  show: Mostrar la barra de cloud
+  hide: Ocultar la barra derecha
+  show: Mostrar la barra derecha
   alerts-empty-here: No se ha disparado nada en lo que estás viendo.
   alerts-chart: Con qué frecuencia coincidieron tus reglas
   alerts-chart-scroll: Mostrar este momento en la lista

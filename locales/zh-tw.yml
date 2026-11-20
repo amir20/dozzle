@@ -780,8 +780,8 @@ cloud-rail:
   metrics-live: "來自此瀏覽器的即時資料，最近 {n} 分鐘。統計資料到達後，Cloud 歷史會逐步補齊。"
   metrics: 指標
   alerts: 警報
-  hide: 隱藏雲端側欄
-  show: 顯示雲端側欄
+  hide: 隱藏右側工具列
+  show: 顯示右側工具列
   alerts-empty-here: 目前檢視的內容沒有觸發過警報。
   alerts-chart: 規則比對到的頻率
   alerts-chart-scroll: 在清單中顯示這個時間

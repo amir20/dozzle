@@ -16,12 +16,7 @@
       <!-- Centred, so it reads as the one entry point on the page rather than a
            widget beside the logo. -->
       <SearchInline class="hidden md:col-start-2 md:flex" />
-      <Links class="ml-auto md:col-start-3 md:justify-self-end">
-        <template #more-items>
-          <!-- Settings › About has it on a phone, where the top bar has no room to spare. -->
-          <Tag class="font-mono whitespace-nowrap max-md:hidden">{{ config.version }}</Tag>
-        </template>
-      </Links>
+      <Links class="ml-auto md:col-start-3 md:justify-self-end" />
     </section>
     <!-- Holds the fixed bar's place in the flow, less the page padding above it. -->
     <div class="h-[calc(3rem+env(safe-area-inset-top))] shrink-0 md:hidden" aria-hidden="true"></div>

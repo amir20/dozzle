@@ -783,8 +783,8 @@ cloud-rail:
   metrics-live: "V živo iz tega brskalnika, zadnjih {n} min. Zgodovina v Cloud se zapolni, ko prispe statistika."
   metrics: Meritve
   alerts: Opozorila
-  hide: Skrij oblačno vrstico
-  show: Pokaži oblačno vrstico
+  hide: Skrij desno orodno vrstico
+  show: Pokaži desno orodno vrstico
   alerts-empty-here: Za to, kar gledate, se ni sprožilo nič.
   alerts-chart: Kako pogosto so se vaša pravila ujemala
   alerts-chart-scroll: Pokaži ta čas na seznamu

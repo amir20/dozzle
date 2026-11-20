@@ -779,8 +779,8 @@ cloud-rail:
   metrics-live: "Live vanuit deze browser, laatste {n} min. De Cloud-geschiedenis vult zich zodra statistieken binnenkomen."
   metrics: Metrieken
   alerts: Waarschuwingen
-  hide: Cloudbalk verbergen
-  show: Cloudbalk tonen
+  hide: Rechterbalk verbergen
+  show: Rechterbalk tonen
   alerts-empty-here: Er is niets afgegaan voor wat je bekijkt.
   alerts-chart: Hoe vaak je regels overeenkwamen
   alerts-chart-scroll: Dit tijdstip in de lijst tonen
