@@ -19,7 +19,7 @@
           <span class="size-4 shrink-0" v-else></span>
           {{ $t("label.show-all-containers") }}
         </button>
-        <button type="button" class="nav-menu-item" v-if="hasCollapsible" @click="collapseAll()">
+        <button type="button" class="nav-menu-item" v-if="hasCollapsible && !filtering" @click="collapseAll()">
           <material-symbols-light:expand-all class="size-4 shrink-0 opacity-60" v-if="allCollapsed" />
           <material-symbols-light:collapse-all class="size-4 shrink-0 opacity-60" v-else />
           {{ allCollapsed ? $t("label.expand-all") : $t("label.collapse-all") }}

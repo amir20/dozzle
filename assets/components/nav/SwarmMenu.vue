@@ -1,7 +1,7 @@
 <template>
   <NavHeader :title="$t('label.service', services.length)" filterable v-model:filter="query">
     <template #actions>
-      <NavOverflow>
+      <NavOverflow v-if="!filtering">
         <button type="button" class="nav-menu-item" @click="toggleAll()">
           <material-symbols-light:expand-all class="size-4 shrink-0 opacity-60" v-if="allCollapsed" />
           <material-symbols-light:collapse-all class="size-4 shrink-0 opacity-60" v-else />

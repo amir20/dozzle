@@ -22,7 +22,7 @@
           <span class="size-4 shrink-0" v-else></span>
           {{ $t("label.show-all-containers") }}
         </button>
-        <button type="button" class="nav-menu-item" @click="toggleAll()">
+        <button type="button" class="nav-menu-item" v-if="!filtering" @click="toggleAll()">
           <material-symbols-light:expand-all class="size-4 shrink-0 opacity-60" v-if="allCollapsed" />
           <material-symbols-light:collapse-all class="size-4 shrink-0 opacity-60" v-else />
           {{ allCollapsed ? $t("label.expand-all") : $t("label.collapse-all") }}
@@ -38,7 +38,7 @@
           <template #icon><ph:circles-four class="size-4" /></template>
         </NavItem>
         <NavItem
-          v-for="ns in namespaces.filter((ns) => matches(ns.name))"
+          v-for="ns in visiblePickerNamespaces"
           :key="ns.name"
           :label="ns.name"
           :title="ns.name"
@@ -47,6 +47,9 @@
           <template #icon><ph:circles-four class="size-4" /></template>
         </NavItem>
       </ul>
+      <p class="text-base-content/40 px-2 py-1 text-sm" v-if="filtering && visiblePickerNamespaces.length === 0">
+        {{ $t("label.no-matches") }}
+      </p>
     </template>
 
     <template #right>
@@ -129,6 +132,8 @@ const ownersWithoutNamespace = computed(() => {
 });
 
 const { query, active: filtering, matches, filterGroups, isOpen, setOpen } = useListFilter();
+
+const visiblePickerNamespaces = computed(() => namespaces.value.filter((ns) => matches(ns.name)));
 
 const ownerLabel = (owner: { kind: string; name: string }) => `${owner.kind}/${owner.name}`;
 
