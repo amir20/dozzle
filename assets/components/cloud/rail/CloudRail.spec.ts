@@ -3,13 +3,14 @@
  */
 import { mount, RouterLinkStub } from "@vue/test-utils";
 import { afterEach, describe, expect, test, vi } from "vitest";
-import { computed, ref } from "vue";
+import { computed, ref, toValue, type MaybeRefOrGetter } from "vue";
 import { createI18n } from "vue-i18n";
 import CloudRail from "./CloudRail.vue";
 
 const available = ref(false);
 const canLink = ref(true);
 const enableNotifications = ref(true);
+const railDots: MaybeRefOrGetter<boolean>[] = [];
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
@@ -24,11 +25,13 @@ vi.mock("@/composable/cloud/cloudSurface", () => ({ useCloudSurface: () => ({ ca
 vi.mock("@/composable/cloud/cloudRail", () => ({
   RAIL_WIDTH: 48,
   useCloudRail: () => ({ panel: ref(), available, toggleRail: vi.fn(), hideRail: vi.fn() }),
-  useRailItems: () =>
-    computed(() => [
+  useRailItems: (dots: MaybeRefOrGetter<boolean>) => {
+    railDots.push(dots);
+    return computed(() => [
       { id: "findings", label: "Findings", icon: "i", dot: false },
       { id: "alerts", label: "Alerts", icon: "i", dot: false },
-    ]),
+    ]);
+  },
 }));
 
 const i18n = createI18n({ legacy: false, locale: "en", missingWarn: false, fallbackWarn: false, messages: { en: {} } });
@@ -47,6 +50,7 @@ const mountRail = () =>
   });
 
 afterEach(() => {
+  railDots.length = 0;
   available.value = false;
   canLink.value = true;
   enableNotifications.value = true;
@@ -93,5 +97,13 @@ describe("<CloudRail /> cloud half", () => {
     const rail = mountRail();
     expect(rail.find("[data-cloud-mark]").exists()).toBe(false);
     expect(rail.find("[data-cloud-link]").exists()).toBe(false);
+  });
+
+  // Unlinked, the findings dot has nothing to sit on, and asking for it is a
+  // 503 from the server on every page.
+  test.each([false, true])("asks Cloud for the findings dot only when linked (linked: %s)", (linked) => {
+    available.value = linked;
+    mountRail();
+    expect(railDots.map((d) => toValue(d))).toEqual([linked]);
   });
 });

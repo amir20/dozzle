@@ -1,6 +1,6 @@
 <template>
-  <!-- The header's way into Cloud before it is linked. Once linked, the rail's
-       cloud mark takes over and this is not mounted. -->
+  <!-- The way into Cloud before it is linked: the top of the rail on a desktop, the
+       header on a phone. Once linked, the cloud mark takes over and this is not mounted. -->
   <Dropdown :placement="placement" :trigger-class="triggerClass" data-testid="cloud-link">
     <template #trigger>
       <mdi:cloud class="icon-float text-base-content/40" :class="iconClass" />

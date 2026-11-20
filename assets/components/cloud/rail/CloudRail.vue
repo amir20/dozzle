@@ -104,7 +104,8 @@ const TRIGGER = "icon-btn btn btn-ghost btn-square btn-sm hover:text-base-conten
 
 const { panel, available, toggleRail, hideRail } = useCloudRail();
 const { canLink } = useCloudSurface();
-const items = useRailItems();
+// Only a linked strip asks Cloud for the findings dot; unlinked there are no panels to dot.
+const items = useRailItems(available);
 const active = computed(() => items.value.findIndex((item) => item.id === panel.value));
 </script>
 
