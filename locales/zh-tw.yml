@@ -94,6 +94,7 @@ log-details:
   memory-last-hour: "過去一小時"
   memory-lines: "無 | 1 行 | {count} 行"
 label:
+  no-matches: "沒有符合的項目"
   hide-sidebar: "隱藏側邊欄"
   show-sidebar: "顯示側邊欄"
   host-unreachable: "無法連線"
@@ -171,6 +172,7 @@ label:
   k8s-menu: Kubernetes
   group-menu: 自訂群組
 tooltip:
+  filter-list: "篩選清單"
   memory-new: "Dozzle Cloud 之前未在此容器上看過此錯誤。點擊以在上下文中查看。"
   memory-new-since: "首次在此容器上出現：{time}。點擊查看它從哪裡開始。"
   live-logs: 這些日誌已凍結在該時間點。點擊以查看即時日誌串流。
@@ -274,6 +276,7 @@ button:
   retry: 重試
   refresh: 重新整理
 placeholder:
+  filter: "篩選…"
   search-containers: 搜尋容器 (⌘ + k, ⌃k)
   find-logs: 在日誌中尋找或正規表示式
   search: 搜尋

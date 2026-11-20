@@ -94,6 +94,7 @@ log-details:
   memory-last-hour: "Последний час"
   memory-lines: "Нет строк | 1 строка | {count} строк"
 label:
+  no-matches: "Ничего не найдено"
   hide-sidebar: "Скрыть боковую панель"
   show-sidebar: "Показать боковую панель"
   host-unreachable: "недоступен"
@@ -171,6 +172,7 @@ label:
   more-options: Дополнительные параметры
   groups: Группы
 tooltip:
+  filter-list: "Фильтровать список"
   memory-new: "Dozzle Cloud ещё не видел эту ошибку в этом контейнере. Нажмите, чтобы увидеть её в контексте."
   memory-new-since: "Впервые замечена в этом контейнере: {time}. Нажмите, чтобы увидеть, где она началась."
   live-logs: Эти логи зафиксированы на этот момент времени. Нажмите, чтобы следить за живым потоком.
@@ -272,6 +274,7 @@ button:
   retry: Повторить
   refresh: Обновить
 placeholder:
+  filter: "Фильтр…"
   search-containers: Поиск контейнеров (⌘ + k, ⌃k)
   find-logs: Поиск в логах или regex
   search: Поиск

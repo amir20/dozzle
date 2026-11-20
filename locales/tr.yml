@@ -94,6 +94,7 @@ log-details:
   memory-last-hour: "Son bir saat"
   memory-lines: "Satır yok | 1 satır | {count} satır"
 label:
+  no-matches: "Hiçbir şey eşleşmiyor"
   hide-sidebar: "Kenar çubuğunu gizle"
   show-sidebar: "Kenar çubuğunu göster"
   host-unreachable: "erişilemiyor"
@@ -171,6 +172,7 @@ label:
   more-options: Diğer seçenekler
   groups: Gruplar
 tooltip:
+  filter-list: "Listeyi filtrele"
   memory-new: "Dozzle Cloud bu hatayı bu container'da daha önce görmedi. Bağlamında görmek için tıklayın."
   memory-new-since: "Bu container'da ilk görülme: {time}. Nerede başladığını görmek için tıklayın."
   live-logs: Bu günlükler bu ana sabitlenmiştir. Canlı akışı izlemek için tıklayın.
@@ -275,6 +277,7 @@ button:
   retry: Yeniden dene
   refresh: Yenile
 placeholder:
+  filter: "Filtrele…"
   search-containers: Konteynerlerde ara (⌘ + k, ⌃k)
   find-logs: Günlüklerde ara veya regex
   search: Ara

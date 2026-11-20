@@ -528,6 +528,7 @@ declare global {
   const useLastChanged: typeof import('@vueuse/core').useLastChanged
   const useLetterShortcut: typeof import('./composable/ui/letterShortcut').useLetterShortcut
   const useLink: typeof import('vue-router/auto').useLink
+  const useListFilter: typeof import('./composable/ui/listFilter').useListFilter
   const useLiveAnnouncer: typeof import('@vueuse/core').useLiveAnnouncer
   const useLocalStorage: typeof import('@vueuse/core').useLocalStorage
   const useLogFilterParams: typeof import('./composable/logs/logContext').useLogFilterParams
@@ -1336,6 +1337,7 @@ declare module 'vue' {
     readonly useLastChanged: UnwrapRef<typeof import('@vueuse/core')['useLastChanged']>
     readonly useLetterShortcut: UnwrapRef<typeof import('./composable/ui/letterShortcut')['useLetterShortcut']>
     readonly useLink: UnwrapRef<typeof import('vue-router/auto')['useLink']>
+    readonly useListFilter: UnwrapRef<typeof import('./composable/ui/listFilter')['useListFilter']>
     readonly useLiveAnnouncer: UnwrapRef<typeof import('@vueuse/core')['useLiveAnnouncer']>
     readonly useLocalStorage: UnwrapRef<typeof import('@vueuse/core')['useLocalStorage']>
     readonly useLogFilterParams: UnwrapRef<typeof import('./composable/logs/logContext')['useLogFilterParams']>

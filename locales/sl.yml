@@ -94,6 +94,7 @@ log-details:
   memory-last-hour: "Zadnja ura"
   memory-lines: "Ni vrstic | 1 vrstica | {count} vrstic"
 label:
+  no-matches: "Nič se ne ujema"
   hide-sidebar: "Skrij stransko vrstico"
   show-sidebar: "Prikaži stransko vrstico"
   host-unreachable: "nedosegljiv"
@@ -171,6 +172,7 @@ label:
     empty: "Ni ujemajočih se dnevnikov"
     empty-hint: "Preiskani vsi dnevniki. Poskusite z drugim izrazom ali počistite iskanje."
 tooltip:
+  filter-list: "Filtriraj seznam"
   memory-new: "Dozzle Cloud te napake v tem vsebniku še ni videl. Kliknite za prikaz v kontekstu."
   memory-new-since: "Prvič opažena v tem vsebniku: {time}. Kliknite za prikaz, kje se je začela."
   live-logs: Ti dnevniki so zamrznjeni na tem trenutku. Kliknite za spremljanje živega toka.
@@ -274,6 +276,7 @@ button:
   settings: Nastavitve
   refresh: Osveži
 placeholder:
+  filter: "Filtriraj…"
   search-containers: Iskanje zabojnikov (⌘ + k, ⌃k)
   find-logs: Iskanje po dnevnikih ali regex
   search: Iskanje
