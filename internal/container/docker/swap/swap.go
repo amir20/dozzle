@@ -124,6 +124,9 @@ func Swap(ctx context.Context, cli API, old dcontainer.InspectResponse, opts Opt
 	if !Running(old.State) {
 		return Result{}, container.ErrNotRunning
 	}
+	if opts.Podman {
+		old = WithPodmanKeepID(ctx, cli, old)
+	}
 	s := newSwap(cli, old, opts)
 
 	if err := s.forward(ctx); err != nil {
