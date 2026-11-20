@@ -4,7 +4,7 @@ import { computed, nextTick, ref } from "vue";
 vi.mock("@/stores/config", () => ({ __esModule: true, default: { cloudUrl: "https://cloud.example", hosts: [] } }));
 vi.mock("@/stores/settings", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/stores/settings")>()),
-  collapseCloudRail: ref(false),
+  collapseRail: ref(false),
 }));
 vi.mock("@/composable/ui/media", () => ({ isMobile: ref(false) }));
 vi.mock("@/composable/cloud/cloudSurface", () => ({ useCloudSurface: () => ({ linked: computed(() => true) }) }));

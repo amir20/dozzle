@@ -1,5 +1,5 @@
 import type { MaybeRefOrGetter } from "vue";
-import { collapseCloudRail } from "@/stores/settings";
+import { collapseRail } from "@/stores/settings";
 import { MAX_ASKED, useFindingsScope } from "@/composable/cloud/cloudFindings";
 import mdiLightbulbOnOutline from "~icons/mdi/lightbulb-on-outline";
 import mdiBellRingOutline from "~icons/mdi/bell-ring-outline";
@@ -116,20 +116,20 @@ export function useCloudRail() {
   // rules, settings, the account), so it is on screen whether or not cloud is
   // linked. Only its top half, the panels, needs a link.
   const desktop = computed(() => !isMobile.value);
-  const mounted = computed(() => desktop.value && (!collapseCloudRail.value || !!panel.value));
-  const collapsed = computed(() => desktop.value && collapseCloudRail.value && !panel.value);
+  const mounted = computed(() => desktop.value && (!collapseRail.value || !!panel.value));
+  const collapsed = computed(() => desktop.value && collapseRail.value && !panel.value);
 
   /** What the page keeps clear on its right for the strip. */
-  const railOffset = computed(() => (desktop.value && !collapseCloudRail.value ? RAIL_WIDTH : 0));
+  const railOffset = computed(() => (desktop.value && !collapseRail.value ? RAIL_WIDTH : 0));
   /** Where the drawer's right edge sits: against the strip whenever it is on screen. */
   const edgeOffset = computed(() => (mounted.value ? RAIL_WIDTH : 0));
 
   function hideRail() {
-    collapseCloudRail.value = true;
+    collapseRail.value = true;
   }
 
   function showRail() {
-    collapseCloudRail.value = false;
+    collapseRail.value = false;
   }
 
   function openRail(next: RailPanel) {

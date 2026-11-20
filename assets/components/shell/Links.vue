@@ -1,8 +1,8 @@
 <template>
-  <!-- A phone's header. On a desktop the same entries sit at the foot of the right
-       rail, so this stays mounted (it owns the alerts polling) but is not shown. -->
-  <div class="flex items-center justify-end gap-4" :class="{ hidden: !isMobile }">
-    <slot name="more-items"></slot>
+  <!-- A phone's header. On a desktop the same entries live at the foot of the right
+       rail, so nothing renders here (one of each in the page), but the component
+       stays mounted because it owns the alerts polling below. -->
+  <div v-if="isMobile" class="flex items-center justify-end gap-4">
     <Announcements />
 
     <UserMenu />
@@ -11,7 +11,7 @@
     <!-- A phone has no rail, so once linked this is how Cloud is reached from any
          page. It opens on alerts when one fired unseen, else where the reader left off. -->
     <button
-      v-else-if="isMobile && railAvailable"
+      v-else-if="railAvailable"
       type="button"
       class="btn btn-circle btn-sm relative"
       :aria-label="$t('cloud.title')"

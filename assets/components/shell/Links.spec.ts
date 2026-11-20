@@ -56,3 +56,14 @@ describe("<Links /> phone cloud button", () => {
     expect(mountLinks().find('[data-testid="cloud-open"]').exists()).toBe(false);
   });
 });
+
+// The rail carries these on a desktop. Rendering them here as well put two
+// user-menu and cloud-link test ids in the page, and every dropdown mounted twice.
+describe("<Links /> on a desktop", () => {
+  test.each([false, true])("renders nothing (cloud linked: %s)", (isLinked) => {
+    mobile.value = false;
+    linked.value = isLinked;
+    railAvailable.value = isLinked;
+    expect(mountLinks().find("*").exists()).toBe(false);
+  });
+});
