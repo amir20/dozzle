@@ -1,5 +1,11 @@
 <template>
-  <NavHeader :title="$t('label.hosts')" :back="selectedHost ? $t('label.hosts') : undefined" @back="setHost(null)">
+  <NavHeader
+    :title="$t('label.hosts')"
+    :back="selectedHost ? $t('label.hosts') : undefined"
+    @back="setHost(null)"
+    :filterable="!!selectedHost"
+    v-model:filter="query"
+  >
     <template #title v-if="selectedHost">
       <HostIcon :type="selectedHost.type" class="text-base-content/50 size-4 shrink-0" />
       <span class="truncate text-[0.9375rem] font-medium">{{ selectedHost.name }}</span>
@@ -13,7 +19,7 @@
           <span class="size-4 shrink-0" v-else></span>
           {{ $t("label.show-all-containers") }}
         </button>
-        <button type="button" class="nav-menu-item" v-if="hasCollapsible" @click="collapseAll()">
+        <button type="button" class="nav-menu-item" v-if="hasCollapsible && !filtering" @click="collapseAll()">
           <material-symbols-light:expand-all class="size-4 shrink-0 opacity-60" v-if="allCollapsed" />
           <material-symbols-light:collapse-all class="size-4 shrink-0 opacity-60" v-else />
           {{ allCollapsed ? $t("label.expand-all") : $t("label.collapse-all") }}
@@ -60,13 +66,13 @@
     <template #right>
       <ul class="containers space-y-1">
         <NavGroup
-          v-for="{ label, containers, icon } in menuItems"
+          v-for="{ label, containers, icon } in visibleMenuItems"
           :key="label"
           :label="label.startsWith('label.') ? $t(label) : label"
           :count="containers.length"
           :icon="icon"
-          :open="!collapsedGroups.has(label)"
-          @update:open="setCollapsed(collapsedGroups, label, $event)"
+          :open="isOpen(label, !collapsedGroups.has(label))"
+          @update:open="setOpen(label, $event, (open) => setCollapsed(collapsedGroups, label, open))"
         >
           <template #actions>
             <NavMergeLink :to="{ name: '/merged/[ids]', params: { ids: containers.map(({ id }) => id).join(',') } }" />
@@ -109,6 +115,9 @@
           </Popup>
         </NavGroup>
       </ul>
+      <p class="text-base-content/40 px-2 py-1 text-sm" v-if="filtering && visibleMenuItems.length === 0">
+        {{ $t("label.no-matches") }}
+      </p>
     </template>
   </SlideTransition>
 </template>
@@ -269,6 +278,20 @@ const menuItems = computed(() => {
 
   return items;
 });
+
+const { query, active: filtering, filterGroups, isOpen, setOpen } = useListFilter();
+
+// Built-in buckets (pinned, running) are labelled by a locale key, not a name
+// anyone would type, so only a compose project's own name can match a whole group.
+const visibleMenuItems = computed(() =>
+  filterGroups(
+    menuItems.value,
+    ({ label }) => (label.startsWith("label.") ? undefined : label),
+    ({ containers }) => containers,
+    (container) => container.name,
+    (item, containers) => ({ ...item, containers }),
+  ),
+);
 
 const route = useRoute();
 const containerRoutes = ["/container/[id]", "/container/[id].time.[datetime]"];

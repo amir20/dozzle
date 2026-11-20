@@ -1,6 +1,6 @@
 <template>
   <div class="@container flex flex-col gap-6 p-4 md:px-8">
-    <section>
+    <section :class="{ hidden: !isMobile }">
       <Links />
     </section>
 

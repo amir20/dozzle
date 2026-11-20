@@ -94,6 +94,7 @@ log-details:
   memory-last-hour: "過去 1 時間"
   memory-lines: "なし | 1 行 | {count} 行"
 label:
+  no-matches: "一致するものはありません"
   hide-sidebar: "サイドバーを隠す"
   show-sidebar: "サイドバーを表示"
   host-unreachable: "接続不可"
@@ -171,6 +172,7 @@ label:
   more-options: その他のオプション
   groups: グループ
 tooltip:
+  filter-list: "リストをフィルタ"
   memory-new: "Dozzle Cloud は、このコンテナでこのエラーをまだ見たことがありません。クリックすると前後のログを表示します。"
   memory-new-since: "このコンテナでの初回検出: {time}。クリックすると発生箇所を表示します。"
   live-logs: このログはこの時点で固定されています。クリックするとライブストリームに戻ります。
@@ -273,6 +275,7 @@ button:
   retry: 再試行
   refresh: 再読み込み
 placeholder:
+  filter: "フィルタ…"
   search-containers: コンテナを検索 (⌘ + k, ⌃k)
   find-logs: ログ内を検索または正規表現
   search: 検索
@@ -284,8 +287,8 @@ cloud-rail:
   metrics-live: "このブラウザからのライブデータ（直近 {n} 分）。統計が届くにつれて Cloud の履歴が埋まります。"
   metrics: メトリクス
   alerts: アラート
-  hide: クラウドレールを隠す
-  show: クラウドレールを表示
+  hide: 右側のツールバーを隠す
+  show: 右側のツールバーを表示
   alerts-empty-here: 表示中の内容では何も発生していません。
   alerts-chart: ルールが一致した頻度
   alerts-chart-scroll: この時刻を一覧で表示

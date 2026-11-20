@@ -94,6 +94,7 @@ log-details:
   memory-last-hour: "Dernière heure"
   memory-lines: "Aucune ligne | 1 ligne | {count} lignes"
 label:
+  no-matches: "Aucune correspondance"
   hide-sidebar: "Masquer la barre latérale"
   show-sidebar: "Afficher la barre latérale"
   host-unreachable: "injoignable"
@@ -171,6 +172,7 @@ label:
   more-options: Plus d'options
   groups: Groupes
 tooltip:
+  filter-list: "Filtrer la liste"
   memory-new: "Dozzle Cloud n'a jamais vu cette erreur sur ce conteneur. Cliquez pour la voir en contexte."
   memory-new-since: "Vue pour la première fois sur ce conteneur : {time}. Cliquez pour voir où elle a commencé."
   live-logs: Ces logs sont figés à cet instant. Cliquez pour suivre le flux en direct.
@@ -272,6 +274,7 @@ button:
   retry: Réessayer
   refresh: Actualiser
 placeholder:
+  filter: "Filtrer…"
   search-containers: Recherche de conteneurs (⌘ + k, ⌃k)
   find-logs: Rechercher dans les logs ou regex
   search: Recherche
@@ -775,8 +778,8 @@ cloud-rail:
   metrics-live: "En direct depuis ce navigateur, dernières {n} min. L'historique Cloud se remplit à mesure que les statistiques arrivent."
   metrics: Métriques
   alerts: Alertes
-  hide: Masquer la barre cloud
-  show: Afficher la barre cloud
+  hide: Masquer la barre de droite
+  show: Afficher la barre de droite
   alerts-empty-here: Rien ne s'est déclenché sur ce que vous regardez.
   alerts-chart: À quelle fréquence vos règles se sont déclenchées
   alerts-chart-scroll: Afficher ce moment dans la liste
