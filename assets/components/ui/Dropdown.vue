@@ -7,7 +7,7 @@
     @close="$emit('closed')"
   >
     <template #trigger>
-      <label tabindex="0" class="btn btn-circle btn-sm">
+      <label tabindex="0" :class="triggerClass">
         <slot name="trigger"></slot>
       </label>
     </template>
@@ -18,7 +18,10 @@
 </template>
 
 <script setup lang="ts">
-const { placement = "bottom-start" } = defineProps<{ placement?: PopoverPlacement }>();
+const { placement = "bottom-start", triggerClass = "btn btn-circle btn-sm" } = defineProps<{
+  placement?: PopoverPlacement;
+  triggerClass?: string;
+}>();
 
 defineEmits<{ opened: []; closed: [] }>();
 </script>

@@ -1,9 +1,9 @@
 <template>
   <!-- The header's way into Cloud before it is linked. Once linked, the rail's
        cloud mark takes over and this is not mounted. -->
-  <Dropdown placement="bottom-end" data-testid="cloud-link">
+  <Dropdown :placement="placement" :trigger-class="triggerClass" data-testid="cloud-link">
     <template #trigger>
-      <mdi:cloud class="icon-float text-base-content/40 size-6" />
+      <mdi:cloud class="icon-float text-base-content/40" :class="iconClass" />
       <span class="sr-only">{{ $t("cloud.title") }}</span>
     </template>
     <template #content>
@@ -36,3 +36,15 @@
     </template>
   </Dropdown>
 </template>
+
+<script lang="ts" setup>
+const {
+  placement = "bottom-end",
+  iconClass = "size-6",
+  triggerClass,
+} = defineProps<{
+  placement?: PopoverPlacement;
+  iconClass?: string;
+  triggerClass?: string;
+}>();
+</script>

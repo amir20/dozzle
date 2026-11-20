@@ -787,8 +787,8 @@ cloud-rail:
   metrics-live: "Langsung dari browser ini, {n} menit terakhir. Riwayat Cloud terisi saat statistik masuk."
   metrics: Metrik
   alerts: Peringatan
-  hide: Sembunyikan bilah cloud
-  show: Tampilkan bilah cloud
+  hide: Sembunyikan bilah kanan
+  show: Tampilkan bilah kanan
   alerts-empty-here: Belum ada yang terpicu pada yang sedang Anda lihat.
   alerts-chart: Seberapa sering aturan Anda cocok
   alerts-chart-scroll: Tampilkan waktu ini di daftar

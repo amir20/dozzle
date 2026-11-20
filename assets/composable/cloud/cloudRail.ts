@@ -2,7 +2,7 @@ import type { MaybeRefOrGetter } from "vue";
 import { collapseCloudRail } from "@/stores/settings";
 import { MAX_ASKED, useFindingsScope } from "@/composable/cloud/cloudFindings";
 import mdiLightbulbOnOutline from "~icons/mdi/lightbulb-on-outline";
-import mdiBellOutline from "~icons/mdi/bell-outline";
+import mdiBellRingOutline from "~icons/mdi/bell-ring-outline";
 import mdiMessageOutline from "~icons/mdi/message-outline";
 import mdiChartLine from "~icons/mdi/chart-line";
 
@@ -88,7 +88,7 @@ export function useRailItems(dots: MaybeRefOrGetter<boolean> = true) {
       icon: mdiLightbulbOnOutline,
       dot: unseenFindings.value,
     },
-    { id: "alerts" as const, label: t("cloud-rail.alerts"), icon: mdiBellOutline, dot: unseenAlerts.value },
+    { id: "alerts" as const, label: t("cloud-rail.alerts"), icon: mdiBellRingOutline, dot: unseenAlerts.value },
     { id: "chat" as const, label: t("cloud-rail.chat"), icon: mdiMessageOutline, dot: false },
     { id: "metrics" as const, label: t("cloud-rail.metrics"), icon: mdiChartLine, dot: false },
   ]);
@@ -111,7 +111,11 @@ export function useCloudRail() {
   // The strip is also the drawer's tabs, so a panel opened while it is hidden
   // (the bell, the palette, the chord) brings it back for as long as the panel
   // is open. The page does not reflow for that: it sits under the backdrop.
-  const desktop = computed(() => available.value && !isMobile.value);
+  //
+  // The strip is also the app's icon nav on a desktop (what's new, notification
+  // rules, settings, the account), so it is on screen whether or not cloud is
+  // linked. Only its top half, the panels, needs a link.
+  const desktop = computed(() => !isMobile.value);
   const mounted = computed(() => desktop.value && (!collapseCloudRail.value || !!panel.value));
   const collapsed = computed(() => desktop.value && collapseCloudRail.value && !panel.value);
 

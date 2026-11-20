@@ -775,8 +775,8 @@ cloud-rail:
   metrics-live: "Live aus diesem Browser, letzte {n} Min. Der Cloud-Verlauf füllt sich, sobald Statistiken eintreffen."
   metrics: Metriken
   alerts: Alarme
-  hide: Cloud-Leiste ausblenden
-  show: Cloud-Leiste einblenden
+  hide: Rechte Leiste ausblenden
+  show: Rechte Leiste einblenden
   alerts-empty-here: Für das, was du gerade ansiehst, wurde nichts ausgelöst.
   alerts-chart: Wie oft deine Regeln zugetroffen haben
   alerts-chart-scroll: Diesen Zeitpunkt in der Liste zeigen
