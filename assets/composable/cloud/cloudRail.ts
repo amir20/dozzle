@@ -115,7 +115,12 @@ export function useCloudRail() {
   // The strip is also the app's icon nav on a desktop (what's new, notification
   // rules, settings, the account), so it is on screen whether or not cloud is
   // linked. Only its top half, the panels, needs a link.
-  const desktop = computed(() => !isMobile.value);
+  //
+  // `?hideMenu` is how a log view is embedded in an iframe, and the layout drops
+  // the sidebar and the tab bar for it. The strip goes too, offset and all; the
+  // drawer still opens from the toolbar and the palette, as on a phone.
+  const embedded = new URLSearchParams(window.location.search).has("hideMenu");
+  const desktop = computed(() => !isMobile.value && !embedded);
   const mounted = computed(() => desktop.value && (!collapseRail.value || !!panel.value));
   const collapsed = computed(() => desktop.value && collapseRail.value && !panel.value);
 
