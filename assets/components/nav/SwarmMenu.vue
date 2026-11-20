@@ -1,5 +1,5 @@
 <template>
-  <NavHeader :title="$t('label.service', services.length)">
+  <NavHeader :title="$t('label.service', services.length)" filterable v-model:filter="query">
     <template #actions>
       <NavOverflow>
         <button type="button" class="nav-menu-item" @click="toggleAll()">
@@ -13,13 +13,13 @@
 
   <ul class="space-y-1">
     <NavGroup
-      v-for="{ name, services } in stacks"
+      v-for="{ name, services } in visibleStacks"
       :key="name"
       :label="name"
       :count="services.length"
       :icon="Stack"
-      :open="!collapsed.has(name)"
-      @update:open="setCollapsed(name, $event)"
+      :open="isOpen(name, !collapsed.has(name))"
+      @update:open="setOpen(name, $event, (open) => setCollapsed(name, open))"
     >
       <template #actions>
         <NavMergeLink :to="{ name: '/stack/[name]', params: { name } }" />
@@ -36,15 +36,15 @@
     </NavGroup>
 
     <NavGroup
-      v-if="servicesWithoutStacks.length > 0"
+      v-if="visibleUngrouped.length > 0"
       :label="$t('label.services')"
-      :count="servicesWithoutStacks.length"
+      :count="visibleUngrouped.length"
       :icon="CirclesFour"
-      :open="!collapsed.has(UNGROUPED)"
-      @update:open="setCollapsed(UNGROUPED, $event)"
+      :open="isOpen(UNGROUPED, !collapsed.has(UNGROUPED))"
+      @update:open="setOpen(UNGROUPED, $event, (open) => setCollapsed(UNGROUPED, open))"
     >
       <NavItem
-        v-for="service in servicesWithoutStacks"
+        v-for="service in visibleUngrouped"
         :key="service.name"
         :to="{ name: '/service/[name]', params: { name: service.name } }"
         :label="service.name"
@@ -54,6 +54,9 @@
       </NavItem>
     </NavGroup>
   </ul>
+  <p class="text-base-content/40 px-2 py-1 text-sm" v-if="filtering && nothingMatches">
+    {{ $t("label.no-matches") }}
+  </p>
 </template>
 
 <script lang="ts" setup>
@@ -65,6 +68,23 @@ const store = useSwarmStore();
 const { stacks, services } = storeToRefs(store);
 
 const servicesWithoutStacks = computed(() => services.value.filter((service) => !service.stack));
+
+const { query, active: filtering, matches, filterGroups, isOpen, setOpen } = useListFilter();
+
+const visibleStacks = computed(() =>
+  filterGroups(
+    // Plain rows rather than Stack instances: building a Stack re-parents its services.
+    stacks.value.map(({ name, services }) => ({ name, services })),
+    (stack) => stack.name,
+    (stack) => stack.services,
+    (service) => service.name,
+    (stack, services) => ({ ...stack, services }),
+  ),
+);
+
+const visibleUngrouped = computed(() => servicesWithoutStacks.value.filter((s) => matches(s.name)));
+
+const nothingMatches = computed(() => visibleStacks.value.length === 0 && visibleUngrouped.value.length === 0);
 
 /** Stand-in key for the stackless bucket, which has no stack name of its own. */
 const UNGROUPED = "__services__";

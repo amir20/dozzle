@@ -94,6 +94,7 @@ log-details:
   memory-last-hour: "Última hora"
   memory-lines: "Ninguna línea | 1 línea | {count} líneas"
 label:
+  no-matches: "Nada coincide"
   hide-sidebar: "Ocultar la barra lateral"
   show-sidebar: "Mostrar la barra lateral"
   host-unreachable: "inaccesible"
@@ -171,6 +172,7 @@ label:
   more-options: Más opciones
   groups: Grupos
 tooltip:
+  filter-list: "Filtrar lista"
   memory-new: "Dozzle Cloud no había visto este error en este contenedor. Haz clic para verlo en contexto."
   memory-new-since: "Visto por primera vez en este contenedor: {time}. Haz clic para ver dónde empezó."
   live-logs: Estos registros están congelados en este momento. Haz clic para seguir la transmisión en vivo.
@@ -272,6 +274,7 @@ button:
   retry: Reintentar
   refresh: Actualizar
 placeholder:
+  filter: "Filtrar…"
   search-containers: Buscar contenedores (⌘ + K, CTRL + K)
   find-logs: Buscar en los registros o regex
   search: Buscar
