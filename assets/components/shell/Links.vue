@@ -116,7 +116,6 @@ watch(visibility, (state) => {
 type LogoutTarget = { url: string; params?: Record<string, string> };
 
 async function logout() {
-  markLoggedOut();
   let target: LogoutTarget | undefined = logoutUrl ? { url: logoutUrl } : undefined;
 
   if (hasSession) {
@@ -129,6 +128,10 @@ async function logout() {
       target = await response.json();
     }
   }
+
+  // Only once the session is actually gone, or a failed logout leaves a mark
+  // that stops the next, unrelated, auto-login.
+  markLoggedOut();
 
   if (!target) {
     location.reload();
