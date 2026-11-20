@@ -129,6 +129,10 @@ async function logout() {
     }
   }
 
+  // Only once the session is actually gone, or a failed logout leaves a mark
+  // that stops the next, unrelated, auto-login.
+  markLoggedOut();
+
   if (!target) {
     location.reload();
   } else if (target.params) {

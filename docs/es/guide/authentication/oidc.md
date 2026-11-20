@@ -1,7 +1,7 @@
 ---
 title: OpenID Connect
 description: Usa OpenID Connect con Keycloak, Authentik, Authelia o Zitadel como base de datos de usuarios de Dozzle, con roles y filtros de contenedores leídos del token.
-sourceHash: daeef1a424a5
+sourceHash: bbe07a4022c1
 ---
 
 # <Icon icon="mdi:shield-account" inline /> OpenID Connect
@@ -111,6 +111,12 @@ Un usuario sin claim de filtros ve todos los contenedores que ve la instancia de
 El claim `sub` es el identificador estable del usuario. Es la clave del directorio de perfil bajo `/data`, así que los ajustes siguen a la persona aunque su nombre de usuario o su correo cambien en el proveedor. El nombre que se muestra en el menú es `name`, con `preferred_username` como alternativa, después `email` y por último `sub`. `email` y `picture` alimentan el avatar, y cuando el proveedor envía una URL en `picture` se usa esa imagen. Dozzle la descarga por su cuenta y solo desde direcciones públicas, así que una imagen alojada en una red privada vuelve a Gravatar.
 
 A diferencia del proveedor `simple`, aquí el correo no tiene que estar verificado. Solo se muestra, nunca se compara con nada, así que un issuer que no conceda el scope de correo funciona sin problema.
+
+## Inicio de sesión
+
+Bajo `oidc` Dozzle no tiene formulario de contraseña, así que la página de inicio de sesión se salta su propio botón y envía el navegador directamente al proveedor. Si el proveedor todavía tiene una sesión abierta, el usuario vuelve a Dozzle sin ver ninguna de las dos páginas de inicio de sesión.
+
+La página de inicio de sesión se sigue mostrando después de un inicio de sesión fallido, para que una configuración rota no entre en bucle, y justo después de cerrar sesión, para que el usuario no vuelva a entrar automáticamente. Para llegar a ella en cualquier otro momento, abre `/login?direct=1`.
 
 ## Sesiones
 
