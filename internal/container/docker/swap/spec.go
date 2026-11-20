@@ -163,15 +163,50 @@ func ReplacementSpec(old dcontainer.InspectResponse, oldImage *image.InspectResp
 	}
 }
 
-// ForPodman adjusts a replacement's host config for a Podman engine. Podman's
-// compat API reports a swappiness of 0 where Docker reports null for "never
-// set" (containers/podman#23824), and crun refuses to start a container that
-// sets it on cgroup v2 (#5662), so the 0 is dropped and the engine default
-// applies. On Docker a 0 was set on purpose, so this is never applied there.
-func ForPodman(hc *dcontainer.HostConfig) {
+// ForPodman adjusts a replacement's host config for a Podman engine, given
+// the inspect of the container it replaces. On Docker neither applies.
+//
+// Podman's compat API reports a swappiness of 0 where Docker reports null for
+// "never set" (containers/podman#23824), and crun refuses to start a container
+// that sets it on cgroup v2 (#5662), so the 0 is dropped and the engine default
+// applies. On Docker a 0 was set on purpose.
+//
+// A bind mounted with :Z is relabelled for the old container's private SELinux
+// level, and Podman reports the bind without the :Z. The replacement would get
+// a fresh level and be denied its own files (#5662), so it keeps the old one.
+// The :Z is not put back: which binds had it is unknown, and relabelling a bind
+// that did not would change files on the host.
+func ForPodman(hc *dcontainer.HostConfig, old dcontainer.InspectResponse) {
 	if hc.MemorySwappiness != nil && *hc.MemorySwappiness == 0 {
 		hc.MemorySwappiness = nil
 	}
+	if level := selinuxLevel(old.ProcessLabel); level != "" && !setsLabelLevel(hc.SecurityOpt) {
+		hc.SecurityOpt = append(slices.Clone(hc.SecurityOpt), "label=level:"+level)
+	}
+}
+
+// selinuxLevel is the MLS/MCS level of an SELinux label
+// (user:role:type:level, where the level itself may hold colons), or "" for
+// none.
+func selinuxLevel(label string) string {
+	parts := strings.SplitN(label, ":", 4)
+	if len(parts) < 4 {
+		return ""
+	}
+	return parts[3]
+}
+
+// setsLabelLevel reports whether security options already fix the SELinux
+// level or turn labelling off, in either the label= or the older label: form.
+func setsLabelLevel(opts []string) bool {
+	return slices.ContainsFunc(opts, func(o string) bool {
+		for _, p := range []string{"label=level:", "label:level:", "label=disable", "label:disable"} {
+			if strings.HasPrefix(o, p) {
+				return true
+			}
+		}
+		return false
+	})
 }
 
 // IsPodman reports whether a server version was answered by Podman.
