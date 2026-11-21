@@ -94,6 +94,7 @@ log-details:
   memory-last-hour: "Last hour"
   memory-lines: "No lines | 1 line | {count} lines"
 label:
+  no-matches: "Nothing matches"
   hide-sidebar: "Hide the sidebar"
   show-sidebar: "Show the sidebar"
   host-unreachable: "unreachable"
@@ -171,6 +172,7 @@ label:
   more-options: More options
   groups: Groups
 tooltip:
+  filter-list: "Filter list"
   memory-new: "Dozzle Cloud hasn't seen this error on this container before. Click to see it in context."
   memory-new-since: "First seen on this container: {time}. Click to see where it started."
   live-logs: These logs are frozen at this point in time. Click to follow the live stream.
@@ -280,6 +282,7 @@ button:
   retry: Retry
   refresh: Refresh
 placeholder:
+  filter: "Filter…"
   search-containers: Search containers (⌘ + k, ⌃k)
   find-logs: Find in logs or regex
   search: Search
@@ -291,8 +294,8 @@ cloud-rail:
   metrics-live: "Live from this browser, last {n} min. Cloud history fills in as stats arrive."
   metrics: Metrics
   alerts: Alerts
-  hide: Hide the cloud rail
-  show: Show the cloud rail
+  hide: Hide the right toolbar
+  show: Show the right toolbar
   alerts-empty-here: Nothing has fired on what you're looking at.
   alerts-chart: How often your rules matched
   alerts-chart-scroll: Show this time in the list

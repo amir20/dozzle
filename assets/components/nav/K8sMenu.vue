@@ -3,6 +3,8 @@
     :title="selectedNamespace === 'all' ? $t('label.all-namespaces') : $t('label.namespaces')"
     :back="selectedNamespace !== null ? $t('label.namespaces') : undefined"
     @back="setNamespace(null)"
+    filterable
+    v-model:filter="query"
   >
     <template #title v-if="selectedNamespace && selectedNamespace !== 'all'">
       <ph:circles-four class="text-base-content/50 size-4 shrink-0" />
@@ -20,7 +22,7 @@
           <span class="size-4 shrink-0" v-else></span>
           {{ $t("label.show-all-containers") }}
         </button>
-        <button type="button" class="nav-menu-item" @click="toggleAll()">
+        <button type="button" class="nav-menu-item" v-if="!filtering" @click="toggleAll()">
           <material-symbols-light:expand-all class="size-4 shrink-0 opacity-60" v-if="allCollapsed" />
           <material-symbols-light:collapse-all class="size-4 shrink-0 opacity-60" v-else />
           {{ allCollapsed ? $t("label.expand-all") : $t("label.collapse-all") }}
@@ -36,7 +38,7 @@
           <template #icon><ph:circles-four class="size-4" /></template>
         </NavItem>
         <NavItem
-          v-for="ns in namespaces"
+          v-for="ns in visiblePickerNamespaces"
           :key="ns.name"
           :label="ns.name"
           :title="ns.name"
@@ -45,18 +47,21 @@
           <template #icon><ph:circles-four class="size-4" /></template>
         </NavItem>
       </ul>
+      <p class="text-base-content/40 px-2 py-1 text-sm" v-if="filtering && visiblePickerNamespaces.length === 0">
+        {{ $t("label.no-matches") }}
+      </p>
     </template>
 
     <template #right>
       <ul class="space-y-1">
         <NavGroup
-          v-for="{ name, owners } in filteredNamespaces"
+          v-for="{ name, owners } in visibleNamespaces"
           :key="name"
           :label="name"
           :count="owners.length"
           :icon="Stack"
-          :open="!collapsed.has(name)"
-          @update:open="setCollapsed(name, $event)"
+          :open="isOpen(name, !collapsed.has(name))"
+          @update:open="setOpen(name, $event, (open) => setCollapsed(name, open))"
         >
           <template #actions>
             <NavMergeLink :to="{ name: '/namespace/[name]', params: { name } }" />
@@ -73,15 +78,15 @@
         </NavGroup>
 
         <NavGroup
-          v-if="ownersWithoutNamespace.length > 0"
+          v-if="visibleUngrouped.length > 0"
           :label="$t('label.owners')"
-          :count="ownersWithoutNamespace.length"
+          :count="visibleUngrouped.length"
           :icon="CirclesFour"
-          :open="!collapsed.has(UNGROUPED)"
-          @update:open="setCollapsed(UNGROUPED, $event)"
+          :open="isOpen(UNGROUPED, !collapsed.has(UNGROUPED))"
+          @update:open="setOpen(UNGROUPED, $event, (open) => setCollapsed(UNGROUPED, open))"
         >
           <NavItem
-            v-for="owner in ownersWithoutNamespace"
+            v-for="owner in visibleUngrouped"
             :key="owner.key"
             :to="{ name: '/owner/[name]', params: { name: owner.key } }"
             :label="`${owner.kind}/${owner.name}`"
@@ -91,6 +96,9 @@
           </NavItem>
         </NavGroup>
       </ul>
+      <p class="text-base-content/40 px-2 py-1 text-sm" v-if="filtering && nothingMatches">
+        {{ $t("label.no-matches") }}
+      </p>
     </template>
   </SlideTransition>
 </template>
@@ -122,6 +130,26 @@ const ownersWithoutNamespace = computed(() => {
   }
   return [];
 });
+
+const { query, active: filtering, matches, filterGroups, isOpen, setOpen } = useListFilter();
+
+const visiblePickerNamespaces = computed(() => namespaces.value.filter((ns) => matches(ns.name)));
+
+const ownerLabel = (owner: { kind: string; name: string }) => `${owner.kind}/${owner.name}`;
+
+const visibleNamespaces = computed(() =>
+  filterGroups(
+    filteredNamespaces.value.map(({ name, owners }) => ({ name, owners })),
+    (ns) => ns.name,
+    (ns) => ns.owners,
+    ownerLabel,
+    (ns, owners) => ({ ...ns, owners }),
+  ),
+);
+
+const visibleUngrouped = computed(() => ownersWithoutNamespace.value.filter((o) => matches(ownerLabel(o))));
+
+const nothingMatches = computed(() => visibleNamespaces.value.length === 0 && visibleUngrouped.value.length === 0);
 
 /** Stand-in key for the bucket of owners that belong to no namespace. */
 const UNGROUPED = "__owners__";

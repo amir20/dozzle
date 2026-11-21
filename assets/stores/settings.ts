@@ -14,7 +14,9 @@ export type Settings = {
   dateLocale: "auto" | "en-US" | "en-GB" | "de-DE" | "en-CA";
   softWrap: boolean;
   collapseNav: boolean;
-  collapseCloudRail: boolean;
+  // Was collapseCloudRail. Renamed when the rail became the app's nav, so a strip
+  // someone hid when it only held cloud panels does not now hide settings and logout.
+  collapseRail: boolean;
   automaticRedirect: "instant" | "delayed" | "none";
   locale: string;
   groupContainers: "always" | "at-least-2" | "never";
@@ -40,7 +42,7 @@ export const DEFAULT_SETTINGS: Settings = {
   dateLocale: "auto",
   softWrap: true,
   collapseNav: false,
-  collapseCloudRail: false,
+  collapseRail: false,
   automaticRedirect: "delayed",
   locale: "",
   groupContainers: "at-least-2",
@@ -65,7 +67,7 @@ if (settings.value.automaticRedirect === true) {
 
 export const {
   collapseNav,
-  collapseCloudRail,
+  collapseRail,
   compact,
   softWrap,
   hourStyle,

@@ -1,7 +1,8 @@
 <template>
-  <Dropdown placement="bottom-end" @opened="opened" @closed="closed">
+  <Dropdown :placement="placement" :trigger-class="triggerClass" @opened="opened" @closed="closed">
     <template #trigger>
-      <mdi:announcement class="icon-wiggle size-6 -rotate-12" />
+      <mdi:bullhorn-outline v-if="outline" class="icon-wiggle" :class="iconClass" />
+      <mdi:announcement v-else class="icon-wiggle -rotate-12" :class="iconClass" />
       <template v-if="unseenCount > 0">
         <span
           class="bg-red absolute -top-1 -right-1.5 h-4 min-w-4 animate-ping rounded-full opacity-75 motion-reduce:animate-none"
@@ -246,6 +247,16 @@
 </template>
 
 <script setup lang="ts">
+const {
+  placement = "bottom-end",
+  iconClass = "size-6",
+  triggerClass,
+} = defineProps<{
+  placement?: PopoverPlacement;
+  iconClass?: string;
+  triggerClass?: string;
+  outline?: boolean;
+}>();
 import { RouterLink } from "vue-router";
 import { Container } from "@/models/Container";
 import ContainerUpdatesDrawer from "@/components/containers/ContainerUpdatesDrawer.vue";

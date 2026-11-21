@@ -538,9 +538,12 @@ func (d *Client) ContainerCreate(ctx context.Context, inspectResp docker.Inspect
 		log.Warn().Err(err).Str("image", inspectResp.Image).Msg("could not inspect the old image, keeping its settings on the replacement")
 	}
 
+	if d.host.Runtime == "podman" {
+		inspectResp = swap.WithPodmanKeepID(ctx, d.cli, inspectResp)
+	}
 	spec := swap.ReplacementSpec(inspectResp, oldImage, name)
 	if d.host.Runtime == "podman" {
-		swap.ForPodman(spec.HostConfig)
+		swap.ForPodman(spec.HostConfig, inspectResp)
 	}
 	resp, err := d.cli.ContainerCreate(ctx, spec)
 	if err != nil {

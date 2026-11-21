@@ -94,6 +94,7 @@ log-details:
   memory-last-hour: "지난 1시간"
   memory-lines: "줄 없음 | 1줄 | {count}줄"
 label:
+  no-matches: "일치하는 항목이 없습니다"
   hide-sidebar: "사이드바 숨기기"
   show-sidebar: "사이드바 표시"
   host-unreachable: "연결할 수 없음"
@@ -171,6 +172,7 @@ label:
   more-options: 추가 옵션
   groups: 그룹
 tooltip:
+  filter-list: "목록 필터"
   memory-new: "Dozzle Cloud가 이 컨테이너에서 이 오류를 본 적이 없습니다. 클릭하면 맥락 속에서 볼 수 있습니다."
   memory-new-since: "이 컨테이너에서 처음 발견: {time}. 클릭하면 처음 시작된 곳을 볼 수 있습니다."
   live-logs: 이 로그는 해당 시점에 고정되어 있습니다. 실시간 스트림을 보려면 클릭하세요.
@@ -274,6 +276,7 @@ button:
   retry: 다시 시도
   refresh: 새로고침
 placeholder:
+  filter: "필터…"
   search-containers: 컨테이너 검색 (⌘ + k, ⌃k)
   find-logs: 로그에서 찾기 또는 정규식
   search: 검색
@@ -777,8 +780,8 @@ cloud-rail:
   metrics-live: "이 브라우저의 실시간 데이터, 최근 {n}분. 통계가 도착하면 Cloud 기록이 채워집니다."
   metrics: 메트릭
   alerts: 알림
-  hide: 클라우드 레일 숨기기
-  show: 클라우드 레일 표시
+  hide: 오른쪽 도구 모음 숨기기
+  show: 오른쪽 도구 모음 표시
   alerts-empty-here: 보고 있는 대상에서 발생한 알림이 없습니다.
   alerts-chart: 규칙이 일치한 빈도
   alerts-chart-scroll: 이 시간을 목록에서 보기

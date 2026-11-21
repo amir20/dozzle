@@ -86,6 +86,7 @@ declare global {
   const cloudWelcomePending: typeof import('./composable/cloud/cloudWelcome').cloudWelcomePending
   const collapseCloudRail: typeof import('./stores/settings').collapseCloudRail
   const collapseNav: typeof import('./stores/settings').collapseNav
+  const collapseRail: typeof import('./stores/settings').collapseRail
   const colorize: typeof import('./utils/index').colorize
   const compact: typeof import('./stores/settings').compact
   const computed: typeof import('vue').computed
@@ -531,6 +532,7 @@ declare global {
   const useLastChanged: typeof import('@vueuse/core').useLastChanged
   const useLetterShortcut: typeof import('./composable/ui/letterShortcut').useLetterShortcut
   const useLink: typeof import('vue-router/auto').useLink
+  const useListFilter: typeof import('./composable/ui/listFilter').useListFilter
   const useLiveAnnouncer: typeof import('@vueuse/core').useLiveAnnouncer
   const useLocalStorage: typeof import('@vueuse/core').useLocalStorage
   const useLogFilterParams: typeof import('./composable/logs/logContext').useLogFilterParams
@@ -912,8 +914,8 @@ declare module 'vue' {
     readonly clearCloudWelcomePending: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['clearCloudWelcomePending']>
     readonly clearSetupResume: UnwrapRef<typeof import('./composable/setup/setup')['clearSetupResume']>
     readonly cloudWelcomePending: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['cloudWelcomePending']>
-    readonly collapseCloudRail: UnwrapRef<typeof import('./stores/settings')['collapseCloudRail']>
     readonly collapseNav: UnwrapRef<typeof import('./stores/settings')['collapseNav']>
+    readonly collapseRail: UnwrapRef<typeof import('./stores/settings')['collapseRail']>
     readonly colorize: UnwrapRef<typeof import('./utils/index')['colorize']>
     readonly compact: UnwrapRef<typeof import('./stores/settings')['compact']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
@@ -1342,6 +1344,7 @@ declare module 'vue' {
     readonly useLastChanged: UnwrapRef<typeof import('@vueuse/core')['useLastChanged']>
     readonly useLetterShortcut: UnwrapRef<typeof import('./composable/ui/letterShortcut')['useLetterShortcut']>
     readonly useLink: UnwrapRef<typeof import('vue-router/auto')['useLink']>
+    readonly useListFilter: UnwrapRef<typeof import('./composable/ui/listFilter')['useListFilter']>
     readonly useLiveAnnouncer: UnwrapRef<typeof import('@vueuse/core')['useLiveAnnouncer']>
     readonly useLocalStorage: UnwrapRef<typeof import('@vueuse/core')['useLocalStorage']>
     readonly useLogFilterParams: UnwrapRef<typeof import('./composable/logs/logContext')['useLogFilterParams']>

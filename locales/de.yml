@@ -94,6 +94,7 @@ log-details:
   memory-last-hour: "Letzte Stunde"
   memory-lines: "Keine Zeilen | 1 Zeile | {count} Zeilen"
 label:
+  no-matches: "Keine Treffer"
   hide-sidebar: "Seitenleiste ausblenden"
   show-sidebar: "Seitenleiste einblenden"
   host-unreachable: "nicht erreichbar"
@@ -171,6 +172,7 @@ label:
   more-options: Weitere Optionen
   groups: Gruppen
 tooltip:
+  filter-list: "Liste filtern"
   memory-new: "Dozzle Cloud hat diesen Fehler in diesem Container noch nie gesehen. Klicken, um ihn im Kontext zu sehen."
   memory-new-since: "Zuerst in diesem Container gesehen: {time}. Klicken, um zu sehen, wo er begann."
   live-logs: Diese Logs sind auf diesen Zeitpunkt eingefroren. Klicken, um dem Live-Stream zu folgen.
@@ -272,6 +274,7 @@ button:
   retry: Erneut versuchen
   refresh: Aktualisieren
 placeholder:
+  filter: "Filtern…"
   search-containers: Suche Container (⌘ + k, ⌃k)
   find-logs: In Logs suchen oder Regex
   search: Suche
@@ -775,8 +778,8 @@ cloud-rail:
   metrics-live: "Live aus diesem Browser, letzte {n} Min. Der Cloud-Verlauf füllt sich, sobald Statistiken eintreffen."
   metrics: Metriken
   alerts: Alarme
-  hide: Cloud-Leiste ausblenden
-  show: Cloud-Leiste einblenden
+  hide: Rechte Leiste ausblenden
+  show: Rechte Leiste einblenden
   alerts-empty-here: Für das, was du gerade ansiehst, wurde nichts ausgelöst.
   alerts-chart: Wie oft deine Regeln zugetroffen haben
   alerts-chart-scroll: Diesen Zeitpunkt in der Liste zeigen

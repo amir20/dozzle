@@ -94,6 +94,7 @@ log-details:
   memory-last-hour: "Ostatnia godzina"
   memory-lines: "Brak wierszy | 1 wiersz | {count} wierszy"
 label:
+  no-matches: "Nic nie pasuje"
   hide-sidebar: "Ukryj pasek boczny"
   show-sidebar: "Pokaż pasek boczny"
   host-unreachable: "niedostępny"
@@ -171,6 +172,7 @@ label:
   more-options: Więcej opcji
   groups: Grupy
 tooltip:
+  filter-list: "Filtruj listę"
   memory-new: "Dozzle Cloud nie widział wcześniej tego błędu w tym kontenerze. Kliknij, aby zobaczyć go w kontekście."
   memory-new-since: "Pierwszy raz widziany w tym kontenerze: {time}. Kliknij, aby zobaczyć, gdzie się zaczął."
   live-logs: Te logi są zamrożone w tym momencie. Kliknij, aby śledzić strumień na żywo.
@@ -274,6 +276,7 @@ button:
   retry: Ponów
   refresh: Odśwież
 placeholder:
+  filter: "Filtruj…"
   search-containers: Przeszukaj kontery (⌘ + k, ⌃k)
   find-logs: Szukaj w logach lub regex
   search: Szukaj
@@ -777,8 +780,8 @@ cloud-rail:
   metrics-live: "Na żywo z tej przeglądarki, ostatnie {n} min. Historia Cloud uzupełni się, gdy napłyną statystyki."
   metrics: Metryki
   alerts: Alerty
-  hide: Ukryj pasek cloud
-  show: Pokaż pasek cloud
+  hide: Ukryj prawy pasek
+  show: Pokaż prawy pasek
   alerts-empty-here: Nic się nie uruchomiło dla tego, co oglądasz.
   alerts-chart: Jak często pasowały twoje reguły
   alerts-chart-scroll: Pokaż ten moment na liście

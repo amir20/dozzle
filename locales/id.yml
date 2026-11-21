@@ -95,6 +95,7 @@ log-details:
   memory-last-hour: "Satu jam terakhir"
   memory-lines: "Tidak ada baris | 1 baris | {count} baris"
 label:
+  no-matches: "Tidak ada yang cocok"
   hide-sidebar: "Sembunyikan bilah sisi"
   show-sidebar: "Tampilkan bilah sisi"
   host-unreachable: "tidak dapat dijangkau"
@@ -173,6 +174,7 @@ label:
   groups: Grup
 
 tooltip:
+  filter-list: "Filter daftar"
   memory-new: "Dozzle Cloud belum pernah melihat error ini di container ini. Klik untuk melihatnya dalam konteks."
   memory-new-since: "Pertama terlihat di container ini: {time}. Klik untuk melihat di mana error ini dimulai."
   live-logs: Log ini dibekukan pada waktu ini. Klik untuk mengikuti aliran langsung.
@@ -279,6 +281,7 @@ button:
   refresh: Muat Ulang
 
 placeholder:
+  filter: "Filter…"
   search-containers: Cari kontainer (⌘ + k, ⌃k)
   find-logs: Cari di log atau regex
   search: Cari
@@ -787,8 +790,8 @@ cloud-rail:
   metrics-live: "Langsung dari browser ini, {n} menit terakhir. Riwayat Cloud terisi saat statistik masuk."
   metrics: Metrik
   alerts: Peringatan
-  hide: Sembunyikan bilah cloud
-  show: Tampilkan bilah cloud
+  hide: Sembunyikan bilah kanan
+  show: Tampilkan bilah kanan
   alerts-empty-here: Belum ada yang terpicu pada yang sedang Anda lihat.
   alerts-chart: Seberapa sering aturan Anda cocok
   alerts-chart-scroll: Tampilkan waktu ini di daftar

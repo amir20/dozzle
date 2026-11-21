@@ -35,17 +35,6 @@ const mountLinks = () =>
     global: { plugins: [i18n], stubs: { RouterLink: RouterLinkStub, Announcements: true, Dropdown: true } },
   });
 
-describe("<Links /> bell", () => {
-  // What fired lives in the cloud drawer; the bell is always the rules and
-  // destinations, linked or not.
-  test.each([false, true])("goes to the notifications page (cloud linked: %s)", (isLinked) => {
-    linked.value = isLinked;
-    const bell = mountLinks().findComponent(RouterLinkStub);
-    expect(bell.attributes("data-testid")).toBe("notifications");
-    expect(bell.props("to")).toEqual({ name: "/notifications" });
-  });
-});
-
 // A phone has no rail, so the header is the way into Cloud from any page.
 describe("<Links /> phone cloud button", () => {
   test("shows on a phone once linked, and opens on unseen alerts", async () => {
@@ -65,5 +54,16 @@ describe("<Links /> phone cloud button", () => {
     mobile.value = m;
     railAvailable.value = available;
     expect(mountLinks().find('[data-testid="cloud-open"]').exists()).toBe(false);
+  });
+});
+
+// The rail carries these on a desktop. Rendering them here as well put two
+// user-menu and cloud-link test ids in the page, and every dropdown mounted twice.
+describe("<Links /> on a desktop", () => {
+  test.each([false, true])("renders nothing (cloud linked: %s)", (isLinked) => {
+    mobile.value = false;
+    linked.value = isLinked;
+    railAvailable.value = isLinked;
+    expect(mountLinks().find("*").exists()).toBe(false);
   });
 });
