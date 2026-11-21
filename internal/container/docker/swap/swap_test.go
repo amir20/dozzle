@@ -297,6 +297,31 @@ func TestSwapSELinuxLevel(t *testing.T) {
 	assert.Empty(t, swapped(label, nil, false), "docker keeps the :Z in its binds")
 }
 
+func TestSwapCPUs(t *testing.T) {
+	fastTimings(t)
+	swapped := func(podman bool) *dcontainer.HostConfig {
+		f := newFake()
+		old := f.containers[appID]
+		// Podman 6.2's inspect of `--cpus 0.5`.
+		old.HostConfig.NanoCPUs = 500000000
+		old.HostConfig.CPUPeriod = 100000
+		old.HostConfig.CPUQuota = 50000
+		f.containers[appID] = old
+		_, err := swapApp(f, Options{Podman: podman})
+		require.NoError(t, err)
+		return f.created[0].HostConfig
+	}
+
+	// Podman refuses NanoCpus next to CpuPeriod or CpuQuota (#5662).
+	hc := swapped(true)
+	assert.Equal(t, int64(500000000), hc.NanoCPUs, "the limit itself is kept")
+	assert.Zero(t, hc.CPUPeriod)
+	assert.Zero(t, hc.CPUQuota)
+
+	hc = swapped(false)
+	assert.Equal(t, int64(100000), hc.CPUPeriod, "docker's spec is replayed as is")
+}
+
 func TestIsPodman(t *testing.T) {
 	assert.True(t, IsPodman(client.ServerVersionResult{Components: []system.ComponentVersion{{Name: "Podman Engine"}}}))
 	assert.True(t, IsPodman(client.ServerVersionResult{Platform: client.PlatformInfo{Name: "linux/amd64/fedora-43 Podman"}}))

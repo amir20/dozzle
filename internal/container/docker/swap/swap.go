@@ -116,7 +116,8 @@ type swap struct {
 // replacement stays up, and only then removes old. If any step fails, the
 // replacement is removed and old is put back. The rollback runs even when ctx
 // is cancelled. old must be running, or nothing is touched and the error is
-// container.ErrNotRunning.
+// container.ErrNotRunning. On Podman, a container in a pod is refused the same
+// way with a *PodError.
 func Swap(ctx context.Context, cli API, old dcontainer.InspectResponse, opts Options) (Result, error) {
 	if old.Config == nil || old.HostConfig == nil {
 		return Result{}, fmt.Errorf("inspect %s: incomplete container config", shortID(old.ID))
@@ -125,6 +126,9 @@ func Swap(ctx context.Context, cli API, old dcontainer.InspectResponse, opts Opt
 		return Result{}, container.ErrNotRunning
 	}
 	if opts.Podman {
+		if pod := PodmanPod(ctx, cli, old.ID); pod != "" {
+			return Result{}, &PodError{Pod: pod}
+		}
 		old = WithPodmanKeepID(ctx, cli, old)
 	}
 	s := newSwap(cli, old, opts)
