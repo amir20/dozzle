@@ -36,9 +36,10 @@ func isBlockedIP(ip net.IP) bool {
 	if isBlockedBaseIP(ip) {
 		return true
 	}
-	// IPv6 transition mechanisms (6to4, NAT64, Teredo, IPv4-compatible) embed an
-	// arbitrary IPv4 address that none of the checks above look at. Unwrap and
-	// re-check the embedded address so 2002:7f00:1::1 is treated as 127.0.0.1.
+	// IPv6 transition mechanisms (6to4, NAT64, Teredo, ISATAP, IPv4-compatible,
+	// IPv4-translated) embed an arbitrary IPv4 address that none of the checks
+	// above look at. Unwrap and re-check the embedded address so 2002:7f00:1::1
+	// is treated as 127.0.0.1.
 	return slices.ContainsFunc(embeddedIPv4(ip), isBlockedBaseIP)
 }
 
