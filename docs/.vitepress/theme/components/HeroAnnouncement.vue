@@ -7,26 +7,11 @@ import { useRoute } from "vitepress";
 // repeated, and re-translated, in five home pages.
 const IOS_URL = "https://cloud.dozzle.dev/ios?from=dozzle_docs";
 const COPY = {
-  en: [
-    { badge: "New", label: "Dozzle Cloud for iPhone, private beta", href: IOS_URL },
-    { badge: "v11.3", label: "Safe container updates, on a schedule", href: "/guide/updates" },
-  ],
-  de: [
-    { badge: "Neu", label: "Dozzle Cloud fürs iPhone, private Beta", href: IOS_URL },
-    { badge: "v11.3", label: "Sichere Container-Updates, nach Zeitplan", href: "/de/guide/updates" },
-  ],
-  fr: [
-    { badge: "Nouveau", label: "Dozzle Cloud pour iPhone, bêta privée", href: IOS_URL },
-    { badge: "v11.3", label: "Mises à jour sûres des conteneurs, planifiées", href: "/fr/guide/updates" },
-  ],
-  es: [
-    { badge: "Nuevo", label: "Dozzle Cloud para iPhone, beta privada", href: IOS_URL },
-    { badge: "v11.3", label: "Actualizaciones seguras de contenedores, programadas", href: "/es/guide/updates" },
-  ],
-  zh: [
-    { badge: "新", label: "Dozzle Cloud iPhone 版，私人测试", href: IOS_URL },
-    { badge: "v11.3", label: "安全的容器更新，支持定时执行", href: "/zh/guide/updates" },
-  ],
+  en: [{ badge: "New", label: "Dozzle Cloud for iPhone, private beta", href: IOS_URL }],
+  de: [{ badge: "Neu", label: "Dozzle Cloud fürs iPhone, private Beta", href: IOS_URL }],
+  fr: [{ badge: "Nouveau", label: "Dozzle Cloud pour iPhone, bêta privée", href: IOS_URL }],
+  es: [{ badge: "Nuevo", label: "Dozzle Cloud para iPhone, beta privada", href: IOS_URL }],
+  zh: [{ badge: "新", label: "Dozzle Cloud iPhone 版，私人测试", href: IOS_URL }],
 } as const;
 
 type Locale = keyof typeof COPY;
