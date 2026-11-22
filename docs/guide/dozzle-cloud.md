@@ -15,13 +15,14 @@ See [Features](https://cloud.dozzle.dev/features) for the full tour and [Pricing
 
 ## Where to go next
 
-| Page                                                       | What it covers                                                                         |
-| ---------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| [Connecting Your Instance](/guide/dozzle-cloud/connecting) | Linking, why no public IP or open port is needed, firewall rules, troubleshooting      |
-| [In Your Dozzle](/guide/dozzle-cloud/in-dozzle)            | The cloud rail, alerts that survive a reload, and what a Cloud-less install still does |
-| [Notification Channels](/guide/dozzle-cloud/channels)      | Every channel, how to set each one up, and how to make alerts quieter                  |
-| [Plans & Limits](/guide/dozzle-cloud/plans)                | Running into a limit, the instance limit, usage, cancelling                            |
-| [Your Data](/guide/dozzle-cloud/your-data)                 | What leaves your host, how to stop it, what Cloud stores, API keys                     |
+| Page                                                       | What it covers                                                                                                  |
+| ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| [Connecting Your Instance](/guide/dozzle-cloud/connecting) | Linking, why no public IP or open port is needed, firewall rules, troubleshooting                               |
+| [In Your Dozzle](/guide/dozzle-cloud/in-dozzle)            | The cloud rail, alerts that survive a reload, and what a Cloud-less install still does                          |
+| [Notification Channels](/guide/dozzle-cloud/channels)      | Every channel, how to set each one up, and how to make alerts quieter                                           |
+| [iPhone App](/guide/dozzle-cloud/channels#iphone-app-beta) | Requesting early access to the beta, alerts with Restart and Mute, and choosing which instances alert the phone |
+| [Plans & Limits](/guide/dozzle-cloud/plans)                | Running into a limit, the instance limit, usage, cancelling                                                     |
+| [Your Data](/guide/dozzle-cloud/your-data)                 | What leaves your host, how to stop it, what Cloud stores, API keys                                              |
 
 Alert rules themselves are configured on your own instance, not in Cloud. See [Alerts](/guide/alerts-and-webhooks).
 

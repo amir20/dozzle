@@ -56,6 +56,7 @@ The filter runs on your Dozzle instance **before logs leave the host**, so dropp
 - **Container and host metadata** — names, images, states, resource usage.
 - **Container updates** — which image a container moved from and to, and when. Sent only for an update the auto-update schedule made, and for a rollback.
 - **Your account** — email address, plan, notification channel settings.
+- **iPhone app** — the device's push token and name, so alerts can reach it. Removed when you sign out of the app.
 - **Chat history** with the agent.
 
 Everything is scoped to your account; other users cannot see your data. Stored data is kept for your plan's retention window and then deleted automatically. See [Plans & Limits](/guide/dozzle-cloud/plans).

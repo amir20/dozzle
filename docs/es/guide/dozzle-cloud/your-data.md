@@ -1,7 +1,7 @@
 ---
 title: Tus datos
 description: Qué recibe Dozzle Cloud de tu host Docker, cómo evitar que se reenvíen los logs de un contenedor, qué almacena Cloud y cómo cerrar tu cuenta.
-sourceHash: b50a7f6bb56b
+sourceHash: cd238d48fe2d
 ---
 
 # Tus datos
@@ -57,6 +57,7 @@ El filtro se ejecuta en tu instancia de Dozzle **antes de que los logs salgan de
 - **Metadatos de contenedores y hosts** — nombres, imágenes, estados, uso de recursos.
 - **Actualizaciones de contenedores** — de qué imagen a qué imagen pasó un contenedor, y cuándo. Solo se envían para una actualización que hizo la actualización automática programada, y para una reversión.
 - **Tu cuenta** — dirección de correo, plan, configuración de los canales de notificación.
+- **App de iPhone** — el token push y el nombre del dispositivo, para que le lleguen las alertas. Se eliminan al cerrar sesión en la app.
 - **Historial de chat** con el agente.
 
 Todo está limitado a tu cuenta; otros usuarios no pueden ver tus datos. Los datos almacenados se conservan durante la ventana de retención de tu plan y luego se borran automáticamente. Consulta [Planes y límites](/es/guide/dozzle-cloud/plans).
