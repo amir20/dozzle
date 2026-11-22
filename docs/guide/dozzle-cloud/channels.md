@@ -68,13 +68,13 @@ If nothing arrives after enabling it, the browser most likely denied the permiss
 
 ## iPhone app (beta)
 
-Dozzle Cloud has an iPhone app, in beta through TestFlight. Open [cloud.dozzle.dev/ios](https://cloud.dozzle.dev/ios) on your iPhone to join; the link takes you to the TestFlight invite.
+Dozzle Cloud has an iPhone app, in a private beta through TestFlight. Request early access at [cloud.dozzle.dev/ios](https://cloud.dozzle.dev/ios): sign in with your Dozzle Cloud account and click once to join the waitlist. A confirmation email follows. Invites go out in batches, as an email from Apple's TestFlight. When yours arrives, install TestFlight, open the invite on your iPhone, then open the app and sign in.
 
 Sign in with your Dozzle Cloud account and allow notifications. Signing in adds that iPhone as a channel. There is nothing to set up from **Add channel**. On the web, each phone shows on the Channels page as **iPhone app**, where you can switch it on or off, choose which instances it gets alerts for, or delete it.
 
 In the app, **Settings > Integrations** has the same controls for the phone in your hand: switch its alerts on or off, pick its instances, and send a test notification. It also lets you switch your account's other channels on or off.
 
-Long-press an alert notification to act on it without opening the app: **Restart** restarts the container, and **Mute** silences that kind of alert. The app also has Overview, Findings, Alerts, Metrics and Search, and you can ask Dozzle Cloud about your containers, with charts in the answers.
+Long-press an alert notification to act on it without opening the app: **Restart** restarts the container, and **Mute** silences that kind of alert. The app's tabs are Overview, Findings, Alerts, Logs and Containers. Search is in the top bar, and each container shows its own metrics. You can also ask Dozzle Cloud about your containers, with charts in the answers.
 
 If nothing arrives, send a test notification from **Settings > Integrations** first. If the test does not show up, open iPhone **Settings > Notifications > Dozzle Cloud** and make sure notifications are allowed. Signing out of the app removes that phone's channel, so sign in again to get alerts back.
 

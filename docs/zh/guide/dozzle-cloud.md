@@ -1,7 +1,7 @@
 ---
 title: Dozzle Cloud
 description: Dozzle Cloud 为自托管 Dozzle 带来了什么，包括告警分诊、发送到 Slack、Telegram 或 Discord 的通知，以及付费计划中的每日日志检查。
-sourceHash: 9a0a9adc25bb
+sourceHash: 4480a7db3460
 ---
 
 # Dozzle Cloud
@@ -16,14 +16,14 @@ sourceHash: 9a0a9adc25bb
 
 ## 接下来看什么
 
-| 页面                                                           | 内容                                                                  |
-| -------------------------------------------------------------- | --------------------------------------------------------------------- |
-| [连接你的实例](/zh/guide/dozzle-cloud/connecting)              | 连接步骤、为什么不需要公网 IP 或开放端口、防火墙、排障                |
-| [在你的 Dozzle 里](/zh/guide/dozzle-cloud/in-dozzle)           | Cloud 侧栏、刷新后仍在的告警，以及未连接 Cloud 时依然可用的部分       |
-| [通知渠道](/zh/guide/dozzle-cloud/channels)                    | 所有渠道、逐个的配置方法，以及怎么让它安静下来                        |
-| [iPhone 应用](/zh/guide/dozzle-cloud/channels#iphone-app-beta) | 加入测试版、带 Restart 和 Mute 的告警，以及选择哪些实例向手机发送告警 |
-| [套餐与限制](/zh/guide/dozzle-cloud/plans)                     | 碰到限制、实例数量限制、用量、取消                                    |
-| [你的数据](/zh/guide/dozzle-cloud/your-data)                   | 什么会离开你的主机、如何阻止、Cloud 存了什么、API 密钥                |
+| 页面                                                           | 内容                                                                          |
+| -------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| [连接你的实例](/zh/guide/dozzle-cloud/connecting)              | 连接步骤、为什么不需要公网 IP 或开放端口、防火墙、排障                        |
+| [在你的 Dozzle 里](/zh/guide/dozzle-cloud/in-dozzle)           | Cloud 侧栏、刷新后仍在的告警，以及未连接 Cloud 时依然可用的部分               |
+| [通知渠道](/zh/guide/dozzle-cloud/channels)                    | 所有渠道、逐个的配置方法，以及怎么让它安静下来                                |
+| [iPhone 应用](/zh/guide/dozzle-cloud/channels#iphone-app-beta) | 申请抢先体验测试版、带 Restart 和 Mute 的告警，以及选择哪些实例向手机发送告警 |
+| [套餐与限制](/zh/guide/dozzle-cloud/plans)                     | 碰到限制、实例数量限制、用量、取消                                            |
+| [你的数据](/zh/guide/dozzle-cloud/your-data)                   | 什么会离开你的主机、如何阻止、Cloud 存了什么、API 密钥                        |
 
 告警规则本身是在你自己的实例上配置的，不在 Cloud。见[警报](/zh/guide/alerts-and-webhooks)。
 

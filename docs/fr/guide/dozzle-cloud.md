@@ -1,7 +1,7 @@
 ---
 title: Dozzle Cloud
 description: Ce que Dozzle Cloud ajoute à Dozzle auto-hébergé, dont le tri des alertes, les notifications vers Slack, Telegram ou Discord, et une revue quotidienne des logs sur les offres payantes.
-sourceHash: 9a0a9adc25bb
+sourceHash: 4480a7db3460
 ---
 
 # Dozzle Cloud
@@ -16,14 +16,14 @@ Le tour complet est sur [Fonctionnalités](https://cloud.dozzle.dev/features), e
 
 ## Pour aller plus loin
 
-| Page                                                          | Ce qu'elle couvre                                                                                       |
-| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| [Relier votre instance](/fr/guide/dozzle-cloud/connecting)    | Le lien, pourquoi ni IP publique ni port ouvert ne sont nécessaires, pare-feu, dépannage                |
-| [Dans votre Dozzle](/fr/guide/dozzle-cloud/in-dozzle)         | Le rail cloud, les alertes qui survivent au rechargement, et ce qui marche sans Cloud                   |
-| [Canaux de notification](/fr/guide/dozzle-cloud/channels)     | Tous les canaux, comment configurer chacun, et comment faire moins de bruit                             |
-| [App iPhone](/fr/guide/dozzle-cloud/channels#iphone-app-beta) | Rejoindre la bêta, les alertes avec Restart et Mute, et choisir quelles instances alertent le téléphone |
-| [Offres et limites](/fr/guide/dozzle-cloud/plans)             | Atteindre une limite, la limite d'instances, consommation, annulation                                   |
-| [Vos données](/fr/guide/dozzle-cloud/your-data)               | Ce qui quitte votre hôte, comment l'arrêter, ce que Cloud stocke, les clés d'API                        |
+| Page                                                          | Ce qu'elle couvre                                                                                                          |
+| ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| [Relier votre instance](/fr/guide/dozzle-cloud/connecting)    | Le lien, pourquoi ni IP publique ni port ouvert ne sont nécessaires, pare-feu, dépannage                                   |
+| [Dans votre Dozzle](/fr/guide/dozzle-cloud/in-dozzle)         | Le rail cloud, les alertes qui survivent au rechargement, et ce qui marche sans Cloud                                      |
+| [Canaux de notification](/fr/guide/dozzle-cloud/channels)     | Tous les canaux, comment configurer chacun, et comment faire moins de bruit                                                |
+| [App iPhone](/fr/guide/dozzle-cloud/channels#iphone-app-beta) | Demander un accès anticipé à la bêta, les alertes avec Restart et Mute, et choisir quelles instances alertent le téléphone |
+| [Offres et limites](/fr/guide/dozzle-cloud/plans)             | Atteindre une limite, la limite d'instances, consommation, annulation                                                      |
+| [Vos données](/fr/guide/dozzle-cloud/your-data)               | Ce qui quitte votre hôte, comment l'arrêter, ce que Cloud stocke, les clés d'API                                           |
 
 Les règles d'alerte se configurent sur votre propre instance, pas dans Cloud. Voir [Alertes](/fr/guide/alerts-and-webhooks).
 

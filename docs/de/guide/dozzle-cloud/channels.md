@@ -1,7 +1,7 @@
 ---
 title: Benachrichtigungskanäle
 description: Schick Alarme von Dozzle Cloud per E-Mail, Telegram, Discord, Slack, ntfy, Webhook, Browser-Push oder die iPhone-App, schalte laute Alarme stumm und finde heraus, warum ein Alarm nie ankam.
-sourceHash: 7296a4573815
+sourceHash: 37890cb16c0e
 ---
 
 # Benachrichtigungskanäle
@@ -69,13 +69,13 @@ Wenn danach nichts ankommt, hat der Browser die Berechtigung höchstwahrscheinli
 
 ## iPhone-App (Beta) {#iphone-app-beta}
 
-Dozzle Cloud gibt es als iPhone-App, als Beta über TestFlight. Öffne [cloud.dozzle.dev/ios](https://cloud.dozzle.dev/ios) auf deinem iPhone, um mitzumachen; der Link führt dich zur TestFlight-Einladung.
+Dozzle Cloud gibt es als iPhone-App, als private Beta über TestFlight. Frag den frühen Zugang unter [cloud.dozzle.dev/ios](https://cloud.dozzle.dev/ios) an: Melde dich mit deinem Dozzle-Cloud-Konto an und komm mit einem Klick auf die Warteliste. Danach bekommst du eine Bestätigungs-E-Mail. Einladungen werden schubweise verschickt, als E-Mail von Apples TestFlight. Wenn deine ankommt, installiere TestFlight, öffne die Einladung auf deinem iPhone, öffne dann die App und melde dich an.
 
 Melde dich mit deinem Dozzle-Cloud-Konto an und erlaube Benachrichtigungen. Mit der Anmeldung wird das iPhone als Kanal hinzugefügt. Über **Add channel** musst du nichts einrichten. Im Web erscheint jedes Telefon auf der Channels-Seite als **iPhone app**. Dort kannst du es ein- oder ausschalten, auswählen, für welche Instanzen es Alarme bekommt, oder es löschen.
 
 In der App findest du unter **Settings > Integrations** dieselben Einstellungen für das Telefon in deiner Hand: Alarme ein- oder ausschalten, Instanzen auswählen und eine Test-Benachrichtigung senden. Dort kannst du auch die anderen Kanäle deines Kontos ein- oder ausschalten.
 
-Drück lange auf eine Alarm-Benachrichtigung, um direkt zu handeln, ohne die App zu öffnen: **Restart** startet den Container neu, **Mute** schaltet diese Art von Alarm stumm. Die App hat außerdem Overview, Findings, Alerts, Metrics und Search, und du kannst Dozzle Cloud Fragen zu deinen Containern stellen, mit Diagrammen in den Antworten.
+Drück lange auf eine Alarm-Benachrichtigung, um direkt zu handeln, ohne die App zu öffnen: **Restart** startet den Container neu, **Mute** schaltet diese Art von Alarm stumm. Die Tabs der App sind Overview, Findings, Alerts, Logs und Containers. Die Suche sitzt in der oberen Leiste, und jeder Container zeigt seine eigenen Metriken. Du kannst Dozzle Cloud außerdem Fragen zu deinen Containern stellen, mit Diagrammen in den Antworten.
 
 Wenn nichts ankommt, sende zuerst eine Test-Benachrichtigung unter **Settings > Integrations**. Kommt auch die nicht an, öffne auf dem iPhone **Einstellungen > Mitteilungen > Dozzle Cloud** und prüfe, ob Mitteilungen erlaubt sind. Wenn du dich in der App abmeldest, wird der Kanal dieses Telefons entfernt; melde dich erneut an, um wieder Alarme zu bekommen.
 

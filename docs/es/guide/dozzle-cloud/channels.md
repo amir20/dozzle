@@ -1,7 +1,7 @@
 ---
 title: Canales de notificación
 description: Envía las alertas de Dozzle Cloud por email, Telegram, Discord, Slack, ntfy, webhooks, notificaciones push del navegador o la app de iPhone, silencia las alertas ruidosas y averigua por qué no llegó una alerta.
-sourceHash: 7296a4573815
+sourceHash: 37890cb16c0e
 ---
 
 # Canales de notificación
@@ -69,13 +69,13 @@ Si después no llega nada, lo más probable es que el navegador denegara el perm
 
 ## App de iPhone (beta) {#iphone-app-beta}
 
-Dozzle Cloud tiene una app de iPhone, en beta a través de TestFlight. Abre [cloud.dozzle.dev/ios](https://cloud.dozzle.dev/ios) en tu iPhone para unirte; el enlace te lleva a la invitación de TestFlight.
+Dozzle Cloud tiene una app de iPhone, en beta privada a través de TestFlight. Solicita acceso anticipado en [cloud.dozzle.dev/ios](https://cloud.dozzle.dev/ios): inicia sesión con tu cuenta de Dozzle Cloud y únete a la lista de espera con un clic. Después llega un correo de confirmación. Las invitaciones se envían por tandas, como un correo de TestFlight de Apple. Cuando llegue la tuya, instala TestFlight, abre la invitación en tu iPhone y luego abre la app e inicia sesión.
 
 Inicia sesión con tu cuenta de Dozzle Cloud y permite las notificaciones. Al iniciar sesión, ese iPhone se añade como canal. No hay que configurar nada desde **Add channel**. En la web, cada teléfono aparece en la página Channels como **iPhone app**, donde puedes activarlo o desactivarlo, elegir para qué instancias recibe alertas o eliminarlo.
 
 En la app, **Settings > Integrations** tiene los mismos controles para el teléfono que tienes en la mano: activar o desactivar sus alertas, elegir sus instancias y enviar una notificación de prueba. También permite activar o desactivar los demás canales de tu cuenta.
 
-Mantén pulsada una notificación de alerta para actuar sin abrir la app: **Restart** reinicia el contenedor y **Mute** silencia ese tipo de alerta. La app también tiene Overview, Findings, Alerts, Metrics y Search, y puedes preguntarle a Dozzle Cloud por tus contenedores, con gráficos en las respuestas.
+Mantén pulsada una notificación de alerta para actuar sin abrir la app: **Restart** reinicia el contenedor y **Mute** silencia ese tipo de alerta. Las pestañas de la app son Overview, Findings, Alerts, Logs y Containers. La búsqueda está en la barra superior y cada contenedor muestra sus propias métricas. También puedes preguntarle a Dozzle Cloud por tus contenedores, con gráficos en las respuestas.
 
 Si no llega nada, envía primero una notificación de prueba desde **Settings > Integrations**. Si la prueba tampoco aparece, abre **Ajustes > Notificaciones > Dozzle Cloud** en el iPhone y comprueba que las notificaciones están permitidas. Cerrar sesión en la app elimina el canal de ese teléfono; vuelve a iniciar sesión para recibir alertas otra vez.
 
