@@ -1,7 +1,7 @@
 ---
 title: 通知渠道
-description: 把 Dozzle Cloud 告警发送到邮件、Telegram、Discord、Slack、ntfy、webhook 或浏览器推送，静音吵闹的告警，并排查为什么没收到告警。
-sourceHash: c16b851b5ef6
+description: 把 Dozzle Cloud 告警发送到邮件、Telegram、Discord、Slack、ntfy、webhook、浏览器推送或 iPhone 应用，静音吵闹的告警，并排查为什么没收到告警。
+sourceHash: 7296a4573815
 ---
 
 # 通知渠道
@@ -22,6 +22,7 @@ sourceHash: c16b851b5ef6
 | <Icon icon="simple-icons:ntfy" inline /> ntfy                     |  ✓   |          |            |
 | <Icon icon="mdi:webhook" inline /> Webhook                        |  ✓   |          |            |
 | <Icon icon="mdi:bell-badge-outline" inline /> 浏览器推送          |  ✓   |          |            |
+| <Icon icon="mdi:cellphone" inline /> iPhone 应用（测试版）        |  ✓   |          |     ✓      |
 
 所有渠道在所有套餐中都可用，包括免费版。
 
@@ -65,6 +66,18 @@ Discord 有**两种不同的渠道类型**，两个同时开着就是每条告�
 在 Channels 页面启用，浏览器询问时允许通知。之后告警会以桌面通知的形式出现。
 
 如果启用后什么都收不到，多半是浏览器拒绝了权限请求。浏览器一旦被拒绝就不会再问了 —— 需要在浏览器设置里清除该站点的通知权限，然后重新启用。浏览器推送在隐私/无痕窗口中无法工作。
+
+## iPhone 应用（测试版） {#iphone-app-beta}
+
+Dozzle Cloud 有 iPhone 应用，目前通过 TestFlight 进行测试。在 iPhone 上打开 [cloud.dozzle.dev/ios](https://cloud.dozzle.dev/ios) 即可加入，链接会带你到 TestFlight 邀请页。
+
+用你的 Dozzle Cloud 账号登录并允许通知。登录后，这台 iPhone 就会被添加为一个渠道，不需要在 **Add channel** 里设置。在网页上，每台手机都会以 **iPhone app** 显示在 Channels 页面，可以在那里开关它、选择它接收哪些实例的告警，或删除它。
+
+在应用里，**Settings > Integrations** 为你手上这台手机提供同样的控制：开关它的告警、选择实例、发送测试通知。也可以在这里开关账号的其他渠道。
+
+长按告警通知，不用打开应用就能处理：**Restart** 重启容器，**Mute** 静音这类告警。应用里还有 Overview、Findings、Alerts、Metrics 和 Search，也可以向 Dozzle Cloud 询问你的容器，回答里会带图表。
+
+如果什么都没收到，先在 **Settings > Integrations** 发送一条测试通知。如果测试通知也没出现，打开 iPhone 的 **设置 > 通知 > Dozzle Cloud**，确认允许通知。在应用里退出登录会移除这台手机的渠道，重新登录即可再次收到告警。
 
 ## <Icon icon="mdi:bell-sleep-outline" inline /> 让它安静下来
 

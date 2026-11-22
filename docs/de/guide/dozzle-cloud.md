@@ -1,7 +1,7 @@
 ---
 title: Dozzle Cloud
 description: Was Dozzle Cloud zu selbst gehostetem Dozzle hinzufügt, darunter Alarm-Triage, Benachrichtigungen an Slack, Telegram oder Discord und in bezahlten Plänen eine tägliche Log-Prüfung.
-sourceHash: 29eedd4730d9
+sourceHash: 9a0a9adc25bb
 ---
 
 # Dozzle Cloud
@@ -16,13 +16,14 @@ Die ganze Tour steht unter [Features](https://cloud.dozzle.dev/features), was je
 
 ## Wie es weitergeht
 
-| Seite                                                      | Worum es geht                                                                                 |
-| ---------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| [Instanz verbinden](/de/guide/dozzle-cloud/connecting)     | Verbinden, warum keine öffentliche IP und kein offener Port nötig sind, Firewall, Fehlersuche |
-| [In deinem Dozzle](/de/guide/dozzle-cloud/in-dozzle)       | Die Cloud-Leiste, Alarme die ein Neuladen überstehen, und was ohne Cloud weiter funktioniert  |
-| [Benachrichtigungskanäle](/de/guide/dozzle-cloud/channels) | Alle Kanäle, wie du jeden einrichtest, und wie du es leiser bekommst                          |
-| [Tarife & Limits](/de/guide/dozzle-cloud/plans)            | An ein Limit stoßen, das Instanz-Limit, Nutzung, Kündigung                                    |
-| [Deine Daten](/de/guide/dozzle-cloud/your-data)            | Was deinen Host verlässt, wie du das stoppst, was Cloud speichert, API-Schlüssel              |
+| Seite                                                         | Worum es geht                                                                                           |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| [Instanz verbinden](/de/guide/dozzle-cloud/connecting)        | Verbinden, warum keine öffentliche IP und kein offener Port nötig sind, Firewall, Fehlersuche           |
+| [In deinem Dozzle](/de/guide/dozzle-cloud/in-dozzle)          | Die Cloud-Leiste, Alarme die ein Neuladen überstehen, und was ohne Cloud weiter funktioniert            |
+| [Benachrichtigungskanäle](/de/guide/dozzle-cloud/channels)    | Alle Kanäle, wie du jeden einrichtest, und wie du es leiser bekommst                                    |
+| [iPhone-App](/de/guide/dozzle-cloud/channels#iphone-app-beta) | Der Beta beitreten, Alarme mit Restart und Mute, und auswählen, welche Instanzen das Telefon alarmieren |
+| [Tarife & Limits](/de/guide/dozzle-cloud/plans)               | An ein Limit stoßen, das Instanz-Limit, Nutzung, Kündigung                                              |
+| [Deine Daten](/de/guide/dozzle-cloud/your-data)               | Was deinen Host verlässt, wie du das stoppst, was Cloud speichert, API-Schlüssel                        |
 
 Die Alarmregeln selbst werden auf deiner eigenen Instanz konfiguriert, nicht in Cloud. Siehe [Alarme](/de/guide/alerts-and-webhooks).
 

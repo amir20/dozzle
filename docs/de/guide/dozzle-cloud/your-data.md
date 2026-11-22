@@ -1,7 +1,7 @@
 ---
 title: Deine Daten
 description: Was Dozzle Cloud von deinem Docker-Host erhält, wie du die Weiterleitung der Logs eines Containers stoppst, was Cloud speichert und wie du dein Konto schließt.
-sourceHash: b50a7f6bb56b
+sourceHash: cd238d48fe2d
 ---
 
 # Deine Daten
@@ -57,6 +57,7 @@ Der Filter läuft auf deiner Dozzle-Instanz, **bevor Logs den Host verlassen**. 
 - **Container- und Host-Metadaten** — Namen, Images, Zustände, Ressourcenverbrauch.
 - **Container-Updates** — von welchem Image auf welches ein Container gewechselt ist, und wann. Nur für Updates aus dem Zeitplan für automatische Updates und für ein Zurückrollen gesendet.
 - **Dein Konto** — E-Mail-Adresse, Tarif, Einstellungen der Benachrichtigungskanäle.
+- **iPhone-App** — der Push-Token und der Name des Geräts, damit Alarme es erreichen. Wird entfernt, wenn du dich in der App abmeldest.
 - **Chat-Verlauf** mit dem Agent.
 
 Alles ist auf dein Konto beschränkt; andere Nutzer sehen deine Daten nicht. Gespeicherte Daten bleiben für den Aufbewahrungszeitraum deines Tarifs und werden dann automatisch gelöscht. Siehe [Tarife & Limits](/de/guide/dozzle-cloud/plans).

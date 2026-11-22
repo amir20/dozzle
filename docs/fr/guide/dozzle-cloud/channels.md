@@ -1,7 +1,7 @@
 ---
 title: Canaux de notification
-description: Envoyez les alertes Dozzle Cloud par e-mail, Telegram, Discord, Slack, ntfy, webhook ou notification push, coupez les alertes bruyantes et comprenez pourquoi une alerte n'est jamais arrivée.
-sourceHash: c16b851b5ef6
+description: Envoyez les alertes Dozzle Cloud par e-mail, Telegram, Discord, Slack, ntfy, webhook, notification push ou l'app iPhone, coupez les alertes bruyantes et comprenez pourquoi une alerte n'est jamais arrivée.
+sourceHash: 7296a4573815
 ---
 
 # Canaux de notification
@@ -22,6 +22,7 @@ Activez-en autant que vous voulez. Chaque canal activé reçoit toutes les alert
 | <Icon icon="simple-icons:ntfy" inline /> ntfy                 |    ✓    |                  |                      |
 | <Icon icon="mdi:webhook" inline /> Webhooks                   |    ✓    |                  |                      |
 | <Icon icon="mdi:bell-badge-outline" inline /> Push navigateur |    ✓    |                  |                      |
+| <Icon icon="mdi:cellphone" inline /> App iPhone (bêta)        |    ✓    |                  |          ✓           |
 
 Tous les canaux sont disponibles sur toutes les offres, y compris la gratuite.
 
@@ -65,6 +66,18 @@ Saisissez n'importe quelle URL qui accepte un POST. Les alertes sont livrées en
 Activez-le sur la page Channels et autorisez les notifications quand le navigateur le demande. Les alertes arrivent alors en notifications de bureau.
 
 Si rien n'arrive après l'activation, le navigateur a très probablement refusé la permission. Les navigateurs ne redemandent pas après un refus : effacez la permission de notification du site dans les réglages du navigateur et réactivez-la. Le push navigateur ne fonctionne pas en fenêtre privée ou de navigation privée.
+
+## App iPhone (bêta) {#iphone-app-beta}
+
+Dozzle Cloud a une app iPhone, en bêta via TestFlight. Ouvrez [cloud.dozzle.dev/ios](https://cloud.dozzle.dev/ios) sur votre iPhone pour la rejoindre ; le lien mène à l'invitation TestFlight.
+
+Connectez-vous avec votre compte Dozzle Cloud et autorisez les notifications. La connexion ajoute cet iPhone comme canal. Rien à configurer depuis **Add channel**. Sur le web, chaque téléphone apparaît sur la page Channels sous le nom **iPhone app**, où vous pouvez l'activer ou le désactiver, choisir les instances pour lesquelles il reçoit des alertes, ou le supprimer.
+
+Dans l'app, **Settings > Integrations** propose les mêmes réglages pour le téléphone que vous avez en main : activer ou désactiver ses alertes, choisir ses instances et envoyer une notification de test. Vous pouvez aussi y activer ou désactiver les autres canaux de votre compte.
+
+Appuyez longuement sur une notification d'alerte pour agir sans ouvrir l'app : **Restart** redémarre le conteneur, et **Mute** coupe ce type d'alerte. L'app propose aussi Overview, Findings, Alerts, Metrics et Search, et vous pouvez interroger Dozzle Cloud sur vos conteneurs, avec des graphiques dans les réponses.
+
+Si rien n'arrive, envoyez d'abord une notification de test depuis **Settings > Integrations**. Si le test n'arrive pas non plus, ouvrez **Réglages > Notifications > Dozzle Cloud** sur l'iPhone et vérifiez que les notifications sont autorisées. Se déconnecter de l'app supprime le canal de ce téléphone ; reconnectez-vous pour recevoir à nouveau les alertes.
 
 ## <Icon icon="mdi:bell-sleep-outline" inline /> Faire moins de bruit
 
