@@ -241,6 +241,10 @@ func TestIsBlockedIP(t *testing.T) {
 		"2001:0000:7f00:0001::1",                  // Teredo -> server 127.0.0.1
 		"::7f00:1",                                // IPv4-compatible -> 127.0.0.1
 		"::a9fe:a9fe",                             // IPv4-compatible -> 169.254.169.254
+		"::ffff:0:7f00:1",                         // IPv4-translated -> 127.0.0.1
+		"::ffff:0:a9fe:a9fe",                      // IPv4-translated -> 169.254.169.254
+		"2001:db8::5efe:7f00:1",                   // ISATAP -> 127.0.0.1
+		"2001:db8::200:5efe:a9fe:a9fe",            // ISATAP (global u-bit) -> 169.254.169.254
 	}
 	for _, s := range blocked {
 		ip := net.ParseIP(s)
@@ -254,9 +258,11 @@ func TestIsBlockedIP(t *testing.T) {
 		"172.16.5.10",
 		"8.8.8.8",
 		"2606:4700:4700::1111",
-		"2002:0808:0808::1", // 6to4 -> 8.8.8.8
-		"64:ff9b::808:808",  // NAT64 WKP -> 8.8.8.8
-		"2001:0:808:808::1", // Teredo with public server/client
+		"2002:0808:0808::1",       // 6to4 -> 8.8.8.8
+		"64:ff9b::808:808",        // NAT64 WKP -> 8.8.8.8
+		"2001:0:808:808::1",       // Teredo with public server/client
+		"::ffff:0:808:808",        // IPv4-translated -> 8.8.8.8
+		"2a00:1450::5efe:808:808", // ISATAP -> 8.8.8.8
 	}
 	for _, s := range allowed {
 		ip := net.ParseIP(s)
