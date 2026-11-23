@@ -111,6 +111,12 @@ The `sub` claim is the user's stable id. It keys the profile directory under `/d
 
 Unlike the `simple` provider, the email does not have to be verified here. It is only displayed, never matched against anything, so an issuer that grants no email scope works fine.
 
+## Login
+
+Dozzle has no password form under `oidc`, so the login page skips its own button and sends the browser straight to the provider. If the provider still has a session, the user is back in Dozzle without seeing either login page.
+
+The login page still shows after a failed sign in, so a broken setup does not loop, and right after logout, so the user is not signed straight back in. To reach it any other time, open `/login?direct=1`.
+
 ## Sessions
 
 After sign in, Dozzle issues its own session cookie carrying the roles and filters it read from the token. They are applied on every request, but they are not fetched again: a role change at the provider takes effect at the user's next login. If that gap matters, set [`--auth-ttl`](/guide/supported-env-vars) to something like `8h` so sessions expire and are re-established from a fresh token.
