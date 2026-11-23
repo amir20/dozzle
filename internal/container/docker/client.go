@@ -738,7 +738,7 @@ func (d *Client) ContainerEvents(ctx context.Context, messages chan<- container.
 				select {
 				case messages <- container.ContainerEvent{
 					ActorID:         message.Actor.ID[:12],
-					Name:            d.healthAction(ctx, string(message.Action), message.Actor.ID),
+					Name:            containerAction(d.healthAction(ctx, string(message.Action), message.Actor.ID)),
 					Host:            d.host.ID,
 					ActorAttributes: message.Actor.Attributes,
 					Time:            time.Now(),

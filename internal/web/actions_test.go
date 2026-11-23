@@ -1,17 +1,20 @@
 package web
 
 import (
+	"bytes"
 	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync"
 
 	"testing"
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/container/docker/swap/swaptest"
 	docker_types "github.com/moby/moby/api/types/container"
+	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -151,6 +154,50 @@ func Test_handler_containerUpdate_up_to_date(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 	assert.Equal(t, 200, rr.Code)
 	assert.Contains(t, rr.Body.String(), `"up-to-date"`)
+}
+
+// A failed update is logged as failed, not as completed too (#5662).
+func Test_handler_containerUpdate_failed_not_logged_completed(t *testing.T) {
+	mockedClient := mockedClient()
+	inspectResp := docker_types.InspectResponse{
+		Image:  "sha256:current",
+		State:  &docker_types.State{Running: true, Status: "running"},
+		Config: &docker_types.Config{Image: "test:v1"},
+	}
+	mockedClient.On("ContainerInspect", mock.Anything, "123").Return(inspectResp, nil)
+	mockedClient.On("ImagePull", mock.Anything, "test:v1").Return(io.NopCloser(strings.NewReader("")), errors.New("pull denied"))
+
+	buf := &lockedBuffer{}
+	saved := log.Logger
+	log.Logger = log.Output(buf)
+	t.Cleanup(func() { log.Logger = saved })
+
+	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
+	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/update", nil)
+	require.NoError(t, err)
+	handler.ServeHTTP(httptest.NewRecorder(), req)
+
+	assert.Contains(t, buf.String(), "container update failed")
+	assert.NotContains(t, buf.String(), "container update completed")
+}
+
+// lockedBuffer is written by the container store's goroutines as well as the
+// handler's, so reads and writes share a lock.
+type lockedBuffer struct {
+	mu  sync.Mutex
+	buf bytes.Buffer
+}
+
+func (b *lockedBuffer) Write(p []byte) (int, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.Write(p)
+}
+
+func (b *lockedBuffer) String() string {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.String()
 }
 
 // A stopped container is refused before the progress stream opens, and the

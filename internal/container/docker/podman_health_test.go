@@ -77,3 +77,9 @@ func TestContainerEventsLeavesDockerHealthStatusAlone(t *testing.T) {
 
 	assert.Equal(t, "health_status: healthy", firstEvent(t, c).Name)
 }
+
+func TestContainerEventsReadsPodmanRemoveAsDestroy(t *testing.T) {
+	c := podmanServer(t, `{"status":"remove","id":"abc123def4567890","Type":"container","Action":"remove","Actor":{"ID":"abc123def4567890","Attributes":{"image":"alpine","name":"web"}},"scope":"local","time":1700000000,"timeNano":1700000000000000000}`, `{}`)
+
+	assert.Equal(t, "destroy", firstEvent(t, c).Name)
+}

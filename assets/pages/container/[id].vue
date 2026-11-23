@@ -59,6 +59,11 @@ watchEffect(() => {
   if (currentContainer.value?.state === "running") sawRunningId.value = currentContainer.value.id;
 });
 
+// An update renames the outgoing container to <name>-dozzle-old-<short id>
+// (swap.OldName) before its replacement takes the name, so the one on screen no
+// longer shares a name with its successor.
+const originalName = (name: string) => name.replace(/-dozzle-old-[0-9a-f]{12}$/, "");
+
 const redirectTrigger = ref(false);
 watch(currentContainer, () => (redirectTrigger.value = false));
 
@@ -72,7 +77,7 @@ watchEffect(() => {
   if (Date.now() - +from.finishedAt > 5 * 60 * 1000) return;
 
   const nextContainer = allContainers.value
-    .filter((c) => c.startedAt > from.startedAt && c.name === from.name && c.host === from.host)
+    .filter((c) => c.startedAt > from.startedAt && c.name === originalName(from.name) && c.host === from.host)
     .sort((a, b) => +a.created - +b.created)[0];
 
   if (!nextContainer) return;
