@@ -176,9 +176,17 @@ func ReplacementSpec(old dcontainer.InspectResponse, oldImage *image.InspectResp
 // a fresh level and be denied its own files (#5662), so it keeps the old one.
 // The :Z is not put back: which binds had it is unknown, and relabelling a bind
 // that did not would change files on the host.
+//
+// A --cpus limit is reported as NanoCpus and also as the CpuPeriod and CpuQuota
+// Podman derived from it, and create refuses NanoCpus next to either (#5662).
+// The derived pair is dropped and Podman works it out again.
 func ForPodman(hc *dcontainer.HostConfig, old dcontainer.InspectResponse) {
 	if hc.MemorySwappiness != nil && *hc.MemorySwappiness == 0 {
 		hc.MemorySwappiness = nil
+	}
+	if hc.NanoCPUs > 0 {
+		hc.CPUPeriod = 0
+		hc.CPUQuota = 0
 	}
 	if level := selinuxLevel(old.ProcessLabel); level != "" && !setsLabelLevel(hc.SecurityOpt) {
 		hc.SecurityOpt = append(slices.Clone(hc.SecurityOpt), "label=level:"+level)

@@ -56,11 +56,28 @@ func keptID(maps []string) string {
 }
 
 func libpodIDMaps(ctx context.Context, cli any, id string) (uidMap, gidMap []string) {
+	var inspect struct {
+		HostConfig struct {
+			IDMappings *struct {
+				UIDMap []string `json:"UidMap"`
+				GIDMap []string `json:"GidMap"`
+			}
+		}
+	}
+	if !libpodGet(ctx, cli, "/libpod/containers/"+id+"/json", &inspect) || inspect.HostConfig.IDMappings == nil {
+		return nil, nil
+	}
+	return inspect.HostConfig.IDMappings.UIDMap, inspect.HostConfig.IDMappings.GIDMap
+}
+
+// libpodGet decodes the libpod API's answer to path into out, over cli's own
+// connection. It returns false when cli has no dialer or the call fails.
+func libpodGet(ctx context.Context, cli any, path string, out any) bool {
 	dialer, ok := cli.(interface {
 		Dialer() func(context.Context) (net.Conn, error)
 	})
 	if !ok {
-		return nil, nil
+		return false
 	}
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
@@ -70,30 +87,18 @@ func libpodIDMaps(ctx context.Context, cli any, id string) (uidMap, gidMap []str
 	}}
 	defer httpClient.CloseIdleConnections()
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "http://podman/v4.0.0/libpod/containers/"+id+"/json", nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "http://podman/v4.0.0"+path, nil)
 	if err != nil {
-		return nil, nil
+		return false
 	}
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		log.Debug().Err(err).Str("id", shortID(id)).Msg("could not read podman id mappings")
-		return nil, nil
+		log.Debug().Err(err).Str("path", path).Msg("could not read the podman libpod api")
+		return false
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return nil, nil
+		return false
 	}
-
-	var inspect struct {
-		HostConfig struct {
-			IDMappings *struct {
-				UIDMap []string `json:"UidMap"`
-				GIDMap []string `json:"GidMap"`
-			}
-		}
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&inspect); err != nil || inspect.HostConfig.IDMappings == nil {
-		return nil, nil
-	}
-	return inspect.HostConfig.IDMappings.UIDMap, inspect.HostConfig.IDMappings.GIDMap
+	return json.NewDecoder(resp.Body).Decode(out) == nil
 }
