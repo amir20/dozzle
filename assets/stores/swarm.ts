@@ -2,12 +2,16 @@ import { acceptHMRUpdate, defineStore } from "pinia";
 
 import { Container, GroupedContainers } from "@/models/Container";
 import { Service, Stack } from "@/models/Stack";
+import { showAllContainers } from "@/stores/settings";
 
 export const useSwarmStore = defineStore("swarm", () => {
   const containerStore = useContainerStore();
   const { containers } = storeToRefs(containerStore) as unknown as { containers: Ref<Container[]> };
 
-  const runningContainers = computed(() => containers.value.filter((c) => c.state === "running"));
+  // Follows "Show stopped containers" so stacks, services and groups include stopped tasks.
+  const runningContainers = computed(() =>
+    containers.value.filter((c) => (showAllContainers.value ? c.state !== "deleted" : c.state === "running")),
+  );
 
   const stacks = computed(() => {
     const namespaced: Record<string, Container[]> = {};
