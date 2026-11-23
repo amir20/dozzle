@@ -103,7 +103,7 @@
     "eslint": "^10.15.0",
     "eslint-plugin-tailwindcss": "^4.4.0",
     "jsdom": "^31.0.1",
-    "lint-staged": "^17.6.1",
+    "lint-staged": "^17.6.2",
     "prettier": "^3.10.1",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "simple-git-hooks": "^2.14.0",
