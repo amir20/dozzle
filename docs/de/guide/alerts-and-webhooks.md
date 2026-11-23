@@ -1,7 +1,7 @@
 ---
 title: Alarme
 description: Richte in Dozzle Alarme für Docker-Container-Logs, CPU- und Speichermetriken sowie Lebenszyklus-Ereignisse ein und sende sie an einen Webhook, Slack, Discord oder ntfy.
-sourceHash: 435658ff19fc
+sourceHash: f3c7d22b3c1b
 ---
 
 # Alarme
@@ -68,6 +68,7 @@ Du kannst auch ein eigenes Payload-Template mit der `text/template`-Syntax von G
 | `{{.Container.Image}}`    | Image des Containers                          | alle     |
 | `{{.Container.HostName}}` | Name des Docker-Hosts                         | alle     |
 | `{{.Container.State}}`    | Status des Containers                         | alle     |
+| `{{.Container.Labels}}`   | Labels des Containers (Map)                   | alle     |
 | `{{.Log.Message}}`        | Inhalt der Logmeldung                         | Log      |
 | `{{.Log.Level}}`          | Loglevel                                      | Log      |
 | `{{.Log.Timestamp}}`      | Zeitstempel des Logs                          | Log      |
@@ -88,6 +89,13 @@ Du kannst auch ein eigenes Payload-Template mit der `text/template`-Syntax von G
 {
   "embeds": [{ "timestamp": "{{ .Timestamp.UTC.Format `2006-01-02T15:04:05Z07:00` }}" }]
 }
+```
+
+`.Container.Labels` ist eine Map. Ein einzelnes Label liest du mit `index`, zum Beispiel das Compose-Projekt oder das Coolify-Projekt, zu dem ein Container gehört:
+
+```
+{{ index .Container.Labels `com.docker.compose.project` }}
+{{ index .Container.Labels `coolify.projectName` }}
 ```
 
 </div>

@@ -1,7 +1,7 @@
 ---
 title: 警报
 description: 为 Docker 容器日志、CPU 和内存指标以及生命周期事件设置 Dozzle 警报，并发送到 webhook、Slack、Discord 或 ntfy。
-sourceHash: 435658ff19fc
+sourceHash: f3c7d22b3c1b
 ---
 
 # 警报
@@ -68,6 +68,7 @@ Webhook 会向你指定的 URL 发送一个 HTTP POST 请求。Dozzle 为常用�
 | `{{.Container.Image}}`    | 容器镜像                   | 全部     |
 | `{{.Container.HostName}}` | Docker 主机名称            | 全部     |
 | `{{.Container.State}}`    | 容器状态                   | 全部     |
+| `{{.Container.Labels}}`   | 容器标签（map）            | 全部     |
 | `{{.Log.Message}}`        | 日志消息内容               | 日志     |
 | `{{.Log.Level}}`          | 日志级别                   | 日志     |
 | `{{.Log.Timestamp}}`      | 日志时间戳                 | 日志     |
@@ -88,6 +89,13 @@ Webhook 会向你指定的 URL 发送一个 HTTP POST 请求。Dozzle 为常用�
 {
   "embeds": [{ "timestamp": "{{ .Timestamp.UTC.Format `2006-01-02T15:04:05Z07:00` }}" }]
 }
+```
+
+`.Container.Labels` 是一个 map。用 `index` 读取单个标签，例如容器所属的 Compose 项目或 Coolify 项目：
+
+```
+{{ index .Container.Labels `com.docker.compose.project` }}
+{{ index .Container.Labels `coolify.projectName` }}
 ```
 
 </div>
