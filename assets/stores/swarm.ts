@@ -2,6 +2,7 @@ import { acceptHMRUpdate, defineStore } from "pinia";
 
 import { Container, GroupedContainers } from "@/models/Container";
 import { Service, Stack } from "@/models/Stack";
+import { showAllContainers } from "@/stores/settings";
 
 export const useSwarmStore = defineStore("swarm", () => {
   const containerStore = useContainerStore();
@@ -9,9 +10,15 @@ export const useSwarmStore = defineStore("swarm", () => {
 
   const runningContainers = computed(() => containers.value.filter((c) => c.state === "running"));
 
+  // Stacks and services follow "Show stopped containers", and so does their stream
+  // (useLabelStream). Custom groups stay running-only: their stream has no such toggle.
+  const visibleContainers = computed(() =>
+    showAllContainers.value ? containers.value.filter((c) => c.state !== "deleted") : runningContainers.value,
+  );
+
   const stacks = computed(() => {
     const namespaced: Record<string, Container[]> = {};
-    for (const item of runningContainers.value) {
+    for (const item of visibleContainers.value) {
       const namespace = item.namespace;
       if (namespace === undefined) continue;
       namespaced[namespace] ||= [];
@@ -53,7 +60,7 @@ export const useSwarmStore = defineStore("swarm", () => {
   const services = computed(() => {
     const services: Record<string, Container[]> = {};
 
-    for (const container of runningContainers.value) {
+    for (const container of visibleContainers.value) {
       const service = container.labels["com.docker.swarm.service.name"];
       const namespace = container.namespace;
 

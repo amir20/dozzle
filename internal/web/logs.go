@@ -67,9 +67,9 @@ func (h *handler) streamLogsWithLabels(w http.ResponseWriter, r *http.Request) {
 
 	analytics.Count(labelView(labelFilters))
 
-	// all=1 comes from the Kubernetes tab with "Show all containers" on, where a
-	// finished Job pod is still listed and should open to its logs. A created
-	// container has none to read yet.
+	// all=1 comes from the Kubernetes and Swarm tabs with "Show all containers" on,
+	// where a finished Job pod or a stopped service is still listed and should open
+	// to its logs. A created container has none to read yet.
 	all := r.URL.Query().Get("all") == "1"
 
 	h.streamLogsForContainers(w, r, func(container *container.Container) bool {

@@ -53,8 +53,11 @@ export function useHostGroupStream(group: Ref<{ name: string }>): LogStreamSourc
   return useLogStream(computed(() => `/api/host-groups/${encodeURIComponent(group.value.name)}/logs/stream`));
 }
 
+// The Swarm and Kubernetes tabs follow "Show all containers", so a stopped service or a
+// finished Job stays listed. The stream has to follow the same toggle or it opens to an
+// empty view.
 function useLabelStream(labels: () => string): LogStreamSource {
-  return useLogStream(computed(() => `/api/labels/${labels()}/logs/stream`));
+  return useLogStream(computed(() => `/api/labels/${labels()}/logs/stream${showAllContainers.value ? "?all=1" : ""}`));
 }
 
 export function useStackStream(stack: Ref<Stack>): LogStreamSource {
@@ -73,18 +76,12 @@ export function useServiceStream(service: Ref<Service>): LogStreamSource {
   return useLabelStream(() => `com.docker.swarm.service.name:${service.value.name}`);
 }
 
-// The Kubernetes tab follows "Show all containers", so a finished Job stays listed.
-// Its stream has to follow the same toggle or the Job opens to an empty view.
-function k8sLabelsUrl(labels: string) {
-  return `/api/labels/${labels}/logs/stream${showAllContainers.value ? "?all=1" : ""}`;
-}
-
 export function useNamespaceStream(namespace: Ref<{ name: string }>): LogStreamSource {
-  return useLogStream(computed(() => k8sLabelsUrl(`@k8s.namespace:${namespace.value.name}`)));
+  return useLabelStream(() => `@k8s.namespace:${namespace.value.name}`);
 }
 
 export function useOwnerStream(owner: Ref<{ label: string }>): LogStreamSource {
-  return useLogStream(computed(() => k8sLabelsUrl(`${owner.value.label}:true`)));
+  return useLabelStream(() => `${owner.value.label}:true`);
 }
 
 export type SearchStatus = {
