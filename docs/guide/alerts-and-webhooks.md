@@ -67,6 +67,7 @@ You can also write your own payload template using Go's `text/template` syntax. 
 | `{{.Container.Image}}`    | Container image                        | all    |
 | `{{.Container.HostName}}` | Docker host name                       | all    |
 | `{{.Container.State}}`    | Container state                        | all    |
+| `{{.Container.Labels}}`   | Container labels (map)                 | all    |
 | `{{.Log.Message}}`        | Log message content                    | log    |
 | `{{.Log.Level}}`          | Log level                              | log    |
 | `{{.Log.Timestamp}}`      | Log timestamp                          | log    |
@@ -87,6 +88,13 @@ You can also write your own payload template using Go's `text/template` syntax. 
 {
   "embeds": [{ "timestamp": "{{ .Timestamp.UTC.Format `2006-01-02T15:04:05Z07:00` }}" }]
 }
+```
+
+`.Container.Labels` is a map. Read one label with `index`, for example the Compose project or the Coolify project a container belongs to:
+
+```
+{{ index .Container.Labels `com.docker.compose.project` }}
+{{ index .Container.Labels `coolify.projectName` }}
 ```
 
 </div>

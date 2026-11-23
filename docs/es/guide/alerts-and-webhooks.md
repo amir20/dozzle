@@ -1,7 +1,7 @@
 ---
 title: Alertas
 description: Configura alertas de Dozzle sobre los logs de contenedores Docker, las métricas de CPU y memoria y los eventos del ciclo de vida, y envíalas a un webhook, Slack, Discord o ntfy.
-sourceHash: 435658ff19fc
+sourceHash: f3c7d22b3c1b
 ---
 
 # Alertas
@@ -68,6 +68,7 @@ También puedes escribir tu propia plantilla de payload con la sintaxis `text/te
 | `{{.Container.Image}}`    | Imagen del contenedor                            | todas   |
 | `{{.Container.HostName}}` | Nombre del host de Docker                        | todas   |
 | `{{.Container.State}}`    | Estado del contenedor                            | todas   |
+| `{{.Container.Labels}}`   | Etiquetas del contenedor (mapa)                  | todas   |
 | `{{.Log.Message}}`        | Contenido del mensaje de log                     | log     |
 | `{{.Log.Level}}`          | Nivel del log                                    | log     |
 | `{{.Log.Timestamp}}`      | Marca de tiempo del log                          | log     |
@@ -88,6 +89,13 @@ También puedes escribir tu propia plantilla de payload con la sintaxis `text/te
 {
   "embeds": [{ "timestamp": "{{ .Timestamp.UTC.Format `2006-01-02T15:04:05Z07:00` }}" }]
 }
+```
+
+`.Container.Labels` es un mapa. Lee una sola etiqueta con `index`, por ejemplo el proyecto de Compose o el proyecto de Coolify al que pertenece un contenedor:
+
+```
+{{ index .Container.Labels `com.docker.compose.project` }}
+{{ index .Container.Labels `coolify.projectName` }}
 ```
 
 </div>
