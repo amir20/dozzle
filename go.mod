@@ -6,7 +6,7 @@ require (
 	github.com/coder/websocket v1.8.15
 	github.com/containerd/errdefs v1.0.0
 	github.com/dustin/go-humanize v1.1.0
-	github.com/expr-lang/expr v1.17.8
+	github.com/expr-lang/expr v1.18.0
 	github.com/gkampitakis/go-snaps v0.5.25
 	github.com/go-chi/chi/v5 v5.5.0
 	github.com/go-chi/jwtauth/v5 v5.4.0
