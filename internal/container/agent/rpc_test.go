@@ -833,3 +833,19 @@ func TestScaleServiceOverAgent(t *testing.T) {
 	assert.ErrorContains(t, err, "actions are disabled on this agent")
 	assert.Empty(t, restricted.recorded())
 }
+
+// A node whose agent is down must read as "ask the next host", or one dead
+// worker ends the search for a manager depending on map order.
+func TestScaleServiceUnreachableAgent(t *testing.T) {
+	l := bufconn.Listen(bufSize)
+	require.NoError(t, l.Close())
+	rpc, err := NewClient("passthrough://bufnet", certs, grpc.WithContextDialer(func(context.Context, string) (net.Conn, error) {
+		return l.Dial()
+	}))
+	require.NoError(t, err)
+	t.Cleanup(func() { rpc.Close() })
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	assert.ErrorIs(t, rpc.ScaleService(ctx, "svc1", 3), container.ErrNotSwarmManager)
+}

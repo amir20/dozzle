@@ -99,3 +99,18 @@ func TestMultiHostService_ScaleServiceStaysInTheVisibleSwarm(t *testing.T) {
 	assert.Empty(t, hiddenSwarm.scaled)
 	assert.Len(t, visibleSwarm.scaled, 10)
 }
+
+// An unreachable host answers like any other host that cannot scale, so the
+// manager is still reached whatever order the hosts come in. The agent and
+// docker clients map their transport failures to ErrNotSwarmManager.
+func TestMultiHostService_ScaleServiceSkipsAnUnreachableHost(t *testing.T) {
+	down := &scalerService{containers: []container.Container{webTask()},
+		err: fmt.Errorf("agent unreachable: %w: connection refused", container.ErrNotSwarmManager)}
+	manager := &scalerService{owns: []string{"svc-a"}}
+	service := NewMultiHostService(managerWith(map[string]container.ClientService{"down": down, "manager": manager}), time.Second)
+
+	for range 10 {
+		assert.NoError(t, service.ScaleService(context.Background(), "shop_web", 2, nil))
+	}
+	assert.Len(t, manager.scaled, 10)
+}

@@ -528,8 +528,8 @@ func (c *Client) ListReclaimable(ctx context.Context) (container.ReclaimableItem
 }
 
 // ScaleService maps the agent's refusals back to the container errors. An agent
-// too old to know the call, or with actions disabled, cannot scale either, so
-// it reads as not a manager and the caller moves on to the next host: a worker
+// that is unreachable, too old to know the call, or has actions disabled cannot
+// scale either, so it reads as not a manager and the caller moves on to the next host: a worker
 // with actions off must not stand between the hub and a manager.
 func (c *Client) ScaleService(ctx context.Context, id string, replicas uint64) error {
 	_, err := c.client.ScaleService(ctx, &pb.ScaleServiceRequest{Id: id, Replicas: replicas})
@@ -540,6 +540,10 @@ func (c *Client) ScaleService(ctx context.Context, id string, replicas uint64) e
 		return container.ErrNotSwarmManager
 	case codes.PermissionDenied:
 		return fmt.Errorf("%s: %w", status.Convert(err).Message(), container.ErrNotSwarmManager)
+	case codes.Unavailable, codes.DeadlineExceeded:
+		// A node whose agent is down or restarting must not end the search
+		// before the manager is asked.
+		return fmt.Errorf("agent unreachable: %w: %w", container.ErrNotSwarmManager, err)
 	case codes.InvalidArgument:
 		return container.ErrServiceNotReplicated
 	}

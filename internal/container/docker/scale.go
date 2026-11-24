@@ -21,11 +21,12 @@ const scaleTimeout = 30 * time.Second
 //
 // Whether this engine can do it is the engine's answer, not the Info read when
 // the client was built: a node promoted or demoted since then would be wrong.
-// A worker or a node outside any swarm answers 503, and a manager of another
-// swarm 404, and both mean the caller should ask the next host.
+// A worker or a node outside any swarm answers 503, a manager of another
+// swarm 404, and a remote host may not answer at all. Each means the caller
+// should ask the next host.
 func (d *Client) ScaleService(ctx context.Context, id string, replicas uint64) error {
 	result, err := d.cli.ServiceInspect(ctx, id, client.ServiceInspectOptions{})
-	if cerrdefs.IsUnavailable(err) || cerrdefs.IsNotFound(err) {
+	if cerrdefs.IsUnavailable(err) || cerrdefs.IsNotFound(err) || client.IsErrConnectionFailed(err) {
 		return fmt.Errorf("%w: %w", container.ErrNotSwarmManager, err)
 	}
 	if err != nil {
