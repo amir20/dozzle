@@ -16,6 +16,11 @@ toolbar:
   restart: Yeniden Başlat
   rollout-restart: "{kind} yeniden başlat"
   rollout-restart-done: "{workload} yeni pod'ları dağıtıyor."
+  scale-service: "Servisi ölçeklendir"
+  scale-replicas: "Replikalar"
+  scale-running: "Şu anda çalışan: {count}"
+  scale-done: "{service} {count} replikaya ölçekleniyor."
+  scale-global: "Bu servis global modda çalışıyor, her node'da bir görev var, bu yüzden değiştirilecek bir replika sayısı yok."
   section-containers: "Konteynerler"
   restart-all: "Tümünü yeniden başlat"
   stop-all: "Tümünü durdur"
@@ -273,6 +278,7 @@ button:
   login-with: "{provider} ile devam et"
   settings: Ayarlar
   cancel: İptal
+  close: "Kapat"
   redirect: Yönlendir
   retry: Yeniden dene
   refresh: Yenile

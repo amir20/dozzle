@@ -16,6 +16,11 @@ toolbar:
   restart: Herstarten
   rollout-restart: "{kind} herstarten"
   rollout-restart-done: "{workload} rolt nieuwe pods uit."
+  scale-service: "Service schalen"
+  scale-replicas: "Replica's"
+  scale-running: "Nu actief: {count}"
+  scale-done: "{service} wordt geschaald naar {count} replica. | {service} wordt geschaald naar {count} replica's."
+  scale-global: "Deze service draait in globale modus, met één task op elke node, en heeft dus geen aantal replica's om te wijzigen."
   section-containers: "Containers"
   restart-all: "Alles herstarten"
   stop-all: "Alles stoppen"
@@ -271,6 +276,7 @@ button:
   login-with: Doorgaan met {provider}
   settings: Instellingen
   cancel: Annuleren
+  close: "Sluiten"
   redirect: Doorsturen
   retry: Opnieuw proberen
   refresh: Vernieuwen

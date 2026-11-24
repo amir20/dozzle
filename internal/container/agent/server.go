@@ -393,6 +393,26 @@ func (s *server) HealthLog(ctx context.Context, req *pb.HealthLogRequest) (*pb.H
 	return resp, nil
 }
 
+func (s *server) ScaleService(ctx context.Context, req *pb.ScaleServiceRequest) (*pb.ScaleServiceResponse, error) {
+	if s.restrictions.DisableActions {
+		return nil, errActionsDisabled
+	}
+	scaler, ok := s.service.(container.ServiceScaler)
+	if !ok {
+		return nil, status.Error(codes.FailedPrecondition, container.ErrNotSwarmManager.Error())
+	}
+	err := scaler.ScaleService(ctx, req.Name, req.Replicas)
+	switch {
+	case errors.Is(err, container.ErrNotSwarmManager):
+		return nil, status.Error(codes.FailedPrecondition, err.Error())
+	case errors.Is(err, container.ErrServiceNotReplicated):
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	case err != nil:
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &pb.ScaleServiceResponse{}, nil
+}
+
 func (s *server) InspectNetwork(ctx context.Context, req *pb.InspectNetworkRequest) (*pb.InspectNetworkResponse, error) {
 	inspector, ok := s.service.(container.HostResourceInspector)
 	if !ok {

@@ -16,6 +16,11 @@ toolbar:
   restart: 다시 시작
   rollout-restart: "{kind} 다시 시작"
   rollout-restart-done: "{workload}에서 새 파드를 배포하는 중입니다."
+  scale-service: "서비스 스케일 조정"
+  scale-replicas: "레플리카"
+  scale-running: "현재 실행 중: {count}"
+  scale-done: "{service}을(를) 레플리카 {count}개로 조정하는 중입니다."
+  scale-global: "이 서비스는 글로벌 모드로 모든 노드에서 태스크를 하나씩 실행하므로 변경할 레플리카 수가 없습니다."
   section-containers: "컨테이너"
   restart-all: "모두 재시작"
   stop-all: "모두 중지"
@@ -272,6 +277,7 @@ button:
   login-with: "{provider}(으)로 계속하기"
   settings: 설정
   cancel: 취소
+  close: "닫기"
   redirect: 이동
   retry: 다시 시도
   refresh: 새로고침

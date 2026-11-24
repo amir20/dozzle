@@ -9,6 +9,7 @@ import (
 	"errors"
 	"io"
 	"net"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -798,4 +799,37 @@ func TestHealthLogUnsupportedOverAgent(t *testing.T) {
 
 	_, err := rpc.HealthLog(context.Background(), "abc")
 	assert.ErrorIs(t, err, errors.ErrUnsupported)
+}
+
+// scalingService is an agent's engine on a manager (err nil) or a worker.
+type scalingService struct {
+	*fakeService
+	err error
+}
+
+func (s *scalingService) ScaleService(_ context.Context, name string, replicas uint64) error {
+	s.record("scale " + name + " " + strconv.FormatUint(replicas, 10))
+	return s.err
+}
+
+// Each refusal comes back as the error the hub branches on: a worker or an
+// agent with actions off moves on to the next host, a global service stops.
+func TestScaleServiceOverAgent(t *testing.T) {
+	ctx := context.Background()
+
+	manager := &scalingService{fakeService: &fakeService{}}
+	require.NoError(t, newTestAgent(t, manager, &recordingHandler{}).ScaleService(ctx, "shop_web", 3))
+	assert.Equal(t, []string{"scale shop_web 3"}, manager.recorded())
+
+	worker := &scalingService{fakeService: &fakeService{}, err: container.ErrNotSwarmManager}
+	assert.ErrorIs(t, newTestAgent(t, worker, &recordingHandler{}).ScaleService(ctx, "shop_web", 3), container.ErrNotSwarmManager)
+
+	global := &scalingService{fakeService: &fakeService{}, err: container.ErrServiceNotReplicated}
+	assert.ErrorIs(t, newTestAgent(t, global, &recordingHandler{}).ScaleService(ctx, "shop_metrics", 3), container.ErrServiceNotReplicated)
+
+	restricted := &scalingService{fakeService: &fakeService{}}
+	err := newRestrictedTestAgent(t, restricted, &recordingHandler{}, Restrictions{DisableActions: true}).ScaleService(ctx, "shop_web", 3)
+	assert.ErrorIs(t, err, container.ErrNotSwarmManager)
+	assert.ErrorContains(t, err, "actions are disabled on this agent")
+	assert.Empty(t, restricted.recorded())
 }

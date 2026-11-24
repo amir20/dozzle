@@ -418,6 +418,12 @@ var (
 	// ErrDigestMismatch means the container no longer runs the digest the
 	// rollback expected.
 	ErrDigestMismatch = errors.New("container no longer runs the expected image")
+	// ErrNotSwarmManager means the engine cannot change a swarm service: it is
+	// a worker, or not in a swarm at all. Only a manager can scale.
+	ErrNotSwarmManager = errors.New("no swarm manager is reachable")
+	// ErrServiceNotReplicated refuses to scale a global service, which runs
+	// one task per node and has no replica count.
+	ErrServiceNotReplicated = errors.New("only a replicated service can be scaled")
 )
 
 // DigestOf is the sha256:... part of a repo@sha256:... reference, or ref

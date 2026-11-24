@@ -16,6 +16,11 @@ toolbar:
   restart: Genstart
   rollout-restart: "Genstart {kind}"
   rollout-restart-done: "{workload} ruller nye pods ud."
+  scale-service: "Skalér service"
+  scale-replicas: "Replikaer"
+  scale-running: "Kører nu: {count}"
+  scale-done: "{service} skaleres til {count} replika. | {service} skaleres til {count} replikaer."
+  scale-global: "Denne service kører i global tilstand med én task på hver node, så den har intet antal replikaer at ændre."
   section-containers: "Containere"
   restart-all: "Genstart alle"
   stop-all: "Stop alle"
@@ -270,6 +275,7 @@ button:
   login-with: Fortsæt med {provider}
   settings: Indstillinger
   cancel: Annuller
+  close: "Luk"
   redirect: Omdiriger
   retry: Prøv igen
   refresh: Opdater

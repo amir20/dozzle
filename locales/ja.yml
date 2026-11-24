@@ -16,6 +16,11 @@ toolbar:
   restart: 再起動
   rollout-restart: "{kind} を再起動"
   rollout-restart-done: "{workload} で新しい Pod をロールアウトしています。"
+  scale-service: "サービスをスケール"
+  scale-replicas: "レプリカ数"
+  scale-running: "現在実行中: {count}"
+  scale-done: "{service} を {count} レプリカにスケールしています。"
+  scale-global: "このサービスはグローバルモードで、各ノードで 1 つのタスクを実行するため、変更できるレプリカ数はありません。"
   section-containers: "コンテナ"
   restart-all: "すべて再起動"
   stop-all: "すべて停止"
@@ -271,6 +276,7 @@ button:
   login-with: "{provider} で続行"
   settings: 設定
   cancel: キャンセル
+  close: "閉じる"
   redirect: リダイレクト
   retry: 再試行
   refresh: 再読み込み

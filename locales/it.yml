@@ -16,6 +16,11 @@ toolbar:
   restart: Restart
   rollout-restart: "Riavvia {kind}"
   rollout-restart-done: "{workload} sta distribuendo nuovi pod."
+  scale-service: "Scala servizio"
+  scale-replicas: "Repliche"
+  scale-running: "In esecuzione: {count}"
+  scale-done: "{service} viene scalato a {count} replica. | {service} viene scalato a {count} repliche."
+  scale-global: "Questo servizio è in modalità globale, con un task su ogni nodo, quindi non ha un numero di repliche da modificare."
   section-containers: "Container"
   restart-all: "Riavvia tutti"
   stop-all: "Arresta tutti"
@@ -270,6 +275,7 @@ button:
   login-with: Continua con {provider}
   settings: Impostazioni
   cancel: Annulla
+  close: "Chiudi"
   redirect: Reindirizza
   retry: Riprova
   refresh: Aggiorna

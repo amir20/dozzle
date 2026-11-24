@@ -43,6 +43,7 @@ const (
 	AgentService_HealthLog_FullMethodName                = "/protobuf.AgentService/HealthLog"
 	AgentService_InspectNetwork_FullMethodName           = "/protobuf.AgentService/InspectNetwork"
 	AgentService_InspectVolume_FullMethodName            = "/protobuf.AgentService/InspectVolume"
+	AgentService_ScaleService_FullMethodName             = "/protobuf.AgentService/ScaleService"
 )
 
 // AgentServiceClient is the client API for AgentService service.
@@ -73,6 +74,7 @@ type AgentServiceClient interface {
 	HealthLog(ctx context.Context, in *HealthLogRequest, opts ...grpc.CallOption) (*HealthLogResponse, error)
 	InspectNetwork(ctx context.Context, in *InspectNetworkRequest, opts ...grpc.CallOption) (*InspectNetworkResponse, error)
 	InspectVolume(ctx context.Context, in *InspectVolumeRequest, opts ...grpc.CallOption) (*InspectVolumeResponse, error)
+	ScaleService(ctx context.Context, in *ScaleServiceRequest, opts ...grpc.CallOption) (*ScaleServiceResponse, error)
 }
 
 type agentServiceClient struct {
@@ -401,6 +403,16 @@ func (c *agentServiceClient) InspectVolume(ctx context.Context, in *InspectVolum
 	return out, nil
 }
 
+func (c *agentServiceClient) ScaleService(ctx context.Context, in *ScaleServiceRequest, opts ...grpc.CallOption) (*ScaleServiceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ScaleServiceResponse)
+	err := c.cc.Invoke(ctx, AgentService_ScaleService_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AgentServiceServer is the server API for AgentService service.
 // All implementations must embed UnimplementedAgentServiceServer
 // for forward compatibility.
@@ -429,6 +441,7 @@ type AgentServiceServer interface {
 	HealthLog(context.Context, *HealthLogRequest) (*HealthLogResponse, error)
 	InspectNetwork(context.Context, *InspectNetworkRequest) (*InspectNetworkResponse, error)
 	InspectVolume(context.Context, *InspectVolumeRequest) (*InspectVolumeResponse, error)
+	ScaleService(context.Context, *ScaleServiceRequest) (*ScaleServiceResponse, error)
 	mustEmbedUnimplementedAgentServiceServer()
 }
 
@@ -510,6 +523,9 @@ func (UnimplementedAgentServiceServer) InspectNetwork(context.Context, *InspectN
 }
 func (UnimplementedAgentServiceServer) InspectVolume(context.Context, *InspectVolumeRequest) (*InspectVolumeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method InspectVolume not implemented")
+}
+func (UnimplementedAgentServiceServer) ScaleService(context.Context, *ScaleServiceRequest) (*ScaleServiceResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ScaleService not implemented")
 }
 func (UnimplementedAgentServiceServer) mustEmbedUnimplementedAgentServiceServer() {}
 func (UnimplementedAgentServiceServer) testEmbeddedByValue()                      {}
@@ -886,6 +902,24 @@ func _AgentService_InspectVolume_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AgentService_ScaleService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ScaleServiceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServiceServer).ScaleService(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AgentService_ScaleService_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServiceServer).ScaleService(ctx, req.(*ScaleServiceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AgentService_ServiceDesc is the grpc.ServiceDesc for AgentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -948,6 +982,10 @@ var AgentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "InspectVolume",
 			Handler:    _AgentService_InspectVolume_Handler,
+		},
+		{
+			MethodName: "ScaleService",
+			Handler:    _AgentService_ScaleService_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

@@ -52,8 +52,10 @@
 
       <LogExportRows :containers :name />
 
-      <template v-if="workload || bulkRows.length">
-        <li class="section">{{ workload ? $t("toolbar.section-workload") : $t("toolbar.section-containers") }}</li>
+      <template v-if="workload || scalable || bulkRows.length">
+        <li class="section">
+          {{ workload || scalable ? $t("toolbar.section-workload") : $t("toolbar.section-containers") }}
+        </li>
         <li v-for="plan in bulkRows" :key="plan.action">
           <button @click="pending = plan" :disabled="!!running">
             <span v-if="running === plan.action" class="loading loading-spinner loading-xs"></span>
@@ -67,11 +69,18 @@
             {{ $t("toolbar.rollout-restart", { kind: workload.kind }) }}
           </button>
         </li>
+        <li v-if="scalable">
+          <button @click="scaleDialog?.open()" data-testid="scale-service">
+            <carbon:arrows-vertical />
+            {{ $t("toolbar.scale-service") }}
+          </button>
+        </li>
       </template>
     </ul>
   </Popover>
 
   <!-- Outside the hover menu, which closes on pointer leave and would take the dialog with it. -->
+  <ScaleServiceDialog v-if="scalable" ref="scaleDialog" :service="scalable.service" :global="scalable.global" />
   <dialog ref="confirm" class="modal max-md:modal-bottom" @close="pending = undefined">
     <div v-if="pending" class="modal-box flex w-full max-w-md flex-col p-0">
       <div class="flex flex-col gap-1 px-6 pt-6">
@@ -108,6 +117,7 @@
 
 <script lang="ts" setup>
 import type { K8sWorkload } from "@/composable/containers/rolloutRestart";
+import type { Service } from "@/models/Stack";
 import type { BulkAction, BulkPlan } from "@/composable/containers/bulkContainerActions";
 import type { Component } from "vue";
 import CarbonRestart from "~icons/carbon/restart";
@@ -124,9 +134,12 @@ const { showSearch } = useSearchFilter();
 const emit = defineEmits<{ clear: [] }>();
 const clear = () => emit("clear");
 
-// A k8s workload adds a rollout restart; every other merged view leaves it unset.
-const { name, workload } = defineProps<{ name?: string; workload?: K8sWorkload }>();
+// A k8s workload adds a rollout restart and a replicated swarm service a scale;
+// every other merged view leaves both unset.
+const { name, workload, service } = defineProps<{ name?: string; workload?: K8sWorkload; service?: Service }>();
 const { restarting, rolloutRestart } = useRolloutRestart();
+const scalable = computed(() => scalableService(service));
+const scaleDialog = useTemplateRef("scaleDialog");
 
 const { showHostname, showContainerName, containers, hasComplexLogs } = useLoggingContext();
 

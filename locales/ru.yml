@@ -16,6 +16,11 @@ toolbar:
   restart: Перезапустить
   rollout-restart: "Перезапустить {kind}"
   rollout-restart-done: "{workload} разворачивает новые поды."
+  scale-service: "Масштабировать сервис"
+  scale-replicas: "Реплики"
+  scale-running: "Сейчас запущено: {count}"
+  scale-done: "Масштабирование {service}, число реплик: {count}."
+  scale-global: "Этот сервис работает в глобальном режиме, по одной задаче на каждом узле, поэтому у него нет числа реплик, которое можно изменить."
   section-containers: "Контейнеры"
   restart-all: "Перезапустить все"
   stop-all: "Остановить все"
@@ -270,6 +275,7 @@ button:
   login-with: Продолжить с {provider}
   settings: Настройки
   cancel: Отмена
+  close: "Закрыть"
   redirect: Перенаправить
   retry: Повторить
   refresh: Обновить

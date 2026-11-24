@@ -174,6 +174,55 @@ func (h *handler) rolloutRestart(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "", http.StatusNoContent)
 }
 
+// serviceScaler is implemented by the docker host services (server and swarm), not k8s.
+type serviceScaler interface {
+	ScaleService(ctx context.Context, name string, replicas uint64, labels container.ContainerLabels) error
+}
+
+func (h *handler) scaleService(w http.ResponseWriter, r *http.Request) {
+	if !h.permitActions(r) {
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		return
+	}
+
+	scaler, ok := h.hostService.(serviceScaler)
+	if !ok {
+		http.Error(w, "scaling is only supported for swarm services", http.StatusNotFound)
+		return
+	}
+
+	var body struct {
+		Replicas *uint64 `json:"replicas"`
+	}
+	// At least one: a service scaled to zero has no tasks left, so it drops out
+	// of Dozzle along with the control that would scale it back up.
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil || body.Replicas == nil || *body.Replicas < 1 {
+		http.Error(w, "replicas must be a number of at least 1", http.StatusBadRequest)
+		return
+	}
+
+	name := chi.URLParam(r, "name")
+	err := scaler.ScaleService(r.Context(), name, *body.Replicas, h.resolveLabels(r))
+	switch {
+	case errors.Is(err, hostservice.ErrServiceNotFound):
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	case errors.Is(err, container.ErrServiceNotReplicated):
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	case errors.Is(err, container.ErrNotSwarmManager):
+		http.Error(w, err.Error(), http.StatusConflict)
+		return
+	case err != nil:
+		log.Error().Err(err).Str("service", name).Msg("error while trying to scale service")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	analytics.Count("action.scale-service")
+	http.Error(w, "", http.StatusNoContent)
+}
+
 // hostPruner is implemented by the docker host services (server and swarm), not k8s.
 type hostPruner interface {
 	PruneHost(ctx context.Context, host string, opts container.PruneOptions) (container.PruneResult, *container.Reclaimable, error)

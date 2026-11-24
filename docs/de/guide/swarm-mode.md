@@ -1,7 +1,7 @@
 ---
 title: Swarm-Modus
 description: Wie du Dozzle im Docker-Swarm-Modus als globalen Service betreibst, um Logs aller Knoten zu sehen, Stacks und Services zu gruppieren und Authentifizierung und Agents hinzuzufügen.
-sourceHash: 973d9cfdd03d
+sourceHash: 58636ad325a8
 ---
 
 # Swarm-Modus
@@ -46,6 +46,14 @@ Das Volume `/data` wird eingebunden, um Dozzles Konfiguration (Benachrichtigunge
 
 > [!WARNING]
 > Socket-Proxy lässt sich im Docker-Swarm-Modus nicht verwenden. Diese Einschränkung kommt von Docker selbst, nicht von Dozzle. Im Swarm-Modus können Services nur mit anderen Services kommunizieren, Dozzle braucht aber direkte Verbindungen zu einzelnen Proxy-Instanzen, was nicht unterstützt wird. Wenn du eine Lösung für Socket-Proxy im Swarm-Modus hast, hören wir gerne davon!
+
+## <Icon icon="mdi:arrow-expand-vertical" inline /> Einen Service skalieren
+
+Sind [Aktionen](/de/guide/actions) aktiviert, bekommt ein replizierter Service im Menü seiner zusammengeführten Ansicht die Aktion **Service skalieren**. Sie macht dasselbe wie `docker service scale`: Sie setzt die Anzahl der Replikate und lässt den Rest der Service-Spezifikation unverändert. Swarm startet oder stoppt dann Tasks, bis die Anzahl stimmt.
+
+Nur ein Manager kann einen Service ändern. Ist der Node, der die Seite ausliefert, ein Worker, reicht Dozzle die Anfrage an die Dozzle-Instanz auf einem Manager weiter. Die Aktion funktioniert also von jedem Node aus, solange Dozzle auf mindestens einem Manager läuft. Ein eigenständiger Agent, der mit `DOZZLE_ENABLE_ACTIONS=false` gestartet wurde, skaliert nie etwas.
+
+Globale Services laufen mit einem Task pro Node und haben keine Replikatanzahl, deshalb weist die Aktion bei ihnen nur darauf hin. Die kleinste Anzahl ist 1, denn ein Service ohne Tasks hat in Dozzle nichts mehr anzuzeigen, auch nicht die Aktion, mit der man ihn wieder hochskalieren würde. Wie jede andere Aktion erreicht sie nur Services, deren Tasks die Filter von Dozzle passieren.
 
 ## <Icon icon="mdi:shield-lock-outline" inline /> Einfache Authentifizierung im Swarm-Modus einrichten
 
