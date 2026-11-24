@@ -16,7 +16,7 @@ import (
 var UsageKeys = []string{
 	"view.container", "view.merged", "view.group", "view.host", "view.stack", "view.service", "view.namespace",
 	"logs.search", "logs.older", "logs.download", "logs.copy", "logs.sql", "palette.open", "pinned.open",
-	"action.start", "action.stop", "action.restart", "action.update", "action.remove",
+	"action.start", "action.stop", "action.restart", "action.update", "action.remove", "action.scale-service",
 	"shell.exec", "shell.attach", "image.check", "image.update",
 	"notify.log", "notify.event", "notify.metric", "rules.create", "rules.edit",
 	"host.add.ok", "host.add.refused", "host.add.cert", "host.add.duplicate", "host.add.timeout", "host.add.other",

@@ -16,6 +16,11 @@ toolbar:
   restart: Restart
   rollout-restart: "Uruchom ponownie {kind}"
   rollout-restart-done: "{workload} wdraża nowe pody."
+  scale-service: "Skaluj usługę"
+  scale-replicas: "Repliki"
+  scale-running: "Obecnie działa: {count}"
+  scale-done: "Skalowanie {service}, liczba replik: {count}."
+  scale-global: "Ta usługa działa w trybie globalnym, z jednym zadaniem na każdym węźle, więc nie ma liczby replik do zmiany."
   section-containers: "Kontenery"
   restart-all: "Uruchom ponownie wszystkie"
   stop-all: "Zatrzymaj wszystkie"
@@ -274,6 +279,7 @@ button:
   login-with: Kontynuuj z {provider}
   settings: Ustawienia
   cancel: Anuluj
+  close: "Zamknij"
   redirect: Przekieruj
   retry: Ponów
   refresh: Odśwież

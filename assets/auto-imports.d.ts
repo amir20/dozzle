@@ -327,6 +327,7 @@ declare global {
   const rowAt: typeof import('./composable/cloud/alertsTimeline').rowAt
   const runBounded: typeof import('./composable/containers/bulkContainerActions').runBounded
   const safeRedirect: typeof import('./composable/ui/safeRedirect').safeRedirect
+  const scalableService: typeof import('./composable/containers/scaleService').scalableService
   const scrollContextKey: typeof import('./composable/logs/scrollContext').scrollContextKey
   const search: typeof import('./stores/settings').search
   const selfUpdateHeadline: typeof import('./composable/setup/selfUpdate').selfUpdateHeadline
@@ -597,6 +598,7 @@ declare global {
   const useSQLEditorField: typeof import('./composable/editor/useSQLEditorField').useSQLEditorField
   const useSSRWidth: typeof import('@vueuse/core').useSSRWidth
   const useSameNameContainers: typeof import('./composable/containers/sameNameContainers').useSameNameContainers
+  const useScaleService: typeof import('./composable/containers/scaleService').useScaleService
   const useScreenOrientation: typeof import('@vueuse/core').useScreenOrientation
   const useScreenSafeArea: typeof import('@vueuse/core').useScreenSafeArea
   const useScriptTag: typeof import('@vueuse/core').useScriptTag
@@ -1147,6 +1149,7 @@ declare module 'vue' {
     readonly rowAt: UnwrapRef<typeof import('./composable/cloud/alertsTimeline')['rowAt']>
     readonly runBounded: UnwrapRef<typeof import('./composable/containers/bulkContainerActions')['runBounded']>
     readonly safeRedirect: UnwrapRef<typeof import('./composable/ui/safeRedirect')['safeRedirect']>
+    readonly scalableService: UnwrapRef<typeof import('./composable/containers/scaleService')['scalableService']>
     readonly scrollContextKey: UnwrapRef<typeof import('./composable/logs/scrollContext')['scrollContextKey']>
     readonly search: UnwrapRef<typeof import('./stores/settings')['search']>
     readonly selfUpdateHeadline: UnwrapRef<typeof import('./composable/setup/selfUpdate')['selfUpdateHeadline']>
@@ -1411,6 +1414,7 @@ declare module 'vue' {
     readonly useSQLEditorField: UnwrapRef<typeof import('./composable/editor/useSQLEditorField')['useSQLEditorField']>
     readonly useSSRWidth: UnwrapRef<typeof import('@vueuse/core')['useSSRWidth']>
     readonly useSameNameContainers: UnwrapRef<typeof import('./composable/containers/sameNameContainers')['useSameNameContainers']>
+    readonly useScaleService: UnwrapRef<typeof import('./composable/containers/scaleService')['useScaleService']>
     readonly useScreenOrientation: UnwrapRef<typeof import('@vueuse/core')['useScreenOrientation']>
     readonly useScreenSafeArea: UnwrapRef<typeof import('@vueuse/core')['useScreenSafeArea']>
     readonly useScriptTag: UnwrapRef<typeof import('@vueuse/core')['useScriptTag']>

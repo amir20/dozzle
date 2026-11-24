@@ -1,7 +1,7 @@
 ---
 title: Mode Swarm
 description: Comment déployer Dozzle en mode Docker Swarm comme service global pour voir les logs de chaque nœud, regrouper stacks et services, et ajouter authentification et agents.
-sourceHash: 973d9cfdd03d
+sourceHash: 58636ad325a8
 ---
 
 # Mode Swarm
@@ -46,6 +46,14 @@ Le volume `/data` est monté pour conserver la configuration de Dozzle (notifica
 
 > [!WARNING]
 > Un socket-proxy ne peut pas être utilisé en mode Docker Swarm. Cette limitation vient de Docker lui-même, pas de Dozzle. En mode Swarm, les services ne peuvent communiquer qu'avec d'autres services, alors que Dozzle a besoin de connexions directes vers chaque instance du proxy, ce qui n'est pas pris en charge. Si vous avez une solution pour utiliser un socket-proxy en mode Swarm, nous serions ravis de l'entendre !
+
+## <Icon icon="mdi:arrow-expand-vertical" inline /> Mettre à l'échelle un service
+
+Lorsque les [actions](/fr/guide/actions) sont activées, un service répliqué obtient une action **Mettre à l'échelle le service** dans le menu de sa vue fusionnée. Elle fait la même chose que `docker service scale` : elle fixe le nombre de réplicas et ne touche pas au reste de la spécification du service. Swarm démarre ou arrête ensuite des tâches pour atteindre ce nombre.
+
+Seul un manager peut modifier un service. Si le nœud qui sert la page est un worker, Dozzle transmet la requête à l'instance Dozzle d'un manager. L'action fonctionne donc depuis n'importe quel nœud, du moment que Dozzle tourne sur au moins un manager. Un agent autonome lancé avec `DOZZLE_ENABLE_ACTIONS=false` ne met jamais rien à l'échelle.
+
+Les services globaux exécutent une tâche par nœud et n'ont pas de nombre de réplicas, l'action se contente donc de l'indiquer pour eux. Le minimum est 1, car un service sans tâche n'a plus rien à afficher dans Dozzle, y compris l'action qui permettrait de le remettre à l'échelle. Comme toutes les autres actions, elle ne concerne que les services dont les tâches passent les filtres de Dozzle.
 
 ## <Icon icon="mdi:shield-lock-outline" inline /> Mettre en place l'authentification simple en mode Swarm
 

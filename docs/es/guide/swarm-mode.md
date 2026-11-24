@@ -1,7 +1,7 @@
 ---
 title: Modo Swarm
 description: Cómo desplegar Dozzle en modo Swarm de Docker como servicio global para ver los logs de cada nodo, agrupar stacks y servicios, y añadir autenticación y agentes.
-sourceHash: 973d9cfdd03d
+sourceHash: 58636ad325a8
 ---
 
 # Modo Swarm
@@ -46,6 +46,14 @@ El volumen `/data` se monta para conservar la configuración de Dozzle (notifica
 
 > [!WARNING]
 > El socket-proxy no se puede usar en modo Swarm de Docker. Es una limitación del propio Docker, no de Dozzle. En modo Swarm los servicios solo pueden comunicarse con otros servicios, pero Dozzle necesita conexiones directas a cada instancia del proxy, y eso no está soportado. Si tienes una solución para usar socket-proxy en modo Swarm, nos encantaría conocerla.
+
+## <Icon icon="mdi:arrow-expand-vertical" inline /> Escalar un servicio
+
+Con las [acciones](/es/guide/actions) activadas, un servicio replicado tiene la acción **Escalar servicio** en el menú de su vista combinada. Hace lo mismo que `docker service scale`: fija el número de réplicas y deja intacto el resto de la especificación del servicio. Después Swarm inicia o detiene tareas hasta llegar a ese número.
+
+Solo un manager puede modificar un servicio. Si el nodo que sirve la página es un worker, Dozzle pasa la petición a la instancia de Dozzle de un manager, así que la acción funciona desde cualquier nodo siempre que Dozzle se ejecute en al menos un manager. Un agente independiente iniciado con `DOZZLE_ENABLE_ACTIONS=false` nunca escala nada.
+
+Los servicios globales ejecutan una tarea por nodo y no tienen número de réplicas, por eso para ellos la acción solo lo indica. El mínimo es 1, porque un servicio sin tareas ya no tiene nada que mostrar en Dozzle, ni siquiera la acción que lo volvería a escalar. Como cualquier otra acción, solo llega a los servicios cuyas tareas pasan los filtros de Dozzle.
 
 ## <Icon icon="mdi:shield-lock-outline" inline /> Configurar la autenticación simple en modo Swarm
 

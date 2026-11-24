@@ -32,6 +32,7 @@ service AgentService {
   rpc HealthLog(HealthLogRequest) returns (HealthLogResponse) {}
   rpc InspectNetwork(InspectNetworkRequest) returns (InspectNetworkResponse) {}
   rpc InspectVolume(InspectVolumeRequest) returns (InspectVolumeResponse) {}
+  rpc ScaleService(ScaleServiceRequest) returns (ScaleServiceResponse) {}
 }
 
 message ListContainersRequest {
@@ -139,6 +140,17 @@ message HealthProbe {
 message HealthLogResponse {
   repeated HealthProbe probes = 1;
 }
+
+// ScaleServiceRequest sets a replicated swarm service's replica count, by
+// service id so it cannot land in another swarm. Only a manager of that swarm
+// accepts it: any other host answers FAILED_PRECONDITION, a global service
+// INVALID_ARGUMENT.
+message ScaleServiceRequest {
+  string id = 1;
+  uint64 replicas = 2;
+}
+
+message ScaleServiceResponse {}
 
 message InspectNetworkRequest {
   string name = 1;

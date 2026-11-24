@@ -89,6 +89,10 @@ func (a *service) HealthLog(ctx context.Context, c container.Container) ([]conta
 	return a.client.HealthLog(ctx, c.ID)
 }
 
+func (a *service) ScaleService(ctx context.Context, id string, replicas uint64) error {
+	return a.client.ScaleService(ctx, id, replicas)
+}
+
 func (a *service) InspectNetwork(ctx context.Context, name string) (container.Network, error) {
 	return a.client.InspectNetwork(ctx, name)
 }

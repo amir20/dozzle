@@ -339,6 +339,7 @@ func createRouter(h *handler) *chi.Mux {
 					if h.config.Mode != "k8s" {
 						r.Post("/hosts/{host}/prune", h.pruneHost)
 						r.Get("/hosts/{host}/reclaimable", h.listReclaimable)
+						r.Post("/swarm/services/{name}/scale", h.scaleService)
 					}
 					r.Post("/updates", h.startBulkUpdate)
 					r.Get("/updates/stream", h.streamBulkUpdate)

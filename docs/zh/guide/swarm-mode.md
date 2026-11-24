@@ -1,7 +1,7 @@
 ---
 title: Swarm 模式
 description: 如何以全局服务方式在 Docker Swarm 模式下部署 Dozzle，查看每个节点的日志，按 stack 和服务分组，并添加身份验证和 agent。
-sourceHash: 973d9cfdd03d
+sourceHash: 58636ad325a8
 ---
 
 # Swarm 模式
@@ -46,6 +46,14 @@ networks:
 
 > [!WARNING]
 > 在 Docker Swarm 模式下无法使用 socket-proxy。这个限制来自 Docker 本身，而不是 Dozzle。在 Swarm 模式下，服务只能与其他服务通信，而 Dozzle 需要直接连接到单个代理实例，这是不被支持的。如果你有在 Swarm 模式下使用 socket-proxy 的方案，欢迎告诉我们！
+
+## <Icon icon="mdi:arrow-expand-vertical" inline /> 扩缩服务
+
+启用[操作](/zh/guide/actions)后，副本模式（replicated）的服务会在其合并视图的菜单中多出一个**调整服务规模**操作。它的作用与 `docker service scale` 相同：只修改副本数，服务定义的其余部分保持不变。随后 Swarm 会启动或停止任务以达到该数量。
+
+只有管理节点（manager）才能修改服务。如果当前提供页面的节点是工作节点（worker），Dozzle 会把请求转交给管理节点上的 Dozzle 实例，因此只要至少有一个管理节点上运行着 Dozzle，就可以在任意节点上使用此操作。以 `DOZZLE_ENABLE_ACTIONS=false` 启动的独立代理永远不会执行扩缩。
+
+全局（global）服务在每个节点上运行一个任务，没有副本数，因此对它们而言，此操作只会给出这一说明。最小副本数为 1，因为没有任务的服务在 Dozzle 中无可显示，连把它重新扩容的操作也会一起消失。与其他操作一样，它只作用于任务通过 Dozzle 过滤器的服务。
 
 ## <Icon icon="mdi:shield-lock-outline" inline /> 在 Swarm 模式下配置简单身份验证
 

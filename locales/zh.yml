@@ -16,6 +16,11 @@ toolbar:
   restart: 重启
   rollout-restart: "重启 {kind}"
   rollout-restart-done: "{workload} 正在滚动部署新的 Pod。"
+  scale-service: "调整服务规模"
+  scale-replicas: "副本数"
+  scale-running: "当前运行中：{count}"
+  scale-done: "正在将 {service} 调整为 {count} 个副本。"
+  scale-global: "此服务以全局模式运行，每个节点各运行一个任务，因此没有可调整的副本数。"
   section-containers: "容器"
   restart-all: "全部重启"
   stop-all: "全部停止"
@@ -272,6 +277,7 @@ button:
   login-with: 使用 {provider} 继续
   settings: 设置
   cancel: 取消
+  close: "关闭"
   redirect: 重定向
   retry: 重试
   refresh: 刷新

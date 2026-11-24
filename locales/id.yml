@@ -16,6 +16,11 @@ toolbar:
   restart: Mulai ulang
   rollout-restart: "Mulai ulang {kind}"
   rollout-restart-done: "{workload} sedang meluncurkan pod baru."
+  scale-service: "Skalakan layanan"
+  scale-replicas: "Replika"
+  scale-running: "Berjalan saat ini: {count}"
+  scale-done: "{service} sedang diskalakan ke {count} replika."
+  scale-global: "Layanan ini berjalan dalam mode global, satu task di setiap node, jadi tidak ada jumlah replika yang bisa diubah."
   section-containers: "Kontainer"
   restart-all: "Mulai ulang semua"
   stop-all: "Hentikan semua"
@@ -278,6 +283,7 @@ button:
   login-with: Lanjutkan dengan {provider}
   settings: Pengaturan
   cancel: Batal
+  close: "Tutup"
   redirect: Alihkan
   retry: Coba lagi
   refresh: Muat Ulang

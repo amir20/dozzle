@@ -40,6 +40,11 @@ toolbar:
   restart: Ponovni zagon
   rollout-restart: "Znova zaženi {kind}"
   rollout-restart-done: "{workload} uvaja nove pode."
+  scale-service: "Skaliraj storitev"
+  scale-replicas: "Replike"
+  scale-running: "Trenutno teče: {count}"
+  scale-done: "Skaliranje {service}, število replik: {count}."
+  scale-global: "Ta storitev teče v globalnem načinu, z eno nalogo na vsakem vozlišču, zato nima števila replik, ki bi ga lahko spremenili."
   section-containers: "Zabojniki"
   restart-all: "Ponovno zaženi vse"
   stop-all: "Ustavi vse"
@@ -271,6 +276,7 @@ button:
   live-logs: Pojdi na žive dnevnike
   logout: Odjava
   cancel: Prekliči
+  close: "Zapri"
   redirect: Preusmeritev
   retry: Poskusi znova
   login: Prijava

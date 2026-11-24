@@ -521,6 +521,14 @@ func (d *Service) ListReclaimable(ctx context.Context) (container.ReclaimableIte
 	return lister.ListReclaimable(ctx)
 }
 
+func (d *Service) ScaleService(ctx context.Context, id string, replicas uint64) error {
+	scaler, ok := d.client.(container.ServiceScaler)
+	if !ok {
+		return container.ErrNotSwarmManager
+	}
+	return scaler.ScaleService(ctx, id, replicas)
+}
+
 func (d *Service) InspectNetwork(ctx context.Context, name string) (container.Network, error) {
 	inspector, ok := d.client.(container.ResourceInspector)
 	if !ok {

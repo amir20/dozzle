@@ -46,6 +46,14 @@ The `/data` volume is mounted to persist Dozzle's configuration (notifications, 
 > [!WARNING]
 > Socket-proxy cannot be used in Docker Swarm mode. This limitation stems from Docker itself, not Dozzle. In Swarm mode, services can only communicate with other services, but Dozzle requires direct connections to individual proxy instances—which isn't supported. If you have a solution for using socket-proxy in Swarm mode, we'd love to hear from you!
 
+## <Icon icon="mdi:arrow-expand-vertical" inline /> Scaling a Service
+
+With [actions](/guide/actions) enabled, a replicated service gets a **Scale service** action in the menu of its merged view. It does what `docker service scale` does: it sets the replica count and leaves the rest of the service's spec alone. Swarm then starts or stops tasks to match.
+
+Only a manager can change a service. When the node serving the page is a worker, Dozzle hands the request to the Dozzle instance on a manager, so the action works from any node as long as Dozzle runs on at least one manager. A standalone agent started with `DOZZLE_ENABLE_ACTIONS=false` never scales anything.
+
+Global services run one task per node and have no replica count, so for them the action only says so. The lowest count is 1, because a service with no tasks has nothing left for Dozzle to show, including the action that would scale it back up. Like every other action, it only reaches services whose tasks pass Dozzle's filters.
+
 ## <Icon icon="mdi:shield-lock-outline" inline /> Setting Up Simple Authentication in Swarm Mode
 
 To set up simple authentication, you can use Docker secrets to store `users.yml` file. Here is an example using Docker Stack:
