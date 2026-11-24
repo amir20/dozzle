@@ -531,8 +531,8 @@ func (c *Client) ListReclaimable(ctx context.Context) (container.ReclaimableItem
 // too old to know the call, or with actions disabled, cannot scale either, so
 // it reads as not a manager and the caller moves on to the next host: a worker
 // with actions off must not stand between the hub and a manager.
-func (c *Client) ScaleService(ctx context.Context, name string, replicas uint64) error {
-	_, err := c.client.ScaleService(ctx, &pb.ScaleServiceRequest{Name: name, Replicas: replicas})
+func (c *Client) ScaleService(ctx context.Context, id string, replicas uint64) error {
+	_, err := c.client.ScaleService(ctx, &pb.ScaleServiceRequest{Id: id, Replicas: replicas})
 	switch status.Code(err) {
 	case codes.OK:
 		return nil

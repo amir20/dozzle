@@ -32,9 +32,10 @@ type HostResourceInspector interface {
 
 // ServiceScaler is implemented by the ClientServices that can set a swarm
 // service's replica count: docker, and an agent in front of one. Only a
-// manager's engine accepts it; a worker returns ErrNotSwarmManager.
+// manager of the service's own swarm accepts it; any other host returns
+// ErrNotSwarmManager.
 type ServiceScaler interface {
-	ScaleService(ctx context.Context, name string, replicas uint64) error
+	ScaleService(ctx context.Context, id string, replicas uint64) error
 }
 
 // HealthProbe is one healthcheck run, as Docker keeps it in State.Health.Log.

@@ -15,21 +15,41 @@ var ErrServiceNotFound = errors.New("service not found")
 // least one of its tasks, so a label filter that hides a service also keeps it
 // from being scaled.
 //
+// The service is addressed by the ids on those visible tasks, never by name.
+// Hosts from two swarms can each run a service of the same name, and an id
+// only resolves in the swarm it belongs to, so a scale cannot land on the one
+// the caller's filter hides. The view merges same-named services, so each
+// visible one is scaled.
+//
 // Only a manager's engine can update a service, and the node serving this
 // request is often a worker: Dozzle usually runs as a global service behind the
-// routing mesh. So each host is asked in turn, this one first, and a worker's
-// refusal moves on to the next. The refusal is the manager check, which keeps
-// it right after a node is promoted or demoted.
+// routing mesh. So each host is asked in turn, this one first, and a host that
+// cannot do it (a worker, another swarm's manager) moves on to the next.
 func (m *MultiHostService) ScaleService(ctx context.Context, name string, replicas uint64, labels container.ContainerLabels) error {
 	containers, _ := m.ListAllContainers(labels)
-	if !slices.ContainsFunc(containers, func(c container.Container) bool {
-		return c.Labels[container.SwarmServiceNameLabel] == name
-	}) {
+	var ids []string
+	for _, c := range containers {
+		id := c.Labels[container.SwarmServiceIDLabel]
+		if c.Labels[container.SwarmServiceNameLabel] == name && id != "" && !slices.Contains(ids, id) {
+			ids = append(ids, id)
+		}
+	}
+	if len(ids) == 0 {
 		return ErrServiceNotFound
 	}
 
+	clients := append(m.manager.LocalClientServices(), m.manager.List()...)
+	for _, id := range ids {
+		if err := scaleOnAManager(ctx, clients, id, replicas); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func scaleOnAManager(ctx context.Context, clients []container.ClientService, id string, replicas uint64) error {
 	tried := make(map[container.ClientService]bool)
-	for _, client := range append(m.manager.LocalClientServices(), m.manager.List()...) {
+	for _, client := range clients {
 		if tried[client] {
 			continue
 		}
@@ -39,7 +59,7 @@ func (m *MultiHostService) ScaleService(ctx context.Context, name string, replic
 		if !ok {
 			continue
 		}
-		if err := scaler.ScaleService(ctx, name, replicas); !errors.Is(err, container.ErrNotSwarmManager) {
+		if err := scaler.ScaleService(ctx, id, replicas); !errors.Is(err, container.ErrNotSwarmManager) {
 			return err
 		}
 	}

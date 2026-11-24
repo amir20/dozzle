@@ -1214,12 +1214,13 @@ func (x *HealthLogResponse) GetProbes() []*HealthProbe {
 	return nil
 }
 
-// ScaleServiceRequest sets a replicated swarm service's replica count. Only a
-// manager accepts it: a worker answers FAILED_PRECONDITION, a global service
+// ScaleServiceRequest sets a replicated swarm service's replica count, by
+// service id so it cannot land in another swarm. Only a manager of that swarm
+// accepts it: any other host answers FAILED_PRECONDITION, a global service
 // INVALID_ARGUMENT.
 type ScaleServiceRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Replicas      uint64                 `protobuf:"varint,2,opt,name=replicas,proto3" json:"replicas,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1255,9 +1256,9 @@ func (*ScaleServiceRequest) Descriptor() ([]byte, []int) {
 	return file_rpc_proto_rawDescGZIP(), []int{25}
 }
 
-func (x *ScaleServiceRequest) GetName() string {
+func (x *ScaleServiceRequest) GetId() string {
 	if x != nil {
-		return x.Name
+		return x.Id
 	}
 	return ""
 }
@@ -3223,9 +3224,9 @@ const file_rpc_proto_rawDesc = "" +
 	"\bexitCode\x18\x03 \x01(\x05R\bexitCode\x12\x16\n" +
 	"\x06output\x18\x04 \x01(\tR\x06output\"B\n" +
 	"\x11HealthLogResponse\x12-\n" +
-	"\x06probes\x18\x01 \x03(\v2\x15.protobuf.HealthProbeR\x06probes\"E\n" +
-	"\x13ScaleServiceRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
+	"\x06probes\x18\x01 \x03(\v2\x15.protobuf.HealthProbeR\x06probes\"A\n" +
+	"\x13ScaleServiceRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
 	"\breplicas\x18\x02 \x01(\x04R\breplicas\"\x16\n" +
 	"\x14ScaleServiceResponse\"+\n" +
 	"\x15InspectNetworkRequest\x12\x12\n" +

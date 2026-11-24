@@ -3,6 +3,8 @@ package hostservice
 import (
 	"context"
 	"errors"
+	"fmt"
+	"slices"
 	"testing"
 	"time"
 
@@ -11,21 +13,31 @@ import (
 )
 
 // scalerService is a host that lists containers and answers a scale like a
-// manager (err nil) or a worker (ErrNotSwarmManager).
+// manager (err nil) or a worker (ErrNotSwarmManager). A manager given owns
+// only answers for those service ids, as a manager of one swarm does.
 type scalerService struct {
 	containersService
 	err    error
-	scaled []uint64
+	owns   []string
+	scaled []string
 }
 
-func (s *scalerService) ScaleService(_ context.Context, _ string, replicas uint64) error {
-	s.scaled = append(s.scaled, replicas)
+func (s *scalerService) ScaleService(_ context.Context, id string, replicas uint64) error {
+	if s.owns != nil && !slices.Contains(s.owns, id) {
+		return container.ErrNotSwarmManager
+	}
+	s.scaled = append(s.scaled, fmt.Sprintf("%s=%d", id, replicas))
 	return s.err
 }
 
-func webTask() container.Container {
-	return container.Container{ID: "t1", Labels: map[string]string{container.SwarmServiceNameLabel: "shop_web"}}
+func task(serviceID, name string) container.Container {
+	return container.Container{ID: serviceID + "-t", Labels: map[string]string{
+		container.SwarmServiceIDLabel:   serviceID,
+		container.SwarmServiceNameLabel: name,
+	}}
 }
+
+func webTask() container.Container { return task("svc-a", "shop_web") }
 
 // The node serving the request is often a worker, so its refusal must hand
 // the call on to a host that can do it.
@@ -39,7 +51,7 @@ func TestMultiHostService_ScaleServiceFindsAManager(t *testing.T) {
 	}), time.Second)
 
 	assert.NoError(t, service.ScaleService(context.Background(), "shop_web", 4, nil))
-	assert.Equal(t, []uint64{4}, manager.scaled)
+	assert.Equal(t, []string{"svc-a=4"}, manager.scaled)
 }
 
 func TestMultiHostService_ScaleServiceWithoutAManager(t *testing.T) {
@@ -62,11 +74,28 @@ func TestMultiHostService_ScaleServiceReturnsTheManagersError(t *testing.T) {
 // A label filter that hides every task of a service also keeps it from being scaled.
 func TestMultiHostService_ScaleServiceHiddenByFilter(t *testing.T) {
 	manager := &scalerService{containers: []container.Container{
-		{ID: "other", Labels: map[string]string{container.SwarmServiceNameLabel: "shop_db"}},
+		task("svc-db", "shop_db"),
 	}}
 	service := NewMultiHostService(managerWith(map[string]container.ClientService{"manager": manager}), time.Second)
 
 	err := service.ScaleService(context.Background(), "shop_web", 2, nil)
 	assert.True(t, errors.Is(err, ErrServiceNotFound))
 	assert.Empty(t, manager.scaled)
+}
+
+// Two swarms can each run a shop_web. Only the one whose tasks the caller can
+// see is scaled, however the hosts are ordered.
+func TestMultiHostService_ScaleServiceStaysInTheVisibleSwarm(t *testing.T) {
+	visibleSwarm := &scalerService{containers: []container.Container{task("svc-a", "shop_web")}, owns: []string{"svc-a"}}
+	hiddenSwarm := &scalerService{owns: []string{"svc-b"}}
+	service := NewMultiHostService(managerWith(map[string]container.ClientService{
+		"a": visibleSwarm,
+		"b": hiddenSwarm,
+	}), time.Second)
+
+	for range 10 { // map order varies; each run must land on svc-a only
+		assert.NoError(t, service.ScaleService(context.Background(), "shop_web", 2, nil))
+	}
+	assert.Empty(t, hiddenSwarm.scaled)
+	assert.Len(t, visibleSwarm.scaled, 10)
 }

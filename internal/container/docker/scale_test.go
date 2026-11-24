@@ -2,9 +2,11 @@ package docker
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/amir20/dozzle/internal/container"
+	cerrdefs "github.com/containerd/errdefs"
 	"github.com/moby/moby/api/types/swarm"
 	"github.com/moby/moby/api/types/system"
 	"github.com/moby/moby/client"
@@ -39,10 +41,10 @@ func replicatedService(replicas uint64) swarm.Service {
 // concurrent update makes this one fail instead of being undone by it.
 func TestScaleService_changesOnlyReplicas(t *testing.T) {
 	proxy := &mockedProxy{}
-	proxy.On("ServiceInspect", "shop_web").Return(replicatedService(2), nil)
+	proxy.On("ServiceInspect", "svc1").Return(replicatedService(2), nil)
 	proxy.On("ServiceUpdate", "svc1", mock.Anything).Return(nil)
 
-	require.NoError(t, managerClient(proxy).ScaleService(context.Background(), "shop_web", 5))
+	require.NoError(t, managerClient(proxy).ScaleService(context.Background(), "svc1", 5))
 
 	options := proxy.Calls[1].Arguments.Get(1).(client.ServiceUpdateOptions)
 	assert.Equal(t, uint64(42), options.Version.Index)
@@ -55,18 +57,39 @@ func TestScaleService_refusesGlobalService(t *testing.T) {
 	proxy := &mockedProxy{}
 	global := replicatedService(0)
 	global.Spec.Mode = swarm.ServiceMode{Global: &swarm.GlobalService{}}
-	proxy.On("ServiceInspect", "shop_metrics").Return(global, nil)
+	proxy.On("ServiceInspect", "svc2").Return(global, nil)
 
-	err := managerClient(proxy).ScaleService(context.Background(), "shop_metrics", 3)
+	err := managerClient(proxy).ScaleService(context.Background(), "svc2", 3)
 	assert.ErrorIs(t, err, container.ErrServiceNotReplicated)
 	proxy.AssertNotCalled(t, "ServiceUpdate", mock.Anything, mock.Anything)
 }
 
-// A worker's engine would refuse anyway; the client says so without asking it.
-func TestScaleService_workerIsNotAManager(t *testing.T) {
-	proxy := &mockedProxy{}
-	worker := &Client{cli: proxy, host: container.Host{ID: "worker"}, info: system.Info{Swarm: swarm.Info{ControlAvailable: false}}}
+// A worker, a node outside the swarm (503) and another swarm's manager (404)
+// all mean "ask the next host". The engine says so, not the Info read at
+// startup, which a promotion or demotion since then would make wrong.
+func TestScaleService_refusalsMeanTryTheNextHost(t *testing.T) {
+	for name, err := range map[string]error{
+		"worker":                  cerrdefs.ErrUnavailable,
+		"another swarm's manager": cerrdefs.ErrNotFound,
+	} {
+		t.Run(name, func(t *testing.T) {
+			proxy := &mockedProxy{}
+			proxy.On("ServiceInspect", "svc1").Return(swarm.Service{}, err)
+			// A worker's Info, as read at startup, must not decide this.
+			c := &Client{cli: proxy, host: container.Host{ID: "n"}, info: system.Info{}}
 
-	assert.ErrorIs(t, worker.ScaleService(context.Background(), "shop_web", 3), container.ErrNotSwarmManager)
-	proxy.AssertNotCalled(t, "ServiceInspect", mock.Anything)
+			assert.ErrorIs(t, c.ScaleService(context.Background(), "svc1", 3), container.ErrNotSwarmManager)
+			proxy.AssertNotCalled(t, "ServiceUpdate", mock.Anything, mock.Anything)
+		})
+	}
+}
+
+// Any other failure is the answer, and the caller stops asking.
+func TestScaleService_otherInspectErrorIsReturned(t *testing.T) {
+	proxy := &mockedProxy{}
+	proxy.On("ServiceInspect", "svc1").Return(swarm.Service{}, errors.New("boom"))
+
+	err := managerClient(proxy).ScaleService(context.Background(), "svc1", 3)
+	assert.ErrorContains(t, err, "boom")
+	assert.NotErrorIs(t, err, container.ErrNotSwarmManager)
 }

@@ -807,8 +807,8 @@ type scalingService struct {
 	err error
 }
 
-func (s *scalingService) ScaleService(_ context.Context, name string, replicas uint64) error {
-	s.record("scale " + name + " " + strconv.FormatUint(replicas, 10))
+func (s *scalingService) ScaleService(_ context.Context, id string, replicas uint64) error {
+	s.record("scale " + id + " " + strconv.FormatUint(replicas, 10))
 	return s.err
 }
 
@@ -818,8 +818,8 @@ func TestScaleServiceOverAgent(t *testing.T) {
 	ctx := context.Background()
 
 	manager := &scalingService{fakeService: &fakeService{}}
-	require.NoError(t, newTestAgent(t, manager, &recordingHandler{}).ScaleService(ctx, "shop_web", 3))
-	assert.Equal(t, []string{"scale shop_web 3"}, manager.recorded())
+	require.NoError(t, newTestAgent(t, manager, &recordingHandler{}).ScaleService(ctx, "svc1", 3))
+	assert.Equal(t, []string{"scale svc1 3"}, manager.recorded())
 
 	worker := &scalingService{fakeService: &fakeService{}, err: container.ErrNotSwarmManager}
 	assert.ErrorIs(t, newTestAgent(t, worker, &recordingHandler{}).ScaleService(ctx, "shop_web", 3), container.ErrNotSwarmManager)
