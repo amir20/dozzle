@@ -19,6 +19,7 @@ declare module 'vue' {
     HeroDemo: typeof import('./.vitepress/theme/components/HeroDemo.vue')['default']
     HeroTrust: typeof import('./.vitepress/theme/components/HeroTrust.vue')['default']
     InstallCommand: typeof import('./.vitepress/theme/components/InstallCommand.vue')['default']
+    IPhoneShowcase: typeof import('./.vitepress/theme/components/IPhoneShowcase.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SponsoredBy: typeof import('./.vitepress/theme/components/SponsoredBy.vue')['default']

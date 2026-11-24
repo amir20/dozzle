@@ -17,6 +17,7 @@ import WhyDozzle from "./components/WhyDozzle.vue";
 import Testimonials from "./components/Testimonials.vue";
 import FinalCta from "./components/FinalCta.vue";
 import SponsoredBy from "./components/SponsoredBy.vue";
+import IPhoneShowcase from "./components/IPhoneShowcase.vue";
 
 export default {
   ...DefaultTheme,
@@ -27,7 +28,7 @@ export default {
       "sidebar-nav-after": () => h(BuyMeCoffee),
       "home-hero-actions-after": () => [h(TourVideo), h(Stats), h(HeroTrust)],
       "home-hero-after": () => [h(InstallCommand), h(Supported)],
-      "home-features-after": () => [h(WhyDozzle), h(Testimonials), h(FinalCta), h(SponsoredBy)],
+      "home-features-after": () => [h(IPhoneShowcase), h(WhyDozzle), h(Testimonials), h(FinalCta), h(SponsoredBy)],
     });
   },
   enhanceApp(ctx) {
