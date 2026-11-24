@@ -165,7 +165,8 @@ describe("loadSkippedLogs", () => {
     // A fresh row: the old one may remember a start that has since been trimmed away.
     expect(messages.value[0]).not.toBe(opener);
     expect(messages.value).toHaveLength(config.maxLogs + 1);
-    expect(messages.value.at(-1)?.message).toBe(logs.at(-1)!.message);
+    // The run ends at its last skipped line, which the server stops before.
+    expect(messages.value.at(-1)?.message).toBe("a400499");
   });
 });
 
@@ -242,5 +243,85 @@ describe("loadOlderLogs while the stream flushes", () => {
 
     expect(messages.value).toBe(fresh);
     expect(loadedOlder).not.toHaveBeenCalled();
+  });
+});
+
+describe("loadOlderLogs telling the row to try again", () => {
+  test("says a load that found only lines on screen got somewhere, so the next can page another container", async () => {
+    vi.mocked(loadBetween).mockClear();
+    const containers = ref([
+      { id: "a", host: "h" },
+      { id: "b", host: "h" },
+    ] as Container[]) as Ref<Container[]>;
+    const loader = new LoadMoreLogEntry(new Date(), async () => {});
+    // a started recently and all of it is on screen; b has older lines to load.
+    const messages = shallowRef<LogEntry<LogMessage>[]>([loader, of("b", 1_000), of("a", 5_000), of("a", 6_000)]);
+    const { loadOlderLogs } = useLogLoader(messages, containers, ref(new URLSearchParams()), ref(false));
+    const before = messages.value;
+    vi.mocked(loadBetween).mockResolvedValueOnce({ logs: [of("a", 5_000)], signal: new AbortController().signal });
+
+    expect(await loadOlderLogs(loader)).toBe(true);
+    expect(messages.value).toBe(before);
+
+    vi.mocked(loadBetween).mockResolvedValueOnce({ logs: [of("b", 500)], signal: new AbortController().signal });
+    await loadOlderLogs(loader);
+    const [asked] = vi.mocked(loadBetween).mock.lastCall!;
+    expect(asked.map((c) => c.id)).toEqual(["b"]);
+    // Every container is at its start now: nothing to try again for.
+    expect(await loadOlderLogs(loader)).toBe(false);
+  });
+});
+
+describe("loadingMore across overlapping loads", () => {
+  test("stays on until the last load in flight finishes", async () => {
+    const loader = new LoadMoreLogEntry(new Date(), async () => {});
+    const skipped = new SkippedLogsEntry(new Date(T0 + 500_000), 5, of("a", 400_000), of("a", 400_004), async () => {});
+    const messages = shallowRef<LogEntry<LogMessage>[]>([loader, of("a", 1_000), skipped]);
+    const loadingMore = ref(false);
+    const { loadOlderLogs, loadSkippedLogs } = useLogLoader(
+      messages,
+      ref([{ id: "a", host: "h" } as Container]) as Ref<Container[]>,
+      ref(new URLSearchParams()),
+      loadingMore,
+    );
+    type Page = Awaited<ReturnType<typeof loadBetween>>;
+    let older!: (page: Page) => void;
+    let gap!: (page: Page) => void;
+    vi.mocked(loadBetween)
+      .mockImplementationOnce(() => new Promise<Page>((r) => (older = r)))
+      .mockImplementationOnce(() => new Promise<Page>((r) => (gap = r)));
+
+    const olderDone = loadOlderLogs(loader);
+    const gapDone = loadSkippedLogs(skipped);
+    expect(loadingMore.value).toBe(true);
+
+    gap({ logs: [], signal: new AbortController().signal });
+    await gapDone;
+    expect(loadingMore.value).toBe(true);
+
+    older({ logs: [], signal: new AbortController().signal });
+    await olderDone;
+    expect(loadingMore.value).toBe(false);
+  });
+});
+
+describe("loadSkippedLogs reaching the last skipped line", () => {
+  test("shows the last skipped line, which the server stops before", async () => {
+    const last = of("a", 400_004);
+    const skipped = new SkippedLogsEntry(new Date(T0 + 500_000), 5, of("a", 400_000), last, async () => {});
+    const messages = shallowRef<LogEntry<LogMessage>[]>([new LoadMoreLogEntry(new Date(), async () => {}), skipped]);
+    const { loadSkippedLogs } = useLogLoader(
+      messages,
+      ref([{ id: "a", host: "h" } as Container]) as Ref<Container[]>,
+      ref(new URLSearchParams()),
+      ref(false),
+    );
+    // lastSeenId is an exclusive stop on the server.
+    const logs = [0, 1, 2, 3].map((i) => of("a", 400_000 + i));
+    vi.mocked(loadBetween).mockResolvedValueOnce({ logs, signal: new AbortController().signal });
+
+    await loadSkippedLogs(skipped);
+
+    expect(names(messages.value)).toEqual(["loader", "a400000", "a400001", "a400002", "a400003", "a400004"]);
   });
 });

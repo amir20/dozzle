@@ -114,8 +114,11 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
           maxStart: 50,
         }),
       ]);
-      const loaderOlder = new LoadMoreLogEntry(new Date(), loadOlderLogs);
-      const loadNewer = new LoadMoreLogEntry(new Date(), loadNewerLogs, false);
+      // A row's id is its date, and it is the row's key: the two loaders need a
+      // millisecond apart.
+      const now = Date.now();
+      const loaderOlder = new LoadMoreLogEntry(new Date(now), loadOlderLogs);
+      const loadNewer = new LoadMoreLogEntry(new Date(now + 1), loadNewerLogs, false);
       const wasLinked = alertsAvailable.value;
       messages.value = [loaderOlder, ...(await withAlerts([...before, ...after])), loadNewer];
       loading.value = false;
@@ -134,14 +137,15 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
 
   watchArray([params, container], loadLogs, { immediate: true });
 
-  async function loadOlderLogs(entry: LoadMoreLogEntry) {
+  // Both resolve true when lines came in, so the row, if still on screen, loads again.
+  async function loadOlderLogs(entry: LoadMoreLogEntry): Promise<boolean> {
     loadingMore.value = true;
     try {
       // First real line, not messages[1]: alert and event rows sit between the
       // loader and the logs, and their id is an anchor timestamp rather than a
       // line hash, so using one as lastSeenId would match nothing.
       const item = messages.value.find(isStreamLog);
-      if (!item) return;
+      if (!item) return false;
       const { logs, signal } = await loadBetween(
         [container.value],
         params,
@@ -153,24 +157,22 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
         },
       );
 
-      if (signal.aborted) {
-        return;
-      }
+      if (signal.aborted || !logs.length) return false;
 
-      if (!logs.length) {
-        return;
-      }
-
-      const [loader, ...rest] = messages.value;
-      messages.value = [loader, ...(await withAlerts(logs)), ...rest];
+      const older = await withAlerts(logs);
+      // The other end, the alert poll or a new window may have written meanwhile.
+      if (messages.value[0] !== entry) return false;
+      messages.value = [entry, ...older, ...messages.value.slice(1)];
+      return true;
     } catch (error) {
       console.error(error);
+      return false;
     } finally {
       loadingMore.value = false;
     }
   }
 
-  async function loadNewerLogs(entry: LoadMoreLogEntry) {
+  async function loadNewerLogs(entry: LoadMoreLogEntry): Promise<boolean> {
     loadingMore.value = true;
     try {
       // Last real line, for the same reason loadOlderLogs skips back past the
@@ -178,7 +180,7 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
       const item = messages.value.findLast(isStreamLog);
       const end = until.value;
       // An empty range has no line to continue from, only its start.
-      if (!item && !end) return;
+      if (!item && !end) return false;
       const { logs, signal } = await loadBetween(
         [container.value],
         params,
@@ -190,21 +192,19 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
         },
       );
 
-      if (signal.aborted) {
-        return;
-      }
+      if (signal.aborted) return false;
 
       // Inside a range, a short page means the end is reached.
       const reachedEnd = end !== undefined && logs.length < FETCH_PAGE;
-      if (!logs.length && !reachedEnd) {
-        return;
-      }
+      if (!logs.length && !reachedEnd) return false;
 
-      const loader = reachedEnd ? endEdge() : messages.value.at(-1)!;
-      const rest = messages.value.slice(0, -1);
-      messages.value = [...rest, ...(await withAlerts(logs)), loader];
+      const newer = await withAlerts(logs);
+      if (messages.value.at(-1) !== entry) return false;
+      messages.value = [...messages.value.slice(0, -1), ...newer, reachedEnd ? endEdge() : entry];
+      return !reachedEnd;
     } catch (error) {
       console.error(error);
+      return false;
     } finally {
       loadingMore.value = false;
     }

@@ -91,18 +91,31 @@ export function useLogLoader(
   // (another view, filter or stream) opens under a new load-more row.
   const reachedStartByLoader = new WeakMap<LoadMoreLogEntry, Set<string>>();
 
-  async function loadOlderLogs(entry: LoadMoreLogEntry) {
+  // Loads overlap, like scrolling up while a skipped run expands, so the
+  // indicator stays on until the last one finishes.
+  let inFlight = 0;
+  function started() {
+    inFlight++;
+    loadingMore.value = true;
+  }
+  function finished() {
+    if (--inFlight === 0) loadingMore.value = false;
+  }
+
+  // Resolves true when the load got somewhere, lines or a container's start, so
+  // another one from the row still on screen can get further.
+  async function loadOlderLogs(entry: LoadMoreLogEntry): Promise<boolean> {
     if (!(messages.value[0] instanceof LoadMoreLogEntry)) throw new Error("No loadMoreLogEntry on first item");
-    if (containers.value.length === 0) return;
+    if (containers.value.length === 0) return false;
 
     const [loader, ...existingLogs] = messages.value;
-    if (existingLogs.length === 0) return;
+    if (existingLogs.length === 0) return false;
 
     let reachedStart = reachedStartByLoader.get(entry);
     if (!reachedStart) reachedStartByLoader.set(entry, (reachedStart = new Set()));
     // Containers already at their start would only send back what is on screen.
     const pending = containers.value.filter((c) => !reachedStart.has(c.id));
-    if (pending.length === 0) return;
+    if (pending.length === 0) return false;
 
     const containerIDs = new Set(containers.value.map((c) => c.id));
     const oldestByContainer = new Map<string, LogEntry<LogMessage>>();
@@ -148,28 +161,31 @@ export function useLogLoader(
     const min = start ? undefined : Math.min(FETCH_PAGE, Math.ceil(100 / fetching.length));
 
     try {
-      loadingMore.value = true;
+      started();
       // lastSeenId pins the cursor's own container to the line on screen, and
       // widens `to` a little, which only brings back lines already on screen.
       const { logs, signal } = await loadBetween(fetching, params, from, to, { min, lastSeenId: cursor?.id });
       // The stream keeps flushing while the page loads, and a fresh window opens
       // under a new loader, so merge into what is on screen now, not the snapshot.
-      if (signal.aborted || messages.value[0] !== loader) return;
+      if (signal.aborted || messages.value[0] !== loader) return false;
 
+      const reachedBefore = reachedStart.size;
       for (const id of reachedStartIn(fetching, logs, min ?? FETCH_PAGE)) reachedStart.add(id);
       const reachedFloor = start !== undefined && containers.value.every((c) => reachedStart.has(c.id));
       const head = reachedFloor && startEdge ? startEdge() : loader;
       const older = await withAlerts(logs.filter(notOnScreen(messages.value)), () => messages.value[0] === loader);
       const current = messages.value;
-      if (current[0] !== loader) return;
+      if (current[0] !== loader) return false;
       if (older.length > 0 || head !== loader) {
         messages.value = [head, ...mergeByTime(current.slice(1), older)];
       }
       loadedOlder?.(new Set(reachedStart));
+      return older.length > 0 || reachedStart.size > reachedBefore;
     } catch (err) {
       console.error(err);
+      return false;
     } finally {
-      loadingMore.value = false;
+      finished();
     }
   }
 
@@ -180,13 +196,16 @@ export function useLogLoader(
     const to = entry.lastSkippedLog.date;
 
     try {
-      loadingMore.value = true;
+      started();
       const { logs, signal } = await loadBetween(containers.value, params, from, to, {
         lastSeenId: entry.lastSkippedLog.id,
       });
       if (signal.aborted) return;
-      // lastSeenId widens `to` for every container, past the skipped run.
-      const skipped = logs.filter((l) => l.date <= to).filter(notOnScreen(messages.value));
+      // lastSeenId widens `to` for every container, past the skipped run, and the
+      // server stops before the line it names, so the run's last line is the entry's.
+      const run: LogEntry<LogMessage>[] = logs.filter((l) => l.date <= to);
+      if (notOnScreen(run)(entry.lastSkippedLog)) run.push(entry.lastSkippedLog);
+      const skipped = run.filter(notOnScreen(messages.value));
 
       if (skipped.length > 0) {
         const withAlertsApplied = await withAlerts(skipped, () => messages.value.includes(entry));
@@ -205,7 +224,7 @@ export function useLogLoader(
     } catch (err) {
       console.error(err);
     } finally {
-      loadingMore.value = false;
+      finished();
     }
   }
 

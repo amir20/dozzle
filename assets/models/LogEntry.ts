@@ -395,7 +395,8 @@ export class SkippedLogsEntry extends LogEntry<string> {
 export class LoadMoreLogEntry extends LogEntry<string> {
   constructor(
     date: Date,
-    private readonly loader: (i: LoadMoreLogEntry) => Promise<void>,
+    // Resolves true when the load got somewhere and another one may get further.
+    private readonly loader: (i: LoadMoreLogEntry) => Promise<boolean | void>,
     public readonly rememberScrollPosition: boolean = true,
   ) {
     super("", "", date.getTime(), date, "stderr", "info");
@@ -405,8 +406,8 @@ export class LoadMoreLogEntry extends LogEntry<string> {
     return LoadMoreLogItem;
   }
 
-  async loadMore(): Promise<void> {
-    await this.loader(this);
+  async loadMore(): Promise<boolean> {
+    return (await this.loader(this)) === true;
   }
 }
 
