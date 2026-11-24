@@ -3,12 +3,16 @@ package docker
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/amir20/dozzle/internal/container"
 	cerrdefs "github.com/containerd/errdefs"
 	"github.com/moby/moby/client"
 	"github.com/rs/zerolog/log"
 )
+
+// scaleTimeout bounds the service update once it is detached from the request.
+const scaleTimeout = 30 * time.Second
 
 // ScaleService sets a replicated swarm service's replica count, the same as
 // `docker service scale`. Nothing else in the spec changes, and the inspected
@@ -33,10 +37,13 @@ func (d *Client) ScaleService(ctx context.Context, id string, replicas uint64) e
 	}
 
 	svc.Spec.Mode.Replicated.Replicas = &replicas
-	// The manager has to answer before this returns, so a client that
-	// disconnects must not cancel an update the daemon may already have begun.
+	// A client that disconnects must not cancel an update the daemon may
+	// already have begun, but a manager that never answers (raft without
+	// quorum) must not hold the request forever either.
+	updateCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), scaleTimeout)
+	defer cancel()
 	options := client.ServiceUpdateOptions{Version: svc.Version, Spec: svc.Spec}
-	if _, err := d.cli.ServiceUpdate(context.WithoutCancel(ctx), svc.ID, options); err != nil {
+	if _, err := d.cli.ServiceUpdate(updateCtx, svc.ID, options); err != nil {
 		return fmt.Errorf("could not scale service %s: %w", svc.Spec.Name, err)
 	}
 
