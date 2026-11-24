@@ -34,6 +34,12 @@ describe("<ComplexLogItem />", () => {
     expect(wrapper.text()).toContain("1");
   });
 
+  test("dims the line's own time and level, but not nested ones", () => {
+    const wrapper = mountItem({ time: "t", level: "info", msg: "hi", user: { level: 3 } });
+    const dimmed = wrapper.findAll("li.repeated").map((li) => li.text());
+    expect(dimmed).toEqual(["time=t", "level=info"]);
+  });
+
   test("renders null values as <null>", () => {
     const wrapper = mountItem({ x: null } as any);
     expect(wrapper.text()).toContain("<null>");

@@ -14,17 +14,11 @@
       class="group/entry"
       :class="{ 'log-permalink-target': permalinkLogId === item.id.toString() }"
     >
-      <component :is="item.getComponent()" :log-entry="item" />
-      <button
-        v-if="run"
-        type="button"
-        class="repeat-count"
-        :class="{ open: run.open }"
-        :title="run.open ? $t('tooltip.fold-repeats') : $t('tooltip.unfold-repeats', { count: run.size })"
-        @click="toggleRun(run.id)"
-      >
-        ×{{ run.size }}
-      </button>
+      <component
+        :is="item.getComponent()"
+        :log-entry="item"
+        v-bind="run ? { fold: run, onToggleFold: () => toggleRun(run.id) } : {}"
+      />
     </li>
   </ul>
 </template>
@@ -39,7 +33,7 @@ import {
   type LogEntry,
   type LogMessage,
 } from "@/models/LogEntry";
-import { repeatKey } from "@/utils/readable";
+import { repeatKey, type FoldRun } from "@/utils/readable";
 import { foldRepeats } from "@/stores/settings";
 import { isStopped } from "@/models/Container";
 
@@ -67,11 +61,12 @@ const permalinkLogId = computed(() => (typeof route.query.logId === "string" ? r
 // With foldRepeats on, lines in a row from the same container, at the same
 // level and saying the same thing show once: the newest of them, with ×N. Only
 // plain and structured output folds; alerts, deploys and the rest never do.
-// The ×N opens the run to show each line, and closes it again.
+// The ×N opens the run to show each line, and closes it again. The row draws it
+// after its own message, so only plain and structured rows are given `fold`.
 type Row = {
   item: LogEntry<LogMessage>;
   key: string | number;
-  run?: { id: number; size: number; open: boolean };
+  run?: FoldRun;
 };
 
 const openRuns = ref(new Set<number>());
@@ -239,14 +234,6 @@ ul {
       &[data-log-level="fatal"]:hover {
         background-color: color-mix(in oklab, var(--color-red) 12%, transparent);
       }
-    }
-  }
-
-  .repeat-count {
-    @apply bg-base-content/10 text-base-content/70 hover:bg-base-content/20 ml-2 h-fit shrink-0 cursor-pointer rounded px-1.5 font-bold select-none;
-
-    &.open {
-      @apply bg-primary/20 text-primary;
     }
   }
 

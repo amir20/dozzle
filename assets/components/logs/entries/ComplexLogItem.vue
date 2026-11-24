@@ -47,10 +47,16 @@
         </template>
         <!-- v-html like every other value here: the server escapes them, and a
              search match arrives wrapped in <mark>. -->
-        <span v-if="reading.title" class="font-bold" v-html="stripAnsi(reading.title)"></span>
+        <span
+          v-if="reading.title && !reading.titleRepeatsRequest"
+          class="font-bold"
+          v-html="stripAnsi(reading.title)"
+        ></span>
         <span v-if="reading.error" class="text-error" v-html="stripAnsi(reading.error)"></span>
+        <RepeatCount v-if="fold" :fold @toggle="$emit('toggleFold')" />
       </div>
-      <ReuseTemplate :data="shownValues" top v-if="Object.keys(shownValues).length > 0 || !reading" />
+      <ReuseTemplate :data="shownValues" :top="true" v-if="Object.keys(shownValues).length > 0 || !reading" />
+      <RepeatCount v-if="fold && !reading" :fold @toggle="$emit('toggleFold')" />
     </div>
     <PatternMemoryChip v-if="logEntry.patternMemory" :memory="logEntry.patternMemory" :log-entry="logEntry" />
   </LogItem>
@@ -58,14 +64,17 @@
 <script lang="ts" setup>
 import stripAnsi from "strip-ansi";
 import { type ComplexLogEntry } from "@/models/LogEntry";
-import { formatDuration, LEVEL_KEYS, readFields, TIME_KEYS } from "@/utils/readable";
+import { formatDuration, LEVEL_KEYS, readFields, TIME_KEYS, type FoldRun } from "@/utils/readable";
 import { lineStyle, showTimestamp } from "@/stores/settings";
 const LogDetails = defineAsyncComponent(() => import("./LogDetails.vue"));
 
 const { logEntry } = defineProps<{
   logEntry: ComplexLogEntry;
   showContainerName?: boolean;
+  /** Set when this row stands for a run of repeated lines. */
+  fold?: FoldRun;
 }>();
+defineEmits<{ toggleFold: [] }>();
 
 const { containers } = useLoggingContext();
 
@@ -84,10 +93,13 @@ const reading = computed(() => {
   return lead === undefined ? undefined : r;
 });
 
+// Readable leads with what the line says, so the fields that only repeat the
+// row's time and level go last. Raw keeps every field where the line put it.
 const shownValues = computed(() => {
-  const used = reading.value?.used;
-  if (!used || used.size === 0) return validValues.value;
-  return Object.fromEntries(Object.entries(validValues.value).filter(([key]) => !used.has(key)));
+  if (!reading.value) return validValues.value;
+  const used = reading.value.used;
+  const rest = Object.entries(validValues.value).filter(([key]) => !used.has(key));
+  return Object.fromEntries([...rest.filter(([k]) => !isRepeated(k)), ...rest.filter(([k]) => isRepeated(k))]);
 });
 
 // The line's own time and level repeat the timestamp column and the level marker,
@@ -117,7 +129,7 @@ function preventDefaultOnLinks(event: MouseEvent) {
 }
 
 .repeated {
-  @apply opacity-40;
+  @apply opacity-30;
 
   .value {
     @apply font-normal;

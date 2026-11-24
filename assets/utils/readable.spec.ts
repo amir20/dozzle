@@ -28,6 +28,17 @@ describe("readFields", () => {
     expect([...r.used]).toEqual(["message"]);
   });
 
+  it("notices a message that only restates the request", () => {
+    const r = readFields({
+      msg: "POST /api/events ⇒ HTTP 400 (472ms)",
+      method: "POST",
+      path: "/api/events",
+      status: 400,
+    });
+    expect(r.titleRepeatsRequest).toBe(true);
+    expect(readFields({ msg: "order created", method: "POST", path: "/api/orders" }).titleRepeatsRequest).toBe(false);
+  });
+
   it("lifts the error", () => {
     expect(readFields({ msg: "payment failed", error: "card declined" }).error).toBe("card declined");
   });

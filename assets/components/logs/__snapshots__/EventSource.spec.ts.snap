@@ -4,7 +4,6 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
 "<ul data-v-8dc5da81="" class="group pt-4 medium highlight-errors" data-logs="" show-container-name="false">
   <li data-v-8dc5da81="" id="1560336942509" data-time="1560336942509" class="group/entry">
     <div data-v-8dc5da81="" class="flex min-h-px flex-1 content-center justify-center"><span class="loading loading-bars loading-md text-primary m-2" style="display: none;"></span></div>
-    <!--v-if-->
   </li>
   <li data-v-8dc5da81="" id="1" data-time="1560336942459" class="group/entry">
     <div data-v-8dc5da81="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
@@ -59,8 +58,8 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
       </div>
       <div class="log-message [word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-pre">foo bar</div>
       <!--v-if-->
+      <!--v-if-->
     </div>
-    <!--v-if-->
   </li>
 </ul>"
 `;
@@ -69,7 +68,6 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
 "<ul data-v-8dc5da81="" class="group pt-4 medium highlight-errors" data-logs="" show-container-name="false">
   <li data-v-8dc5da81="" id="1560336942509" data-time="1560336942509" class="group/entry">
     <div data-v-8dc5da81="" class="flex min-h-px flex-1 content-center justify-center"><span class="loading loading-bars loading-md text-primary m-2" style="display: none;"></span></div>
-    <!--v-if-->
   </li>
   <li data-v-8dc5da81="" id="1" data-time="1560336942459" class="group/entry">
     <div data-v-8dc5da81="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
@@ -124,8 +122,8 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
       </div>
       <div class="log-message [word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-pre">foo bar</div>
       <!--v-if-->
+      <!--v-if-->
     </div>
-    <!--v-if-->
   </li>
 </ul>"
 `;
@@ -134,7 +132,6 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
 "<ul data-v-8dc5da81="" class="group pt-4 medium highlight-errors" data-logs="" show-container-name="false">
   <li data-v-8dc5da81="" id="1560336942509" data-time="1560336942509" class="group/entry">
     <div data-v-8dc5da81="" class="flex min-h-px flex-1 content-center justify-center"><span class="loading loading-bars loading-md text-primary m-2" style="display: none;"></span></div>
-    <!--v-if-->
   </li>
   <li data-v-8dc5da81="" id="1" data-time="1560336942459" class="group/entry">
     <div data-v-8dc5da81="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
@@ -189,8 +186,8 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
       </div>
       <div class="log-message [word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-pre">This is a message.</div>
       <!--v-if-->
+      <!--v-if-->
     </div>
-    <!--v-if-->
   </li>
 </ul>"
 `;

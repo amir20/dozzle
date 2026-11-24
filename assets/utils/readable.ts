@@ -19,6 +19,13 @@ const DURATION_KEYS: Array<[string[], number]> = [
   [["duration", "latency"], 1],
 ];
 
+/** A row standing for lines in a row that said the same thing. */
+export interface FoldRun {
+  id: number;
+  size: number;
+  open: boolean;
+}
+
 /** Fields that repeat what the row already shows: its timestamp and its level marker. */
 export const TIME_KEYS = ["time", "ts", "timestamp", "@timestamp", "t"];
 export const LEVEL_KEYS = ["level", "lvl", "severity", "log.level"];
@@ -30,6 +37,11 @@ export interface Reading {
   status?: number;
   durationMs?: number;
   error?: string;
+  /**
+   * The message only restates the request ("POST /api/events ⇒ HTTP 400"), so
+   * the headline shows the request once instead of twice.
+   */
+  titleRepeatsRequest?: boolean;
   /** The keys read into the parts above, so they aren't repeated among the fields. */
   used: Set<string>;
 }
@@ -78,6 +90,7 @@ export function readFields(fields: Record<string, unknown>): Reading {
         break;
       }
     }
+    r.titleRepeatsRequest = r.title !== undefined && r.path !== undefined && r.title.includes(r.path);
   }
   return r;
 }
