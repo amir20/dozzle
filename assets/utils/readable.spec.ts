@@ -34,8 +34,14 @@ describe("readFields", () => {
       method: "POST",
       path: "/api/events",
       status: 400,
+      duration_ms: 472,
     });
     expect(r.titleRepeatsRequest).toBe(true);
+    // A duration only the message carries is real content.
+    expect(
+      readFields({ msg: "GET /api/orders 200 35ms", method: "GET", path: "/api/orders", status: 200 })
+        .titleRepeatsRequest,
+    ).toBe(false);
     // Anything more than the request is real content and stays.
     expect(
       readFields({ msg: "rate limited on /api/orders, retry in 30s", method: "POST", path: "/api/orders", status: 429 })

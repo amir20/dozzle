@@ -107,10 +107,11 @@ function restatesRequest(title: string, r: Reading): boolean {
   for (const part of [r.method, r.path, r.status?.toString()]) {
     if (part) rest = rest.split(part).join(" ");
   }
-  rest = rest
-    .replace(/\bHTTP(\/[\d.]+)?\b/gi, " ")
-    .replace(/\d+(\.\d+)?\s*(ns|µs|us|ms|s)\b/gi, " ")
-    .replace(/[^\p{L}\p{N}]+/gu, " ");
+  rest = rest.replace(/\bHTTP(\/[\d.]+)?\b/gi, " ");
+  // Only when the headline shows a duration; otherwise "35ms" in the message is
+  // the one place the line says how long it took.
+  if (r.durationMs !== undefined) rest = rest.replace(/\d+(\.\d+)?\s*(ns|µs|us|ms|s)\b/gi, " ");
+  rest = rest.replace(/[^\p{L}\p{N}]+/gu, " ");
   return rest.trim() === "";
 }
 
