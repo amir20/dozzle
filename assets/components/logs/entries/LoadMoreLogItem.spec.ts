@@ -44,7 +44,7 @@ function setup(loader: (entry: LoadMoreLogEntry) => Promise<boolean | void>) {
   const entry = new LoadMoreLogEntry(new Date(), loader);
   const wrapper = mount(LoadMoreLogItem, { props: { logEntry: entry }, attachTo: loaderRow });
   wrapper.element.getBoundingClientRect = () => rect(layout.loaderTop, 1);
-  return { layout, wrapper, scroller };
+  return { layout, wrapper, scroller, anchor };
 }
 
 async function fire() {
@@ -96,12 +96,24 @@ describe("LoadMoreLogItem scroll position", () => {
   });
 
   test("leaves a window that replaced this one alone", async () => {
-    const { layout, wrapper } = setup(async () => {
+    const { layout, wrapper, anchor } = setup(async () => {
       layout.scrollHeight += 800;
       wrapper.unmount();
+      anchor.remove();
     });
     await fire();
     expect(layout.scrollTop).toBe(0);
+  });
+
+  test("holds the place on the last page, where the start edge replaces this row", async () => {
+    const { layout, wrapper } = setup(async () => {
+      layout.scrollHeight += 300;
+      layout.anchorTop += 300;
+      wrapper.unmount();
+      return true;
+    });
+    await fire();
+    expect(layout.scrollTop).toBe(300);
   });
 });
 

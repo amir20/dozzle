@@ -40,8 +40,9 @@ async function load() {
     isLoading.value = false;
   }
   await nextTick();
-  // A replaced window took this row away, and its own scroll position stands.
-  if (!root.value?.isConnected) return;
+  // A replaced window took the anchor away too, and its own scroll position
+  // stands. The last page swaps this row for the start edge but keeps the anchor,
+  // so that page still holds the reader's place.
   if (logEntry.rememberScrollPosition && anchor?.isConnected && anchorTop !== undefined) {
     scroller.scrollTop += anchor.getBoundingClientRect().top - anchorTop;
   }
