@@ -101,8 +101,15 @@ if (historical.value) {
     // The first real row at or past the moment, which is where an alert with no
     // line of its own is spliced in. Load-more rows carry `now` as their date
     // and pin to the ends, so they would match ahead of anything real.
-    const entry = messages.value.find((m) => !(m instanceof LoadMoreLogEntry) && m.date.getTime() >= openedOn);
-    if (entry) document.getElementById(entry.id.toString())?.scrollIntoView({ behavior: "instant", block: "center" });
+    const index = messages.value.findIndex((m) => !(m instanceof LoadMoreLogEntry) && m.date.getTime() >= openedOn);
+    if (index === -1) return;
+    // With folding on, that line may sit inside a collapsed run, which draws only
+    // its newest line; the first line from here on that has a row is that run.
+    const row = messages.value
+      .slice(index)
+      .map((m) => document.getElementById(m.id.toString()))
+      .find((el) => el !== null);
+    row?.scrollIntoView({ behavior: "instant", block: "center" });
   });
 }
 

@@ -21,7 +21,7 @@ defineEmits<{ toggle: [] }>();
 <style scoped>
 @reference "@/main.css";
 .repeat-count {
-  @apply bg-base-content/10 text-base-content/70 hover:bg-base-content/20 ml-2 inline-block h-fit shrink-0 cursor-pointer rounded px-1.5 align-baseline font-bold whitespace-nowrap select-none;
+  @apply bg-base-content/10 text-base-content/70 hover:bg-base-content/20 ml-2 inline-block h-fit shrink-0 rounded px-1.5 align-baseline font-bold whitespace-nowrap select-none;
   text-indent: 0;
 
   &.open {

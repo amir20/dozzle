@@ -36,6 +36,15 @@ describe("readFields", () => {
       status: 400,
     });
     expect(r.titleRepeatsRequest).toBe(true);
+    // Anything more than the request is real content and stays.
+    expect(
+      readFields({ msg: "rate limited on /api/orders, retry in 30s", method: "POST", path: "/api/orders", status: 429 })
+        .titleRepeatsRequest,
+    ).toBe(false);
+    expect(
+      readFields({ msg: "upstream http://auth:8080/token timed out", method: "GET", path: "/", status: 502 })
+        .titleRepeatsRequest,
+    ).toBe(false);
     expect(readFields({ msg: "order created", method: "POST", path: "/api/orders" }).titleRepeatsRequest).toBe(false);
   });
 

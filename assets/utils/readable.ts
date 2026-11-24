@@ -90,9 +90,28 @@ export function readFields(fields: Record<string, unknown>): Reading {
         break;
       }
     }
-    r.titleRepeatsRequest = r.title !== undefined && r.path !== undefined && r.title.includes(r.path);
+    r.titleRepeatsRequest = r.title !== undefined && restatesRequest(r.title, r);
   }
   return r;
+}
+
+/**
+ * Whether a message says nothing the request headline doesn't: with its method,
+ * path, status, "HTTP", a duration and punctuation taken out, nothing is left.
+ * "POST /api/events ⇒ HTTP 400 (472ms)" restates; "rate limited on /api/orders"
+ * does not, and is shown.
+ */
+function restatesRequest(title: string, r: Reading): boolean {
+  if (r.method === undefined && r.path === undefined) return false;
+  let rest = title;
+  for (const part of [r.method, r.path, r.status?.toString()]) {
+    if (part) rest = rest.split(part).join(" ");
+  }
+  rest = rest
+    .replace(/\bHTTP(\/[\d.]+)?\b/gi, " ")
+    .replace(/\d+(\.\d+)?\s*(ns|µs|us|ms|s)\b/gi, " ")
+    .replace(/[^\p{L}\p{N}]+/gu, " ");
+  return rest.trim() === "";
 }
 
 export function formatDuration(ms: number): string {
