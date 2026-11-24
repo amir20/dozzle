@@ -172,6 +172,8 @@ label:
   k8s-menu: Kubernetes
   group-menu: 自訂群組
 tooltip:
+  fold-repeats: "摺疊這些行"
+  unfold-repeats: "連續記錄了 {count} 次。點擊顯示每一行。"
   filter-list: "篩選清單"
   memory-new: "Dozzle Cloud 之前未在此容器上看過此錯誤。點擊以在上下文中查看。"
   memory-new-since: "首次在此容器上出現：{time}。點擊查看它從哪裡開始。"
@@ -319,6 +321,12 @@ settings:
   soft-wrap-desc: "長行自動換行，而不是橫向捲動。"
   highlight-errors: 醒目提示錯誤行
   highlight-errors-desc: "彩色等級標記會一直顯示。"
+  line-style: "行樣式"
+  line-style-desc: "易讀模式下，JSON 行先顯示訊息，請求先顯示方法、路徑、狀態和耗時。"
+  line-style-raw: "原始"
+  line-style-readable: "易讀"
+  fold-repeats: "摺疊重複行"
+  fold-repeats-desc: "連續內容相同的行只顯示一次，並標出次數。"
   date-format: "日期格式"
   time-format: "時間格式"
   font-size: 字型大小
@@ -357,6 +365,7 @@ settings:
     "12": "12 小時制"
     "24": "24 小時制"
   log:
+    repeat: "健康檢查通過"
     preview: 這是日誌的預覽
     warning: 警告日誌看起來是這樣的
     complex: 這是一筆 JSON 格式的複雜日誌項目

@@ -6,21 +6,35 @@
     data-logs
   >
     <li
-      v-for="item in messages"
-      :key="item.id"
+      v-for="{ item, key, run } in rows"
+      :key="key"
       :id="item.id.toString()"
       :data-time="item.date.getTime()"
       :data-log-level="rowLevel(item)"
       class="group/entry"
       :class="{ 'log-permalink-target': permalinkLogId === item.id.toString() }"
     >
-      <component :is="item.getComponent()" :log-entry="item" />
+      <component
+        :is="item.getComponent()"
+        :log-entry="item"
+        v-bind="run ? { fold: run, onToggleFold: () => toggleRun(run.id) } : {}"
+      />
     </li>
   </ul>
 </template>
 
 <script lang="ts" setup>
-import { AlertLogEntry, CloudEventLogEntry, DeployLogEntry, type LogEntry, type LogMessage } from "@/models/LogEntry";
+import {
+  AlertLogEntry,
+  CloudEventLogEntry,
+  ComplexLogEntry,
+  DeployLogEntry,
+  SimpleLogEntry,
+  type LogEntry,
+  type LogMessage,
+} from "@/models/LogEntry";
+import { repeatKey, type FoldRun } from "@/utils/readable";
+import { foldRepeats } from "@/stores/settings";
 import { isStopped } from "@/models/Container";
 
 const { progress, currentDate, available } = useScrollContext();
@@ -41,6 +55,57 @@ const rowLevel = (item: LogEntry<LogMessage>) =>
 
 const route = useRoute();
 const permalinkLogId = computed(() => (typeof route.query.logId === "string" ? route.query.logId : ""));
+
+// ─── Folding repeats ─────────────────────────────────────────────────────
+//
+// With foldRepeats on, lines in a row from the same container, at the same
+// level and saying the same thing show once: the newest of them, with ×N. Only
+// plain and structured output folds; alerts, deploys and the rest never do.
+// The ×N opens the run to show each line, and closes it again. The row draws it
+// after its own message, so only plain and structured rows are given `fold`.
+type Row = {
+  item: LogEntry<LogMessage>;
+  key: string | number;
+  run?: FoldRun;
+};
+
+const openRuns = ref(new Set<number>());
+function toggleRun(id: number) {
+  const next = new Set(openRuns.value);
+  if (next.has(id)) next.delete(id);
+  else next.add(id);
+  openRuns.value = next;
+}
+
+function foldKey(item: LogEntry<LogMessage>): string | undefined {
+  // A permalinked line must stay on screen to be scrolled to.
+  if (item.id.toString() === permalinkLogId.value) return undefined;
+  let says: string | undefined;
+  if (item instanceof SimpleLogEntry) says = item.message.slice(item.timestampPrefix);
+  else if (item instanceof ComplexLogEntry) says = repeatKey(item.message);
+  return says === undefined ? undefined : `${item.containerID}\u0000${item.level}\u0000${says}`;
+}
+
+const rows = computed<Row[]>(() => {
+  if (!foldRepeats.value) return messages.map((item) => ({ item, key: item.id }));
+  const runs: Array<{ key?: string; items: LogEntry<LogMessage>[] }> = [];
+  for (const item of messages) {
+    const key = foldKey(item);
+    const last = runs.at(-1);
+    if (key !== undefined && last?.key === key) last.items.push(item);
+    else runs.push({ key, items: [item] });
+  }
+  return runs.flatMap(({ items }): Row[] => {
+    const id = items[0].id;
+    if (items.length === 1) return [{ item: items[0], key: id }];
+    const open = openRuns.value.has(id);
+    const run = { id, size: items.length, open };
+    // Keyed by the run, not by its newest line, so a run that grows while you
+    // read it stays the same row.
+    if (!open) return [{ item: items.at(-1)!, key: `run-${id}`, run }];
+    return items.map((item, i) => ({ item, key: item.id, run: i === items.length - 1 ? run : undefined }));
+  });
+});
 
 const list = ref<HTMLElement>();
 

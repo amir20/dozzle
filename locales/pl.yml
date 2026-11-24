@@ -172,6 +172,8 @@ label:
   more-options: Więcej opcji
   groups: Grupy
 tooltip:
+  fold-repeats: "Zwiń te wiersze"
+  unfold-repeats: "Zapisano {count} razy z rzędu. Kliknij, aby pokazać każdy wiersz."
   filter-list: "Filtruj listę"
   memory-new: "Dozzle Cloud nie widział wcześniej tego błędu w tym kontenerze. Kliknij, aby zobaczyć go w kontekście."
   memory-new-since: "Pierwszy raz widziany w tym kontenerze: {time}. Kliknij, aby zobaczyć, gdzie się zaczął."
@@ -319,6 +321,12 @@ settings:
   soft-wrap-desc: "Zawija długie wiersze zamiast przewijać w bok."
   highlight-errors: Wyróżniaj wiersze błędów
   highlight-errors-desc: "Kolorowy znacznik poziomu jest zawsze widoczny."
+  line-style: "Styl wierszy"
+  line-style-desc: "Czytelny pokazuje najpierw komunikat wiersza JSON, a dla żądania metodę, ścieżkę, status i czas trwania."
+  line-style-raw: "Surowy"
+  line-style-readable: "Czytelny"
+  fold-repeats: "Zwijaj powtórzone wiersze"
+  fold-repeats-desc: "Kolejne wiersze o tej samej treści są pokazywane raz, z liczbą powtórzeń."
   date-format: "Format daty"
   time-format: "Format godziny"
   font-size: Rozmiar czcionki
@@ -357,6 +365,7 @@ settings:
     "12": "12-godzinny"
     "24": "24-godzinny"
   log:
+    repeat: "Kontrola stanu zakończona sukcesem"
     preview: To jest podgląd logów
     warning: Log ostrzeżenia wygląda tak
     complex: To jest złożony wpis dziennika w formacie json

@@ -172,6 +172,8 @@ label:
     empty: "Ni ujemajočih se dnevnikov"
     empty-hint: "Preiskani vsi dnevniki. Poskusite z drugim izrazom ali počistite iskanje."
 tooltip:
+  fold-repeats: "Strni te vrstice"
+  unfold-repeats: "Zabeleženo {count}-krat zapored. Kliknite za prikaz vsake vrstice."
   filter-list: "Filtriraj seznam"
   memory-new: "Dozzle Cloud te napake v tem vsebniku še ni videl. Kliknite za prikaz v kontekstu."
   memory-new-since: "Prvič opažena v tem vsebniku: {time}. Kliknite za prikaz, kje se je začela."
@@ -319,6 +321,12 @@ settings:
   soft-wrap-desc: "Dolge vrstice prelomi, namesto da se pomikajo vstran."
   highlight-errors: Označi vrstice z napakami
   highlight-errors-desc: "Barvna oznaka ravni je vedno prikazana."
+  line-style: "Slog vrstic"
+  line-style-desc: "Berljivo pri vrstici JSON najprej pokaže sporočilo, pri zahtevi pa metodo, pot, status in trajanje."
+  line-style-raw: "Surovo"
+  line-style-readable: "Berljivo"
+  fold-repeats: "Strni ponovljene vrstice"
+  fold-repeats-desc: "Zaporedne vrstice z enako vsebino so prikazane enkrat, s številom ponovitev."
   date-format: "Oblika datuma"
   time-format: "Oblika časa"
   font-size: Velikost pisave
@@ -355,6 +363,7 @@ settings:
     "12": "12-urna"
     "24": "24-urna"
   log:
+    repeat: "Preverjanje zdravja uspešno"
     preview: To je predogled dnevnikov
     warning: Dnevnik opozoril izgleda tako
     complex: To je zapleten vnos v dnevnik kot json

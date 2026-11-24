@@ -172,6 +172,8 @@ label:
   more-options: Diğer seçenekler
   groups: Gruplar
 tooltip:
+  fold-repeats: "Bu satırları katla"
+  unfold-repeats: "Art arda {count} kez kaydedildi. Her satırı göstermek için tıklayın."
   filter-list: "Listeyi filtrele"
   memory-new: "Dozzle Cloud bu hatayı bu container'da daha önce görmedi. Bağlamında görmek için tıklayın."
   memory-new-since: "Bu container'da ilk görülme: {time}. Nerede başladığını görmek için tıklayın."
@@ -320,6 +322,12 @@ settings:
   soft-wrap-desc: "Yana kaydırmak yerine uzun satırları kaydırır."
   highlight-errors: Hata satırlarını vurgula
   highlight-errors-desc: "Renkli seviye işareti her zaman gösterilir."
+  line-style: "Satır stili"
+  line-style-desc: "Okunabilir, bir JSON satırında önce mesajı, bir istekte ise yöntem, yol, durum ve süreyi gösterir."
+  line-style-raw: "Ham"
+  line-style-readable: "Okunabilir"
+  fold-repeats: "Tekrarlanan satırları katla"
+  fold-repeats-desc: "Art arda aynı şeyi söyleyen satırlar, kaç kez olduğuyla birlikte bir kez gösterilir."
   date-format: "Tarih biçimi"
   time-format: "Saat biçimi"
   font-size: Yazı boyutu
@@ -358,6 +366,7 @@ settings:
     "12": "12 saat"
     "24": "24 saat"
   log:
+    repeat: "Sağlık kontrolü geçti"
     preview: Bu, logların bir önizlemesidir
     warning: Bir uyarı logu böyle görünür
     complex: Bu, json formatında karmaşık bir log girişidir

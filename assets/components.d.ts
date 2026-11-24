@@ -331,6 +331,7 @@ declare module 'vue' {
     RangeEmptyState: typeof import('./components/logs/RangeEmptyState.vue')['default']
     ReadOnlyRow: typeof import('./components/ui/ReadOnlyRow.vue')['default']
     RelativeTime: typeof import('./components/ui/RelativeTime.vue')['default']
+    RepeatCount: typeof import('./components/logs/RepeatCount.vue')['default']
     'Ri:terminalWindowFill': typeof import('~icons/ri/terminal-window-fill')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
