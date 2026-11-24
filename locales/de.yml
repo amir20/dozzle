@@ -172,6 +172,8 @@ label:
   more-options: Weitere Optionen
   groups: Gruppen
 tooltip:
+  fold-repeats: "Zeilen zusammenfassen"
+  unfold-repeats: "{count}-mal hintereinander geloggt. Klicken, um jede Zeile zu zeigen."
   filter-list: "Liste filtern"
   memory-new: "Dozzle Cloud hat diesen Fehler in diesem Container noch nie gesehen. Klicken, um ihn im Kontext zu sehen."
   memory-new-since: "Zuerst in diesem Container gesehen: {time}. Klicken, um zu sehen, wo er begann."
@@ -317,6 +319,12 @@ settings:
   soft-wrap-desc: "Lange Zeilen umbrechen statt seitlich zu scrollen."
   highlight-errors: Fehlerzeilen hervorheben
   highlight-errors-desc: "Die farbige Level-Markierung wird immer angezeigt."
+  line-style: "Zeilenstil"
+  line-style-desc: "Lesbar zeigt bei einer JSON-Zeile zuerst die Nachricht und bei einer Anfrage Methode, Pfad, Status und Dauer."
+  line-style-raw: "Roh"
+  line-style-readable: "Lesbar"
+  fold-repeats: "Wiederholte Zeilen zusammenfassen"
+  fold-repeats-desc: "Aufeinanderfolgende Zeilen mit gleichem Inhalt erscheinen einmal, mit ihrer Anzahl."
   date-format: "Datumsformat"
   time-format: "Zeitformat"
   font-size: Schriftgröße
@@ -355,6 +363,7 @@ settings:
     "12": "12 Stunden"
     "24": "24 Stunden"
   log:
+    repeat: "Healthcheck bestanden"
     preview: Dies ist eine Vorschau auf die Protokolle
     warning: Ein Warnprotokoll sieht wie folgt aus
     complex: Dies ist ein komplexer Protokolleintrag als json

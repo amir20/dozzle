@@ -155,6 +155,7 @@ declare global {
   const firstLineByContainer: typeof import('./composable/logs/updateMarkers').firstLineByContainer
   const flattenJSON: typeof import('./utils/index').flattenJSON
   const flattenJSONToMap: typeof import('./utils/index').flattenJSONToMap
+  const foldRepeats: typeof import('./stores/settings').foldRepeats
   const forgetPlaced: typeof import('./composable/cloud/cloudAlerts').forgetPlaced
   const formatBytes: typeof import('./utils/index').formatBytes
   const formatCopyBlocks: typeof import('./composable/logs/copyLogs').formatCopyBlocks
@@ -217,6 +218,7 @@ declare global {
   const levelPill: typeof import('./composable/cloud/alertsTimeline').levelPill
   const levelTint: typeof import('./composable/cloud/alertsTimeline').levelTint
   const lightTheme: typeof import('./stores/settings').lightTheme
+  const lineStyle: typeof import('./stores/settings').lineStyle
   const linesNeedingMemory: typeof import('./composable/cloud/patternMemory').linesNeedingMemory
   const liveMinutes: typeof import('./composable/cloud/liveMetrics').liveMinutes
   const loadBetween: typeof import('./composable/logs/loadBetween').loadBetween
@@ -981,6 +983,7 @@ declare module 'vue' {
     readonly firstLineByContainer: UnwrapRef<typeof import('./composable/logs/updateMarkers')['firstLineByContainer']>
     readonly flattenJSON: UnwrapRef<typeof import('./utils/index')['flattenJSON']>
     readonly flattenJSONToMap: UnwrapRef<typeof import('./utils/index')['flattenJSONToMap']>
+    readonly foldRepeats: UnwrapRef<typeof import('./stores/settings')['foldRepeats']>
     readonly forgetPlaced: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['forgetPlaced']>
     readonly formatBytes: UnwrapRef<typeof import('./utils/index')['formatBytes']>
     readonly formatDuration: UnwrapRef<typeof import('./utils/index')['formatDuration']>
@@ -1039,6 +1042,7 @@ declare module 'vue' {
     readonly levelPill: UnwrapRef<typeof import('./composable/cloud/alertsTimeline')['levelPill']>
     readonly levelTint: UnwrapRef<typeof import('./composable/cloud/alertsTimeline')['levelTint']>
     readonly lightTheme: UnwrapRef<typeof import('./stores/settings')['lightTheme']>
+    readonly lineStyle: UnwrapRef<typeof import('./stores/settings')['lineStyle']>
     readonly linesNeedingMemory: UnwrapRef<typeof import('./composable/cloud/patternMemory')['linesNeedingMemory']>
     readonly liveMinutes: UnwrapRef<typeof import('./composable/cloud/liveMetrics')['liveMinutes']>
     readonly loadBetween: UnwrapRef<typeof import('./composable/logs/loadBetween')['loadBetween']>

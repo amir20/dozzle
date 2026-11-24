@@ -172,6 +172,8 @@ label:
   more-options: More options
   groups: Groups
 tooltip:
+  fold-repeats: "Fold these lines"
+  unfold-repeats: "Logged {count} times in a row. Click to show each line."
   filter-list: "Filter list"
   memory-new: "Dozzle Cloud hasn't seen this error on this container before. Click to see it in context."
   memory-new-since: "First seen on this container: {time}. Click to see where it started."
@@ -561,6 +563,12 @@ settings:
   soft-wrap-desc: "Wrap long lines instead of scrolling sideways."
   highlight-errors: Highlight error rows
   highlight-errors-desc: The colored level marker is always shown.
+  line-style: "Line style"
+  line-style-desc: "Readable leads a JSON line with its message, and a request with method, path, status and duration."
+  line-style-raw: "Raw"
+  line-style-readable: "Readable"
+  fold-repeats: "Fold repeated lines"
+  fold-repeats-desc: "Lines in a row that say the same thing show once, with how many times."
   date-format: "Date format"
   time-format: "Time format"
   font-size: Font size
@@ -601,6 +609,7 @@ settings:
     "12": "12-hour"
     "24": "24-hour"
   log:
+    repeat: "Health check passed"
     preview: This is a preview of the logs
     warning: A warning log looks like this
     complex: This is a complex log entry as json

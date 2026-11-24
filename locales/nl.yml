@@ -172,6 +172,8 @@ label:
   more-options: Meer opties
   groups: Groepen
 tooltip:
+  fold-repeats: "Deze regels samenvouwen"
+  unfold-repeats: "{count} keer achter elkaar gelogd. Klik om elke regel te tonen."
   filter-list: "Lijst filteren"
   memory-new: "Dozzle Cloud heeft deze fout nog niet eerder op deze container gezien. Klik om hem in context te zien."
   memory-new-since: "Voor het eerst gezien op deze container: {time}. Klik om te zien waar hij begon."
@@ -318,6 +320,12 @@ settings:
   soft-wrap-desc: "Lange regels afbreken in plaats van zijwaarts te scrollen."
   highlight-errors: Foutregels markeren
   highlight-errors-desc: "De gekleurde niveaumarkering wordt altijd getoond."
+  line-style: "Regelstijl"
+  line-style-desc: "Leesbaar toont bij een JSON-regel eerst het bericht, en bij een request de methode, het pad, de status en de duur."
+  line-style-raw: "Ruw"
+  line-style-readable: "Leesbaar"
+  fold-repeats: "Herhaalde regels samenvouwen"
+  fold-repeats-desc: "Opeenvolgende regels met dezelfde inhoud verschijnen één keer, met het aantal."
   date-format: "Datumnotatie"
   time-format: "Tijdnotatie"
   font-size: Lettergrootte
@@ -356,6 +364,7 @@ settings:
     "12": "12-uurs"
     "24": "24-uurs"
   log:
+    repeat: "Healthcheck geslaagd"
     preview: Voorbeeld van de logweergave
     warning: Een waarschuwingslog ziet er zo uit
     complex: Dit is een complexe logvermelding in JSON-formaat

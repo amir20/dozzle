@@ -172,6 +172,8 @@ label:
   more-options: Flere valgmuligheder
   groups: Grupper
 tooltip:
+  fold-repeats: "Fold disse linjer"
+  unfold-repeats: "Logget {count} gange i træk. Klik for at vise hver linje."
   filter-list: "Filtrer listen"
   memory-new: "Dozzle Cloud har ikke set denne fejl på denne container før. Klik for at se den i sammenhæng."
   memory-new-since: "Først set på denne container: {time}. Klik for at se, hvor den startede."
@@ -317,6 +319,12 @@ settings:
   soft-wrap-desc: "Ombryd lange linjer i stedet for at rulle sidelæns."
   highlight-errors: Fremhæv fejllinjer
   highlight-errors-desc: "Den farvede niveaumarkør vises altid."
+  line-style: "Linjestil"
+  line-style-desc: "Læsbar viser en JSON-linjes besked først, og en forespørgsel med metode, sti, status og varighed."
+  line-style-raw: "Rå"
+  line-style-readable: "Læsbar"
+  fold-repeats: "Fold gentagne linjer"
+  fold-repeats-desc: "Linjer i træk, der siger det samme, vises én gang med antallet."
   date-format: "Datoformat"
   time-format: "Tidsformat"
   font-size: Skriftstørrelse
@@ -355,6 +363,7 @@ settings:
     "12": "12-timers"
     "24": "24-timers"
   log:
+    repeat: "Sundhedstjek bestået"
     preview: Dette er en forhåndsvisning af loggene
     warning: En advarselslog ser sådan ud
     complex: Dette er en kompleks logindtastning som json

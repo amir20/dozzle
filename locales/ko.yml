@@ -172,6 +172,8 @@ label:
   more-options: 추가 옵션
   groups: 그룹
 tooltip:
+  fold-repeats: "이 줄들 접기"
+  unfold-repeats: "연속으로 {count}번 기록됨. 클릭하면 각 줄을 표시합니다."
   filter-list: "목록 필터"
   memory-new: "Dozzle Cloud가 이 컨테이너에서 이 오류를 본 적이 없습니다. 클릭하면 맥락 속에서 볼 수 있습니다."
   memory-new-since: "이 컨테이너에서 처음 발견: {time}. 클릭하면 처음 시작된 곳을 볼 수 있습니다."
@@ -319,6 +321,12 @@ settings:
   soft-wrap-desc: "긴 줄을 옆으로 스크롤하는 대신 줄바꿈합니다."
   highlight-errors: 오류 줄 강조
   highlight-errors-desc: "색상 레벨 표시는 항상 보입니다."
+  line-style: "줄 스타일"
+  line-style-desc: "읽기 쉬움은 JSON 줄의 메시지를, 요청이면 메서드·경로·상태·소요 시간을 먼저 보여줍니다."
+  line-style-raw: "원본"
+  line-style-readable: "읽기 쉬움"
+  fold-repeats: "반복된 줄 접기"
+  fold-repeats-desc: "같은 내용이 연속된 줄을 한 번만 보여주고 횟수를 표시합니다."
   date-format: "날짜 형식"
   time-format: "시간 형식"
   font-size: 글꼴 크기
@@ -357,6 +365,7 @@ settings:
     "12": "12시간제"
     "24": "24시간제"
   log:
+    repeat: "헬스 체크 통과"
     preview: 로그 미리보기입니다
     warning: 경고 로그는 이렇게 표시됩니다
     complex: JSON 형태의 복잡한 로그 항목입니다

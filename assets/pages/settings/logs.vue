@@ -27,6 +27,29 @@
           </button>
         </span>
       </SettingRow>
+      <SettingRow :label="$t('settings.line-style')" :description="$t('settings.line-style-desc')" class="px-4">
+        <span role="tablist" class="tabs tabs-box tabs-sm">
+          <button
+            v-for="opt in lineStyles"
+            :key="opt.value"
+            type="button"
+            role="tab"
+            class="tab"
+            :class="{ 'tab-active': lineStyle === opt.value }"
+            @click="lineStyle = opt.value"
+          >
+            {{ opt.label }}
+          </button>
+        </span>
+      </SettingRow>
+      <SettingRow
+        tag="label"
+        :label="$t('settings.fold-repeats')"
+        :description="$t('settings.fold-repeats-desc')"
+        class="px-4"
+      >
+        <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="foldRepeats" />
+      </SettingRow>
       <SettingRow tag="label" :label="$t('settings.compact')" :description="$t('settings.compact-desc')" class="px-4">
         <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="compact" />
       </SettingRow>
@@ -85,7 +108,17 @@
 
 <script lang="ts" setup>
 import { ComplexLogEntry, SimpleLogEntry, GroupedLogEntry } from "@/models/LogEntry";
-import { compact, dateLocale, hourStyle, showTimestamp, size, softWrap, highlightErrors } from "@/stores/settings";
+import {
+  compact,
+  dateLocale,
+  hourStyle,
+  showTimestamp,
+  size,
+  softWrap,
+  highlightErrors,
+  lineStyle,
+  foldRepeats,
+} from "@/stores/settings";
 import { i18n } from "@/modules/i18n";
 
 const { t } = useI18n();
@@ -96,12 +129,24 @@ const sizes = computed(() => [
   { label: t("settings.size.large"), value: "large" as const },
 ]);
 
+const lineStyles = computed(() => [
+  { label: t("settings.line-style-raw"), value: "raw" as const },
+  { label: t("settings.line-style-readable"), value: "readable" as const },
+]);
+
 // The preview sits above the controls that resize it, so every change would push
 // the control out from under the pointer. Scroll by however much the preview's
 // bottom edge moved, which keeps everything below it still.
 const previewEl = useTemplateRef("previewEl");
 let previewBottom: number | undefined;
-const previewSettings = () => [size.value, compact.value, showTimestamp.value, softWrap.value];
+const previewSettings = () => [
+  size.value,
+  compact.value,
+  showTimestamp.value,
+  softWrap.value,
+  lineStyle.value,
+  foldRepeats.value,
+];
 watch(previewSettings, () => (previewBottom = previewEl.value?.getBoundingClientRect().bottom), { flush: "pre" });
 watch(
   previewSettings,
@@ -151,6 +196,28 @@ const fakeMessages = computedWithControl(
       "info",
       "stdout",
       "",
+    ),
+    // A request, so Readable has something to lead with.
+    new ComplexLogEntry(
+      {
+        time: new Date().toISOString(),
+        level: "info",
+        method: "GET",
+        path: "/api/orders",
+        status: 200,
+        duration_ms: 42,
+        client_ip: "10.0.0.4",
+      },
+      "123",
+      8,
+      new Date(),
+      "info",
+      "stdout",
+      "",
+    ),
+    // The same line three times, so folding has something to fold.
+    ...[9, 10, 11].map(
+      (id) => new SimpleLogEntry(t("settings.log.repeat"), "123", id, new Date(), "info", "stdout", ""),
     ),
     new SimpleLogEntry(t("settings.log.simple"), "123", 7, new Date(), "debug", "stderr", ""),
   ],

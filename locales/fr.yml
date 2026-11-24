@@ -172,6 +172,8 @@ label:
   more-options: Plus d'options
   groups: Groupes
 tooltip:
+  fold-repeats: "Regrouper ces lignes"
+  unfold-repeats: "Journalisée {count} fois de suite. Cliquez pour voir chaque ligne."
   filter-list: "Filtrer la liste"
   memory-new: "Dozzle Cloud n'a jamais vu cette erreur sur ce conteneur. Cliquez pour la voir en contexte."
   memory-new-since: "Vue pour la première fois sur ce conteneur : {time}. Cliquez pour voir où elle a commencé."
@@ -317,6 +319,12 @@ settings:
   soft-wrap-desc: "Renvoie les longues lignes à la ligne au lieu de défiler sur le côté."
   highlight-errors: Mettre en évidence les lignes d'erreur
   highlight-errors-desc: "Le marqueur de niveau coloré est toujours affiché."
+  line-style: "Style de ligne"
+  line-style-desc: "Lisible affiche d'abord le message d'une ligne JSON, et pour une requête la méthode, le chemin, le statut et la durée."
+  line-style-raw: "Brut"
+  line-style-readable: "Lisible"
+  fold-repeats: "Regrouper les lignes répétées"
+  fold-repeats-desc: "Les lignes consécutives identiques s'affichent une seule fois, avec leur nombre."
   date-format: "Format de date"
   time-format: "Format de l'heure"
   font-size: Taille de police
@@ -355,6 +363,7 @@ settings:
     "12": "12 heures"
     "24": "24 heures"
   log:
+    repeat: "Vérification de santé réussie"
     preview: Voici un aperçu des logs
     warning: Un log d'avertissement ressemble à ceci
     complex: Voici une entrée de journal complexe au format json

@@ -172,6 +172,8 @@ label:
   more-options: その他のオプション
   groups: グループ
 tooltip:
+  fold-repeats: "これらの行をまとめる"
+  unfold-repeats: "{count} 回連続で記録されました。クリックすると各行を表示します。"
   filter-list: "リストをフィルタ"
   memory-new: "Dozzle Cloud は、このコンテナでこのエラーをまだ見たことがありません。クリックすると前後のログを表示します。"
   memory-new-since: "このコンテナでの初回検出: {time}。クリックすると発生箇所を表示します。"
@@ -554,6 +556,12 @@ settings:
   soft-wrap-desc: "長い行を横スクロールせず折り返して表示します。"
   highlight-errors: エラー行を強調表示
   highlight-errors-desc: 色付きのレベルマーカーは常に表示されます。
+  line-style: "行のスタイル"
+  line-style-desc: "読みやすい表示では、JSON 行はメッセージを先頭に、リクエストはメソッド・パス・ステータス・所要時間を先頭に表示します。"
+  line-style-raw: "そのまま"
+  line-style-readable: "読みやすい"
+  fold-repeats: "繰り返し行をまとめる"
+  fold-repeats-desc: "同じ内容が続く行を 1 行にまとめ、回数を表示します。"
   date-format: "日付形式"
   time-format: "時刻形式"
   font-size: フォントサイズ
@@ -594,6 +602,7 @@ settings:
     "12": "12 時間制"
     "24": "24 時間制"
   log:
+    repeat: "ヘルスチェック成功"
     preview: これはログのプレビューです
     warning: 警告ログはこのように表示されます
     complex: これは JSON 形式の複雑なログエントリです

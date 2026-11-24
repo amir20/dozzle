@@ -23,6 +23,11 @@ export type Settings = {
   showImageUpdateAlert: boolean;
   showAppIcons: boolean;
   highlightErrors: boolean;
+  // "raw" keeps each line's own field order; "readable" leads a structured line with
+  // its message (and, for a request, method, path, status and duration).
+  lineStyle: "raw" | "readable";
+  // Lines in a row that say the same thing show once, with how many times.
+  foldRepeats: boolean;
   terminalFontSize: number;
   // dashboard table columns the user switched off; the name column cannot be
   hiddenColumns: string[];
@@ -49,6 +54,8 @@ export const DEFAULT_SETTINGS: Settings = {
   showImageUpdateAlert: false,
   showAppIcons: true,
   highlightErrors: true,
+  lineStyle: "raw",
+  foldRepeats: false,
   terminalFontSize: 13,
   // Stored as what is hidden, so a column added later shows up unless it is listed here.
   hiddenColumns: ["uptime", "diskio"],
@@ -86,6 +93,8 @@ export const {
   groupContainers,
   showAppIcons,
   highlightErrors,
+  lineStyle,
+  foldRepeats,
   terminalFontSize,
   hiddenColumns,
   movingAverage,
