@@ -70,6 +70,21 @@ describe("LoadMoreLogItem scroll position", () => {
     expect(layout.scrollTop).toBe(300);
   });
 
+  test("follows the reader's row when folding redraws it as a new element", async () => {
+    const { layout, anchor } = setup(async () => {
+      // Older repeats joined the top run: same line id, new element, 300px lower.
+      const redrawn = document.createElement("li");
+      redrawn.id = anchor.id;
+      redrawn.getBoundingClientRect = () => rect(310);
+      anchor.replaceWith(redrawn);
+      layout.scrollHeight += 300;
+      layout.loaderTop = -310;
+    });
+    anchor.id = "42";
+    await fire();
+    expect(layout.scrollTop).toBe(300);
+  });
+
   test("stays put when the older lines merged in below the view", async () => {
     const { layout } = setup(async () => {
       layout.scrollHeight += 500;
