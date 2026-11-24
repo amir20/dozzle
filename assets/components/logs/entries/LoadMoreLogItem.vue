@@ -40,11 +40,14 @@ async function load() {
     isLoading.value = false;
   }
   await nextTick();
-  // A replaced window took the anchor away too, and its own scroll position
-  // stands. The last page swaps this row for the start edge but keeps the anchor,
-  // so that page still holds the reader's place.
-  if (logEntry.rememberScrollPosition && anchor?.isConnected && anchorTop !== undefined) {
-    scroller.scrollTop += anchor.getBoundingClientRect().top - anchorTop;
+  // With folding on, older repeats of the top line join its run, which redraws
+  // that row as a new element; a run shows its newest line, so the row keeps its
+  // id. A replaced window took the anchor away for good, and its own scroll
+  // position stands. The last page swaps this row for the start edge but keeps
+  // the anchor, so that page still holds the reader's place.
+  const current = anchor?.isConnected ? anchor : anchor?.id ? document.getElementById(anchor.id) : null;
+  if (logEntry.rememberScrollPosition && current && anchorTop !== undefined) {
+    scroller.scrollTop += current.getBoundingClientRect().top - anchorTop;
   }
   if (more && inView(scroller)) await load();
 }
