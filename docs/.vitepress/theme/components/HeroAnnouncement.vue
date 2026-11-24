@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed } from "vue";
-import { useRoute } from "vitepress";
+import { useRoute, withBase } from "vitepress";
 
 // The release notes worth interrupting the hero for, newest product news first.
 // Copy lives here rather than in index.md so the pills do not have to be
@@ -28,9 +28,10 @@ const items = computed(() => {
     <a
       v-for="item in items"
       :key="item.href"
-      class="inline-flex max-w-full items-center gap-2 rounded-full border border-(--vp-c-divider) bg-(--vp-c-bg-soft) py-1 pr-3 pl-1.5 text-left text-xs font-medium text-(--vp-c-text-2) no-underline! transition-colors hover:border-(--vp-c-brand-1) hover:text-(--vp-c-text-1) sm:text-sm"
+      class="inline-flex max-w-full items-center gap-2 rounded-full border border-(--vp-c-divider) bg-(--vp-c-bg-soft) py-1 pr-3 pl-1 text-left text-xs font-medium text-(--vp-c-text-2) no-underline! transition-colors hover:border-(--vp-c-brand-1) hover:text-(--vp-c-text-1) sm:text-sm"
       :href="item.href"
     >
+      <img :src="withBase('/ios/icon.png')" alt="" class="size-6 shrink-0 rounded-[22%]" />
       <span class="rounded-full bg-(--vp-c-brand-soft) px-2 py-0.5 text-xs font-semibold text-(--vp-c-brand-1)">
         {{ item.badge }}
       </span>
