@@ -38,6 +38,12 @@ describe("repeatKey", () => {
     expect(repeatKey({ msg: "order processed", order_id: 1 })).toBe(repeatKey({ msg: "order processed", order_id: 2 }));
   });
 
+  it("keeps a failing request apart from successful ones with the same message", () => {
+    expect(repeatKey({ msg: "request completed", status: 200 })).not.toBe(
+      repeatKey({ msg: "request completed", status: 500 }),
+    );
+  });
+
   it("is undefined for a line with no message or error, so it never folds", () => {
     expect(repeatKey({ method: "GET", path: "/" })).toBeUndefined();
   });

@@ -1,7 +1,13 @@
 <template>
-  <DefineTemplate v-slot="{ data }">
+  <DefineTemplate v-slot="{ data, top }">
     <ul class="inline-flex flex-wrap space-x-4" @click="preventDefaultOnLinks">
-      <li v-for="(value, name) in data" :key="name" v-if="isObject(data)" :class="{ repeated: isRepeated(name) }">
+      <!-- Only the line's own time and level repeat the row; a nested one is just data. -->
+      <li
+        v-for="(value, name) in data"
+        :key="name"
+        v-if="isObject(data)"
+        :class="{ repeated: top && isRepeated(name) }"
+      >
         <span class="key">{{ name }}=</span>
         <span class="value" v-if="value === null">&lt;null&gt;</span>
         <ReuseTemplate :data="value" v-else-if="isObject(value) || Array.isArray(value)" />
@@ -44,7 +50,7 @@
         <span v-if="reading.title" class="font-bold" v-html="stripAnsi(reading.title)"></span>
         <span v-if="reading.error" class="text-error" v-html="stripAnsi(reading.error)"></span>
       </div>
-      <ReuseTemplate :data="shownValues" v-if="Object.keys(shownValues).length > 0 || !reading" />
+      <ReuseTemplate :data="shownValues" top v-if="Object.keys(shownValues).length > 0 || !reading" />
     </div>
     <PatternMemoryChip v-if="logEntry.patternMemory" :memory="logEntry.patternMemory" :log-entry="logEntry" />
   </LogItem>

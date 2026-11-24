@@ -90,10 +90,11 @@ export function formatDuration(ms: number): string {
 
 /**
  * What a line says, for folding repeats: lines in a row with the same key fold
- * into one. A structured line's message and error; anything else, its text.
+ * into one. A structured line's message, error and status, so a 500 never
+ * hides behind a run of 200s that log the same message.
  */
 export function repeatKey(fields: Record<string, unknown>): string | undefined {
   const r = readFields(fields);
   if (r.title === undefined && r.error === undefined) return undefined;
-  return `${r.title ?? ""}\u0000${r.error ?? ""}`;
+  return `${r.title ?? ""}\u0000${r.error ?? ""}\u0000${r.status ?? ""}`;
 }
