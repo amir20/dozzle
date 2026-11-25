@@ -715,8 +715,7 @@ func (m *MultiHostService) ReplaceSubscription(sub *notification.Subscription) e
 	if err := m.notificationManager.ReplaceSubscription(sub); err != nil {
 		return err
 	}
-	m.saveNotificationConfig()
-	return nil
+	return m.saveNotificationConfig()
 }
 
 // UpdateSubscription updates a subscription with the provided fields
@@ -724,8 +723,7 @@ func (m *MultiHostService) UpdateSubscription(id int, updates map[string]any) er
 	if err := m.notificationManager.UpdateSubscription(id, updates); err != nil {
 		return err
 	}
-	m.saveNotificationConfig()
-	return nil
+	return m.saveNotificationConfig()
 }
 
 // Subscriptions returns all subscriptions
