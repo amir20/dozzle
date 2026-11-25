@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"io"
 	"maps"
 	"net"
 	"os"
@@ -12,7 +13,6 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/amir20/dozzle/internal/container/agent"
 	"github.com/amir20/dozzle/internal/container/docker"
 
 	"github.com/puzpuzpuz/xsync/v4"
@@ -21,7 +21,12 @@ import (
 )
 
 type SwarmClientManager struct {
-	clients      map[string]container.ClientService
+	clients map[string]container.ClientService
+	// peers maps the host id of every other node's agent to the endpoint it was
+	// found at, so one whose task left tasks.<service> can be dropped.
+	peers        map[string]swarmPeer
+	lookup       func(host string) ([]net.IP, error)
+	dial         agentDialer
 	certs        tls.Certificate
 	mu           sync.RWMutex
 	subscribers  *xsync.Map[*hostSubscriber, struct{}]
@@ -30,6 +35,11 @@ type SwarmClientManager struct {
 	name         string
 	timeout      time.Duration
 	agentManager *RetriableClientManager
+}
+
+type swarmPeer struct {
+	endpoint string
+	closer   io.Closer
 }
 
 func localIPs() []string {
@@ -73,6 +83,9 @@ func NewSwarmClientManager(localClient *docker.Client, certs tls.Certificate, ti
 	return &SwarmClientManager{
 		localClient:  localClient,
 		clients:      clientMap,
+		peers:        make(map[string]swarmPeer),
+		lookup:       net.LookupIP,
+		dial:         dialAgent,
 		certs:        certs,
 		subscribers:  xsync.NewMap[*hostSubscriber, struct{}](),
 		localIPs:     localIPs(),
@@ -96,7 +109,7 @@ func (m *SwarmClientManager) Subscribe(ctx context.Context, channel chan<- conta
 func (m *SwarmClientManager) RetryAndList() ([]container.ClientService, []error) {
 	m.mu.Lock()
 
-	ips, err := net.LookupIP(fmt.Sprintf("tasks.%s", m.name))
+	ips, err := m.lookup(fmt.Sprintf("tasks.%s", m.name))
 
 	errors := make([]error, 0)
 	if err != nil {
@@ -106,21 +119,29 @@ func (m *SwarmClientManager) RetryAndList() ([]container.ClientService, []error)
 		return m.List(), errors
 	}
 
-	clients := slices.AppendSeq(make([]container.ClientService, 0, len(m.clients)), maps.Values(m.clients))
-	endpoints := make(map[string]container.ClientService, len(clients))
-	for _, client := range clients {
-		ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
-		host, _ := client.Host(ctx)
-		cancel()
-		endpoints[host.Endpoint] = client
-	}
-
-	ipStrings := make([]string, 0, len(ips))
+	live := make(map[string]bool, len(ips))
 	for _, ip := range ips {
-		ipStrings = append(ipStrings, ip.String())
+		live[ip.String()+":7007"] = true
 	}
 
-	log.Debug().Strs(fmt.Sprintf("tasks.%s", m.name), ipStrings).Strs("localIPs", m.localIPs).Strs("clients.endpoints", slices.Collect(maps.Keys(endpoints))).Msg("found swarm service tasks")
+	log.Debug().Strs(fmt.Sprintf("tasks.%s", m.name), slices.Collect(maps.Keys(live))).Strs("localIPs", m.localIPs).Msg("found swarm service tasks")
+
+	// A node that left the swarm takes its task out of tasks.<service>, and nothing
+	// else ever tells us. Kept, it is shown as unavailable forever, and every
+	// Hosts() waits the full timeout on it. No removal is published: the events
+	// stream keeps a host's visible set across one, so a node that left and came
+	// back would show up in an open tab with none of its containers.
+	known := make(map[string]bool, len(m.peers))
+	for id, peer := range m.peers {
+		if live[peer.endpoint] {
+			known[peer.endpoint] = true
+			continue
+		}
+		delete(m.peers, id)
+		delete(m.clients, id)
+		closeQuietly(peer.closer)
+		log.Info().Str("endpoint", peer.endpoint).Str("id", id).Msg("removed swarm agent that left the service")
+	}
 
 	for _, ip := range ips {
 		if slices.Contains(m.localIPs, ip.String()) {
@@ -128,12 +149,13 @@ func (m *SwarmClientManager) RetryAndList() ([]container.ClientService, []error)
 			continue
 		}
 
-		if _, ok := endpoints[ip.String()+":7007"]; ok {
+		if known[ip.String()+":7007"] {
 			log.Debug().Stringer("ip", ip).Msg("skipping existing client")
 			continue
 		}
 
-		agentClient, err := agent.NewClient(ip.String()+":7007", m.certs)
+		endpoint := ip.String() + ":7007"
+		service, closer, err := m.dial(endpoint, m.certs)
 		if err != nil {
 			log.Warn().Err(err).Stringer("ip", ip).Msg("error creating agent client")
 			errors = append(errors, err)
@@ -141,27 +163,32 @@ func (m *SwarmClientManager) RetryAndList() ([]container.ClientService, []error)
 		}
 
 		ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
-		host, err := agentClient.Host(ctx)
+		host, err := service.Host(ctx)
 		cancel()
 		if err != nil {
 			log.Warn().Err(err).Stringer("ip", ip).Msg("error getting host from agent client")
 			errors = append(errors, err)
-			if err := agentClient.Close(); err != nil {
-				log.Warn().Err(err).Stringer("ip", ip).Msg("error closing agent client")
-			}
+			closeQuietly(closer)
 			continue
 		}
 
 		if host.ID == m.localClient.Host().ID {
 			log.Debug().Stringer("ip", ip).Msg("skipping local client")
-			if err := agentClient.Close(); err != nil {
-				log.Warn().Err(err).Stringer("ip", ip).Msg("error closing agent client")
-			}
+			closeQuietly(closer)
 			continue
 		}
 
-		client := agent.NewService(agentClient)
-		m.clients[host.ID] = client
+		// A second live task for a node already served (a start-first update, or
+		// two replicas on one node). Replacing the serving client would leak it
+		// and republish the node on every call, so the duplicate goes instead.
+		if _, ok := m.peers[host.ID]; ok {
+			log.Debug().Stringer("ip", ip).Str("id", host.ID).Msg("skipping second task for a node already served")
+			closeQuietly(closer)
+			continue
+		}
+
+		m.clients[host.ID] = service
+		m.peers[host.ID] = swarmPeer{endpoint: endpoint, closer: closer}
 		log.Info().Stringer("ip", ip).Str("id", host.ID).Str("name", host.Name).Msg("added new swarm agent")
 
 		m.subscribers.Range(func(sub *hostSubscriber, _ struct{}) bool {
@@ -216,7 +243,13 @@ func (m *SwarmClientManager) Hosts(ctx context.Context) []container.Host {
 	m.mu.RUnlock()
 
 	swarmNodes := make([]container.Host, len(clients))
+	var agents []container.Host
 	var wg sync.WaitGroup
+	// Alongside the nodes, not after them: they share ctx, and one node that
+	// never answers would otherwise leave the agents an expired deadline.
+	wg.Go(func() {
+		agents = m.agentManager.Hosts(ctx)
+	})
 	for i, client := range clients {
 		wg.Go(func() {
 			host, err := client.Host(ctx)
@@ -233,7 +266,7 @@ func (m *SwarmClientManager) Hosts(ctx context.Context) []container.Host {
 	}
 	wg.Wait()
 
-	return append(m.agentManager.Hosts(ctx), swarmNodes...)
+	return append(agents, swarmNodes...)
 }
 
 func (m *SwarmClientManager) String() string {
