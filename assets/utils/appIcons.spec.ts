@@ -42,6 +42,10 @@ describe("iconSlugForImage", () => {
     ["wangqiru/ttrss", "tinytinyrss"],
     ["ghcr.io/tt-rss/tt-rss:latest", "tinytinyrss"],
     ["ghcr.io/tt-rss/tt-rss-web-nginx:latest", "tinytinyrss"],
+    ["alpine:3.24.4", "alpine-linux"],
+    ["archlinux:latest", "arch-linux"],
+    ["archlinux/archlinux:base-devel", "arch-linux"],
+    ["artixlinux/artixlinux:base-openrc", "artix-linux"],
   ])("resolves %s", (image, slug) => {
     expect(iconSlugForImage(image)).toBe(slug);
   });
