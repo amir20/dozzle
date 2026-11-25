@@ -93,6 +93,9 @@ func (h *persistingNotificationHandler) SetCloudStreamLogs(enabled *bool) {
 	updated.StreamLogs = enabled
 	h.cloudConfig.Store(&updated)
 	h.persistCloudConfig(updated)
+	if h.onCloudSet != nil {
+		h.onCloudSet()
+	}
 }
 
 func (h *persistingNotificationHandler) SetCloudDispatcher(d dispatcher.Dispatcher) {
@@ -109,10 +112,10 @@ func (h *persistingNotificationHandler) SetCloudDispatcher(d dispatcher.Dispatch
 		Prefix:    cd.Prefix,
 		ExpiresAt: cd.ExpiresAt,
 	}
+	// Left to SetCloudStreamLogs, which UpdateCloudConfig always calls next, to
+	// wake the cloud client: until then the stored config has lost the hub's
+	// streaming choice, and acting on it would redial for nothing.
 	h.cloudConfig.Store(&cc)
-	if h.onCloudSet != nil {
-		h.onCloudSet()
-	}
 	h.persistCloudConfig(cc)
 }
 
@@ -255,7 +258,7 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 		cc := notificationHandler.CloudConfig()
 		return cc != nil && cc.StreamLogsEnabled()
 	})
-	notificationHandler.onCloudSet = cloudClient.Notify
+	notificationHandler.onCloudSet = cloudClient.Refresh
 	go cloudClient.Run(ctx)
 	if apiKeyFunc() != "" {
 		cloudClient.Notify()

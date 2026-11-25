@@ -164,7 +164,7 @@ func (c ServerCmd) Run(args Args, certs embed.FS) error {
 	// In swarm mode, peer broadcasts of cloud config should kick this
 	// replica's cloud client too, so every replica holds its own connection.
 	if mhs, ok := hostService.(*hostservice.MultiHostService); ok {
-		mhs.SetCloudNotifyFunc(cloudClient.Notify)
+		mhs.SetCloudNotifyFunc(cloudClient.Refresh)
 	}
 
 	// If cloud is already configured at startup, start the client immediately

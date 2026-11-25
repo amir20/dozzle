@@ -33,6 +33,9 @@ const (
 	maxConcurrent        = 5
 	maxConcurrentStreams = 10
 	unauthenticatedPause = 1 * time.Hour
+	// A connection must stay up this long before backoff resets, so a cloud that
+	// accepts and then drops every stream is not redialed every second.
+	stableConnection = 30 * time.Second
 )
 
 // Client manages the gRPC connection to Dozzle Cloud
@@ -60,6 +63,10 @@ type Client struct {
 
 	connMu        sync.Mutex
 	cancelCurrent context.CancelFunc
+	// What the live connection was opened with, so Refresh can tell whether
+	// the settings it depends on have changed since.
+	connAPIKey     string
+	connStreamLogs bool
 
 	// updateRecords is where pushed container updates are read from: nil is
 	// container.Updates. See update_pusher.go.
@@ -156,6 +163,27 @@ func (c *Client) Reconnect() {
 	}
 }
 
+// Refresh wakes the client like Notify and, when the live connection was opened
+// with a different API key or log-streaming setting than the current ones,
+// drops it so the next dial picks them up. An unchanged config keeps the
+// connection, since agents are re-sent the same config whenever any host joins.
+func (c *Client) Refresh() {
+	c.Notify()
+	streamLogs := c.streamLogsEnabled()
+	apiKey := c.apiKeyFunc()
+	c.connMu.Lock()
+	cancel := c.cancelCurrent
+	changed := apiKey != c.connAPIKey || streamLogs != c.connStreamLogs
+	c.connMu.Unlock()
+	if cancel != nil && changed {
+		cancel()
+	}
+}
+
+func (c *Client) streamLogsEnabled() bool {
+	return c.streamLogsFunc == nil || c.streamLogsFunc()
+}
+
 // Run blocks until signaled via Notify(), then connects to the cloud gRPC endpoint
 // and processes tool requests. Reconnects automatically on failure.
 // Does nothing until Notify() is called — zero overhead for non-cloud users.
@@ -186,12 +214,13 @@ func (c *Client) Run(ctx context.Context) {
 			continue
 		}
 
+		dialedAt := time.Now()
 		wasConnected, err := c.connect(ctx, apiKey)
 		if ctx.Err() != nil {
 			return
 		}
 
-		if wasConnected {
+		if wasConnected && time.Since(dialedAt) >= stableConnection {
 			backoff = initialBackoff
 		}
 
@@ -289,8 +318,13 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 	// Per-connection context that Reconnect() can cancel to force a redial.
 	connCtx, connCancel := context.WithCancel(ctx)
 	defer connCancel()
+	// Read under the same lock Refresh compares against, so a change landing
+	// after this point is always seen by Refresh as a change.
 	c.connMu.Lock()
+	streamLogs := c.streamLogsEnabled()
 	c.cancelCurrent = connCancel
+	c.connAPIKey = apiKey
+	c.connStreamLogs = streamLogs
 	c.connMu.Unlock()
 	defer func() {
 		c.connMu.Lock()
@@ -332,7 +366,6 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 	// the user has not opted out via the privacy toggle. Its lifetime is bound
 	// to streamLifetime — it shuts down cleanly when this connection drops,
 	// and is re-created on reconnect (re-evaluating the toggle each time).
-	streamLogs := c.streamLogsFunc == nil || c.streamLogsFunc()
 	if !streamLogs {
 		log.Debug().Msg("cloud log streaming disabled by user setting; skipping streamer")
 	} else if lshs, ok := c.deps.HostService.(LogStreamHostService); ok {

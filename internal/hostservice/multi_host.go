@@ -663,17 +663,17 @@ func (h *swarmNotificationHandler) SetCloudDispatcher(d dispatcher.Dispatcher) {
 		ExpiresAt: cd.ExpiresAt,
 	}
 	h.persister.SetCloudConfig(cc)
-	h.notify()
+	// SetCloudStreamLogs, which UpdateCloudConfig always calls next, wakes the
+	// cloud client once the hub's streaming choice is back in place.
 }
 
 // SetCloudStreamLogs applies a peer replica's log-streaming choice. Routed
 // through the persister like everything else here so disk and manager stay in
 // lockstep across replicas.
 func (h *swarmNotificationHandler) SetCloudStreamLogs(enabled *bool) {
-	if enabled == nil {
-		return
+	if enabled != nil {
+		h.persister.SetCloudStreamLogs(*enabled)
 	}
-	h.persister.SetCloudStreamLogs(*enabled)
 	h.notify()
 }
 
