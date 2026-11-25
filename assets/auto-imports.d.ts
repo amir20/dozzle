@@ -157,12 +157,12 @@ declare global {
   const flattenJSONToMap: typeof import('./utils/index').flattenJSONToMap
   const foldRepeats: typeof import('./stores/settings').foldRepeats
   const forgetPlaced: typeof import('./composable/cloud/cloudAlerts').forgetPlaced
+  const formatBucket: typeof import('./composable/cloud/metricCharts').formatBucket
   const formatBytes: typeof import('./utils/index').formatBytes
   const formatCopyBlocks: typeof import('./composable/logs/copyLogs').formatCopyBlocks
   const formatDuration: typeof import('./utils/index').formatDuration
   const formatRange: typeof import('./composable/logs/timeRange').formatRange
   const formatRate: typeof import('./utils/index').formatRate
-  const formatSpan: typeof import('./composable/logs/timeRange').formatSpan
   const formatTime: typeof import('./composable/logs/timeRange').formatTime
   const getActivePinia: typeof import('pinia').getActivePinia
   const getCurrentInstance: typeof import('vue').getCurrentInstance
@@ -192,6 +192,7 @@ declare global {
   const inject: typeof import('vue').inject
   const injectLocal: typeof import('@vueuse/core').injectLocal
   const insertMarker: typeof import('./composable/logs/updateMarkers').insertMarker
+  const ioChart: typeof import('./composable/cloud/metricCharts').ioChart
   const isBareKeyFree: typeof import('./composable/ui/letterShortcut').isBareKeyFree
   const isDataIcon: typeof import('./utils/index').isDataIcon
   const isDefined: typeof import('@vueuse/core').isDefined
@@ -214,6 +215,7 @@ declare global {
   const isStreamLog: typeof import('./composable/cloud/alertMerger').isStreamLog
   const isViewContextOwner: typeof import('./composable/logs/viewContext').isViewContextOwner
   const labelPolicy: typeof import('./composable/containers/updatePolicy').labelPolicy
+  const levelChart: typeof import('./composable/cloud/metricCharts').levelChart
   const levelDot: typeof import('./composable/cloud/alertsTimeline').levelDot
   const levelPill: typeof import('./composable/cloud/alertsTimeline').levelPill
   const levelTint: typeof import('./composable/cloud/alertsTimeline').levelTint
@@ -747,6 +749,9 @@ declare global {
   export type { LivePoint, LiveSeries } from './composable/cloud/liveMetrics'
   import('./composable/cloud/liveMetrics')
   // @ts-ignore
+  export type { Readout, Chart, ChartContext } from './composable/cloud/metricCharts'
+  import('./composable/cloud/metricCharts')
+  // @ts-ignore
   export type { MetricsHover } from './composable/cloud/metricsTime'
   import('./composable/cloud/metricsTime')
   // @ts-ignore
@@ -987,11 +992,11 @@ declare module 'vue' {
     readonly flattenJSONToMap: UnwrapRef<typeof import('./utils/index')['flattenJSONToMap']>
     readonly foldRepeats: UnwrapRef<typeof import('./stores/settings')['foldRepeats']>
     readonly forgetPlaced: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['forgetPlaced']>
+    readonly formatBucket: UnwrapRef<typeof import('./composable/cloud/metricCharts')['formatBucket']>
     readonly formatBytes: UnwrapRef<typeof import('./utils/index')['formatBytes']>
     readonly formatDuration: UnwrapRef<typeof import('./utils/index')['formatDuration']>
     readonly formatRange: UnwrapRef<typeof import('./composable/logs/timeRange')['formatRange']>
     readonly formatRate: UnwrapRef<typeof import('./utils/index')['formatRate']>
-    readonly formatSpan: UnwrapRef<typeof import('./composable/logs/timeRange')['formatSpan']>
     readonly formatTime: UnwrapRef<typeof import('./composable/logs/timeRange')['formatTime']>
     readonly getActivePinia: UnwrapRef<typeof import('pinia')['getActivePinia']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
@@ -1019,6 +1024,7 @@ declare module 'vue' {
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
     readonly injectLocal: UnwrapRef<typeof import('@vueuse/core')['injectLocal']>
     readonly insertMarker: UnwrapRef<typeof import('./composable/logs/updateMarkers')['insertMarker']>
+    readonly ioChart: UnwrapRef<typeof import('./composable/cloud/metricCharts')['ioChart']>
     readonly isBareKeyFree: UnwrapRef<typeof import('./composable/ui/letterShortcut')['isBareKeyFree']>
     readonly isDataIcon: UnwrapRef<typeof import('./utils/index')['isDataIcon']>
     readonly isDefined: UnwrapRef<typeof import('@vueuse/core')['isDefined']>
@@ -1040,6 +1046,7 @@ declare module 'vue' {
     readonly isStreamLog: UnwrapRef<typeof import('./composable/cloud/alertMerger')['isStreamLog']>
     readonly isViewContextOwner: UnwrapRef<typeof import('./composable/logs/viewContext')['isViewContextOwner']>
     readonly labelPolicy: UnwrapRef<typeof import('./composable/containers/updatePolicy')['labelPolicy']>
+    readonly levelChart: UnwrapRef<typeof import('./composable/cloud/metricCharts')['levelChart']>
     readonly levelDot: UnwrapRef<typeof import('./composable/cloud/alertsTimeline')['levelDot']>
     readonly levelPill: UnwrapRef<typeof import('./composable/cloud/alertsTimeline')['levelPill']>
     readonly levelTint: UnwrapRef<typeof import('./composable/cloud/alertsTimeline')['levelTint']>

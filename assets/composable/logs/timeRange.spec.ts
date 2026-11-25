@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { formatSpan, parseRange, parseSince, parseTime, rangeAround, timeRangeRoute } from "./timeRange";
+import { parseRange, parseSince, parseTime, rangeAround, timeRangeRoute } from "./timeRange";
 
 const now = Date.parse("2026-10-02T15:42:10Z");
 
@@ -79,12 +79,4 @@ test("rangeAround centers on the moment but never ends in the future", () => {
   const recent = new Date(now - 60_000);
   const r = rangeAround(recent, 60 * 60_000, now);
   expect(r.kind === "range" && r.until.getTime()).toBe(now);
-});
-
-test("formatSpan", () => {
-  expect(formatSpan(45_000)).toBe("45s");
-  expect(formatSpan(26 * 60_000)).toBe("26m");
-  expect(formatSpan(90 * 60_000)).toBe("1h 30m");
-  expect(formatSpan(3 * 60 * 60_000)).toBe("3h");
-  expect(formatSpan(52 * 60 * 60_000)).toBe("2d 4h");
 });

@@ -176,6 +176,7 @@
 import { useCloudConfig } from "@/composable/cloud/cloudConfig";
 import { useCloudLogSearch, type CloudLogHit } from "@/composable/cloud/cloudLogSearch";
 import { messageKeyOf } from "@/composable/logs/similarSearch";
+import { formatDuration } from "@/utils/readable";
 
 const route = useRoute();
 const { jumpTo } = useLogJump();
@@ -283,10 +284,6 @@ const windowSince = computed(() =>
     : "",
 );
 const windowSinceExact = computed(() => windowStartDate.value?.toLocaleString());
-
-function formatDuration(ms: number): string {
-  return ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)} s`;
-}
 
 function levelDotClass(level: string): string {
   switch (level) {
