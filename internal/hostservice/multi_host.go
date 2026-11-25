@@ -245,8 +245,7 @@ func (m *MultiHostService) listLate(ctx context.Context, client container.Client
 // followClients calls subscribe for every client now, then again for each client
 // that becomes available later (an agent added from the UI, or one that was down
 // at startup), with late set. Without it, a subscriber only ever sees the hosts
-// that existed when it subscribed. Each client is handed over once, except after
-// a re-key (see below).
+// that existed when it subscribed. Each client is handed over once.
 func (m *MultiHostService) followClients(ctx context.Context, subscribe func(client container.ClientService, late bool)) {
 	// Subscribe before listing, so a host added in between is not missed.
 	hosts := make(chan container.Host, 8)
@@ -271,13 +270,9 @@ func (m *MultiHostService) followClients(ctx context.Context, subscribe func(cli
 				if !ok {
 					continue
 				}
+				// A re-keyed client is one already seen: its streams reopen on
+				// their own, so subscribing again would deliver everything twice.
 				if seen[client] {
-					// A re-key means the agent process restarted, which ended every
-					// stream this subscriber had open to it, so subscribe again. Not
-					// as late: its running containers are ones the subscriber has.
-					if host.ReplacesID != "" {
-						subscribe(client, false)
-					}
 					continue
 				}
 				seen[client] = true

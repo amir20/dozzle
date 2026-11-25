@@ -118,10 +118,9 @@ func TestRetriableClientManager_RemoveAgentAnnouncesIt(t *testing.T) {
 	}
 }
 
-// An agent that restarted comes back under a new id, and the restart ended every
-// stream open to it. Subscribers have to open them again, or its events, stats and
-// new containers stay dark until the page reloads.
-func TestMultiHostService_SubscribersResubscribeAfterRekey(t *testing.T) {
+// An agent that restarted comes back under a new id. Its client reopens its own
+// streams, so subscribing again would deliver every event and stat twice.
+func TestMultiHostService_RekeyDoesNotResubscribe(t *testing.T) {
 	service, manager, added := followFixture()
 	_, err := manager.AddAgent(t.Context(), "nas:7007", nil)
 	require.NoError(t, err)
@@ -133,15 +132,12 @@ func TestMultiHostService_SubscribersResubscribeAfterRekey(t *testing.T) {
 	added.host.ID = "nas-restarted"
 	manager.Hosts(t.Context())
 
-	assert.Eventually(t, func() bool {
-		events, stats, startedSubs := added.counts()
-		return events == 2 && stats == 2 && startedSubs == 2
-	}, time.Second, 5*time.Millisecond)
-
 	// Its containers were running before the restart too, so none is new.
 	select {
 	case c := <-started:
 		t.Fatalf("unexpected container %s", c.ID)
 	case <-time.After(50 * time.Millisecond):
 	}
+	events, stats, startedSubs := added.counts()
+	assert.Equal(t, [3]int{1, 1, 1}, [3]int{events, stats, startedSubs})
 }
