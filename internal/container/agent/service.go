@@ -15,13 +15,17 @@ import (
 )
 
 type service struct {
-	client *Client
-	host   atomic.Pointer[container.Host]
+	client   *Client
+	host     atomic.Pointer[container.Host]
+	retryMin time.Duration
+	retryMax time.Duration
 }
 
 func NewService(client *Client) ClientService {
 	return &service{
-		client: client,
+		client:   client,
+		retryMin: 1 * time.Second,
+		retryMax: 30 * time.Second,
 	}
 }
 
@@ -66,15 +70,38 @@ func (a *service) Host(ctx context.Context) (container.Host, error) {
 }
 
 func (a *service) SubscribeStats(ctx context.Context, stats chan<- container.ContainerStat) {
-	go a.client.StreamStats(ctx, stats)
+	go a.keepStreaming(ctx, "stats", func(ctx context.Context) error { return a.client.StreamStats(ctx, stats) })
 }
 
 func (a *service) SubscribeEvents(ctx context.Context, events chan<- container.ContainerEvent) {
-	go a.client.StreamEvents(ctx, events)
+	go a.keepStreaming(ctx, "events", func(ctx context.Context) error { return a.client.StreamEvents(ctx, events) })
 }
 
-func (d *service) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container) {
-	go d.client.StreamNewContainers(ctx, containers)
+func (a *service) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container) {
+	go a.keepStreaming(ctx, "containers started", func(ctx context.Context) error { return a.client.StreamNewContainers(ctx, containers) })
+}
+
+// keepStreaming reopens an agent stream until ctx ends. An agent restart or a
+// network blip ends the gRPC stream, and an agent that comes back under the
+// same id is never republished, so nothing else would ever reopen it.
+func (a *service) keepStreaming(ctx context.Context, name string, stream func(context.Context) error) {
+	backoff := a.retryMin
+	for {
+		started := time.Now()
+		err := stream(ctx)
+		if ctx.Err() != nil {
+			return
+		}
+		// A stream that ran a while was healthy, so this is a fresh failure.
+		if time.Since(started) > a.retryMax {
+			backoff = a.retryMin
+		}
+		log.Warn().Err(err).Str("endpoint", a.client.endpoint).Str("stream", name).Dur("retry_in", backoff).Msg("agent stream ended, retrying")
+		if !container.SleepOrDone(ctx, backoff) {
+			return
+		}
+		backoff = container.NextBackoff(backoff, a.retryMax)
+	}
 }
 
 func (a *service) ContainerAction(ctx context.Context, container container.Container, action container.ContainerAction) error {

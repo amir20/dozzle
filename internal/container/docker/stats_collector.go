@@ -79,8 +79,8 @@ func (sc *StatsCollector) startStream(parent context.Context, id string) {
 	go streamStats(ctx, sc, id)
 }
 
-// streamRunning lists the running containers and starts a stream for each one
-// that has none. It runs at start and again whenever the event stream
+// streamRunning lists the running containers, starts a stream for each one that
+// has none, and stops the streams of containers no longer running. It runs at start and again whenever the event stream
 // reconnects, since a container started while it was down sent its `start`
 // event to nobody.
 func (sc *StatsCollector) streamRunning(listCtx, streamCtx context.Context) {
@@ -91,14 +91,25 @@ func (sc *StatsCollector) streamRunning(listCtx, streamCtx context.Context) {
 		log.Error().Str("host", sc.client.Host().Name).Err(err).Msg("failed to list containers")
 		return
 	}
+	running := make(map[string]struct{}, len(containers))
 	for _, c := range containers {
 		if c.State != "running" {
 			continue
 		}
+		running[c.ID] = struct{}{}
 		if _, ok := sc.cancelers.Load(c.ID); !ok {
 			sc.startStream(streamCtx, c.ID)
 		}
 	}
+	// A container that died while the event stream was down sent its `die` to
+	// nobody, so its stream would otherwise retry forever.
+	sc.cancelers.Range(func(id string, cancel context.CancelFunc) bool {
+		if _, ok := running[id]; !ok {
+			sc.cancelers.Delete(id)
+			cancel()
+		}
+		return true
+	})
 }
 
 // streamStats keeps one container's stats flowing for as long as its context
