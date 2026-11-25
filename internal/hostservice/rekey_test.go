@@ -33,7 +33,7 @@ func managerWith(clients map[string]container.ClientService) *RetriableClientMan
 // An agent mints its host id when its own process starts, so a restarted agent
 // answers under a different id than the one the hub filed it under. Podman makes
 // that the normal case: its /info hands out a fresh uuid on every call, so every
-// agent restart is a new identity. Nothing else repairs this — RetryAndList only
+// agent restart is a new identity. Nothing else repairs this — retryFailedAgents only
 // revisits endpoints that never connected — so the id handed to the UI would be
 // one Find has never heard of, and every lookup would fail until the hub itself
 // was restarted.

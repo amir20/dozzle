@@ -241,7 +241,9 @@ func (s *server) StreamEvents(in *pb.StreamEventsRequest, out pb.AgentService_St
 }
 
 func (s *server) StreamStats(in *pb.StreamStatsRequest, out pb.AgentService_StreamStatsServer) error {
-	stats := make(chan container.ContainerStat)
+	// buffered for the same reason as StreamEvents: the collector drops a stat for a
+	// subscriber that does not read in time
+	stats := make(chan container.ContainerStat, 64)
 
 	s.service.SubscribeStats(out.Context(), stats)
 

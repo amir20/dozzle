@@ -125,14 +125,7 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 								NetworkTxTotal: tx,
 							}
 							log.Trace().Interface("stat", stat).Msg("k8s stats")
-							sc.subscribers.Range(func(c context.Context, stats chan<- container.ContainerStat) bool {
-								select {
-								case stats <- stat:
-								case <-c.Done():
-									sc.subscribers.Delete(c)
-								}
-								return true
-							})
+							container.BroadcastStat(sc.subscribers, stat)
 						}
 					}
 				})

@@ -30,6 +30,8 @@ type Manager struct {
 	ctx                 context.Context
 	cancel              context.CancelFunc
 	sendSem             *semaphore.Weighted
+	droppedSends        atomic.Int64 // dropped since the last warning
+	lastDropWarn        atomic.Int64 // unix nanos
 }
 
 // NewManager creates a new notification manager

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"testing/synctest"
 	"time"
@@ -340,8 +341,8 @@ func hostIDs(hosts []container.Host) []string {
 }
 
 // Agents that were down at startup and come up later are all served by the
-// next RetryAndList, alongside the clients that were there all along.
-func TestRetriableClientManager_RetryAndListReturnsEveryClient(t *testing.T) {
+// next retry, alongside the clients that were there all along.
+func TestRetriableClientManager_RetryFailedAgentsReturnsEveryClient(t *testing.T) {
 	dialer := &switchDialer{}
 	m := newRetriableClientManager([]string{"a:7007", "b:7007", "c:7007"}, nil, time.Second, tls.Certificate{}, dialer.dial,
 		&stubService{host: container.Host{ID: "local"}})
@@ -351,7 +352,7 @@ func TestRetriableClientManager_RetryAndListReturnsEveryClient(t *testing.T) {
 	dialer.up = true
 	dialer.mu.Unlock()
 
-	clients, errs := m.RetryAndList()
+	clients, errs := m.retryFailedAgents()
 	require.Empty(t, errs)
 	require.Len(t, clients, 4)
 
@@ -474,6 +475,24 @@ func TestRetriableClientManager_RetryLaterDropsDuplicate(t *testing.T) {
 	m.retryPending()
 	require.Len(t, m.List(), 1)
 	assert.Equal(t, []string{"engine-id"}, hostIDs(m.Hosts(t.Context())))
+}
+
+// A container listing never dials an agent that is down: it runs on every page
+// load and event stream connect, and would wait out the timeout each time.
+func TestRetriableClientManager_RetryAndListDoesNotDial(t *testing.T) {
+	var dials atomic.Int32
+	dial := func(string, tls.Certificate) (container.ClientService, io.Closer, error) {
+		dials.Add(1)
+		return nil, nil, errors.New("connection refused")
+	}
+	m := newRetriableClientManager([]string{"down:7007"}, nil, time.Second, tls.Certificate{}, dial,
+		&stubService{host: container.Host{ID: "local"}})
+	dials.Store(0)
+
+	clients, errs := m.RetryAndList()
+	assert.Empty(t, errs)
+	assert.Len(t, clients, 1)
+	assert.Zero(t, dials.Load())
 }
 
 // A container listing never builds a pending host: that path runs on every
