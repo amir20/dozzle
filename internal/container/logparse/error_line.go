@@ -27,7 +27,7 @@ func IsErrorLine(line string, std container.StdType) bool {
 
 // mayBeError is a superset test for the error and fatal aliases in logLevels
 // (error, err, fail, fatal, sev, severe, crit, critical), their single-letter
-// forms, and the numeric levels of pino and OpenTelemetry. A false negative
+// forms, and the numeric levels of pino, Monolog and OpenTelemetry. A false negative
 // would hide an error from the count, so anything ambiguous passes.
 func mayBeError(line string) bool {
 	message := line
@@ -73,7 +73,9 @@ func mayBeError(line string) bool {
 
 	// Numeric levels only mean anything inside JSON.
 	if strings.HasPrefix(message, "{") {
-		return strings.Contains(message, `"level":5`) ||
+		return strings.Contains(message, `"level":4`) ||
+			strings.Contains(message, `"level": 4`) ||
+			strings.Contains(message, `"level":5`) ||
 			strings.Contains(message, `"level":6`) ||
 			strings.Contains(message, `"level": 5`) ||
 			strings.Contains(message, `"level": 6`) ||
