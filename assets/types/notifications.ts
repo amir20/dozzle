@@ -26,19 +26,6 @@ export interface Dispatcher {
   expiresAt?: string;
 }
 
-export interface NotificationRuleInput {
-  name: string;
-  enabled: boolean;
-  dispatcherId: number;
-  logExpression: string;
-  containerExpression: string;
-  metricExpression?: string;
-  eventExpression?: string;
-  cooldown?: number;
-  sampleWindow?: number;
-  immediate?: boolean;
-}
-
 export interface PreviewResult {
   containerError?: string;
   logError?: string;

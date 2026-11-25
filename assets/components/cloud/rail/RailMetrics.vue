@@ -112,11 +112,11 @@
 </template>
 
 <script lang="ts" setup>
-import type { BarDataPoint } from "@/components/ui/BarChart.vue";
 import type { CloudAlert } from "@/composable/cloud/cloudAlerts";
 import { deployOf, mergeRecentDeploys, useRecentDeploys } from "@/composable/cloud/recentDeploys";
 import { updateKind, updateLabels } from "@/models/ContainerUpdate";
 import { containerLiveSeries, MIN_CLOUD_POINTS } from "@/composable/cloud/liveMetrics";
+import { formatBucket, ioChart, levelChart, type Chart, type ChartContext } from "@/composable/cloud/metricCharts";
 
 // The max and rate fields are absent from an older cloud. A missing max falls back
 // to the average; a missing rate hides its chart rather than drawing zeros that
@@ -270,104 +270,15 @@ const hovered = ref<Hover | null>(null);
 
 watch([source, window], () => (hovered.value = null));
 
-type Readout = { main: string; aside: string };
-type Chart = {
-  key: string;
-  label: string;
-  colorClass: string;
-  data: BarDataPoint[];
-  // A fixed top for the bars (100 when they are percent of a limit); left
-  // unset, the chart scales to its own peak.
-  ceiling?: number;
-  // The window's average, and the limit the bars are drawn against when there
-  // is one.
-  summary: string;
-  limit?: string;
-  // What the header says with the pointer elsewhere, and on a hovered bar.
-  rest: Readout;
-  at: (span: [number, number]) => Readout;
-};
-
 const pct = (v: number) => `${v.toFixed(1)}%`;
 const bytes = (v: number) => formatBytes(v, { short: true, decimals: 1 });
-const mean = (xs: number[], [from, to]: [number, number]) =>
-  xs.slice(from, to).reduce((a, b) => a + b, 0) / Math.max(1, to - from);
 
-// A level (CPU, memory) rests on its peak: the highest sample cloud saw, not the
-// highest average, which shrank as the buckets widened and read a week lower than
-// the day inside it. An older cloud sends no max, and the average stands in.
-function levelChart(
-  key: string,
-  label: string,
-  colorClass: string,
-  format: (v: number) => string,
-  avgOf: (p: MetricPoint) => number,
-  maxOf: (p: MetricPoint) => number | undefined,
-  // Draws the bars as a share of a limit instead of against their own peak:
-  // each point's height (0-100) and, when it has a max, the max's height.
-  share?: { of: (p: MetricPoint) => { percent: number; peakPercent?: number }; label: string },
-): Chart {
-  const values = points.value.map(avgOf);
-  const max = points.value.map(maxOf);
-  const peaks = values.map((v, i) => max[i] ?? v);
-  const hasMax = max.some((m) => m !== undefined);
-  const peakWord = t("cloud-rail.metrics-peak");
-  const heights = share ? points.value.map(share.of) : undefined;
-  return {
-    key,
-    label,
-    colorClass,
-    data: values.map((v, i) => {
-      const percent = heights ? heights[i].percent : v;
-      if (!hasMax) return { percent, value: v };
-      return {
-        percent,
-        value: v,
-        peakPercent: heights ? (heights[i].peakPercent ?? percent) : peaks[i],
-        peak: peaks[i],
-      };
-    }),
-    ceiling: share ? 100 : undefined,
-    // The header already carries the peak, so the summary adds the average.
-    summary: `${t("analytics.avg")} ${format(mean(values, [0, values.length]))}`,
-    limit: share?.label,
-    rest: { main: format(Math.max(0, ...peaks)), aside: ` / ${peakWord}` },
-    at: (span) => ({
-      main: format(mean(values, span)),
-      aside: hasMax ? ` · ${peakWord} ${format(Math.max(...peaks.slice(...span)))}` : "",
-    }),
-  };
-}
-
-// I/O rests on what moved over the whole window: a peak rate says little about
-// a counter, and the total is the number people ask for. A bar is both
-// directions together; the readout splits them.
-function ioChart(
-  key: string,
-  label: string,
-  colorClass: string,
-  inOf: (p: MetricPoint) => number | undefined,
-  outOf: (p: MetricPoint) => number | undefined,
-): Chart | undefined {
-  // Absent on an older cloud: hidden, rather than a flat line that reads as idle.
-  if (!points.value.some((p) => inOf(p) !== undefined || outOf(p) !== undefined)) return undefined;
-  const ins = points.value.map((p) => inOf(p) ?? 0);
-  const outs = points.value.map((p) => outOf(p) ?? 0);
-  const total = (xs: number[]) => xs.reduce((a, b) => a + b, 0) * (bucket.value / 1000);
-  return {
-    key,
-    label,
-    colorClass,
-    data: ins.map((v, i) => ({ percent: v + outs[i], value: v + outs[i] })),
-    summary: `${t("analytics.avg")} ↑${formatRate(mean(outs, [0, outs.length]))} ↓${formatRate(mean(ins, [0, ins.length]))}`,
-    rest: { main: `↑${bytes(total(outs))} ↓${bytes(total(ins))}`, aside: ` / ${windowLabel.value}` },
-    at: (span) => ({ main: `↑${formatRate(mean(outs, span))} ↓${formatRate(mean(ins, span))}`, aside: "" }),
-  };
-}
-
-const charts = computed(() =>
-  [
+const charts = computed(() => {
+  const ctx: ChartContext = { t, bucket: bucket.value, windowLabel: windowLabel.value };
+  return [
     levelChart(
+      points.value,
+      ctx,
       "cpu",
       t("label.cpu"),
       "text-primary",
@@ -378,6 +289,8 @@ const charts = computed(() =>
     // Bytes rather than percent: it is what people ask about, and a limit-less
     // container has no percent worth reading.
     levelChart(
+      points.value,
+      ctx,
       "memory",
       t("label.mem"),
       "text-secondary",
@@ -387,6 +300,8 @@ const charts = computed(() =>
       memoryShare.value,
     ),
     ioChart(
+      points.value,
+      ctx,
       "network",
       t("label.network"),
       "text-info",
@@ -394,14 +309,16 @@ const charts = computed(() =>
       (p) => p.networkTx,
     ),
     ioChart(
+      points.value,
+      ctx,
       "disk",
       t("label.disk-io"),
       "text-base-content/60",
       (p) => p.diskRead,
       (p) => p.diskWrite,
     ),
-  ].filter((c): c is Chart => c !== undefined),
-);
+  ].filter((c): c is Chart => c !== undefined);
+});
 
 const readout = (chart: Chart) => (hovered.value ? chart.at(spanOf(hovered.value)) : chart.rest);
 
@@ -532,10 +449,5 @@ function timeOf(hover: Hover) {
 }
 
 // Said out loud so a flat line reads as an average rather than a missing sample.
-const bucketLabel = computed(() => {
-  const seconds = Math.round(bucket.value / 1000);
-  if (seconds < 60) return `${seconds}s`;
-  if (seconds < 3600) return `${Math.round(seconds / 60)}m`;
-  return `${Math.round(seconds / 3600)}h`;
-});
+const bucketLabel = computed(() => formatBucket(bucket.value));
 </script>

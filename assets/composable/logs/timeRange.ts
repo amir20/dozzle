@@ -122,15 +122,3 @@ export function formatRange(from: Date, until: Date, now = new Date()): string {
   }
   return `${day(from)} ${time(from)} – ${day(until)} ${time(until)}`;
 }
-
-/** A span the way the chip prints it: `45s`, `26m`, `1h 30m`, `2d 4h`. */
-export function formatSpan(ms: number): string {
-  const s = Math.max(0, Math.round(ms / 1000));
-  if (s < 60) return `${s}s`;
-  const m = Math.floor(s / 60);
-  if (m < 60) return `${m}m`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return m % 60 ? `${h}h ${m % 60}m` : `${h}h`;
-  const d = Math.floor(h / 24);
-  return h % 24 ? `${d}d ${h % 24}h` : `${d}d`;
-}

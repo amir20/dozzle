@@ -295,7 +295,7 @@
 
 <script lang="ts" setup>
 import { RouterLink } from "vue-router";
-import type { BarDataPoint } from "@/components/ui/BarChart.vue";
+import { formatBucket, ioChart, levelChart, type Chart, type ChartContext } from "@/composable/cloud/metricCharts";
 import { hoverSpan, spanMiddle, useMetricsClock, windowClock, type MetricsHover } from "@/composable/cloud/metricsTime";
 import {
   aggregateHosts,
@@ -498,83 +498,14 @@ const view = computed(() => {
 const hovered = ref<MetricsHover | null>(null);
 watch([window, selected], () => (hovered.value = null));
 
-type Readout = { main: string; aside: string };
-type Chart = {
-  key: string;
-  label: string;
-  colorClass: string;
-  data: BarDataPoint[];
-  summary: string;
-  rest: Readout;
-  at: (span: [number, number]) => Readout;
-};
-
-const mean = (xs: number[], [from, to]: [number, number]) =>
-  xs.slice(from, to).reduce((a, b) => a + b, 0) / Math.max(1, to - from);
-
-// A level rests on its peak: the highest Cloud saw, not the highest average. An
-// older cloud sends no max, and the average stands in.
-function levelChart(
-  key: string,
-  label: string,
-  colorClass: string,
-  fmt: (v: number) => string,
-  avgOf: (p: HostPoint) => number,
-  maxOf: (p: HostPoint) => number | undefined,
-): Chart {
-  const points = view.value!.points;
-  const values = points.map(avgOf);
-  const max = points.map(maxOf);
-  const peaks = values.map((v, i) => max[i] ?? v);
-  const hasMax = max.some((m) => m !== undefined);
-  const peakWord = t("cloud-rail.metrics-peak");
-  return {
-    key,
-    label,
-    colorClass,
-    data: values.map((v, i) =>
-      hasMax ? { percent: v, value: v, peakPercent: peaks[i], peak: peaks[i] } : { percent: v, value: v },
-    ),
-    summary: `${t("analytics.avg")} ${fmt(mean(values, [0, values.length]))}`,
-    rest: { main: fmt(Math.max(0, ...peaks)), aside: ` / ${peakWord}` },
-    at: (span) => ({
-      main: fmt(mean(values, span)),
-      aside: hasMax ? ` · ${peakWord} ${fmt(Math.max(...peaks.slice(...span)))}` : "",
-    }),
-  };
-}
-
-// I/O rests on what moved over the whole window; a bar is both directions, the
-// readout splits them. Hidden when an older cloud sends no rates.
-function ioChart(
-  key: string,
-  label: string,
-  colorClass: string,
-  inOf: (p: HostPoint) => number | undefined,
-  outOf: (p: HostPoint) => number | undefined,
-  marks: [string, string],
-): Chart | undefined {
-  const points = view.value!.points;
-  if (!points.some((p) => inOf(p) !== undefined || outOf(p) !== undefined)) return undefined;
-  const ins = points.map((p) => inOf(p) ?? 0);
-  const outs = points.map((p) => outOf(p) ?? 0);
-  const total = (xs: number[]) => xs.reduce((a, b) => a + b, 0) * (bucket.value / 1000);
-  const [outMark, inMark] = marks;
-  return {
-    key,
-    label,
-    colorClass,
-    data: ins.map((v, i) => ({ percent: v + outs[i], value: v + outs[i] })),
-    summary: `${t("analytics.avg")} ${outMark}${rate(mean(outs, [0, outs.length]))} ${inMark}${rate(mean(ins, [0, ins.length]))}`,
-    rest: { main: `${outMark}${bytes(total(outs))} ${inMark}${bytes(total(ins))}`, aside: ` / ${windowLabel.value}` },
-    at: (span) => ({ main: `${outMark}${rate(mean(outs, span))} ${inMark}${rate(mean(ins, span))}`, aside: "" }),
-  };
-}
-
 const charts = computed<Chart[]>(() => {
   if (!view.value) return [];
+  const points = view.value.points;
+  const ctx: ChartContext = { t, bucket: bucket.value, windowLabel: windowLabel.value };
   return [
     levelChart(
+      points,
+      ctx,
       "cpu",
       current.value ? t("label.cpu") : t("cloud-rail.metrics-cpu-avg-host"),
       "text-primary",
@@ -583,6 +514,8 @@ const charts = computed<Chart[]>(() => {
       (p) => p.cpuMax,
     ),
     levelChart(
+      points,
+      ctx,
       "memory",
       t("label.mem"),
       "text-secondary",
@@ -591,6 +524,8 @@ const charts = computed<Chart[]>(() => {
       (p) => p.memoryUsageMax,
     ),
     ioChart(
+      points,
+      ctx,
       "network",
       t("label.network"),
       "text-info",
@@ -599,6 +534,8 @@ const charts = computed<Chart[]>(() => {
       ["↑", "↓"],
     ),
     ioChart(
+      points,
+      ctx,
       "disk",
       t("label.disk-io"),
       "text-base-content/60",
@@ -619,12 +556,7 @@ function timeOf(hover: MetricsHover) {
   return ts === undefined ? "" : clock.value.format(new Date(ts));
 }
 
-const bucketLabel = computed(() => {
-  const seconds = Math.round(bucket.value / 1000);
-  if (seconds < 60) return `${seconds}s`;
-  if (seconds < 3600) return `${Math.round(seconds / 60)}m`;
-  return `${Math.round(seconds / 3600)}h`;
-});
+const bucketLabel = computed(() => formatBucket(bucket.value));
 
 // The ranking: each host's average and peak for one metric over the window. CPU
 // is already a share of the host, so its bar is that share; the rest are drawn
