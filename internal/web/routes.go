@@ -333,8 +333,8 @@ func createRouter(h *handler) *chi.Mux {
 
 				// Action
 				if h.config.EnableActions {
-					r.Post("/hosts/{host}/containers/{id}/actions/update", h.containerUpdate)
-					r.Post("/hosts/{host}/containers/{id}/actions/{action}", h.containerActions)
+					r.With(requireJSON).Post("/hosts/{host}/containers/{id}/actions/update", h.containerUpdate)
+					r.With(requireJSON).Post("/hosts/{host}/containers/{id}/actions/{action}", h.containerActions)
 					if h.config.Mode != "k8s" {
 						r.With(requireJSON).Post("/hosts/{host}/prune", h.pruneHost)
 						r.Get("/hosts/{host}/reclaimable", h.listReclaimable)
@@ -346,7 +346,7 @@ func createRouter(h *handler) *chi.Mux {
 						r.With(requireJSON).Post("/update/self", h.updateSelf)
 					}
 					if h.config.Mode == "k8s" {
-						r.Post("/k8s/workloads/{namespace}/{kind}/{name}/restart", h.rolloutRestart)
+						r.With(requireJSON).Post("/k8s/workloads/{namespace}/{kind}/{name}/restart", h.rolloutRestart)
 					}
 				}
 				if h.config.EnableShell {
@@ -392,10 +392,10 @@ func createRouter(h *handler) *chi.Mux {
 					r.Get("/updates/policy", h.getUpdatePolicies)
 					r.Get("/setup", h.getSetup)
 					r.Patch("/setup/config", h.updateSetupConfig)
-					r.Post("/setup/restart", h.restartSetup)
+					r.With(requireJSON).Post("/setup/restart", h.restartSetup)
 					r.Post("/setup/agents", h.addSetupAgent)
 					r.Delete("/setup/agents", h.removeSetupAgent)
-					r.Post("/setup/agent-cert", h.agentCert)
+					r.With(requireJSON).Post("/setup/agent-cert", h.agentCert)
 					// Choosing a login only exists while there is none.
 					if h.config.Authorization.Provider == NONE {
 						r.Post("/setup/account", h.createSetupAccount)
@@ -423,7 +423,7 @@ func createRouter(h *handler) *chi.Mux {
 					r.Get("/metrics/hosts", h.cloudHostMetrics)
 					r.With(requireJSON).Post("/chat", h.cloudChat)
 					r.Get("/config", h.cloudConfig)
-					r.Post("/feedback", h.cloudFeedback)
+					r.With(requireJSON).Post("/feedback", h.cloudFeedback)
 
 					// Linking and configuration stay behind the role. Relinking
 					// repoints alert dispatch, log streaming and tool execution at a
@@ -432,7 +432,7 @@ func createRouter(h *handler) *chi.Mux {
 					r.With(h.requireCloudRole).Delete("/config", h.deleteCloudConfig)
 					// Ignoring a finding silences it in Cloud's reports and emails for
 					// the whole account. The handler also refuses a filtered user.
-					r.With(h.requireCloudRole).Post("/findings/{id}/ignore", h.ignoreCloudFinding)
+					r.With(h.requireCloudRole, requireJSON).Post("/findings/{id}/ignore", h.ignoreCloudFinding)
 					r.With(h.requireCloudRole).Delete("/findings/{id}/ignore", h.ignoreCloudFinding)
 					// Linking is a round trip through Dozzle Cloud. /link mints the
 					// state the callback demands back, so a cross-site navigation

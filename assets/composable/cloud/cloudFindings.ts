@@ -90,6 +90,7 @@ export async function fetchFindings(containers: Scope, filter: FindingsFilter): 
 export async function setFindingIgnored(id: string, ignored: boolean) {
   const res = await fetch(withBase(`/api/cloud/findings/${encodeURIComponent(id)}/ignore`), {
     method: ignored ? "POST" : "DELETE",
+    headers: { "Content-Type": "application/json" },
   });
   return res.ok;
 }

@@ -399,7 +399,8 @@ export function setupLoginErrorKey(e: unknown): string {
 async function request(path: string, init?: RequestInit) {
   const res = await fetch(withBase(path), {
     ...init,
-    headers: init?.body ? { "Content-Type": "application/json" } : undefined,
+    // The server takes writes only as JSON (a cross-site page cannot send that unasked), body or not.
+    headers: init?.method ? { "Content-Type": "application/json" } : undefined,
   });
   if (!res.ok) {
     const text = await res.text().catch(() => "");

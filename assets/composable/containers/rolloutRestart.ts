@@ -31,7 +31,7 @@ export const useRolloutRestart = () => {
 
     restarting.value = true;
     try {
-      const response = await fetch(withBase(url), { method: "POST" });
+      const response = await fetch(withBase(url), { method: "POST", headers: { "Content-Type": "application/json" } });
       // Toast messages render as HTML, so anything from the cluster is escaped.
       if (response.ok) {
         showToast(

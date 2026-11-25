@@ -97,7 +97,10 @@ export const useContainerActions = (container: Ref<Container>) => {
     actionStates[action] = true;
 
     try {
-      const response = await fetch(withBase(actionUrl), { method: "POST" });
+      const response = await fetch(withBase(actionUrl), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
       if (!response.ok) {
         const message = errors[response.status] ?? defaultError;
         showToast({ type: "error", message, title: toastTitle });
@@ -131,7 +134,10 @@ export const useContainerActions = (container: Ref<Container>) => {
     );
 
     try {
-      const response = await fetch(withBase(updateUrl), { method: "POST" });
+      const response = await fetch(withBase(updateUrl), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
       if (!response.ok) {
         removeToast(toastId);
         // 409: the container is not running, and a stopped container is never updated.

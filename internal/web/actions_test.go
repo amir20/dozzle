@@ -44,6 +44,7 @@ func Test_handler_containerActions_stop(t *testing.T) {
 	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
 	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/stop", nil)
 	require.NoError(t, err, "Request should not return an error.")
+	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -56,6 +57,7 @@ func Test_handler_containerActions_restart(t *testing.T) {
 	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
 	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/restart", nil)
 	require.NoError(t, err, "Request should not return an error.")
+	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -68,6 +70,7 @@ func Test_handler_containerActions_unknown_action(t *testing.T) {
 	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
 	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/something-else", nil)
 	require.NoError(t, err, "Request should not return an error.")
+	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -80,6 +83,7 @@ func Test_handler_containerActions_unknown_container(t *testing.T) {
 	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
 	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/456/actions/start", nil)
 	require.NoError(t, err, "Request should not return an error.")
+	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -92,6 +96,7 @@ func Test_handler_containerActions_start(t *testing.T) {
 	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
 	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/start", nil)
 	require.NoError(t, err, "Request should not return an error.")
+	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -115,6 +120,7 @@ func Test_handler_containerActions_swarm_task(t *testing.T) {
 			handler := createHandler(m, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
 			req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/"+action, nil)
 			require.NoError(t, err)
+			req.Header.Set("Content-Type", "application/json")
 
 			rr := httptest.NewRecorder()
 			handler.ServeHTTP(rr, req)
@@ -149,6 +155,7 @@ func Test_handler_containerUpdate_up_to_date(t *testing.T) {
 	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
 	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/update", nil)
 	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -175,6 +182,7 @@ func Test_handler_containerUpdate_failed_not_logged_completed(t *testing.T) {
 	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
 	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/update", nil)
 	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
 	handler.ServeHTTP(httptest.NewRecorder(), req)
 
 	assert.Contains(t, buf.String(), "container update failed")
@@ -213,6 +221,7 @@ func Test_handler_containerUpdate_stopped(t *testing.T) {
 	handler := createHandler(m, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
 	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/update", nil)
 	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -235,6 +244,7 @@ func Test_handler_containerUpdate_check_only(t *testing.T) {
 	handler := createHandler(m, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
 	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/update", nil)
 	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -277,6 +287,7 @@ func Test_handler_containerUpdate_new_image(t *testing.T) {
 	handler := createHandler(m, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
 	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/update", nil)
 	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -336,6 +347,7 @@ func Test_handler_containerUpdate_rejoins_network_dependents(t *testing.T) {
 	handler := createHandler(m, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
 	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/update", nil)
 	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -380,6 +392,7 @@ func Test_handler_containerUpdate_recreates_when_image_already_local(t *testing.
 	handler := createHandler(m, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
 	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/update", nil)
 	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -393,6 +406,7 @@ func Test_handler_containerUpdate_not_found(t *testing.T) {
 	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
 	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/456/actions/update", nil)
 	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
