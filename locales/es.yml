@@ -1127,13 +1127,14 @@ setup:
   cloud:
     title: "Conectar Dozzle Cloud"
     subtitle: "Entérese cuando algo falla sin tener una pestaña abierta."
+    report-title: "Lo que hay que arreglar, encontrado para usted"
+    report-body: "Dozzle Cloud lee sus errores y advertencias y le dice cuáles vale la pena arreglar, y cómo."
     alerts-title: "Alertas en cuanto algo falla"
     alerts-body: "Caídas, OOM kills y picos de errores, enviados a Telegram, Discord, Slack o por correo electrónico."
     chat-title: "Pregunte qué falló desde su teléfono"
     chat-body: "Escriba al bot de Telegram o Discord. Lee sus logs y, con las acciones activadas, reinicia un contenedor cuando usted lo confirma."
-    updates-title: "Actualizaciones que se comprueban"
-    updates-body: "Tras cada actualización automática, Dozzle Cloud compara los errores con los de antes y ofrece revertirla si empeoraron."
     connect: "Conectar Dozzle Cloud"
+    first-week: "Su primera semana incluye un informe cada mañana con cada problema encontrado y cómo arreglarlo."
     learn-more: "Más información"
     skip: "Ahora no"
   update:
@@ -1159,6 +1160,7 @@ setup:
     reason-unsupported: "Dozzle no encuentra su propio contenedor aquí, así que no puede reemplazarse a sí mismo."
     reason-swarm-worker: "Dozzle se ejecuta como servicio de Swarm en un nodo worker. Solo un manager puede actualizar el servicio, así que ejecuta Dozzle en un manager o actualízalo con docker service update."
     pull-denied: "No se pudo descargar {image}. Puede que solo exista en esta máquina o que el registro necesite docker login."
+    cloud-hint: "Con Dozzle Cloud, cada actualización se compara con los errores de antes y, si empeoraron, se te ofrece revertirla."
   restart:
     title: "Reiniciar Dozzle"
     subtitle: "Estos cambios están guardados y empiezan a funcionar tras un reinicio."
@@ -1176,6 +1178,7 @@ setup:
     done-body: "Nada necesita un reinicio. Puede volver aquí desde Configuración cuando quiera."
     nothing-title: "Nada que reiniciar"
     nothing-body: "Esta vez no se configuró ningún paso. Abre el asistente desde Configuración cuando quieras."
+    cloud-later: "Dozzle Cloud está en Configuración cuando lo quieras. Gratis para un servidor."
     done: "Hecho"
   error:
     generic: "Algo salió mal. Inténtelo de nuevo."

@@ -1129,13 +1129,14 @@ setup:
   cloud:
     title: Dozzle Cloud 연결
     subtitle: 탭을 열어 두지 않아도 문제가 생기면 알 수 있습니다.
+    report-title: "고쳐야 할 문제를 대신 찾아 드립니다"
+    report-body: "Dozzle Cloud가 오류와 경고를 읽고 어떤 것을 고칠 가치가 있는지, 어떻게 고치면 되는지 알려 줍니다."
     alerts-title: 문제가 생기는 즉시 알림
     alerts-body: "크래시, OOM 종료, 오류 급증을 Telegram, Discord, Slack 또는 이메일로 보냅니다."
     chat-title: "휴대폰에서 무엇이 고장 났는지 물어보기"
     chat-body: "Telegram 또는 Discord 봇에 메시지를 보내세요. 봇이 로그를 읽고, 작업이 켜져 있으면 확인 후 컨테이너를 재시작합니다."
-    updates-title: "확인되는 업데이트"
-    updates-body: "자동 업데이트가 끝날 때마다 Dozzle Cloud가 이전과 오류를 비교하고, 오류가 늘었다면 롤백을 제안합니다."
     connect: Dozzle Cloud 연결
+    first-week: "첫 주에는 매일 아침 발견된 모든 문제와 해결 방법을 담은 보고서를 받습니다."
     learn-more: 자세히 알아보기
     skip: "나중에"
   update:
@@ -1161,6 +1162,7 @@ setup:
     reason-unsupported: "여기서는 Dozzle이 자신의 컨테이너를 찾을 수 없어 스스로 교체할 수 없습니다."
     reason-swarm-worker: "Dozzle이 워커 노드에서 Swarm 서비스로 실행 중입니다. 서비스는 매니저만 업데이트할 수 있으므로 Dozzle을 매니저에서 실행하거나 docker service update로 업데이트하세요."
     pull-denied: "{image}을(를) 가져올 수 없습니다. 이 머신에만 있는 이미지이거나 레지스트리에 docker login이 필요할 수 있습니다."
+    cloud-hint: "Dozzle Cloud를 사용하면 업데이트할 때마다 이전 오류와 비교하고, 오류가 늘었다면 롤백을 제안합니다."
   restart:
     title: Dozzle 재시작
     subtitle: 변경 사항이 저장되었으며 재시작 후 적용됩니다.
@@ -1178,6 +1180,7 @@ setup:
     done-body: 재시작이 필요한 항목이 없습니다. 언제든지 설정에서 다시 돌아올 수 있습니다.
     nothing-title: "재시작할 항목이 없습니다"
     nothing-body: "이번에는 설정한 단계가 없습니다. 준비되면 설정에서 언제든 다시 열 수 있습니다."
+    cloud-later: "Dozzle Cloud는 언제든 설정에서 사용할 수 있습니다. 서버 한 대는 무료입니다."
     done: 완료
   error:
     generic: 문제가 발생했습니다. 다시 시도하세요.

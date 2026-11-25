@@ -5,9 +5,10 @@
        parent; everything inside is relative so one component works at any scale. -->
   <div class="container-icon relative inline-flex shrink-0" :data-status="status" :title="status">
     <template v-if="src">
+      <!-- Decorative: the container name sits beside it, so alt text would only be read twice. -->
       <img
         :src="src"
-        :alt="alt"
+        alt=""
         class="size-full object-contain"
         :class="{ 'opacity-40 grayscale': !isRunning }"
         loading="lazy"
@@ -43,8 +44,6 @@ const { isDark } = useResolvedTheme();
 
 const status = computed(() => health ?? state);
 const isRunning = computed(() => state === "running" || state === "restarting");
-// A data URI is not a name anyone wants read aloud.
-const alt = computed(() => (slug && isDataIcon(slug) ? "" : slug));
 const src = computed(() => (showAppIcons.value ? iconUrl(slug, isDark.value) : undefined));
 </script>
 
