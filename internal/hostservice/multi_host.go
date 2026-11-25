@@ -683,7 +683,14 @@ func (m *MultiHostService) AddSubscription(sub *notification.Subscription) error
 	if err := m.notificationManager.AddSubscription(sub); err != nil {
 		return err
 	}
-	return m.saveNotificationConfig()
+	// Undo an add that never reached disk: a retried Save would otherwise leave
+	// one live duplicate rule per attempt. Agents never saw it, so no broadcast.
+	if err := m.persister.SaveNotifications(); err != nil {
+		m.notificationManager.RemoveSubscription(sub.ID)
+		return err
+	}
+	m.broadcastNotificationConfig()
+	return nil
 }
 
 // RemoveSubscription removes a subscription from local manager and broadcasts to agents
@@ -695,7 +702,13 @@ func (m *MultiHostService) RemoveSubscription(id int) error {
 // AddDispatcher adds a dispatcher and returns its auto-generated ID
 func (m *MultiHostService) AddDispatcher(d dispatcher.Dispatcher) (int, error) {
 	id := m.notificationManager.AddDispatcher(d)
-	return id, m.saveNotificationConfig()
+	// Same as AddSubscription: a retry must not leave duplicates behind.
+	if err := m.persister.SaveNotifications(); err != nil {
+		m.notificationManager.RemoveDispatcher(id)
+		return 0, err
+	}
+	m.broadcastNotificationConfig()
+	return id, nil
 }
 
 // UpdateDispatcher updates a dispatcher by ID

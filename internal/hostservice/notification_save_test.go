@@ -21,6 +21,7 @@ func TestMultiHostService_AddDispatcherReturnsSaveError(t *testing.T) {
 
 	_, err = m.AddDispatcher(d)
 	assert.ErrorIs(t, err, notification.ErrSave)
+	assert.Empty(t, m.Dispatchers(), "a failed add must not stay live, or every retry leaves a duplicate")
 }
 
 // PUT and PATCH on a rule go through these two, so editing or toggling a rule
@@ -30,6 +31,10 @@ func TestMultiHostService_SubscriptionEditsReturnSaveError(t *testing.T) {
 
 	sub := &notification.Subscription{Name: "rule", ContainerExpression: "true", LogExpression: "true"}
 	assert.ErrorIs(t, m.AddSubscription(sub), notification.ErrSave)
+	assert.Empty(t, m.Subscriptions(), "a failed add must not stay live, or every retry leaves a duplicate")
+
+	// Edits need a rule that is live, which a failed add no longer leaves behind.
+	require.NoError(t, m.notificationManager.AddSubscription(sub))
 
 	assert.ErrorIs(t, m.UpdateSubscription(sub.ID, map[string]any{"enabled": false}), notification.ErrSave)
 

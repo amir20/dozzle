@@ -307,7 +307,12 @@ func (m *K8sClusterService) AddSubscription(sub *notification.Subscription) erro
 	if err := m.notificationManager.AddSubscription(sub); err != nil {
 		return err
 	}
-	return m.persister.SaveNotifications()
+	// Undo an add that never reached disk, so a retried Save leaves no duplicates.
+	if err := m.persister.SaveNotifications(); err != nil {
+		m.notificationManager.RemoveSubscription(sub.ID)
+		return err
+	}
+	return nil
 }
 
 func (m *K8sClusterService) RemoveSubscription(id int) error {
@@ -335,7 +340,11 @@ func (m *K8sClusterService) Subscriptions() []*notification.Subscription {
 
 func (m *K8sClusterService) AddDispatcher(d dispatcher.Dispatcher) (int, error) {
 	id := m.notificationManager.AddDispatcher(d)
-	return id, m.persister.SaveNotifications()
+	if err := m.persister.SaveNotifications(); err != nil {
+		m.notificationManager.RemoveDispatcher(id)
+		return 0, err
+	}
+	return id, nil
 }
 
 func (m *K8sClusterService) UpdateDispatcher(id int, d dispatcher.Dispatcher) error {
