@@ -108,6 +108,11 @@ type digestEntry struct {
 // transient blip must not silence checks for the whole success TTL.
 const errorTTL = 5 * time.Minute
 
+// digestTimeout bounds one shared digest lookup. It spans several requests (a
+// HEAD, a token fetch on 401, the retried HEAD), so it is above the 10s
+// per-request client timeout and matches the 30s callers already gave it.
+const digestTimeout = 30 * time.Second
+
 // Checker resolves remote digests with a TTL cache in front of the registry.
 // The cache holds only the remote digest, never the verdict, so a container
 // that is updated locally reports up-to-date immediately without waiting for
@@ -294,12 +299,20 @@ func (c *Checker) remoteDigest(ctx context.Context, image string, ref Reference,
 	}
 
 	fetched, err, shared := c.group.Do(image, func() (any, error) {
+		// Shared by every caller, so it must not end when the first one goes away.
+		ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), digestTimeout)
+		defer cancel()
 		return c.registry.Digest(ctx, ref)
 	})
 	digest, _ := fetched.(string)
 
 	if shared {
 		log.Debug().Str("image", image).Msg("image update check: joined an in-flight lookup")
+		return digest, err
+	}
+
+	// A cancelled or timed out lookup says nothing about the registry.
+	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
 		return digest, err
 	}
 
