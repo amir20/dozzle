@@ -113,7 +113,7 @@ func (m *SwarmClientManager) RetryAndList() ([]container.ClientService, []error)
 
 	errors := make([]error, 0)
 	if err != nil {
-		log.Fatal().Err(err).Msg("error looking up swarm service tasks")
+		log.Warn().Err(err).Msg("error looking up swarm service tasks")
 		errors = append(errors, err)
 		m.mu.Unlock()
 		return m.List(), errors
