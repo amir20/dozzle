@@ -11,6 +11,7 @@ import (
 	"github.com/amir20/dozzle/internal/container/agent/pb"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 // droppingAgent refuses every stream, like an agent that is restarting.
@@ -36,11 +37,34 @@ func (d *droppingAgent) StreamContainerStarted(context.Context, *pb.StreamContai
 	return nil, errAgentDown
 }
 
+func droppingService(t *testing.T) (*service, *droppingAgent) {
+	conn, err := grpc.NewClient("passthrough:///agent", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { conn.Close() })
+	agent := &droppingAgent{}
+	return &service{client: &Client{client: agent, conn: conn}, retryMin: time.Millisecond, retryMax: time.Millisecond}, agent
+}
+
+// A removed agent's client is closed while long-lived subscribers (Cloud) stay,
+// so the retry loop has to end on its own instead of spinning forever.
+func TestSubscribeStopsWhenClientIsClosed(t *testing.T) {
+	svc, agent := droppingService(t)
+	svc.SubscribeEvents(t.Context(), make(chan container.ContainerEvent))
+
+	assert.Eventually(t, func() bool { return agent.events.Load() >= 2 }, 5*time.Second, time.Millisecond)
+	svc.client.Close()
+	time.Sleep(20 * time.Millisecond)
+	events := agent.events.Load()
+	time.Sleep(20 * time.Millisecond)
+	assert.Equal(t, events, agent.events.Load())
+}
+
 // An agent that restarts under the same id is never republished, so the service
 // has to reopen its own streams or that host goes dark until Dozzle restarts.
 func TestSubscribeReopensStreamsAfterTheyEnd(t *testing.T) {
-	agent := &droppingAgent{}
-	svc := &service{client: &Client{client: agent}, retryMin: time.Millisecond, retryMax: time.Millisecond}
+	svc, agent := droppingService(t)
 
 	ctx, cancel := context.WithCancel(t.Context())
 	svc.SubscribeEvents(ctx, make(chan container.ContainerEvent))

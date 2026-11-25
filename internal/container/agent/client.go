@@ -19,6 +19,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/encoding/gzip"
 	"google.golang.org/grpc/keepalive"
@@ -870,6 +871,11 @@ func (c *Client) Exec(ctx context.Context, containerId string, cmd []string, eve
 
 func (c *Client) Close() error {
 	return c.conn.Close()
+}
+
+// closed reports whether Close was called, after which no stream can open again.
+func (c *Client) closed() bool {
+	return c.conn.GetState() == connectivity.Shutdown
 }
 
 func (c *Client) UpdateNotificationConfig(ctx context.Context, subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error {

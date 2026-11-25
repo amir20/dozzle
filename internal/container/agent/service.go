@@ -89,7 +89,8 @@ func (a *service) keepStreaming(ctx context.Context, name string, stream func(co
 	for {
 		started := time.Now()
 		err := stream(ctx)
-		if ctx.Err() != nil {
+		// A closed client is a removed agent: retrying would spin until ctx ends.
+		if ctx.Err() != nil || a.client.closed() {
 			return
 		}
 		// A stream that ran a while was healthy, so this is a fresh failure.
