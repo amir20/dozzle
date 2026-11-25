@@ -34,6 +34,16 @@ func TestGuessPinoLogLevel(t *testing.T) {
 		{`{"level":30,"severity":"error"}`, "info"},
 		{`{"level":35,"severity":"warn"}`, "warn"},
 		{`{"level":"panic","msg":"zerolog panic"}`, "fatal"},
+		// Monolog (issue #5716)
+		{`{"message":"Matched route","level":100,"level_name":"DEBUG","channel":"request"}`, "debug"},
+		{`{"message":"x","level":200,"level_name":"INFO"}`, "info"},
+		{`{"message":"x","level":250,"level_name":"NOTICE"}`, "info"},
+		{`{"message":"x","level":300,"level_name":"WARNING"}`, "warn"},
+		{`{"message":"x","level":400,"level_name":"ERROR"}`, "error"},
+		{`{"message":"x","level":500,"level_name":"CRITICAL"}`, "fatal"},
+		{`{"message":"x","level":550,"level_name":"ALERT"}`, "fatal"},
+		{`{"message":"x","level":600,"level_name":"EMERGENCY"}`, "fatal"},
+		{`{"level":150}`, "unknown"},
 	}
 	for _, test := range tests {
 		t.Run(test.input, func(t *testing.T) {

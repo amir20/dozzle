@@ -122,14 +122,23 @@ var timestampRegex = regexp.MustCompile(`^(?:\d{4}[-/]\d{2}[-/]\d{2}(?:[T ](?:\d
 // severityText/severityNumber are the OpenTelemetry Log Data Model fields.
 var levelKeys = []string{"@l", "level", "log.level", "severity", "severityText", "severityNumber"}
 
-// Pino's default numeric levels. JSON numbers decode to float64.
-var pinoLevels = map[float64]string{
-	10: "trace",
-	20: "debug",
-	30: "info",
-	40: "warn",
-	50: "error",
-	60: "fatal",
+// Numeric "level" values: Pino's defaults (10-60) and Monolog's RFC 5424
+// levels (100-600). The ranges do not overlap. JSON numbers decode to float64.
+var numericLevels = map[float64]string{
+	10:  "trace",
+	20:  "debug",
+	30:  "info",
+	40:  "warn",
+	50:  "error",
+	60:  "fatal",
+	100: "debug",
+	200: "info",
+	250: "info",  // notice
+	300: "warn",  // warning
+	400: "error", // error
+	500: "fatal", // critical
+	550: "fatal", // alert
+	600: "fatal", // emergency
 }
 
 // otelSeverityLevel maps an OpenTelemetry severityNumber to a canonical level.
@@ -265,7 +274,7 @@ func guessLogLevel(logEvent *container.LogEvent) string {
 					return normalizeLogLevel(s)
 				}
 				if n, ok := v.(float64); ok && key == "level" {
-					if level, ok := pinoLevels[n]; ok {
+					if level, ok := numericLevels[n]; ok {
 						return level
 					}
 				}
