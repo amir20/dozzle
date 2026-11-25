@@ -1127,6 +1127,8 @@ setup:
   cloud:
     title: 连接 Dozzle Cloud
     subtitle: 无需一直开着标签页，也能在出问题时第一时间知道。
+    report-title: "为你找出需要修复的问题"
+    report-body: "Dozzle Cloud 会分析你的错误和警告，告诉你哪些值得修复、以及如何修复。"
     alerts-title: 出问题时立即告警
     alerts-body: "崩溃、OOM 终止和错误激增，发送到 Telegram、Discord、Slack 或邮箱。"
     chat-title: "用手机问哪里坏了"
@@ -1134,6 +1136,7 @@ setup:
     updates-title: "会被检查的更新"
     updates-body: "每次自动更新后，Dozzle Cloud 会把错误与之前对比，如果变多就提供回滚。"
     connect: 连接 Dozzle Cloud
+    first-week: "第一周内，每天早晨你都会收到一份报告，汇总发现的每个问题及其修复方法。"
     learn-more: 了解更多
     skip: "暂不"
   update:
@@ -1159,6 +1162,7 @@ setup:
     reason-unsupported: "Dozzle 在这里找不到自己的容器，因此无法替换自身。"
     reason-swarm-worker: "Dozzle 以 Swarm 服务的形式运行在工作节点上。只有管理节点才能更新服务，请在管理节点上运行 Dozzle，或使用 docker service update 更新。"
     pull-denied: "无法拉取 {image}。它可能只存在于这台机器上，或者镜像仓库需要 docker login。"
+    cloud-hint: "使用 Dozzle Cloud 后，每次更新都会与之前的错误进行比对，如果问题变严重，会为你提供回滚。"
   restart:
     title: 重启 Dozzle
     subtitle: 这些更改已保存，重启后生效。
@@ -1176,6 +1180,7 @@ setup:
     done-body: 无需重启。你可以随时从设置中回到这里。
     nothing-title: "无需重启"
     nothing-body: "这次没有设置任何步骤。准备好后，随时可以在设置中打开向导。"
+    cloud-later: "Dozzle Cloud 随时可以在设置中找到。一台服务器免费使用。"
     done: 完成
   error:
     generic: 出错了，请重试。

@@ -46,6 +46,7 @@ describe("iconSlugForImage", () => {
     ["archlinux:latest", "arch-linux"],
     ["archlinux/archlinux:base-devel", "arch-linux"],
     ["artixlinux/artixlinux:base-openrc", "artix-linux"],
+    ["ghcr.io/getarcaneapp/manager:latest", "arcane"],
   ])("resolves %s", (image, slug) => {
     expect(iconSlugForImage(image)).toBe(slug);
   });
