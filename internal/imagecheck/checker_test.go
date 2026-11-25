@@ -406,6 +406,55 @@ func TestConcurrentChecksShareOneRequest(t *testing.T) {
 	}
 }
 
+// The lookup is shared, so the first caller leaving (a closed tab) must not
+// cancel it, or cache that cancellation for everyone else.
+func TestFirstCallerLeavingDoesNotCancelTheLookup(t *testing.T) {
+	arrived := make(chan struct{}, 1)
+	release := make(chan struct{})
+	checker, calls, host := newTestChecker(t, time.Minute, func(w http.ResponseWriter, r *http.Request) {
+		arrived <- struct{}{}
+		<-release
+		w.Header().Set("Docker-Content-Digest", "sha256:aaa")
+		w.WriteHeader(http.StatusOK)
+	})
+
+	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		checker.Check(ctx, host+"/app:latest", []string{host + "/app@sha256:aaa"}, false)
+	}()
+	<-arrived
+	cancel()
+	close(release)
+	<-done
+
+	result := checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:aaa"}, false)
+	assert.Equal(t, StatusUpToDate, result.Status)
+	assert.EqualValues(t, 1, calls.Load())
+}
+
+// A timeout says nothing about the registry, so the next check tries again.
+func TestTimeoutsAreNotCached(t *testing.T) {
+	var slow atomic.Bool
+	slow.Store(true)
+	checker, calls, host := newTestChecker(t, time.Minute, func(w http.ResponseWriter, r *http.Request) {
+		if slow.Swap(false) {
+			time.Sleep(300 * time.Millisecond)
+		}
+		w.Header().Set("Docker-Content-Digest", "sha256:aaa")
+		w.WriteHeader(http.StatusOK)
+	})
+	checker.registry.client.Timeout = 50 * time.Millisecond
+
+	first := checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:aaa"}, false)
+	assert.Equal(t, StatusUnknown, first.Status)
+
+	second := checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:aaa"}, false)
+	assert.Equal(t, StatusUpToDate, second.Status)
+	assert.EqualValues(t, 2, calls.Load())
+}
+
 // Nothing else ever removes a cache entry, so it has to be bounded.
 func TestCacheIsBounded(t *testing.T) {
 	checker, _, host := newTestChecker(t, time.Hour, manifestHandler("sha256:aaa"))
