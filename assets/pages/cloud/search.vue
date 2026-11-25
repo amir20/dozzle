@@ -325,21 +325,21 @@ function levelPillClass(level: string): string {
   }
 }
 
-// Safe with v-html: escapeHtml runs first, then <mark> tags are added against
-// a regex anchored on the (already-escaped) needle. Don't drop the escape
-// thinking it's redundant — the message comes from indexed log content.
+// Safe with v-html: the raw message is split on the needle and every piece is
+// escaped before <mark> tags go around the matches. Matching the raw text (not the
+// escaped HTML) keeps a query like "39" from landing inside "&#39;".
 function highlight(message: string, q: string): string {
   if (!q) return escapeHtml(message);
   const pattern = q.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
-  const re = new RegExp(`(${pattern})`, "gi");
-  return escapeHtml(message).replace(re, '<mark class="bg-warning text-warning-content rounded px-0.5">$1</mark>');
-}
-
-function escapeHtml(s: string): string {
-  return s.replace(
-    /[&<>"']/g,
-    (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] as string,
-  );
+  // The capture group puts the matches at the odd indexes.
+  return message
+    .split(new RegExp(`(${pattern})`, "gi"))
+    .map((part, i) =>
+      i % 2
+        ? `<mark class="bg-warning text-warning-content rounded px-0.5">${escapeHtml(part)}</mark>`
+        : escapeHtml(part),
+    )
+    .join("");
 }
 
 // Parsed once per hit, not once per render of every row.

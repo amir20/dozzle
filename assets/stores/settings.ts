@@ -98,4 +98,4 @@ export const {
   terminalFontSize,
   hiddenColumns,
   movingAverage,
-} = toRefs(settings.value);
+} = toRefs<Settings>(settings);
