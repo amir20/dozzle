@@ -1,6 +1,8 @@
 package notification
 
 import (
+	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -55,18 +57,24 @@ func (p *Persister) Load() {
 	}
 }
 
+// ErrSave wraps every SaveNotifications failure, so a handler can tell a disk
+// problem (500) from a rejected rule (400).
+var ErrSave = errors.New("could not save notification config")
+
 // SaveNotifications writes the manager's current notification config to disk.
-func (p *Persister) SaveNotifications() {
+func (p *Persister) SaveNotifications() error {
 	start := time.Now()
 	defer func() { log.Debug().Dur("took", time.Since(start)).Msg("Wrote notification config") }()
 
 	if err := ensureDir(p.NotificationPath); err != nil {
 		log.Error().Err(err).Msg("Could not create data directory")
-		return
+		return fmt.Errorf("%w: %w", ErrSave, err)
 	}
 	if err := utils.WriteFile(p.NotificationPath, p.Manager.WriteConfig); err != nil {
 		log.Error().Err(err).Msg("Could not write notification config")
+		return fmt.Errorf("%w: %w", ErrSave, err)
 	}
+	return nil
 }
 
 // SaveCloud writes the current cloud config to disk. No-op when unset.

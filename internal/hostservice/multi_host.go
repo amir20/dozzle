@@ -456,9 +456,11 @@ func (m *MultiHostService) StartNotificationManager(ctx context.Context, imageCh
 	return nil
 }
 
-func (m *MultiHostService) saveNotificationConfig() {
-	m.persister.SaveNotifications()
+// saveNotificationConfig broadcasts even when the save fails, so agents match what this server now runs.
+func (m *MultiHostService) saveNotificationConfig() error {
+	err := m.persister.SaveNotifications()
 	m.broadcastNotificationConfig()
+	return err
 }
 
 // CloudConfig returns the current cloud config, or nil if not set.
@@ -638,8 +640,7 @@ func (h *swarmNotificationHandler) HandleNotificationConfig(subscriptions []type
 	if err := h.Manager.HandleNotificationConfig(subscriptions, dispatchers); err != nil {
 		return err
 	}
-	h.persister.SaveNotifications()
-	return nil
+	return h.persister.SaveNotifications()
 }
 
 // persister.SetCloudConfig calls applyCloudDispatcher → Manager.SetCloudDispatcher,
@@ -682,33 +683,31 @@ func (m *MultiHostService) AddSubscription(sub *notification.Subscription) error
 	if err := m.notificationManager.AddSubscription(sub); err != nil {
 		return err
 	}
-	m.saveNotificationConfig()
-	return nil
+	return m.saveNotificationConfig()
 }
 
 // RemoveSubscription removes a subscription from local manager and broadcasts to agents
-func (m *MultiHostService) RemoveSubscription(id int) {
+func (m *MultiHostService) RemoveSubscription(id int) error {
 	m.notificationManager.RemoveSubscription(id)
-	m.saveNotificationConfig()
+	return m.saveNotificationConfig()
 }
 
 // AddDispatcher adds a dispatcher and returns its auto-generated ID
-func (m *MultiHostService) AddDispatcher(d dispatcher.Dispatcher) int {
+func (m *MultiHostService) AddDispatcher(d dispatcher.Dispatcher) (int, error) {
 	id := m.notificationManager.AddDispatcher(d)
-	m.saveNotificationConfig()
-	return id
+	return id, m.saveNotificationConfig()
 }
 
 // UpdateDispatcher updates a dispatcher by ID
-func (m *MultiHostService) UpdateDispatcher(id int, d dispatcher.Dispatcher) {
+func (m *MultiHostService) UpdateDispatcher(id int, d dispatcher.Dispatcher) error {
 	m.notificationManager.UpdateDispatcher(id, d)
-	m.saveNotificationConfig()
+	return m.saveNotificationConfig()
 }
 
 // RemoveDispatcher removes a dispatcher by ID
-func (m *MultiHostService) RemoveDispatcher(id int) {
+func (m *MultiHostService) RemoveDispatcher(id int) error {
 	m.notificationManager.RemoveDispatcher(id)
-	m.saveNotificationConfig()
+	return m.saveNotificationConfig()
 }
 
 // ReplaceSubscription replaces a subscription with new data

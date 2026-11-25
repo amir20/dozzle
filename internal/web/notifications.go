@@ -3,6 +3,7 @@ package web
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"regexp"
 	"sort"
@@ -301,7 +302,7 @@ func (h *handler) createNotificationRule(w http.ResponseWriter, r *http.Request)
 	}
 
 	if err := h.hostService.AddSubscription(sub); err != nil {
-		writeError(w, http.StatusBadRequest, err.Error())
+		writeNotificationError(w, err)
 		return
 	}
 
@@ -337,7 +338,7 @@ func (h *handler) replaceNotificationRule(w http.ResponseWriter, r *http.Request
 	}
 
 	if err := h.hostService.ReplaceSubscription(sub); err != nil {
-		writeError(w, http.StatusBadRequest, err.Error())
+		writeNotificationError(w, err)
 		return
 	}
 
@@ -391,7 +392,7 @@ func (h *handler) updateNotificationRule(w http.ResponseWriter, r *http.Request)
 	}
 
 	if err := h.hostService.UpdateSubscription(id, updates); err != nil {
-		writeError(w, http.StatusBadRequest, err.Error())
+		writeNotificationError(w, err)
 		return
 	}
 
@@ -416,7 +417,10 @@ func (h *handler) deleteNotificationRule(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	h.hostService.RemoveSubscription(id)
+	if err := h.hostService.RemoveSubscription(id); err != nil {
+		writeNotificationError(w, err)
+		return
+	}
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -475,7 +479,11 @@ func (h *handler) createDispatcher(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := h.hostService.AddDispatcher(d)
+	id, err := h.hostService.AddDispatcher(d)
+	if err != nil {
+		writeNotificationError(w, err)
+		return
+	}
 
 	resp := &DispatcherResponse{
 		ID:       id,
@@ -525,7 +533,10 @@ func (h *handler) updateDispatcher(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.hostService.UpdateDispatcher(id, d)
+	if err := h.hostService.UpdateDispatcher(id, d); err != nil {
+		writeNotificationError(w, err)
+		return
+	}
 
 	resp := &DispatcherResponse{
 		ID:       id,
@@ -547,8 +558,21 @@ func (h *handler) deleteDispatcher(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.hostService.RemoveDispatcher(id)
+	if err := h.hostService.RemoveDispatcher(id); err != nil {
+		writeNotificationError(w, err)
+		return
+	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+// writeNotificationError answers 500 when the change could not be saved and 400
+// when the rule itself was rejected.
+func writeNotificationError(w http.ResponseWriter, err error) {
+	if errors.Is(err, notification.ErrSave) {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	writeError(w, http.StatusBadRequest, err.Error())
 }
 
 // requireNotificationsRole gates the notification rule and dispatcher APIs.
