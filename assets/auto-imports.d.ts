@@ -198,6 +198,7 @@ declare global {
   const isDefined: typeof import('@vueuse/core').isDefined
   const isEmptyHistogram: typeof import('./composable/logs/logHistogram').isEmptyHistogram
   const isFinished: typeof import('./composable/containers/bulkUpdate').isFinished
+  const isIpOrLocalhost: typeof import('./composable/containers/hostRestrictions').isIpOrLocalhost
   const isLogEvent: typeof import('@/composable/cloud/cloudAlerts').isLogEvent
   const isLogRoute: typeof import('./composable/app/mobileShell').isLogRoute
   const isMac: typeof import('./composable/ui/media').isMac
@@ -1030,6 +1031,7 @@ declare module 'vue' {
     readonly isDefined: UnwrapRef<typeof import('@vueuse/core')['isDefined']>
     readonly isEmptyHistogram: UnwrapRef<typeof import('./composable/logs/logHistogram')['isEmptyHistogram']>
     readonly isFinished: UnwrapRef<typeof import('./composable/containers/bulkUpdate')['isFinished']>
+    readonly isIpOrLocalhost: UnwrapRef<typeof import('./composable/containers/hostRestrictions')['isIpOrLocalhost']>
     readonly isLogRoute: UnwrapRef<typeof import('./composable/app/mobileShell')['isLogRoute']>
     readonly isMac: UnwrapRef<typeof import('./composable/ui/media')['isMac']>
     readonly isMobile: UnwrapRef<typeof import('./composable/ui/media')['isMobile']>
