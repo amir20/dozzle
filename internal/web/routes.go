@@ -304,7 +304,6 @@ func createRouter(h *handler) *chi.Mux {
 				if h.config.Authorization.Provider != NONE {
 					r.Use(auth.RequireAuthentication)
 				}
-
 				// Log streams
 				r.Get("/hosts/{host}/logs/stream", h.streamHostLogs)
 				r.Get("/hosts/{host}/containers/{id}/logs/histogram", h.fetchLogHistogram)
@@ -337,14 +336,14 @@ func createRouter(h *handler) *chi.Mux {
 					r.Post("/hosts/{host}/containers/{id}/actions/update", h.containerUpdate)
 					r.Post("/hosts/{host}/containers/{id}/actions/{action}", h.containerActions)
 					if h.config.Mode != "k8s" {
-						r.Post("/hosts/{host}/prune", h.pruneHost)
+						r.With(requireJSON).Post("/hosts/{host}/prune", h.pruneHost)
 						r.Get("/hosts/{host}/reclaimable", h.listReclaimable)
-						r.Post("/swarm/services/{name}/scale", h.scaleService)
+						r.With(requireJSON).Post("/swarm/services/{name}/scale", h.scaleService)
 					}
 					r.Post("/updates", h.startBulkUpdate)
 					r.Get("/updates/stream", h.streamBulkUpdate)
 					if h.config.Mode == "server" {
-						r.Post("/update/self", h.updateSelf)
+						r.With(requireJSON).Post("/update/self", h.updateSelf)
 					}
 					if h.config.Mode == "k8s" {
 						r.Post("/k8s/workloads/{namespace}/{kind}/{name}/restart", h.rolloutRestart)
@@ -369,20 +368,20 @@ func createRouter(h *handler) *chi.Mux {
 				r.Route("/notifications", func(r chi.Router) {
 					r.Use(h.requireNotificationsRole)
 					r.Get("/rules", h.listNotificationRules)
-					r.Post("/rules", h.createNotificationRule)
+					r.With(requireJSON).Post("/rules", h.createNotificationRule)
 					r.Get("/rules/{id}", h.getNotificationRule)
 					r.Put("/rules/{id}", h.replaceNotificationRule)
 					r.Patch("/rules/{id}", h.updateNotificationRule)
 					r.Delete("/rules/{id}", h.deleteNotificationRule)
 
 					r.Get("/dispatchers", h.listDispatchers)
-					r.Post("/dispatchers", h.createDispatcher)
+					r.With(requireJSON).Post("/dispatchers", h.createDispatcher)
 					r.Get("/dispatchers/{id}", h.getDispatcher)
 					r.Put("/dispatchers/{id}", h.updateDispatcher)
 					r.Delete("/dispatchers/{id}", h.deleteDispatcher)
 
-					r.Post("/preview", h.previewExpression)
-					r.Post("/test-webhook", h.testWebhook)
+					r.With(requireJSON).Post("/preview", h.previewExpression)
+					r.With(requireJSON).Post("/test-webhook", h.testWebhook)
 				})
 
 				// Setup wizard. Server mode only; swarm and k8s never show it.
@@ -419,10 +418,10 @@ func createRouter(h *handler) *chi.Mux {
 					r.Get("/alerts/recent", h.cloudRecentAlerts)
 					r.Get("/deploys/recent", h.cloudRecentDeploys)
 					r.Get("/findings", h.cloudFindings)
-					r.Post("/patterns", h.cloudPatterns)
+					r.With(requireJSON).Post("/patterns", h.cloudPatterns)
 					r.Get("/hosts/{host}/containers/{id}/metrics", h.cloudContainerMetrics)
 					r.Get("/metrics/hosts", h.cloudHostMetrics)
-					r.Post("/chat", h.cloudChat)
+					r.With(requireJSON).Post("/chat", h.cloudChat)
 					r.Get("/config", h.cloudConfig)
 					r.Post("/feedback", h.cloudFeedback)
 
@@ -490,6 +489,26 @@ func createRouter(h *handler) *chi.Mux {
 			}
 		})
 
+		// pprof dumps goroutine stacks, heap contents and the command line
+		// (secrets passed as flags), so it needs a login and no container filter.
+		if log.Debug().Enabled() {
+			r.Group(func(r chi.Router) {
+				if h.config.Authorization.Provider != NONE {
+					r.Use(auth.RequireAuthentication)
+				}
+				r.Use(func(next http.Handler) http.Handler {
+					return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+						if h.restrictedUser(r) {
+							http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+							return
+						}
+						next.ServeHTTP(w, r)
+					})
+				})
+				r.Mount("/debug", middleware.Profiler())
+			})
+		}
+
 		r.Get("/healthcheck", h.healthcheck)
 		r.Get("/manifest.webmanifest", h.manifest)
 		r.Get("/sw.js", h.serviceWorker)
@@ -508,10 +527,6 @@ func createRouter(h *handler) *chi.Mux {
 		r.Get(base, func(w http.ResponseWriter, req *http.Request) {
 			http.Redirect(w, req, base+"/", http.StatusMovedPermanently)
 		})
-	}
-
-	if log.Debug().Enabled() {
-		r.Mount("/debug", middleware.Profiler())
 	}
 
 	return r

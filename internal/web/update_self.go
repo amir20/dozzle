@@ -56,6 +56,12 @@ func (h *handler) updateSelf(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	// Updating Dozzle restarts it for every user, so a user confined to some
+	// containers can't do it.
+	if h.restrictedUser(r) {
+		http.Error(w, "your account only sees some containers, so it can't update Dozzle", http.StatusForbidden)
+		return
+	}
 
 	// ContainerService.Update refuses a container labelled
 	// dev.dozzle.update=check, and this path never goes through it.

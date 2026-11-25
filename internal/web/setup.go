@@ -280,6 +280,18 @@ func isJSONRequest(r *http.Request) bool {
 	return mt == "application/json"
 }
 
+// requireJSON refuses a request that isn't application/json, for POST routes
+// that would otherwise run on a cross-site text/plain form or fetch.
+func requireJSON(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !isJSONRequest(r) {
+			http.Error(w, "expected application/json", http.StatusUnsupportedMediaType)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 // decodeSetupBody decodes a JSON body, refusing any other media type. With no
 // login (or a cookie session) a cross-site form could otherwise call these
 // routes from any page the user visits.

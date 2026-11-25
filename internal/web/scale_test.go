@@ -39,6 +39,7 @@ func postScale(t *testing.T, hostService HostService, mode, body string) int {
 	})
 	req, err := http.NewRequest("POST", "/api/swarm/services/shop_web/scale", strings.NewReader(body))
 	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
 	rr := httptest.NewRecorder()
 	router.ServeHTTP(rr, req)
 	return rr.Code

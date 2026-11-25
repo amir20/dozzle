@@ -485,9 +485,10 @@ export function useSetup() {
   }
 
   // POST /api/update/self. The body is the same update-progress stream the
-  // container Update action reads.
+  // container Update action reads. The empty JSON body is only there so the
+  // request carries application/json, which the server requires.
   async function updateSelf() {
-    return request("/api/update/self", { method: "POST" });
+    return request("/api/update/self", { method: "POST", body: "{}" });
   }
 
   // The restart lands ~500ms after the 202, so a response right away is still the
