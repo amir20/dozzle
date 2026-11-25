@@ -237,6 +237,8 @@ func TestIsBlockedIP(t *testing.T) {
 		"64:ff9b::7f00:1",                         // NAT64 WKP -> 127.0.0.1
 		"64:ff9b::a9fe:a9fe",                      // NAT64 WKP -> 169.254.169.254
 		"64:ff9b:1::7f00:1",                       // NAT64 local-use prefix
+		"64:ff9b:0:7f00:1::",                      // NAT64 WKP at /48 -> 127.0.0.1
+		"64:ff9b:0:a9fe:a9fe::",                   // NAT64 WKP at /48 -> 169.254.169.254
 		"2001:0000:dead:beef:0000:0000:80ff:fffe", // Teredo -> client 127.0.0.1
 		"2001:0000:7f00:0001::1",                  // Teredo -> server 127.0.0.1
 		"::7f00:1",                                // IPv4-compatible -> 127.0.0.1

@@ -94,10 +94,11 @@ func embeddedIPv4(ip net.IP) []net.IP {
 		isZeros(ip16[4:12]):
 		return append(out, net.IPv4(ip16[12], ip16[13], ip16[14], ip16[15]))
 
-	// NAT64 local-use prefix — RFC 8215, 64:ff9b:1::/48. The embedded IPv4 sits
-	// at a position that depends on the operator's prefix length, so block the
-	// whole range rather than guess.
-	case ip16[0] == 0x00 && ip16[1] == 0x64 && ip16[2] == 0xff && ip16[3] == 0x9b && ip16[4] == 0x00 && ip16[5] == 0x01:
+	// Anything else in 64:ff9b::/32: the RFC 6052 well-known prefix at another
+	// length, or the RFC 8215 local-use prefix 64:ff9b:1::/48. The embedded IPv4
+	// sits at a position that depends on the operator's prefix length, so block
+	// the whole range rather than guess.
+	case ip16[0] == 0x00 && ip16[1] == 0x64 && ip16[2] == 0xff && ip16[3] == 0x9b:
 		return append(out, net.IPv4zero)
 
 	// Teredo — RFC 4380, 2001::/32. Server IPv4 in bytes 4-8, client IPv4 in
