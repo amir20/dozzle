@@ -166,6 +166,7 @@ const ALIASES: Record<string, string> = {
   ttrss: "tinytinyrss",
   "tt-rss": "tinytinyrss",
   cthulhoo: "tinytinyrss",
+  getarcaneapp: "arcane",
 };
 
 const stripSuffix = (name: string) => {
