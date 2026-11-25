@@ -190,13 +190,13 @@ type HostService interface {
 	ClientServices(retry bool) []container.ClientService
 	// Notification methods
 	AddSubscription(sub *notification.Subscription) error
-	RemoveSubscription(id int)
+	RemoveSubscription(id int) error
 	ReplaceSubscription(sub *notification.Subscription) error
 	UpdateSubscription(id int, updates map[string]any) error
 	Subscriptions() []*notification.Subscription
-	AddDispatcher(d dispatcher.Dispatcher) int
-	UpdateDispatcher(id int, d dispatcher.Dispatcher)
-	RemoveDispatcher(id int)
+	AddDispatcher(d dispatcher.Dispatcher) (int, error)
+	UpdateDispatcher(id int, d dispatcher.Dispatcher) error
+	RemoveDispatcher(id int) error
 	Dispatchers() []notification.DispatcherConfig
 	FetchAgentNotificationStats() map[int]types.SubscriptionStats
 	CloudConfig() *notification.CloudConfig

@@ -221,23 +221,22 @@ const showDrawer = useDrawer();
 const isDeleting = ref(false);
 const confirmingDelete = ref(false);
 
-async function changeDispatcher(id: number) {
-  await fetch(withBase(`/api/notifications/rules/${alert.id}`), {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ dispatcherId: id }),
-  });
+async function patchAlert(body: Record<string, unknown>) {
+  try {
+    const res = await fetch(withBase(`/api/notifications/rules/${alert.id}`), {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? res.statusText);
+  } catch (e) {
+    showToast({ type: "error", message: e instanceof Error ? escapeHtml(e.message) : t("error.something-went-wrong") });
+  }
   onUpdated?.();
 }
 
-async function toggleEnabled() {
-  await fetch(withBase(`/api/notifications/rules/${alert.id}`), {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ enabled: !alert.enabled }),
-  });
-  onUpdated?.();
-}
+const changeDispatcher = (id: number) => patchAlert({ dispatcherId: id });
+const toggleEnabled = () => patchAlert({ enabled: !alert.enabled });
 
 function editAlert() {
   showDrawer(AlertForm, { alert, onCreated: onUpdated }, "lg");

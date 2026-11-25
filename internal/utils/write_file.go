@@ -13,18 +13,19 @@ var writeMu sync.Mutex
 
 // WriteFile renders the file into memory before touching disk, so a failing
 // encoder never leaves a half-written file, then writes it in place and fsyncs.
-// Saves are serialized so two of them can't interleave.
+// Saves, render included, are serialized so two of them can't interleave.
 //
 // It writes through os.Create on purpose: a temp file plus rename would also
 // survive power loss, but breaks single-file bind mounts, symlinks and umask.
 func WriteFile(path string, write func(io.Writer) error) error {
+	// Render under the lock too, or an older render could land after a newer one.
+	writeMu.Lock()
+	defer writeMu.Unlock()
+
 	var buf bytes.Buffer
 	if err := write(&buf); err != nil {
 		return err
 	}
-
-	writeMu.Lock()
-	defer writeMu.Unlock()
 
 	f, err := os.Create(path)
 	if err != nil {

@@ -307,49 +307,54 @@ func (m *K8sClusterService) AddSubscription(sub *notification.Subscription) erro
 	if err := m.notificationManager.AddSubscription(sub); err != nil {
 		return err
 	}
-	m.persister.SaveNotifications()
+	// Undo an add that never reached disk, so a retried Save leaves no duplicates.
+	if err := m.persister.SaveNotifications(); err != nil {
+		m.notificationManager.RemoveSubscription(sub.ID)
+		return err
+	}
 	return nil
 }
 
-func (m *K8sClusterService) RemoveSubscription(id int) {
+func (m *K8sClusterService) RemoveSubscription(id int) error {
 	m.notificationManager.RemoveSubscription(id)
-	m.persister.SaveNotifications()
+	return m.persister.SaveNotifications()
 }
 
 func (m *K8sClusterService) ReplaceSubscription(sub *notification.Subscription) error {
 	if err := m.notificationManager.ReplaceSubscription(sub); err != nil {
 		return err
 	}
-	m.persister.SaveNotifications()
-	return nil
+	return m.persister.SaveNotifications()
 }
 
 func (m *K8sClusterService) UpdateSubscription(id int, updates map[string]any) error {
 	if err := m.notificationManager.UpdateSubscription(id, updates); err != nil {
 		return err
 	}
-	m.persister.SaveNotifications()
-	return nil
+	return m.persister.SaveNotifications()
 }
 
 func (m *K8sClusterService) Subscriptions() []*notification.Subscription {
 	return m.notificationManager.Subscriptions()
 }
 
-func (m *K8sClusterService) AddDispatcher(d dispatcher.Dispatcher) int {
+func (m *K8sClusterService) AddDispatcher(d dispatcher.Dispatcher) (int, error) {
 	id := m.notificationManager.AddDispatcher(d)
-	m.persister.SaveNotifications()
-	return id
+	if err := m.persister.SaveNotifications(); err != nil {
+		m.notificationManager.RemoveDispatcher(id)
+		return 0, err
+	}
+	return id, nil
 }
 
-func (m *K8sClusterService) UpdateDispatcher(id int, d dispatcher.Dispatcher) {
+func (m *K8sClusterService) UpdateDispatcher(id int, d dispatcher.Dispatcher) error {
 	m.notificationManager.UpdateDispatcher(id, d)
-	m.persister.SaveNotifications()
+	return m.persister.SaveNotifications()
 }
 
-func (m *K8sClusterService) RemoveDispatcher(id int) {
+func (m *K8sClusterService) RemoveDispatcher(id int) error {
 	m.notificationManager.RemoveDispatcher(id)
-	m.persister.SaveNotifications()
+	return m.persister.SaveNotifications()
 }
 
 func (m *K8sClusterService) Dispatchers() []notification.DispatcherConfig {

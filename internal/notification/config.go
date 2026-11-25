@@ -168,7 +168,8 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 		}
 
 		if err := m.loadSubscription(s); err != nil {
-			return fmt.Errorf("failed to load subscription %s: %w", sub.Name, err)
+			// Keep the rule, inert, so the next save writes it back instead of dropping it.
+			log.Warn().Err(err).Str("name", sub.Name).Int("id", sub.ID).Msg("Subscription has an invalid expression, loaded but inactive")
 		}
 	}
 
@@ -211,9 +212,12 @@ func createDispatcher(config DispatcherConfig) (dispatcher.Dispatcher, error) {
 }
 
 // loadSubscription loads a subscription with its existing ID (used when loading from config)
+// A subscription whose expressions fail to compile is still stored, with every
+// program cleared so it matches nothing, and the compile error is returned.
 func (m *Manager) loadSubscription(sub *Subscription) error {
-	if err := sub.CompileExpressions(); err != nil {
-		return err
+	err := sub.CompileExpressions()
+	if err != nil {
+		sub.ContainerProgram, sub.LogProgram, sub.MetricProgram, sub.EventProgram = nil, nil, nil, nil
 	}
 
 	if sub.MetricCooldowns == nil {
@@ -228,5 +232,5 @@ func (m *Manager) loadSubscription(sub *Subscription) error {
 
 	m.subscriptions.Store(sub.ID, sub)
 	log.Debug().Str("name", sub.Name).Int("id", sub.ID).Msg("Loaded subscription")
-	return nil
+	return err
 }

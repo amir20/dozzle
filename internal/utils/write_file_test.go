@@ -9,6 +9,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -62,4 +63,41 @@ func TestWriteFile_ConcurrentWritesDontInterleave(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, data)
 	assert.Equal(t, strings.Repeat(string(data[0]), len(data)), string(data))
+}
+
+// A save that rendered first must also land first, or a stale render overwrites a newer one.
+func TestWriteFile_RenderIsSerialized(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "config.yml")
+	entered, release := make(chan struct{}), make(chan struct{})
+	secondRendered := make(chan struct{})
+
+	var wg sync.WaitGroup
+	wg.Go(func() {
+		assert.NoError(t, WriteFile(path, func(w io.Writer) error {
+			close(entered)
+			<-release
+			_, err := w.Write([]byte("old"))
+			return err
+		}))
+	})
+	<-entered
+	wg.Go(func() {
+		assert.NoError(t, WriteFile(path, func(w io.Writer) error {
+			close(secondRendered)
+			_, err := w.Write([]byte("new"))
+			return err
+		}))
+	})
+
+	select {
+	case <-secondRendered:
+		t.Error("second render ran while the first save was still in progress")
+	case <-time.After(100 * time.Millisecond):
+	}
+	close(release)
+	wg.Wait()
+
+	data, err := os.ReadFile(path)
+	require.NoError(t, err)
+	assert.Equal(t, "new", string(data))
 }
