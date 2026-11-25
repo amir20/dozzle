@@ -76,8 +76,8 @@ func TestRefreshRedialsOnlyWhenSettingsChange(t *testing.T) {
 	require.Eventually(t, func() bool { return len(f.dialTimes()) == 1 }, 5*time.Second, 10*time.Millisecond)
 
 	c.Refresh()
-	time.Sleep(300 * time.Millisecond)
-	assert.Len(t, f.dialTimes(), 1, "unchanged settings must keep the connection")
+	assert.Never(t, func() bool { return len(f.dialTimes()) > 1 }, 1500*time.Millisecond, 50*time.Millisecond, "unchanged settings must keep the connection")
+	assert.Empty(t, c.startCh, "an unchanged Refresh must not queue a wake-up")
 
 	streamLogs.Store(false)
 	c.Refresh()
