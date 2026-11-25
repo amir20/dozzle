@@ -155,6 +155,8 @@ func (c *Client) Notify() {
 // Reconnect drops the current cloud connection (if any), causing the Run loop
 // to dial again so settings like the log-streaming toggle take effect.
 func (c *Client) Reconnect() {
+	// Queued first so Run redials at once instead of waiting out a grown backoff.
+	c.Notify()
 	c.connMu.Lock()
 	cancel := c.cancelCurrent
 	c.connMu.Unlock()
@@ -168,13 +170,17 @@ func (c *Client) Reconnect() {
 // drops it so the next dial picks them up. An unchanged config keeps the
 // connection, since agents are re-sent the same config whenever any host joins.
 func (c *Client) Refresh() {
-	c.Notify()
 	streamLogs := c.streamLogsEnabled()
 	apiKey := c.apiKeyFunc()
 	c.connMu.Lock()
 	cancel := c.cancelCurrent
 	changed := apiKey != c.connAPIKey || streamLogs != c.connStreamLogs
 	c.connMu.Unlock()
+	// A wake-up left queued for a live, unchanged connection would skip the
+	// backoff on its next drop, so only queue one when it is needed.
+	if cancel == nil || changed {
+		c.Notify()
+	}
 	if cancel != nil && changed {
 		cancel()
 	}
@@ -215,7 +221,7 @@ func (c *Client) Run(ctx context.Context) {
 		}
 
 		dialedAt := time.Now()
-		wasConnected, err := c.connect(ctx, apiKey)
+		wasConnected, err := c.connect(ctx)
 		if ctx.Err() != nil {
 			return
 		}
@@ -293,7 +299,7 @@ func (c *Client) Run(ctx context.Context) {
 // connect establishes a gRPC stream to the cloud and processes requests.
 // Returns wasConnected=true if the stream was successfully established and
 // at least one message was received before disconnecting.
-func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool, err error) {
+func (c *Client) connect(ctx context.Context) (wasConnected bool, err error) {
 	var creds grpc.DialOption
 	if c.plaintext {
 		creds = grpc.WithTransportCredentials(insecure.NewCredentials())
@@ -318,9 +324,14 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 	// Per-connection context that Reconnect() can cancel to force a redial.
 	connCtx, connCancel := context.WithCancel(ctx)
 	defer connCancel()
-	// Read under the same lock Refresh compares against, so a change landing
-	// after this point is always seen by Refresh as a change.
+	// Key and toggle are read under the lock Refresh compares against, so a
+	// change landing at any point before or after is never missed.
 	c.connMu.Lock()
+	apiKey := c.apiKeyFunc()
+	if apiKey == "" {
+		c.connMu.Unlock()
+		return false, errors.New("cloud config removed while connecting")
+	}
 	streamLogs := c.streamLogsEnabled()
 	c.cancelCurrent = connCancel
 	c.connAPIKey = apiKey
