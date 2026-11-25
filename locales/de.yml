@@ -1127,13 +1127,14 @@ setup:
   cloud:
     title: "Dozzle Cloud verbinden"
     subtitle: "Erfahren Sie, wenn etwas kaputtgeht, ohne einen Tab offen zu halten."
+    report-title: "Was behoben werden muss, für Sie gefunden"
+    report-body: "Dozzle Cloud liest Ihre Fehler und Warnungen und sagt Ihnen, welche sich zu beheben lohnen und wie."
     alerts-title: "Warnungen, sobald etwas kaputtgeht"
     alerts-body: "Abstürze, OOM-Kills und Fehlerspitzen, gesendet an Telegram, Discord, Slack oder per E-Mail."
     chat-title: "Vom Handy fragen, was kaputt ist"
     chat-body: "Schreiben Sie dem Telegram- oder Discord-Bot. Er liest Ihre Logs und startet, wenn Aktionen aktiviert sind, nach Ihrer Bestätigung einen Container neu."
-    updates-title: "Updates, die geprüft werden"
-    updates-body: "Nach jedem automatischen Update vergleicht Dozzle Cloud die Fehler mit vorher und bietet ein Zurückrollen an, wenn sie zugenommen haben."
     connect: "Dozzle Cloud verbinden"
+    first-week: "In Ihrer ersten Woche erhalten Sie jeden Morgen einen Bericht über jedes gefundene Problem, mit einer Anleitung zur Behebung."
     learn-more: "Mehr erfahren"
     skip: "Nicht jetzt"
   update:
@@ -1159,6 +1160,7 @@ setup:
     reason-unsupported: "Dozzle findet hier seinen eigenen Container nicht und kann sich deshalb nicht selbst ersetzen."
     reason-swarm-worker: "Dozzle läuft als Swarm-Service auf einem Worker-Knoten. Nur ein Manager kann den Service aktualisieren. Betreibe Dozzle auf einem Manager oder aktualisiere es mit docker service update."
     pull-denied: "{image} konnte nicht gezogen werden. Es existiert vielleicht nur auf diesem Rechner, oder die Registry verlangt docker login."
+    cloud-hint: "Mit Dozzle Cloud wird jedes Update mit den Fehlern von vorher verglichen, und du bekommst ein Zurückrollen angeboten, wenn sie zugenommen haben."
   restart:
     title: "Dozzle neu starten"
     subtitle: "Diese Änderungen sind gespeichert und werden nach einem Neustart wirksam."
@@ -1176,6 +1178,7 @@ setup:
     done-body: "Nichts erfordert einen Neustart. Sie können jederzeit über die Einstellungen hierher zurückkehren."
     nothing-title: "Nichts neu zu starten"
     nothing-body: "Diesmal wurde kein Schritt eingerichtet. Öffne die Einrichtung in den Einstellungen, wann immer du so weit bist."
+    cloud-later: "Dozzle Cloud finden Sie jederzeit in den Einstellungen. Kostenlos für einen Server."
     done: "Fertig"
   error:
     generic: "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."

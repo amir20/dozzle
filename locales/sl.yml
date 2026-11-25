@@ -1132,13 +1132,14 @@ setup:
   cloud:
     title: Poveži Dozzle Cloud
     subtitle: Izvedite, ko se kaj pokvari, ne da bi imeli odprt zavihek.
+    report-title: "Kaj je treba popraviti, poiskano namesto vas"
+    report-body: "Dozzle Cloud prebere vaše napake in opozorila ter vam pove, katere je vredno popraviti in kako."
     alerts-title: Opozorila v trenutku, ko se kaj pokvari
     alerts-body: "Sesutja, prekinitve zaradi OOM in porasti napak, poslani na Telegram, Discord, Slack ali e-pošto."
     chat-title: "Vprašajte s telefona, kaj se je pokvarilo"
     chat-body: "Pišite botu v Telegramu ali Discordu. Prebere vaše dnevnike in, ko so dejanja vklopljena, po vaši potrditvi ponovno zažene vsebnik."
-    updates-title: "Posodobitve, ki so preverjene"
-    updates-body: "Po vsaki samodejni posodobitvi Dozzle Cloud primerja napake s tistimi od prej in ponudi povrnitev, če se je stanje poslabšalo."
     connect: Poveži Dozzle Cloud
+    first-week: "Vaš prvi teden vključuje vsako jutro poročilo o vseh najdenih težavah, skupaj z navodili za odpravo."
     learn-more: Več o tem
     skip: "Ne zdaj"
   update:
@@ -1164,6 +1165,7 @@ setup:
     reason-unsupported: "Dozzle tukaj ne najde svojega vsebnika, zato se ne more zamenjati sam."
     reason-swarm-worker: "Dozzle teče kot storitev Swarm na delovnem vozlišču. Storitev lahko posodobi samo upravitelj, zato Dozzle zaženite na upravitelju ali ga posodobite z docker service update."
     pull-denied: "{image} ni bilo mogoče prenesti. Morda obstaja samo na tem računalniku ali register zahteva docker login."
+    cloud-hint: "Z Dozzle Cloud se vsaka posodobitev preveri glede na napake od prej, in če se je stanje poslabšalo, vam ponudi povrnitev."
   restart:
     title: Znova zaženi Dozzle
     subtitle: Spremembe so shranjene in začnejo delovati po ponovnem zagonu.
@@ -1181,6 +1183,7 @@ setup:
     done-body: Ponovni zagon ni potreben. K temu se lahko kadarkoli vrnete v nastavitvah.
     nothing-title: "Ničesar ni treba znova zagnati"
     nothing-body: "Tokrat ni bil nastavljen noben korak. Nastavitev odprite v Nastavitvah, ko boste pripravljeni."
+    cloud-later: "Dozzle Cloud je v Nastavitvah, kadar ga boste želeli. Brezplačno za en strežnik."
     done: Končano
   error:
     generic: Nekaj je šlo narobe. Poskusite znova.

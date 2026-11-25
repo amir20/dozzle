@@ -1127,13 +1127,14 @@ setup:
   cloud:
     title: Conectar o Dozzle Cloud
     subtitle: Saiba quando algo quebrar sem precisar manter uma aba aberta.
+    report-title: "O que precisa de correção, encontrado para você"
+    report-body: "O Dozzle Cloud lê seus erros e avisos e diz quais valem a pena corrigir, e como."
     alerts-title: Alertas no momento em que algo quebra
     alerts-body: "Falhas, encerramentos por OOM e picos de erros, enviados para Telegram, Discord, Slack ou e-mail."
     chat-title: "Pergunte o que quebrou pelo celular"
     chat-body: "Mande uma mensagem ao bot do Telegram ou Discord. Ele lê seus logs e, com as ações ativadas, reinicia um contêiner depois que você confirma."
-    updates-title: "Atualizações verificadas"
-    updates-body: "Depois de cada atualização automática, o Dozzle Cloud compara os erros com os de antes e oferece reverter se eles aumentaram."
     connect: Conectar o Dozzle Cloud
+    first-week: "Sua primeira semana inclui um relatório toda manhã sobre cada problema encontrado, com como corrigi-lo."
     learn-more: Saiba mais
     skip: "Agora não"
   update:
@@ -1159,6 +1160,7 @@ setup:
     reason-unsupported: "O Dozzle não encontra o próprio contêiner aqui, então não consegue se substituir."
     reason-swarm-worker: "O Dozzle está rodando como serviço do Swarm em um nó worker. Só um manager pode atualizar o serviço, então rode o Dozzle em um manager ou atualize-o com docker service update."
     pull-denied: "Não foi possível baixar {image}. Talvez exista apenas nesta máquina ou o registro exija docker login."
+    cloud-hint: "Com o Dozzle Cloud, cada atualização é comparada com os erros de antes, e você recebe a opção de reverter se eles pioraram."
   restart:
     title: Reiniciar o Dozzle
     subtitle: Estas alterações foram salvas e passam a funcionar após reiniciar.
@@ -1176,6 +1178,7 @@ setup:
     done-body: Nada precisa ser reiniciado. Você pode voltar aqui pelas Configurações a qualquer momento.
     nothing-title: "Nada para reiniciar"
     nothing-body: "Nenhuma etapa foi configurada desta vez. Abra a configuração em Configurações quando quiser."
+    cloud-later: "O Dozzle Cloud fica em Configurações sempre que você quiser. Grátis para um servidor."
     done: Concluído
   error:
     generic: Algo deu errado. Tente novamente.

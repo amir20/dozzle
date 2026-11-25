@@ -1129,13 +1129,14 @@ setup:
   cloud:
     title: Połącz Dozzle Cloud
     subtitle: Wiedz, kiedy coś się psuje, bez trzymania otwartej karty.
+    report-title: "Co trzeba naprawić, znalezione za Ciebie"
+    report-body: "Dozzle Cloud czyta Twoje błędy i ostrzeżenia i mówi, które z nich warto naprawić i jak."
     alerts-title: Alerty w chwili, gdy coś się psuje
     alerts-body: "Awarie, zabicia OOM i skoki błędów wysyłane na Telegram, Discord, Slack lub e-mail."
     chat-title: "Zapytaj z telefonu, co się zepsuło"
     chat-body: "Napisz do bota na Telegramie lub Discordzie. Czyta Twoje logi i, gdy akcje są włączone, restartuje kontener po Twoim potwierdzeniu."
-    updates-title: "Aktualizacje, które są sprawdzane"
-    updates-body: "Po każdej automatycznej aktualizacji Dozzle Cloud porównuje błędy z tymi sprzed aktualizacji i proponuje wycofanie, jeśli jest ich więcej."
     connect: Połącz Dozzle Cloud
+    first-week: "W pierwszym tygodniu co rano dostajesz raport o każdym znalezionym problemie, z opisem, jak go naprawić."
     learn-more: Dowiedz się więcej
     skip: "Nie teraz"
   update:
@@ -1161,6 +1162,7 @@ setup:
     reason-unsupported: "Dozzle nie może tutaj znaleźć własnego kontenera, więc nie może się sam zastąpić."
     reason-swarm-worker: "Dozzle działa jako usługa Swarm na węźle worker. Tylko manager może zaktualizować usługę, więc uruchom Dozzle na managerze albo zaktualizuj go poleceniem docker service update."
     pull-denied: "Nie udało się pobrać {image}. Może istnieje tylko na tej maszynie albo rejestr wymaga docker login."
+    cloud-hint: "Z Dozzle Cloud każda aktualizacja jest porównywana z wcześniejszymi błędami, a jeśli jest gorzej, dostajesz propozycję przywrócenia poprzedniej wersji."
   restart:
     title: Zrestartuj Dozzle
     subtitle: Te zmiany zostały zapisane i zaczną działać po restarcie.
@@ -1178,6 +1180,7 @@ setup:
     done-body: Nic nie wymaga restartu. Możesz tu wrócić z Ustawień w dowolnym momencie.
     nothing-title: "Nie ma czego restartować"
     nothing-body: "Tym razem nie skonfigurowano żadnego kroku. Otwórz konfigurację w Ustawieniach, kiedy tylko zechcesz."
+    cloud-later: "Dozzle Cloud czeka w Ustawieniach, kiedy tylko zechcesz. Za darmo dla jednego serwera."
     done: Gotowe
   error:
     generic: Coś poszło nie tak. Spróbuj ponownie.

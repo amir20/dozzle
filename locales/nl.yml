@@ -1128,13 +1128,14 @@ setup:
   cloud:
     title: Dozzle Cloud koppelen
     subtitle: Weet wanneer er iets stukgaat zonder een tabblad open te houden.
+    report-title: "Wat er gerepareerd moet worden, voor je gevonden"
+    report-body: "Dozzle Cloud leest je fouten en waarschuwingen en vertelt je welke het waard zijn om te repareren, en hoe."
     alerts-title: Meldingen zodra er iets stukgaat
     alerts-body: "Crashes, OOM-kills en foutpieken, verstuurd naar Telegram, Discord, Slack of e-mail."
     chat-title: "Vraag vanaf je telefoon wat er stuk is"
     chat-body: "Stuur de Telegram- of Discord-bot een bericht. Hij leest je logs en herstart, met acties aan, een container zodra je bevestigt."
-    updates-title: "Updates die gecontroleerd worden"
-    updates-body: "Na elke automatische update vergelijkt Dozzle Cloud de fouten met daarvoor en biedt een rollback aan als ze erger werden."
     connect: Dozzle Cloud koppelen
+    first-week: "Je eerste week krijg je elke ochtend een rapport over elk gevonden probleem, met hoe je het oplost."
     learn-more: Meer informatie
     skip: "Niet nu"
   update:
@@ -1160,6 +1161,7 @@ setup:
     reason-unsupported: "Dozzle kan hier zijn eigen container niet vinden en kan zichzelf dus niet vervangen."
     reason-swarm-worker: "Dozzle draait als Swarm-service op een worker-node. Alleen een manager kan de service bijwerken, dus draai Dozzle op een manager of werk het bij met docker service update."
     pull-denied: "{image} kon niet worden opgehaald. Misschien bestaat het alleen op deze machine, of vraagt de registry om docker login."
+    cloud-hint: "Met Dozzle Cloud wordt elke update vergeleken met de fouten van daarvoor, en krijg je de optie om terug te draaien als ze erger zijn geworden."
   restart:
     title: Dozzle herstarten
     subtitle: Deze wijzigingen zijn opgeslagen en werken na een herstart.
@@ -1177,6 +1179,7 @@ setup:
     done-body: Er is geen herstart nodig. Je kunt hier altijd terugkomen via Instellingen.
     nothing-title: "Niets om te herstarten"
     nothing-body: "Er is deze keer geen stap ingesteld. Open de installatie vanuit Instellingen wanneer je er klaar voor bent."
+    cloud-later: "Dozzle Cloud staat in Instellingen wanneer je het wilt. Gratis voor één server."
     done: Klaar
   error:
     generic: Er is iets misgegaan. Probeer het opnieuw.

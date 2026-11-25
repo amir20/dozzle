@@ -1127,13 +1127,14 @@ setup:
   cloud:
     title: "Forbind Dozzle Cloud"
     subtitle: "Få besked, når noget går i stykker, uden at holde en fane åben."
+    report-title: "Det, der skal rettes, fundet for dig"
+    report-body: "Dozzle Cloud læser dine fejl og advarsler og fortæller dig, hvilke der er værd at rette, og hvordan."
     alerts-title: "Advarsler, så snart noget går i stykker"
     alerts-body: "Nedbrud, OOM-kills og fejlspidser, sendt til Telegram, Discord, Slack eller e-mail."
     chat-title: "Spørg, hvad der gik galt, fra din telefon"
     chat-body: "Skriv til Telegram- eller Discord-botten. Den læser dine logs og genstarter, med handlinger slået til, en container, når du bekræfter."
-    updates-title: "Opdateringer, der bliver tjekket"
-    updates-body: "Efter hver automatisk opdatering sammenligner Dozzle Cloud fejlene med før og tilbyder at rulle tilbage, hvis de blev værre."
     connect: "Forbind Dozzle Cloud"
+    first-week: "Din første uge indeholder en rapport hver morgen om hvert fundet problem, med hvordan det rettes."
     learn-more: "Læs mere"
     skip: "Ikke nu"
   update:
@@ -1159,6 +1160,7 @@ setup:
     reason-unsupported: "Dozzle kan ikke finde sin egen container her, så den kan ikke udskifte sig selv."
     reason-swarm-worker: "Dozzle kører som en Swarm-tjeneste på en worker-node. Kun en manager kan opdatere tjenesten, så kør Dozzle på en manager, eller opdater den med docker service update."
     pull-denied: "Kunne ikke hente {image}. Det findes måske kun på denne maskine, eller registret kræver docker login."
+    cloud-hint: "Med Dozzle Cloud bliver hver opdatering sammenlignet med fejlene fra før, og du får tilbudt at rulle tilbage, hvis de blev værre."
   restart:
     title: "Genstart Dozzle"
     subtitle: "Disse ændringer er gemt og begynder at virke efter en genstart."
@@ -1176,6 +1178,7 @@ setup:
     done-body: "Intet kræver en genstart. Du kan altid vende tilbage hertil fra Indstillinger."
     nothing-title: "Intet at genstarte"
     nothing-body: "Ingen trin blev sat op denne gang. Åbn opsætningen fra Indstillinger, når du er klar."
+    cloud-later: "Dozzle Cloud findes i Indstillinger, når du vil have det. Gratis for én server."
     done: "Færdig"
   error:
     generic: "Noget gik galt. Prøv igen."
