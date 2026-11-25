@@ -41,6 +41,7 @@ var errorLineCorpus = []string{
 	`{"level":60,"msg":"pino fatal"}`,
 	`{"level": 50,"msg":"spaced pino"}`,
 	`{"message":"boom","level":400,"level_name":"ERROR"}`,
+	`{"msg":"no level_name","level":400}`,
 	`{"message":"down","level":550,"level_name":"ALERT"}`,
 	`{"message":"db","level": 500,"level_name":"CRITICAL"}`,
 	`{"severity":"CRITICAL","msg":"x"}`,
