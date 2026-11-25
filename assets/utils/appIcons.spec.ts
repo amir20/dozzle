@@ -47,6 +47,9 @@ describe("iconSlugForImage", () => {
     ["archlinux/archlinux:base-devel", "arch-linux"],
     ["artixlinux/artixlinux:base-openrc", "artix-linux"],
     ["ghcr.io/getarcaneapp/manager:latest", "arcane"],
+    ["moby/buildkit:nightly-rootless", "docker"],
+    ["ghcr.io/fluxerapp/fluxer-unfurl:latest", "fluxer"],
+    ["ghcr.io/fluxerapp/fluxer-app-proxy-self-hosted:latest", "fluxer"],
   ])("resolves %s", (image, slug) => {
     expect(iconSlugForImage(image)).toBe(slug);
   });
