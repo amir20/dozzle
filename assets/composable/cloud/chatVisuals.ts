@@ -12,6 +12,9 @@ export type ChatVisualPoint = {
   memory: number;
   memoryUsage: number;
   memoryUsageMax?: number;
+  /** Bytes per second; absent when cloud has no rate for the bucket. */
+  networkRx?: number;
+  networkTx?: number;
 };
 
 export type ChatVisualFacts = {
@@ -32,7 +35,15 @@ export type ChatVisualFacts = {
  * cloud.proto (ChatVisual) for the fields each type sets.
  */
 export type ChatVisual = {
-  type: "memory_vs_limit" | "cpu_over_time" | "pattern_count" | "container_ranking" | "logs" | "container_events";
+  type:
+    | "memory_vs_limit"
+    | "cpu_over_time"
+    | "pattern_count"
+    | "container_ranking"
+    | "logs"
+    | "container_events"
+    | "network_over_time"
+    | "host_usage";
   container?: string;
   hostId?: string;
   hostName?: string;

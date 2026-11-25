@@ -920,6 +920,8 @@ cloud-chat:
     draw-count: Menggambar jumlah log
     draw-ranking: Mengurutkan container
     draw-logs: Menampilkan baris log
+    draw-network: Menggambar lalu lintas jaringan dari waktu ke waktu
+    draw-host: Menggambar CPU dan memori host
   phase:
     reading: Membaca pertanyaan
     reviewing: Menelaah hasil yang ditemukan

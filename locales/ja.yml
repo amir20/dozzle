@@ -410,6 +410,8 @@ cloud-chat:
     draw-count: ログ件数をグラフ化
     draw-ranking: コンテナをランク付け
     draw-logs: ログ行を表示
+    draw-network: ネットワーク通信の推移をグラフ化
+    draw-host: ホストの CPU とメモリをグラフ化
   phase:
     reading: 質問を読んでいます
     reviewing: 見つかった内容を確認しています

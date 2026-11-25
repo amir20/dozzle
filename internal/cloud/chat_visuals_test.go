@@ -71,3 +71,33 @@ func TestVisualsFromProtoDropsCPUWithoutPoints(t *testing.T) {
 	require.Len(t, got, 1)
 	assert.Equal(t, "memory_vs_limit", got[0].Type)
 }
+
+func TestVisualsFromProtoNetworkAndHostUsage(t *testing.T) {
+	got := visualsFromProto([]*pb.ChatVisual{
+		{
+			Type: "network_over_time", Container: "rook", HostId: "h1", HostName: "nas",
+			Points: []*pb.ContainerMetricPoint{{TsNs: 1e9}, {TsNs: 2e9, NetworkRxRate: new(2048.0), NetworkTxRate: new(512.0)}},
+		},
+		// A series with no rate in it would be an empty box.
+		{Type: "network_over_time", Container: "api", Points: []*pb.ContainerMetricPoint{{TsNs: 1e9, Cpu: 3}}},
+		{
+			Type: "host_usage", HostId: "h1", HostName: "nas",
+			Points: []*pb.ContainerMetricPoint{{TsNs: 1e9, Cpu: 40, MemoryUsage: 8 << 30}},
+		},
+		{Type: "host_usage", HostId: "h2", HostName: "pi"},
+	})
+	require.Len(t, got, 2)
+
+	network := got[0]
+	assert.Equal(t, "network_over_time", network.Type)
+	assert.Equal(t, "nas", network.HostName)
+	assert.Nil(t, network.Points[0].NetworkRx, "a missing rate stays missing")
+	assert.Equal(t, 2048.0, *network.Points[1].NetworkRx)
+	assert.Equal(t, 512.0, *network.Points[1].NetworkTx)
+
+	host := got[1]
+	assert.Equal(t, "host_usage", host.Type)
+	assert.Equal(t, "h1", host.HostID)
+	assert.Equal(t, 40.0, host.Points[0].CPU)
+	assert.Equal(t, int64(8<<30), host.Points[0].MemoryUsage)
+}

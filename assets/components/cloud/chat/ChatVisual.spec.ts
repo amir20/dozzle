@@ -33,7 +33,7 @@ function render(visual: Visual) {
           fallbackWarn: false,
           messages: {
             en: {
-              label: { cpu: "CPU" },
+              label: { cpu: "CPU", network: "Network" },
               "cloud-chat": {
                 visual: {
                   memory: "Memory",
@@ -136,6 +136,59 @@ describe("ChatVisual", () => {
 
   test("CPU over time with no series draws no chart", () => {
     const wrapper = render({ type: "cpu_over_time", container: "rook", from: 0, to: 1, points: [] });
+    expect(wrapper.findComponent(BarChartStub).exists()).toBe(false);
+  });
+
+  test("network over time: out and in as two charts in bytes per second", async () => {
+    const wrapper = render({
+      type: "network_over_time",
+      container: "rook",
+      hostName: "nas",
+      from: 1000,
+      to: 2000,
+      points: [
+        { ts: 0, memory: 0, memoryUsage: 0, networkRx: 2048, networkTx: 512 },
+        { ts: 1, memory: 0, memoryUsage: 0, networkRx: 4096 },
+      ],
+    });
+    expect(wrapper.text()).toContain("rook");
+    expect(wrapper.text()).toContain("nas");
+    const [tx, rx] = wrapper.findAllComponents(BarChartStub);
+    expect(wrapper.find("[data-chart=tx]").text()).toContain("Network ↑");
+    expect(tx.props("chartData").map((b: { value: number }) => b.value)).toEqual([512, 0]);
+    expect(rx.props("chartData").map((b: { value: number }) => b.value)).toEqual([2048, 4096]);
+
+    rx.vm.$emit("hoverValue", 4096, 1, 2);
+    await wrapper.vm.$nextTick();
+    expect(wrapper.find("[data-moment]").text()).toContain("4K/s");
+  });
+
+  test("host usage: titled with the host, CPU percent and memory bytes stacked", async () => {
+    const wrapper = render({
+      type: "host_usage",
+      container: "",
+      hostId: "h1",
+      hostName: "nas",
+      from: 1000,
+      to: 2000,
+      points: [
+        { ts: 0, cpu: 40, memory: 0, memoryUsage: 8 * GiB },
+        { ts: 1, cpu: 60, cpuMax: 90, memory: 0, memoryUsage: 4 * GiB },
+      ],
+    });
+    expect(wrapper.find(".font-semibold").text()).toBe("nas");
+    const [cpu, memory] = wrapper.findAllComponents(BarChartStub);
+    expect(cpu.props("chartData").map((b: { percent: number }) => b.percent)).toEqual([40, 60]);
+    expect(memory.props("max")).toBeUndefined();
+    expect(memory.props("chartData").map((b: { value: number }) => b.value)).toEqual([8 * GiB, 4 * GiB]);
+
+    memory.vm.$emit("hoverValue", 8 * GiB, 0, 2);
+    await wrapper.vm.$nextTick();
+    expect(wrapper.find("[data-moment]").text()).toContain("8 GB");
+  });
+
+  test("host usage with no series draws no chart", () => {
+    const wrapper = render({ type: "host_usage", hostName: "nas", from: 0, to: 1, points: [] });
     expect(wrapper.findComponent(BarChartStub).exists()).toBe(false);
   });
 

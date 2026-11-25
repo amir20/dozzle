@@ -105,6 +105,8 @@ export const stepKeys: Record<string, string> = {
   show_pattern_count: "draw-count",
   show_container_ranking: "draw-ranking",
   show_logs: "draw-logs",
+  show_network: "draw-network",
+  show_host_usage: "draw-host",
 };
 
 /** The step in the reader's language, or cloud's English when this build has

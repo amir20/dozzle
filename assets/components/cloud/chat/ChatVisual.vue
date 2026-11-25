@@ -9,7 +9,9 @@
   <div class="border-base-content/10 rounded-lg border p-3 text-xs" :data-visual="visual.type">
     <div class="mb-2 flex items-baseline gap-2">
       <span class="truncate font-mono font-semibold">{{ title }}</span>
-      <span v-if="visual.hostName" class="text-base-content/50 truncate">{{ visual.hostName }}</span>
+      <span v-if="visual.hostName && visual.type !== 'host_usage'" class="text-base-content/50 truncate">{{
+        visual.hostName
+      }}</span>
       <span v-if="aside" class="ml-auto shrink-0 font-mono tabular-nums">{{ aside }}</span>
     </div>
 
@@ -60,6 +62,30 @@
       </div>
     </div>
 
+    <!-- Network in and out, or a host's CPU and memory: small charts stacked
+         over one shared time axis. -->
+    <div v-else-if="charts.length">
+      <section v-for="chart in charts" :key="chart.key" class="mb-2 last:mb-0" :data-chart="chart.key">
+        <span class="text-base-content/60 font-semibold tracking-wide uppercase">{{ chart.label }}</span>
+        <BarChart
+          :chart-data="chart.data"
+          :bar-class="chart.colorClass"
+          class="mt-1 h-12"
+          @hover-value="(value, index, bars, peak) => onHover(value, index, bars, peak, chart.format)"
+          @hover-end="hovered = null"
+        />
+      </section>
+      <div
+        v-if="range.from && range.to"
+        class="text-base-content/40 mt-2 flex justify-between gap-2 font-mono tabular-nums"
+        data-range
+      >
+        <span class="shrink-0">{{ clock.format(new Date(range.from)) }}</span>
+        <span v-if="moment" class="text-base-content/70 truncate" data-moment>{{ moment }}</span>
+        <span class="shrink-0">{{ clock.format(new Date(range.to)) }}</span>
+      </div>
+    </div>
+
     <SearchVolume
       v-else-if="visual.type === 'pattern_count' && visual.volume?.length"
       :buckets="visual.volume"
@@ -97,7 +123,14 @@
 
 <script lang="ts" setup>
 import type { Level } from "@/models/LogEntry";
-import { cpuBars, cpuPeak, factsLine, memoryBars, type ChatVisual } from "@/composable/cloud/chatVisuals";
+import {
+  cpuBars,
+  cpuPeak,
+  factsLine,
+  memoryBars,
+  type ChatVisual,
+  type ChatVisualPoint,
+} from "@/composable/cloud/chatVisuals";
 import { hoverSpan, spanMiddle, useMetricsClock, windowClock } from "@/composable/cloud/metricsTime";
 
 const { visual } = defineProps<{ visual: ChatVisual }>();
@@ -106,6 +139,7 @@ const { t } = useI18n();
 const title = computed(() => {
   if (visual.type === "container_ranking") return t(`cloud-chat.visual.top-${visual.metric ?? "cpu"}`);
   if (visual.type === "pattern_count") return `${visual.container} · "${visual.query}"`;
+  if (visual.type === "host_usage") return visual.hostName || visual.hostId || "";
   return visual.container ?? "";
 });
 
@@ -121,6 +155,45 @@ const eventsLine = computed(() => {
 const limit = computed(() => visual.memoryLimit ?? 0);
 const bars = computed(() => memoryBars(visual.points ?? [], limit.value));
 const cpuBarData = computed(() => cpuBars(visual.points ?? []));
+
+const pct = (v: number) => `${v.toFixed(1)}%`;
+const bytes = (v: number) => formatBytes(v, { decimals: 1 });
+const rateBars = (rate: (p: ChatVisualPoint) => number | undefined) =>
+  (visual.points ?? []).map((p) => ({ percent: rate(p) ?? 0, value: rate(p) ?? 0 }));
+// Out first, like the metrics panel's readout.
+const charts = computed(() => {
+  const points = visual.points ?? [];
+  if (!points.length) return [];
+  if (visual.type === "network_over_time")
+    return [
+      {
+        key: "tx",
+        label: `${t("label.network")} ↑`,
+        colorClass: "text-info",
+        data: rateBars((p) => p.networkTx),
+        format: formatRate,
+      },
+      {
+        key: "rx",
+        label: `${t("label.network")} ↓`,
+        colorClass: "text-info",
+        data: rateBars((p) => p.networkRx),
+        format: formatRate,
+      },
+    ];
+  if (visual.type === "host_usage")
+    return [
+      { key: "cpu", label: t("label.cpu"), colorClass: "text-primary", data: cpuBars(points), format: pct },
+      {
+        key: "memory",
+        label: t("cloud-chat.visual.memory"),
+        colorClass: "text-secondary",
+        data: memoryBars(points, 0),
+        format: bytes,
+      },
+    ];
+  return [];
+});
 
 // The one number the picture is about, at the end of its title line.
 const aside = computed(() => {
@@ -149,10 +222,10 @@ function rankValue(value: number) {
 // The bars on their own are a shape with no time on it. The window's ends sit
 // under the chart, and the hovered bar's moment and value between them, the
 // same row the metrics rail draws.
-type Hover = { index: number; bars: number; value: number; peak?: number };
+type Hover = { index: number; bars: number; value: number; peak?: number; format?: (v: number) => string };
 const hovered = ref<Hover | null>(null);
-function onHover(value: number, index: number, bars: number, peak?: number) {
-  hovered.value = { index, bars, value, peak };
+function onHover(value: number, index: number, bars: number, peak?: number, format?: (v: number) => string) {
+  hovered.value = { index, bars, value, peak, format };
 }
 
 // Past a few hours the clock alone is ambiguous, so the date comes along.
@@ -171,9 +244,11 @@ const moment = computed(() => {
   if (!hover || !points.length) return "";
   const ts = points[spanMiddle(hoverSpan(points.length, hover))]?.ts;
   if (ts === undefined) return "";
-  const parts = [clock.value.format(new Date(ts)), formatPoint(hover.value)];
+  // A stacked chart says how its own values read; the single charts go by type.
+  const format = hover.format ?? formatPoint;
+  const parts = [clock.value.format(new Date(ts)), format(hover.value)];
   if (hover.peak !== undefined && hover.peak > hover.value)
-    parts.push(t("cloud-chat.visual.peak", { peak: formatPoint(hover.peak) }));
+    parts.push(t("cloud-chat.visual.peak", { peak: format(hover.peak) }));
   return parts.join(" · ");
 });
 </script>

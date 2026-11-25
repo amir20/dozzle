@@ -911,6 +911,8 @@ cloud-chat:
     draw-count: Log sayısı çiziliyor
     draw-ranking: Container'lar sıralanıyor
     draw-logs: Log satırları gösteriliyor
+    draw-network: Ağ trafiği zamana göre çiziliyor
+    draw-host: Sunucunun CPU ve belleği çiziliyor
   phase:
     reading: Soru okunuyor
     reviewing: Bulunanlar değerlendiriliyor

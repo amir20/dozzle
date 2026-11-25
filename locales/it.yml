@@ -908,6 +908,8 @@ cloud-chat:
     draw-count: Grafico del conteggio dei log
     draw-ranking: Classifica dei container
     draw-logs: Visualizzazione delle righe di log
+    draw-network: Grafico del traffico di rete nel tempo
+    draw-host: "Grafico di CPU e memoria dell'host"
   phase:
     reading: Lettura della domanda
     reviewing: Analisi di quanto trovato
