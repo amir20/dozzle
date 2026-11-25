@@ -281,6 +281,10 @@ func (w *WebhookDispatcher) Render(notification types.Notification) ([]byte, err
 
 // SendTest sends a notification and returns detailed result for testing
 func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Notification) TestResult {
+	// Only a webhook that failed validation on load is built without a client.
+	if w.client == nil {
+		return TestResult{Success: false, Error: "this webhook failed validation when it was loaded, edit it to fix"}
+	}
 	payload, err := w.Render(notification)
 	if err != nil {
 		return TestResult{Success: false, Error: err.Error()}

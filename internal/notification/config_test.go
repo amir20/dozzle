@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
+	"github.com/amir20/dozzle/types"
 	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -61,4 +62,37 @@ dispatchers:
 	require.NoError(t, m.WriteConfig(&buf))
 	assert.Contains(t, buf.String(), "https://example.com/hook")
 	assert.Contains(t, buf.String(), `level == == "error"`)
+}
+
+// A webhook that stops passing validation, say after an upgrade tightens it,
+// must survive the next save instead of silently disappearing from disk.
+func TestLoadConfigKeepsInvalidWebhookDisabled(t *testing.T) {
+	ctx := t.Context()
+	m := &Manager{
+		ctx:           ctx,
+		listener:      NewContainerLogListener(ctx, nil),
+		statsListener: NewContainerStatsListener(ctx, nil),
+		eventListener: NewContainerEventListener(ctx, nil),
+		subscriptions: xsync.NewMap[int, *Subscription](),
+		dispatchers:   xsync.NewMap[int, dispatcher.Dispatcher](),
+	}
+
+	in := `dispatchers:
+  - id: 1
+    name: legacy
+    type: webhook
+    url: ftp://example.com/hook
+`
+	require.NoError(t, m.LoadConfig(bytes.NewBufferString(in)))
+	require.Len(t, m.Dispatchers(), 1)
+
+	var buf bytes.Buffer
+	require.NoError(t, m.WriteConfig(&buf))
+	assert.Contains(t, buf.String(), "ftp://example.com/hook")
+
+	d, ok := m.dispatchers.Load(1)
+	require.True(t, ok)
+	err := d.Send(ctx, types.Notification{})
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "failed validation")
 }

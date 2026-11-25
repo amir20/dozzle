@@ -186,7 +186,11 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 			Template: dc.Template,
 			Headers:  dc.Headers,
 		})
-		if err != nil {
+		if err != nil && dc.Type == "webhook" {
+			// Kept so the next save still writes it, but it never sends until edited.
+			log.Warn().Err(err).Str("name", dc.Name).Msg("Webhook failed validation, keeping it disabled until it is edited")
+			d = &dispatcher.WebhookDispatcher{Name: dc.Name, URL: dc.URL, TemplateText: dc.Template, Headers: dc.Headers}
+		} else if err != nil {
 			log.Warn().Err(err).Str("name", dc.Name).Str("type", dc.Type).Msg("Skipping invalid dispatcher")
 			continue
 		}
