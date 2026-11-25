@@ -226,14 +226,7 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 			log.Info().Str("host", sc.client.Host().Name).Msg("stopped container stats collector")
 			return true
 		case stat := <-sc.stream:
-			sc.subscribers.Range(func(c context.Context, stats chan<- container.ContainerStat) bool {
-				select {
-				case stats <- stat:
-				case <-c.Done():
-					sc.subscribers.Delete(c)
-				}
-				return true
-			})
+			container.BroadcastStat(sc.subscribers, stat)
 		}
 	}
 }

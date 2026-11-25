@@ -103,7 +103,7 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 
 		// Send to the subscription's dispatcher
 		if d, ok := m.getDispatcher(sub.DispatcherID); ok {
-			go m.sendNotification(d, notification, sub.DispatcherID)
+			m.dispatch(d, notification, sub.DispatcherID)
 		}
 		return true
 	})
@@ -202,7 +202,7 @@ func (m *Manager) processStatEvent(event *ContainerStatEvent) {
 		}
 
 		if d, ok := m.getDispatcher(sub.DispatcherID); ok {
-			go m.sendNotification(d, notification, sub.DispatcherID)
+			m.dispatch(d, notification, sub.DispatcherID)
 		}
 		return true
 	})
@@ -296,7 +296,7 @@ func (m *Manager) processDockerEvent(event *ContainerEventEntry) {
 		}
 
 		if d, ok := m.getDispatcher(sub.DispatcherID); ok {
-			go m.sendNotification(d, notification, sub.DispatcherID)
+			m.dispatch(d, notification, sub.DispatcherID)
 		}
 		return true
 	})
@@ -383,16 +383,30 @@ func formatLogMessage(message any) string {
 	}
 }
 
-// sendNotification sends a notification using the dispatcher
-func (m *Manager) sendNotification(d dispatcher.Dispatcher, notification types.Notification, id int) {
-	acquireCtx, acquireCancel := context.WithTimeout(m.ctx, time.Minute)
-	defer acquireCancel()
-	if err := m.sendSem.Acquire(acquireCtx, 1); err != nil {
-		log.Warn().Err(err).Int("subscription", id).Msg("Notification dropped: too many pending")
+// dropWarnInterval bounds how often dropped notifications are reported.
+const dropWarnInterval = 10 * time.Second
+
+// dispatch sends a notification in the background, or drops it when every send slot
+// is busy. Waiting for a slot parked one goroutine per match, so a noisy container
+// in front of a slow webhook grew them without bound.
+func (m *Manager) dispatch(d dispatcher.Dispatcher, notification types.Notification, id int) {
+	if !m.sendSem.TryAcquire(1) {
+		m.droppedSends.Add(1)
+		now := time.Now().UnixNano()
+		last := m.lastDropWarn.Load()
+		if now-last >= int64(dropWarnInterval) && m.lastDropWarn.CompareAndSwap(last, now) {
+			log.Warn().Int64("dropped", m.droppedSends.Swap(0)).Int("dispatcher", id).Msg("Notifications dropped: too many sends in flight")
+		}
 		return
 	}
-	defer m.sendSem.Release(1)
+	go func() {
+		defer m.sendSem.Release(1)
+		m.sendNotification(d, notification, id)
+	}()
+}
 
+// sendNotification sends a notification using the dispatcher
+func (m *Manager) sendNotification(d dispatcher.Dispatcher, notification types.Notification, id int) {
 	ctx, cancel := context.WithTimeout(m.ctx, 30*time.Second)
 	defer cancel()
 

@@ -243,7 +243,15 @@ func (m *RetriableClientManager) Subscribe(ctx context.Context, channel chan<- c
 	}()
 }
 
+// RetryAndList lists the connected clients without redialing anything. It runs on
+// every container listing, and an agent that is down would hold each page load and
+// event stream connect for the whole timeout. RetryFailedHosts does the redials.
 func (m *RetriableClientManager) RetryAndList() ([]container.ClientService, []error) {
+	return m.List(), nil
+}
+
+// retryFailedAgents dials every agent that has not connected yet, once.
+func (m *RetriableClientManager) retryFailedAgents() ([]container.ClientService, []error) {
 	// Retries run one at a time, but the dials below happen without m.mu, so a
 	// down agent never holds up List, Find or AddAgent for the dial timeout.
 	m.retryMu.Lock()
@@ -350,7 +358,7 @@ func (m *RetriableClientManager) RetryFailedHosts(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			m.RetryAndList()
+			m.retryFailedAgents()
 			m.retryPending()
 		}
 	}
@@ -420,7 +428,7 @@ func (m *RetriableClientManager) retryPending() {
 }
 
 // AddAgent connects to an agent and, only once it answers, starts serving it
-// the same way an agent that came back on RetryAndList is served. Nothing is
+// the same way an agent that came back on retryFailedAgents is served. Nothing is
 // kept when it fails, so a typo never lingers as an unavailable host. cert is
 // the pair to present to this agent, nil for the one the hub started with.
 func (m *RetriableClientManager) AddAgent(ctx context.Context, endpoint string, cert *tls.Certificate) (container.Host, error) {
@@ -644,7 +652,7 @@ func (m *RetriableClientManager) Hosts(ctx context.Context) []container.Host {
 		}
 		// An agent mints its id when its own process starts, so an agent that
 		// restarted since we last looked answers under a different id than the
-		// one this map is keyed by. Nothing else notices: RetryAndList only ever
+		// one this map is keyed by. Nothing else notices: retryFailedAgents only ever
 		// revisits endpoints that never connected. Left alone, the id we hand the
 		// UI here is one Find has never heard of, and every lookup for that host
 		// fails with "host not found" until the hub itself is restarted.

@@ -107,15 +107,12 @@ func (m *SwarmClientManager) Subscribe(ctx context.Context, channel chan<- conta
 }
 
 func (m *SwarmClientManager) RetryAndList() ([]container.ClientService, []error) {
-	m.mu.Lock()
-
 	ips, err := m.lookup(fmt.Sprintf("tasks.%s", m.name))
 
 	errors := make([]error, 0)
 	if err != nil {
 		log.Fatal().Err(err).Msg("error looking up swarm service tasks")
 		errors = append(errors, err)
-		m.mu.Unlock()
 		return m.List(), errors
 	}
 
@@ -126,6 +123,7 @@ func (m *SwarmClientManager) RetryAndList() ([]container.ClientService, []error)
 
 	log.Debug().Strs(fmt.Sprintf("tasks.%s", m.name), slices.Collect(maps.Keys(live))).Strs("localIPs", m.localIPs).Msg("found swarm service tasks")
 
+	m.mu.Lock()
 	// A node that left the swarm takes its task out of tasks.<service>, and nothing
 	// else ever tells us. Kept, it is shown as unavailable forever, and every
 	// Hosts() waits the full timeout on it. No removal is published: the events
@@ -142,59 +140,89 @@ func (m *SwarmClientManager) RetryAndList() ([]container.ClientService, []error)
 		closeQuietly(peer.closer)
 		log.Info().Str("endpoint", peer.endpoint).Str("id", id).Msg("removed swarm agent that left the service")
 	}
+	m.mu.Unlock()
 
+	var endpoints []string
 	for _, ip := range ips {
 		if slices.Contains(m.localIPs, ip.String()) {
 			log.Debug().Stringer("ip", ip).Msg("skipping local IP")
 			continue
 		}
-
 		if known[ip.String()+":7007"] {
 			log.Debug().Stringer("ip", ip).Msg("skipping existing client")
 			continue
 		}
+		endpoints = append(endpoints, ip.String()+":7007")
+	}
 
-		endpoint := ip.String() + ":7007"
-		service, closer, err := m.dial(endpoint, m.certs)
-		if err != nil {
-			log.Warn().Err(err).Stringer("ip", ip).Msg("error creating agent client")
-			errors = append(errors, err)
+	// Dialed in parallel and without m.mu: this runs on every container listing, and
+	// a task that does not answer would otherwise hold List, Find and Hosts for the
+	// timeout, once per such task.
+	type dialed struct {
+		host    container.Host
+		service container.ClientService
+		closer  io.Closer
+		err     error
+	}
+	results := make([]dialed, len(endpoints))
+	var wg sync.WaitGroup
+	for i, endpoint := range endpoints {
+		wg.Go(func() {
+			service, closer, err := m.dial(endpoint, m.certs)
+			if err != nil {
+				log.Warn().Err(err).Str("endpoint", endpoint).Msg("error creating agent client")
+				results[i] = dialed{err: err}
+				return
+			}
+			ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
+			host, err := service.Host(ctx)
+			cancel()
+			if err != nil {
+				log.Warn().Err(err).Str("endpoint", endpoint).Msg("error getting host from agent client")
+				closeQuietly(closer)
+				results[i] = dialed{err: err}
+				return
+			}
+			results[i] = dialed{host: host, service: service, closer: closer}
+		})
+	}
+	wg.Wait()
+
+	var added []container.Host
+	m.mu.Lock()
+	for i, r := range results {
+		if r.err != nil {
+			errors = append(errors, r.err)
 			continue
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
-		host, err := service.Host(ctx)
-		cancel()
-		if err != nil {
-			log.Warn().Err(err).Stringer("ip", ip).Msg("error getting host from agent client")
-			errors = append(errors, err)
-			closeQuietly(closer)
+		if r.host.ID == m.localClient.Host().ID {
+			log.Debug().Str("endpoint", endpoints[i]).Msg("skipping local client")
+			closeQuietly(r.closer)
 			continue
 		}
 
-		if host.ID == m.localClient.Host().ID {
-			log.Debug().Stringer("ip", ip).Msg("skipping local client")
-			closeQuietly(closer)
+		// A second live task for a node already served (a start-first update, two
+		// replicas on one node, or a concurrent call that got there first).
+		// Replacing the serving client would leak it and republish the node on
+		// every call, so the duplicate goes instead.
+		if _, ok := m.peers[r.host.ID]; ok {
+			log.Debug().Str("endpoint", endpoints[i]).Str("id", r.host.ID).Msg("skipping second task for a node already served")
+			closeQuietly(r.closer)
 			continue
 		}
 
-		// A second live task for a node already served (a start-first update, or
-		// two replicas on one node). Replacing the serving client would leak it
-		// and republish the node on every call, so the duplicate goes instead.
-		if _, ok := m.peers[host.ID]; ok {
-			log.Debug().Stringer("ip", ip).Str("id", host.ID).Msg("skipping second task for a node already served")
-			closeQuietly(closer)
-			continue
-		}
+		m.clients[r.host.ID] = r.service
+		m.peers[r.host.ID] = swarmPeer{endpoint: endpoints[i], closer: r.closer}
+		log.Info().Str("endpoint", endpoints[i]).Str("id", r.host.ID).Str("name", r.host.Name).Msg("added new swarm agent")
+		added = append(added, r.host)
+	}
+	m.mu.Unlock()
 
-		m.clients[host.ID] = service
-		m.peers[host.ID] = swarmPeer{endpoint: endpoint, closer: closer}
-		log.Info().Stringer("ip", ip).Str("id", host.ID).Str("name", host.Name).Msg("added new swarm agent")
-
+	for _, host := range added {
+		host.Available = true
+		host.Type = "swarm"
 		m.subscribers.Range(func(sub *hostSubscriber, _ struct{}) bool {
-			host.Available = true
-			host.Type = "swarm"
-
 			// We don't want to block the subscribers in event.go
 			go func() {
 				select {
@@ -202,14 +230,9 @@ func (m *SwarmClientManager) RetryAndList() ([]container.ClientService, []error)
 				case <-sub.ctx.Done():
 				}
 			}()
-
 			return true
 		})
 	}
-
-	m.mu.Unlock()
-
-	m.agentManager.RetryAndList()
 
 	return m.List(), errors
 }

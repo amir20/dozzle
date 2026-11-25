@@ -349,3 +349,46 @@ func TestRestartAfterIdleStopStreamsRunningContainers(t *testing.T) {
 		t.Fatal("container running before the idle stop got no stats after restart")
 	}
 }
+
+// A subscriber that never reads must cost its own stats, not every other
+// subscriber's: the collector fans out on one goroutine.
+func TestStalledSubscriberDoesNotStarveOthers(t *testing.T) {
+	ctx, cancel := context.WithCancel(t.Context())
+	defer cancel()
+
+	client := new(mockedClient)
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{{ID: "1234", State: "running"}}, nil)
+	client.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil).
+		Run(func(args mock.Arguments) { <-args.Get(0).(context.Context).Done() })
+	client.On("ContainerStats", mock.Anything, mock.Anything, mock.Anything).Return(nil).
+		Run(func(args mock.Arguments) {
+			ctx := args.Get(0).(context.Context)
+			stats := args.Get(2).(chan<- container.ContainerStat)
+			for range 3 {
+				select {
+				case stats <- container.ContainerStat{ID: "1234"}:
+				case <-ctx.Done():
+					return
+				}
+			}
+			<-ctx.Done()
+		})
+	client.On("Host").Return(container.Host{ID: "localhost"})
+
+	collector := NewStatsCollector(client, container.ContainerLabels{})
+	// Subscribers are keyed by context, so the stalled one needs its own.
+	stalledCtx, stalledCancel := context.WithCancel(ctx)
+	defer stalledCancel()
+	collector.Subscribe(stalledCtx, make(chan container.ContainerStat)) // never read
+	reader := make(chan container.ContainerStat)
+	collector.Subscribe(ctx, reader)
+	go collector.Start(ctx)
+
+	for i := range 3 {
+		select {
+		case <-reader:
+		case <-time.After(2 * time.Second):
+			t.Fatalf("reader got %d of 3 stats behind a stalled subscriber", i)
+		}
+	}
+}

@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
 )
 
@@ -144,6 +145,21 @@ func sendBounded[T any](ctx context.Context, ch chan<- T, v T, budget *fanoutBud
 	case <-budget.start():
 		return sendDropped
 	}
+}
+
+// BroadcastStat delivers stat to every stats subscriber, waiting on a stalled one
+// no longer than one shared broadcastTimeout, the same bound broadcast puts on events.
+// A dropped stat is not reported: the next tick replaces it.
+func BroadcastStat(subscribers *xsync.Map[context.Context, chan<- ContainerStat], stat ContainerStat) {
+	budget := &fanoutBudget{}
+	defer budget.stop()
+
+	subscribers.Range(func(ctx context.Context, ch chan<- ContainerStat) bool {
+		if sendBounded(ctx, ch, stat, budget) == sendCancelled {
+			subscribers.Delete(ctx)
+		}
+		return true
+	})
 }
 
 // broadcast fans an event out to every subscriber without letting any of them

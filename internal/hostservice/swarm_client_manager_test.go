@@ -2,7 +2,9 @@ package hostservice
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
+	"io"
 	"net"
 	"testing"
 	"testing/synctest"
@@ -200,4 +202,45 @@ func TestSwarmClientManager_RetryAndListKeepsServingPeerForDuplicateNode(t *test
 		assert.Failf(t, "unexpected update", "%+v", h)
 	case <-time.After(100 * time.Millisecond):
 	}
+}
+
+// A new task that never answers must not hold the manager's lock while it is
+// asked for its host: RetryAndList runs on every container listing, and List,
+// Find and Hosts all wait on that lock.
+func TestSwarmClientManager_RetryAndListDialsWithoutLock(t *testing.T) {
+	m := swarmManager()
+	m.peers = map[string]swarmPeer{}
+	m.timeout = time.Second
+	m.lookup = func(string) ([]net.IP, error) {
+		return []net.IP{net.ParseIP("10.0.0.8"), net.ParseIP("10.0.0.9")}, nil
+	}
+	dialing := make(chan struct{}, 2)
+	m.dial = func(endpoint string, _ tls.Certificate) (container.ClientService, io.Closer, error) {
+		dialing <- struct{}{}
+		return &hangingService{id: endpoint}, &closeCounter{}, nil
+	}
+
+	start := time.Now()
+	done := make(chan struct{})
+	go func() {
+		m.RetryAndList()
+		close(done)
+	}()
+	<-dialing
+	<-dialing
+
+	found := make(chan bool)
+	go func() {
+		_, ok := m.Find("node-1")
+		found <- ok
+	}()
+	select {
+	case ok := <-found:
+		assert.True(t, ok)
+	case <-time.After(500 * time.Millisecond):
+		require.FailNow(t, "Find waited on a hanging dial")
+	}
+
+	<-done
+	assert.Less(t, time.Since(start), 1900*time.Millisecond, "the two tasks are asked in parallel")
 }
