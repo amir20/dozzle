@@ -178,6 +178,15 @@ func (m *SwarmClientManager) RetryAndList() ([]container.ClientService, []error)
 			continue
 		}
 
+		// A second live task for a node already served (a start-first update, or
+		// two replicas on one node). Replacing the serving client would leak it
+		// and republish the node on every call, so the duplicate goes instead.
+		if _, ok := m.peers[host.ID]; ok {
+			log.Debug().Stringer("ip", ip).Str("id", host.ID).Msg("skipping second task for a node already served")
+			closeQuietly(closer)
+			continue
+		}
+
 		m.clients[host.ID] = service
 		m.peers[host.ID] = swarmPeer{endpoint: endpoint, closer: closer}
 		log.Info().Stringer("ip", ip).Str("id", host.ID).Str("name", host.Name).Msg("added new swarm agent")

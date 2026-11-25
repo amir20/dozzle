@@ -168,3 +168,36 @@ func TestSwarmClientManager_HostsAgentsNotStarvedByHangingNode(t *testing.T) {
 		assert.False(t, available["dead"])
 	})
 }
+
+// Two live tasks can answer for one node: a start-first update runs the new
+// task beside the old one, and a replicated service can put two on a node. The
+// peer already serving the node stays, and the duplicate is closed instead of
+// replacing it, which would leak the old client and republish the node.
+func TestSwarmClientManager_RetryAndListKeepsServingPeerForDuplicateNode(t *testing.T) {
+	serving := &closeCounter{}
+	closers := map[string]*closeCounter{}
+	m := swarmManager()
+	m.localClient = &localStub{host: container.Host{ID: "self"}}
+	m.peers = map[string]swarmPeer{"node-1": {endpoint: "10.0.0.1:7007", closer: serving}}
+	before := m.clients["node-1"]
+	m.lookup = func(string) ([]net.IP, error) {
+		return []net.IP{net.ParseIP("10.0.0.1"), net.ParseIP("10.0.0.9")}, nil
+	}
+	m.dial = stubDialer(map[string]container.Host{"10.0.0.9:7007": {ID: "node-1"}}, nil, closers)
+	updates := make(chan container.Host, 4)
+	m.Subscribe(t.Context(), updates)
+
+	m.RetryAndList()
+
+	assert.Same(t, before, m.clients["node-1"], "the serving client is kept")
+	assert.Equal(t, "10.0.0.1:7007", m.peers["node-1"].endpoint)
+	assert.Equal(t, 0, serving.closed)
+	require.Contains(t, closers, "10.0.0.9:7007")
+	assert.Equal(t, 1, closers["10.0.0.9:7007"].closed, "the duplicate is closed")
+
+	select {
+	case h := <-updates:
+		assert.Failf(t, "unexpected update", "%+v", h)
+	case <-time.After(100 * time.Millisecond):
+	}
+}
