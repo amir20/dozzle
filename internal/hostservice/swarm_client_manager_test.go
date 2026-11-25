@@ -78,6 +78,19 @@ func TestSwarmClientManager_RetryAndListDropsPeerThatLeft(t *testing.T) {
 	}
 }
 
+// A failed tasks.<service> lookup (a DNS blip) must not take the process down.
+// The current clients are still listed and the error is returned.
+func TestSwarmClientManager_RetryAndListSurvivesLookupError(t *testing.T) {
+	m := swarmManager()
+	m.lookup = func(string) ([]net.IP, error) { return nil, errors.New("no such host") }
+
+	clients, errs := m.RetryAndList()
+
+	assert.Len(t, clients, 4)
+	require.Len(t, errs, 1)
+	assert.EqualError(t, errs[0], "no such host")
+}
+
 type localStub struct {
 	container.Client
 	host container.Host
