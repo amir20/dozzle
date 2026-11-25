@@ -136,6 +136,21 @@ func TestSimpleAuthRejectsTokenForUnknownUser(t *testing.T) {
 	require.Nil(t, serveWithAuth(t, a, token))
 }
 
+// A login for a missing user, or one with no password, still runs bcrypt, so
+// the response time doesn't reveal which usernames exist.
+func TestSimpleAuthCreateTokenUnknownUserRunsBcrypt(t *testing.T) {
+	users := UserDatabase{Users: map[string]*User{"oauth-only": {Username: "oauth-only", RolesConfigured: "all"}}}
+	a := NewSimpleAuth(users, 0, testSecret)
+
+	for _, name := range []string{"mallory", "oauth-only"} {
+		start := time.Now()
+		_, err := a.CreateToken(name, "guess")
+		require.ErrorIs(t, err, ErrInvalidCredentials)
+		// A cost-11 compare takes tens of milliseconds; a map miss takes microseconds.
+		require.Greater(t, time.Since(start), 10*time.Millisecond, name)
+	}
+}
+
 // A session minted before roles existed at all carries no roles claim. Resolving
 // against users.yml means the session keeps exactly the permissions it is
 // configured for instead of silently losing all of them on upgrade.

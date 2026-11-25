@@ -140,6 +140,23 @@ func TestUpdateSelf_RequiresActionsRole(t *testing.T) {
 	assert.Equal(t, []string{"up-to-date"}, updateSelfEvents(rr.Body.String()))
 }
 
+// Updating Dozzle restarts it for everyone, so a filter refuses it whatever the roles.
+func TestUpdateSelf_RefusesFilteredUser(t *testing.T) {
+	setupTestEnv(t, true)
+	started := false
+	stubSelfUpdateStart(t, func(context.Context, string, func(container.UpdateProgress)) (bool, error) {
+		started = true
+		return false, nil
+	})
+	cfg := proxyConfig()
+	cfg.EnableActions = true
+	h := createHandler(nil, nil, *cfg)
+
+	rr := doSetup(h, "POST", "/api/update/self", "", append([]string{"Remote-Roles", "all"}, filteredUser...)...)
+	assert.Equal(t, http.StatusForbidden, rr.Code)
+	assert.False(t, started)
+}
+
 func stubSelfUpdateCheck(t *testing.T, result imagecheck.Result) *int {
 	t.Helper()
 	calls := 0

@@ -114,12 +114,22 @@ func (a *simpleAuthContext) findByEmail(email string) (User, bool) {
 	return *user, true
 }
 
+// dummyPasswordHash is a bcrypt hash at the cost Dozzle hashes passwords with
+// (BcryptCost). It is only ever compared against, so a login for a missing
+// user costs as much as a real one.
+const dummyPasswordHash = "$2a$11$KYMFjH5/kiNkxNwfqKnp6u/HiKd9VUfdklRWK2d0LleFkJVId0B8S"
+
 func (a *simpleAuthContext) CreateToken(username, password string) (string, error) {
 	user, ok := a.find(username)
 	// An account linked only to an OAuth provider carries no hash to compare,
 	// and CompareHashAndPassword would log a bogus "invalid hash length" for
-	// every attempt against one.
-	if !ok || user.Password == "" || !CompareHashAndPassword(user.Password, password) {
+	// every attempt against one. Both cases still pay for a bcrypt compare, so
+	// response time doesn't tell which usernames exist.
+	if !ok || user.Password == "" {
+		CompareHashAndPassword(dummyPasswordHash, password)
+		return "", ErrInvalidCredentials
+	}
+	if !CompareHashAndPassword(user.Password, password) {
 		return "", ErrInvalidCredentials
 	}
 

@@ -55,6 +55,7 @@ func getReclaimable(t *testing.T, router http.Handler) *httptest.ResponseRecorde
 func postPrune(t *testing.T, router http.Handler, body string) *httptest.ResponseRecorder {
 	req, err := http.NewRequest("POST", "/api/hosts/local/prune", strings.NewReader(body))
 	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
 	rr := httptest.NewRecorder()
 	router.ServeHTTP(rr, req)
 	return rr
