@@ -418,7 +418,7 @@ const storage = useStorage<{ column: keys; direction: 1 | -1 }>("DOZZLE_TABLE_CO
   column: "created" as keys,
   direction: -1 as 1 | -1,
 });
-const { column: sortField, direction } = toRefs(storage.value);
+const { column: sortField, direction } = toRefs(storage);
 const counter = useInterval(10000);
 const filteredContainers = computed(() =>
   containers.filter((c) => selectedHost.value === null || c.host === selectedHost.value),
