@@ -1,7 +1,7 @@
 ---
 title: Shell-Zugriff auf Container
 description: Wie du in Dozzle den Shell-Zugriff einschaltest, um dich aus dem Browser an Docker- und Kubernetes-Container anzuhängen oder Befehle darin auszuführen, und wie du ihn absicherst.
-sourceHash: 69ee7cf24f35
+sourceHash: 6617c04a0ef1
 ---
 
 # Anhängen und Shell-Befehle ausführen
@@ -37,6 +37,8 @@ services:
 ## <Icon icon="mdi:shield-lock-outline" inline /> Sicherheit
 
 Jeder, der die Dozzle-Oberfläche erreicht, kann eine Shell in deinen Containern öffnen, gleichbedeutend mit `docker exec`. Bevor du `--enable-shell` bei einem öffentlich erreichbaren Dozzle aktivierst, stelle eine [Authentifizierung](/de/guide/authentication) davor. Mit rollenbasierten Berechtigungen lässt sich der Shell-Zugriff auf bestimmte Benutzer beschränken.
+
+Ohne Authentifizierung funktioniert die Shell nur, wenn du Dozzle über eine IP-Adresse oder `localhost` öffnest (zum Beispiel `http://192.168.1.10:8080`). Über einen Hostnamen wie `dozzle.lan` oder über einen Reverse Proxy wird sie abgelehnt, weil eine bösartige Webseite Dozzle per DNS-Rebinding unter ihrem eigenen Hostnamen erreichen kann. Aktiviere die [Authentifizierung](/de/guide/authentication), um die Shell über einen Hostnamen zu nutzen.
 
 ## <Icon icon="mdi:kubernetes" inline /> Kubernetes
 

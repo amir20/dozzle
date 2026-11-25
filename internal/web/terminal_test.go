@@ -84,3 +84,33 @@ func TestUpgrader_DifferentPortSameHostRejected(t *testing.T) {
 		assert.Equal(t, http.StatusForbidden, resp.StatusCode)
 	}
 }
+
+// A DNS-rebound page reaches Dozzle under its own hostname with a matching
+// Origin, so without auth the shell only answers on an IP or localhost.
+func TestShellRefusesHostnameWithoutAuth(t *testing.T) {
+	h := createHandler(nil, nil, Config{Base: "/", Mode: "server", EnableShell: true, Authorization: Authorization{Provider: NONE}})
+
+	for _, route := range []string{"exec", "attach"} {
+		path := "/api/hosts/localhost/containers/123/" + route
+		for host, refused := range map[string]bool{
+			"rebind.example:8080": true,
+			"dozzle.lan":          true,
+			"127.0.0.1:8080":      false,
+			"192.168.1.10":        false,
+			"[::1]:8080":          false,
+			"localhost:8080":      false,
+		} {
+			req := httptest.NewRequest("GET", path, nil)
+			req.Host = host
+			req.Header.Set("Origin", "http://"+host)
+			rr := httptest.NewRecorder()
+			h.ServeHTTP(rr, req)
+			if refused {
+				assert.Equal(t, http.StatusForbidden, rr.Code, "%s on %s", route, host)
+			} else {
+				// Not a real websocket handshake, so the upgrade itself fails, but not with our 403.
+				assert.NotEqual(t, http.StatusForbidden, rr.Code, "%s on %s", route, host)
+			}
+		}
+	}
+}

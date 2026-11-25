@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"net"
 	"net/http"
+	"strings"
 
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
@@ -30,7 +32,30 @@ func upgrade(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {
 	return conn, nil
 }
 
+// shellHostAllowed guards attach and exec against DNS rebinding. With no login
+// the websocket's Origin == Host check is all there is, and a rebound page has
+// both set to its own name. An IP or localhost can't be rebound, so without
+// auth those are the only Hosts the shell answers on.
+func (h *handler) shellHostAllowed(w http.ResponseWriter, r *http.Request) bool {
+	if h.config.Authorization.Provider != NONE {
+		return true
+	}
+	host, _, err := net.SplitHostPort(r.Host)
+	if err != nil {
+		host = r.Host
+	}
+	if host == "localhost" || net.ParseIP(strings.Trim(host, "[]")) != nil {
+		return true
+	}
+	log.Warn().Str("host", r.Host).Msg("shell refused: without auth it only answers on an IP or localhost")
+	http.Error(w, "the shell needs auth when Dozzle is reached by hostname", http.StatusForbidden)
+	return false
+}
+
 func (h *handler) attach(w http.ResponseWriter, r *http.Request) {
+	if !h.shellHostAllowed(w, r) {
+		return
+	}
 	analytics.Count("shell.attach")
 	conn, err := upgrade(w, r)
 	if err != nil {
@@ -72,6 +97,9 @@ func (h *handler) attach(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) exec(w http.ResponseWriter, r *http.Request) {
+	if !h.shellHostAllowed(w, r) {
+		return
+	}
 	analytics.Count("shell.exec")
 	conn, err := upgrade(w, r)
 	if err != nil {
