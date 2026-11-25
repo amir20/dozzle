@@ -1127,13 +1127,14 @@ setup:
   cloud:
     title: Collega Dozzle Cloud
     subtitle: Sappi quando qualcosa si rompe senza tenere una scheda aperta.
+    report-title: "Cosa va sistemato, trovato per te"
+    report-body: "Dozzle Cloud legge i tuoi errori e avvisi e ti dice quali vale la pena sistemare, e come."
     alerts-title: Avvisi nel momento in cui qualcosa si rompe
     alerts-body: "Crash, terminazioni OOM e picchi di errori, inviati su Telegram, Discord, Slack o via email."
     chat-title: "Chiedi cosa si è rotto dal telefono"
     chat-body: "Scrivi al bot Telegram o Discord. Legge i tuoi log e, con le azioni attive, riavvia un container dopo la tua conferma."
-    updates-title: "Aggiornamenti verificati"
-    updates-body: "Dopo ogni aggiornamento automatico, Dozzle Cloud confronta gli errori con quelli di prima e propone il rollback se sono aumentati."
     connect: Collega Dozzle Cloud
+    first-week: "La tua prima settimana include un report ogni mattina su ogni problema trovato, con come risolverlo."
     learn-more: Scopri di più
     skip: "Non ora"
   update:
@@ -1159,6 +1160,7 @@ setup:
     reason-unsupported: "Dozzle non trova qui il proprio container, quindi non può sostituirsi da solo."
     reason-swarm-worker: "Dozzle è in esecuzione come servizio Swarm su un nodo worker. Solo un manager può aggiornare il servizio: esegui Dozzle su un manager oppure aggiornalo con docker service update."
     pull-denied: "Impossibile scaricare {image}. Potrebbe esistere solo su questa macchina, oppure il registry richiede docker login."
+    cloud-hint: "Con Dozzle Cloud, ogni aggiornamento viene confrontato con gli errori di prima, e ti viene proposto il rollback se sono aumentati."
   restart:
     title: Riavvia Dozzle
     subtitle: Queste modifiche sono salvate e funzioneranno dopo un riavvio.
@@ -1176,6 +1178,7 @@ setup:
     done-body: Non serve alcun riavvio. Puoi tornare qui dalle Impostazioni in qualsiasi momento.
     nothing-title: "Niente da riavviare"
     nothing-body: "Questa volta non è stato configurato nessun passaggio. Apri la configurazione dalle Impostazioni quando vuoi."
+    cloud-later: "Dozzle Cloud è nelle Impostazioni quando vuoi. Gratis per un server."
     done: Fatto
   error:
     generic: Qualcosa è andato storto. Riprova.

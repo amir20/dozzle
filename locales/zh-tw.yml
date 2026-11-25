@@ -1135,8 +1135,6 @@ setup:
     alerts-body: "當機、OOM 終止與錯誤激增，傳送到 Telegram、Discord、Slack 或電子郵件。"
     chat-title: "用手機問哪裡壞了"
     chat-body: "傳訊息給 Telegram 或 Discord 機器人。它會讀取你的日誌，並在動作開啟時，經你確認後重新啟動容器。"
-    updates-title: "會被檢查的更新"
-    updates-body: "每次自動更新後，Dozzle Cloud 會將錯誤與之前比較，若變多則提供回滾。"
     connect: 連接 Dozzle Cloud
     first-week: "第一週內，每天早晨你都會收到一份報告，彙總發現的每個問題及其修復方法。"
     learn-more: 了解更多
