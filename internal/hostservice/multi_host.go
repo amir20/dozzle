@@ -390,10 +390,10 @@ func (m *MultiHostService) LocalClientServices() []container.ClientService {
 // LocalClientServices it does not filter by client type, so a caller that needs
 // the whole fleet (the cloud client) sees agents too.
 //
-// retry re-dials agents that were unreachable the last time they were tried, so
-// one that came up since joins the returned set. It costs a connection attempt
-// per still-unreachable agent, up to the configured timeout each — pass it on
-// the periodic fan-out calls, not on per-container lookups.
+// retry goes through the manager's RetryAndList. Server mode lists without
+// dialing (agents that were down rejoin through RetryFailedHosts); swarm mode
+// also looks up tasks.<service> and dials new tasks, up to the timeout — pass it
+// on the periodic fan-out calls, not on per-container lookups.
 func (m *MultiHostService) ClientServices(retry bool) []container.ClientService {
 	if !retry {
 		return m.manager.List()
