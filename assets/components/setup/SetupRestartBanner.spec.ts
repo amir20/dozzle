@@ -58,7 +58,8 @@ beforeEach(() => {
   vi.stubGlobal(
     "fetch",
     vi.fn(async (url: string, init?: RequestInit) => {
-      calls.push(`${init?.method ?? "GET"} ${url}`);
+      const type = (init?.headers as Record<string, string> | undefined)?.["Content-Type"];
+      calls.push(`${init?.method ?? "GET"} ${url}${type ? ` ${type}` : ""}`);
       return new Response(null, { status: 202 });
     }),
   );
@@ -94,7 +95,8 @@ describe("SetupRestartBanner", () => {
     const wrapper = mountBanner(status());
     await wrapper.find("button").trigger("click");
     await flushPromises();
-    expect(calls).toContain("POST /api/setup/restart");
+    // The server refuses this POST unless it is marked JSON, body or not.
+    expect(calls).toContain("POST /api/setup/restart application/json");
     expect(wrapper.text()).toContain("restarting");
   });
 

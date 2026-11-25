@@ -41,6 +41,7 @@ func rolloutRouter(hostService HostService, mode string) http.Handler {
 func postRollout(t *testing.T, router http.Handler) int {
 	req, err := http.NewRequest("POST", "/api/k8s/workloads/default/Deployment/api/restart", nil)
 	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
 	rr := httptest.NewRecorder()
 	router.ServeHTTP(rr, req)
 	return rr.Code
@@ -50,6 +51,16 @@ func Test_handler_rolloutRestart(t *testing.T) {
 	restarter := &fakeRestarter{}
 	assert.Equal(t, http.StatusNoContent, postRollout(t, rolloutRouter(restarter, "k8s")))
 	assert.Equal(t, "default/Deployment/api", restarter.called)
+}
+
+// A cross-site page can send a body-less POST, but not one marked JSON.
+func Test_handler_rolloutRestart_requiresJSON(t *testing.T) {
+	restarter := &fakeRestarter{}
+	req := httptest.NewRequest("POST", "/api/k8s/workloads/default/Deployment/api/restart", nil)
+	rr := httptest.NewRecorder()
+	rolloutRouter(restarter, "k8s").ServeHTTP(rr, req)
+	assert.Equal(t, http.StatusUnsupportedMediaType, rr.Code)
+	assert.Empty(t, restarter.called)
 }
 
 func Test_handler_rolloutRestart_errors(t *testing.T) {

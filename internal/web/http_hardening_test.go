@@ -34,6 +34,13 @@ func TestJSONOnlyWriteRoutes(t *testing.T) {
 		"/api/notifications/test-webhook",
 		"/api/cloud/patterns",
 		"/api/cloud/chat",
+		// Body-less: the content type is the only thing a cross-site page cannot forge.
+		"/api/hosts/localhost/containers/123/actions/stop",
+		"/api/hosts/localhost/containers/123/actions/update",
+		"/api/setup/restart",
+		"/api/setup/agent-cert",
+		"/api/cloud/feedback",
+		"/api/cloud/findings/abc/ignore",
 	}
 	for _, path := range routes {
 		for _, ct := range []string{"text/plain", "application/x-www-form-urlencoded", ""} {

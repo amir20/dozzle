@@ -103,7 +103,10 @@ describe("useRolloutRestart", () => {
 
     await rolloutRestart({ namespace: "default", kind: "Deployment", name: "api" });
 
-    expect(fetchSpy).toHaveBeenCalledWith("/api/k8s/workloads/default/Deployment/api/restart", { method: "POST" });
+    expect(fetchSpy).toHaveBeenCalledWith("/api/k8s/workloads/default/Deployment/api/restart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
     expect(holder.toasts).toHaveLength(1);
     expect(holder.toasts[0].type).toBe("info");
     expect(restarting.value).toBe(false);

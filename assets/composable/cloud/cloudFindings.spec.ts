@@ -158,13 +158,19 @@ describe("ignoring a finding", () => {
     await flushPromises();
 
     await api.ignore(api.findings.value[0]);
-    expect(fetchMock).toHaveBeenLastCalledWith("/api/cloud/findings/k1/ignore", { method: "POST" });
+    expect(fetchMock).toHaveBeenLastCalledWith("/api/cloud/findings/k1/ignore", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
     expect(api.findings.value.map((f) => f.id)).toEqual(["k2"]);
 
     // The undo takes the ignore back and puts the row where it was.
     toast.mock.calls[0][0].action.handler();
     await flushPromises();
-    expect(fetchMock).toHaveBeenLastCalledWith("/api/cloud/findings/k1/ignore", { method: "DELETE" });
+    expect(fetchMock).toHaveBeenLastCalledWith("/api/cloud/findings/k1/ignore", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+    });
     expect(api.findings.value.map((f) => f.id)).toEqual(["k1", "k2"]);
   });
 
@@ -186,7 +192,10 @@ describe("ignoring a finding", () => {
 
     toast.mock.lastCall![0].action.handler();
     await flushPromises();
-    expect(fetchMock).toHaveBeenCalledWith("/api/cloud/findings/k1/ignore", { method: "DELETE" });
+    expect(fetchMock).toHaveBeenCalledWith("/api/cloud/findings/k1/ignore", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+    });
     expect(fetchMock).toHaveBeenLastCalledWith("/api/cloud/findings?container=h1%2Fb2&filter=new");
     expect(api.findings.value.map((f) => f.id)).toEqual(["k1"]);
     scope.value = [{ host: "h1", id: "a1", name: "api" }];

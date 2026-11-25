@@ -82,7 +82,10 @@ export function useBulkContainerActions(containers: MaybeRefOrGetter<Container[]
     try {
       const failed = await runBounded(plan.targets, BULK_CONCURRENCY, async (c) => {
         const url = `/api/hosts/${c.host}/containers/${c.id}/actions/${plan.action}`;
-        const response = await fetch(withBase(url), { method: "POST" });
+        const response = await fetch(withBase(url), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
         return response.ok;
       });
       if (failed.length > 0) {
