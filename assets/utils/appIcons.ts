@@ -170,6 +170,8 @@ const ALIASES: Record<string, string> = {
   "tt-rss": "tinytinyrss",
   cthulhoo: "tinytinyrss",
   getarcaneapp: "arcane",
+  fluxerapp: "fluxer",
+  moby: "docker",
 };
 
 const stripSuffix = (name: string) => {
