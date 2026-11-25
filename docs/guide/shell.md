@@ -37,7 +37,7 @@ services:
 
 Anyone who can reach the Dozzle UI will be able to open a shell inside your containers — equivalent to `docker exec`. Before enabling `--enable-shell` on a publicly reachable Dozzle, put it behind [authentication](/guide/authentication). Role-based permissions can restrict shell access to specific users.
 
-Without authentication, the shell only works when you open Dozzle by IP address or `localhost` (for example `http://192.168.1.10:8080`). Opened by a hostname such as `dozzle.lan` or through a reverse proxy, it is refused, because a malicious web page can use DNS rebinding to reach Dozzle under its own hostname. Turn on [authentication](/guide/authentication) to use the shell from a hostname.
+Without authentication, the shell only works when you open Dozzle by a name no one else can register: an IP address, `localhost`, a single-word name such as `nas`, or a name ending in `.local`, `.lan`, `.home.arpa` or `.internal` (for example `http://192.168.1.10:8080` or `http://dozzle.lan:8080`). On a public domain such as `logs.example.com`, including behind a reverse proxy, it is refused, because a malicious web page can use DNS rebinding to reach Dozzle under a domain it owns. Turn on [authentication](/guide/authentication) to use the shell from a public domain.
 
 ## <Icon icon="mdi:kubernetes" inline /> Kubernetes
 

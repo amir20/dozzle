@@ -86,7 +86,7 @@ func TestUpgrader_DifferentPortSameHostRejected(t *testing.T) {
 }
 
 // A DNS-rebound page reaches Dozzle under its own hostname with a matching
-// Origin, so without auth the shell only answers on an IP or localhost.
+// Origin, so without auth the shell only answers on a name nobody can register.
 func TestShellRefusesHostnameWithoutAuth(t *testing.T) {
 	h := createHandler(nil, nil, Config{Base: "/", Mode: "server", EnableShell: true, Authorization: Authorization{Provider: NONE}})
 
@@ -94,7 +94,13 @@ func TestShellRefusesHostnameWithoutAuth(t *testing.T) {
 		path := "/api/hosts/localhost/containers/123/" + route
 		for host, refused := range map[string]bool{
 			"rebind.example:8080": true,
-			"dozzle.lan":          true,
+			"logs.example.com":    true,
+			"dozzle.lan.example":  true,
+			"dozzle.lan":          false,
+			"NAS.LOCAL:8080":      false,
+			"dozzle.home.arpa":    false,
+			"dozzle.internal.":    false,
+			"nas:8080":            false,
 			"127.0.0.1:8080":      false,
 			"192.168.1.10":        false,
 			"[::1]:8080":          false,

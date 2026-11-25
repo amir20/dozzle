@@ -1,7 +1,7 @@
 ---
 title: 容器终端访问
 description: 如何在 Dozzle 中开启终端访问，从浏览器附加到 Docker 和 Kubernetes 容器或在其中执行命令，以及如何保障其安全。
-sourceHash: 6617c04a0ef1
+sourceHash: b05b9efe58ae
 ---
 
 # 附加到容器并执行命令
@@ -38,7 +38,7 @@ services:
 
 任何能访问 Dozzle 界面的人都能在你的容器里打开一个终端，效果等同于 `docker exec`。在可公开访问的 Dozzle 上启用 `--enable-shell` 之前，请先为它加上[认证](/zh/guide/authentication)。基于角色的权限可以把终端访问限制给特定用户。
 
-未启用认证时，只有通过 IP 地址或 `localhost` 打开 Dozzle（例如 `http://192.168.1.10:8080`），终端才可用。通过 `dozzle.lan` 这样的主机名或经由反向代理打开时，终端会被拒绝，因为恶意网页可以借助 DNS 重绑定，以它自己的主机名访问 Dozzle。如需通过主机名使用终端，请启用[认证](/zh/guide/authentication)。
+未启用认证时，只有通过别人无法注册的名称打开 Dozzle，终端才可用：IP 地址、`localhost`、`nas` 这样的单词名称，或以 `.local`、`.lan`、`.home.arpa`、`.internal` 结尾的名称（例如 `http://192.168.1.10:8080` 或 `http://dozzle.lan:8080`）。通过 `logs.example.com` 这样的公共域名打开时（包括经由反向代理），终端会被拒绝，因为恶意网页可以借助 DNS 重绑定，以它自己拥有的域名访问 Dozzle。如需通过公共域名使用终端，请启用[认证](/zh/guide/authentication)。
 
 ## <Icon icon="mdi:kubernetes" inline /> Kubernetes
 

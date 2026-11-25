@@ -34,8 +34,9 @@ func upgrade(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {
 
 // shellHostAllowed guards attach and exec against DNS rebinding. With no login
 // the websocket's Origin == Host check is all there is, and a rebound page has
-// both set to its own name. An IP or localhost can't be rebound, so without
-// auth those are the only Hosts the shell answers on.
+// both set to its own name. Rebinding needs a name the attacker can register,
+// so without auth the shell only answers on an IP, a single-label name, or a
+// name under a TLD that public DNS never serves.
 func (h *handler) shellHostAllowed(w http.ResponseWriter, r *http.Request) bool {
 	if h.config.Authorization.Provider != NONE {
 		return true
@@ -44,11 +45,31 @@ func (h *handler) shellHostAllowed(w http.ResponseWriter, r *http.Request) bool 
 	if err != nil {
 		host = r.Host
 	}
-	if host == "localhost" || net.ParseIP(strings.Trim(host, "[]")) != nil {
+	if isLocalHostname(host) {
 		return true
 	}
-	log.Warn().Str("host", r.Host).Msg("shell refused: without auth it only answers on an IP or localhost")
-	http.Error(w, "the shell needs auth when Dozzle is reached by hostname", http.StatusForbidden)
+	log.Warn().Str("host", r.Host).Msg("shell refused: without auth it only answers on an IP or a local name")
+	http.Error(w, "the shell needs auth when Dozzle is reached by a public hostname", http.StatusForbidden)
+	return false
+}
+
+// localTLDs are never delegated in public DNS (.lan only by convention, but it
+// is what most home routers hand out). Mirrored in hostRestrictions.ts.
+var localTLDs = []string{".local", ".lan", ".home.arpa", ".internal", ".localhost"}
+
+func isLocalHostname(host string) bool {
+	if net.ParseIP(strings.Trim(host, "[]")) != nil {
+		return true
+	}
+	host = strings.TrimSuffix(strings.ToLower(host), ".")
+	if host != "" && !strings.Contains(host, ".") {
+		return true
+	}
+	for _, tld := range localTLDs {
+		if strings.HasSuffix(host, tld) {
+			return true
+		}
+	}
 	return false
 }
 

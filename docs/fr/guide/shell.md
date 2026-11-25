@@ -1,7 +1,7 @@
 ---
 title: Accès shell aux conteneurs
 description: Comment activer l'accès shell dans Dozzle pour s'attacher aux conteneurs Docker et Kubernetes ou y exécuter des commandes depuis le navigateur, et comment le sécuriser.
-sourceHash: 6617c04a0ef1
+sourceHash: b05b9efe58ae
 ---
 
 # Attacher un terminal et exécuter des commandes
@@ -38,7 +38,7 @@ services:
 
 Toute personne qui peut atteindre l'interface de Dozzle pourra ouvrir un shell dans vos conteneurs, l'équivalent de `docker exec`. Avant d'activer `--enable-shell` sur un Dozzle accessible publiquement, placez-le derrière une [authentification](/fr/guide/authentication). Les permissions par rôle permettent de restreindre l'accès shell à certains utilisateurs.
 
-Sans authentification, le shell ne fonctionne que si vous ouvrez Dozzle par adresse IP ou par `localhost` (par exemple `http://192.168.1.10:8080`). Ouvert par un nom d'hôte comme `dozzle.lan` ou via un reverse proxy, il est refusé, car une page web malveillante peut utiliser le DNS rebinding pour atteindre Dozzle sous son propre nom d'hôte. Activez l'[authentification](/fr/guide/authentication) pour utiliser le shell depuis un nom d'hôte.
+Sans authentification, le shell ne fonctionne que si vous ouvrez Dozzle par un nom que personne d'autre ne peut enregistrer : une adresse IP, `localhost`, un nom d'un seul mot comme `nas`, ou un nom qui se termine par `.local`, `.lan`, `.home.arpa` ou `.internal` (par exemple `http://192.168.1.10:8080` ou `http://dozzle.lan:8080`). Sur un domaine public comme `logs.example.com`, y compris derrière un reverse proxy, il est refusé, car une page web malveillante peut utiliser le DNS rebinding pour atteindre Dozzle sous un domaine qui lui appartient. Activez l'[authentification](/fr/guide/authentication) pour utiliser le shell depuis un domaine public.
 
 ## <Icon icon="mdi:kubernetes" inline /> Kubernetes
 
