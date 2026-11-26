@@ -913,6 +913,8 @@ cloud-chat:
     draw-count: Risanje števila dnevniških vrstic
     draw-ranking: Razvrščanje vsebnikov
     draw-logs: Prikaz vrstic dnevnika
+    draw-network: Risanje omrežnega prometa skozi čas
+    draw-host: Risanje CPE in pomnilnika gostitelja
   phase:
     reading: Branje vprašanja
     reviewing: Pregled najdenega

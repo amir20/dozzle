@@ -11,7 +11,7 @@ import (
 // turn (ChatTurn.visual_types): cloud offers the assistant its picture tools
 // only for these, so adding a type here is how the pane opts into it, and a
 // type cloud adds later is never sent to a build that cannot draw it.
-var VisualTypes = []string{"memory_vs_limit", "cpu_over_time", "pattern_count", "container_ranking", "logs", "container_events"}
+var VisualTypes = []string{"memory_vs_limit", "cpu_over_time", "pattern_count", "container_ranking", "logs", "container_events", "network_over_time", "host_usage"}
 
 // ChatVisual is pb.ChatVisual for the browser. Every number was measured by
 // cloud; the pane draws it as it came. See cloud.proto for the fields.
@@ -73,7 +73,14 @@ func visualsFromProto(in []*pb.ChatVisual) []ChatVisual {
 		// A CPU picture is its series and nothing else. Cloud sends it without
 		// one when the read behind it failed or came back empty, and drawn, it
 		// would be a container's name over an empty box.
-		if v.GetType() == "cpu_over_time" && len(v.GetPoints()) == 0 {
+		if (v.GetType() == "cpu_over_time" || v.GetType() == "host_usage") && len(v.GetPoints()) == 0 {
+			continue
+		}
+		// The same for network: a series with no rate in it is an empty box,
+		// and zeros drawn for it would read as no traffic.
+		if v.GetType() == "network_over_time" && !slices.ContainsFunc(v.GetPoints(), func(p *pb.ContainerMetricPoint) bool {
+			return p.NetworkRxRate != nil || p.NetworkTxRate != nil
+		}) {
 			continue
 		}
 		cv := ChatVisual{

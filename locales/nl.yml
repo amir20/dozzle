@@ -909,6 +909,8 @@ cloud-chat:
     draw-count: Aantal logregels tekenen
     draw-ranking: Containers rangschikken
     draw-logs: Logregels tonen
+    draw-network: Netwerkverkeer tekenen
+    draw-host: CPU en geheugen van de host tekenen
   phase:
     reading: Vraag lezen
     reviewing: Resultaten doornemen

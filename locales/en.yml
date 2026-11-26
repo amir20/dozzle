@@ -417,6 +417,8 @@ cloud-chat:
     draw-count: Drawing the log count
     draw-ranking: Ranking containers
     draw-logs: Showing log lines
+    draw-network: Drawing network traffic over time
+    draw-host: "Drawing the host's CPU and memory"
   phase:
     reading: Reading the question
     reviewing: Going over what it found

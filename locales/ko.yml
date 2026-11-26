@@ -910,6 +910,8 @@ cloud-chat:
     draw-count: 로그 수 그래프 그리는 중
     draw-ranking: 컨테이너 순위 매기는 중
     draw-logs: 로그 줄 표시 중
+    draw-network: 네트워크 트래픽 추이 그래프 그리는 중
+    draw-host: 호스트 CPU와 메모리 그래프 그리는 중
   phase:
     reading: 질문 읽는 중
     reviewing: 찾은 내용 검토 중

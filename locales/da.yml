@@ -908,6 +908,8 @@ cloud-chat:
     draw-count: Tegner antallet af loglinjer
     draw-ranking: Rangerer containere
     draw-logs: Viser loglinjer
+    draw-network: Tegner netværkstrafik over tid
+    draw-host: Tegner værtens CPU og hukommelse
   phase:
     reading: Læser spørgsmålet
     reviewing: Gennemgår det fundne

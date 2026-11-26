@@ -96,6 +96,8 @@ const cloudTools = [
   "show_pattern_count",
   "show_container_ranking",
   "show_logs",
+  "show_network",
+  "show_host_usage",
 ];
 const cloudPhases = ["reading", "reviewing", "writing", "retrying"];
 

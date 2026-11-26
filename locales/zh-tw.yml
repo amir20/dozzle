@@ -910,6 +910,8 @@ cloud-chat:
     draw-count: 繪製日誌數量
     draw-ranking: 為容器排名
     draw-logs: 顯示日誌行
+    draw-network: 繪製網路流量趨勢
+    draw-host: 繪製主機 CPU 與記憶體
   phase:
     reading: 閱讀問題
     reviewing: 整理找到的內容
