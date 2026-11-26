@@ -6,6 +6,8 @@
 // Vite emits each file as its own hashed asset (see assetsInlineLimit in vite.config.ts),
 // so this map costs a few KB of strings and the browser only downloads the handful of
 // icons actually rendered.
+import matching from "../icons/apps/matching.json";
+
 const bundled = import.meta.glob<string>("../icons/apps/*.{svg,webp}", {
   eager: true,
   query: "?url",
@@ -24,155 +26,15 @@ for (const [path, url] of Object.entries(bundled)) {
   icons.set(path.slice(path.lastIndexOf("/") + 1).replace(/\.(svg|webp)$/, ""), origin + url);
 }
 
-// Namespaces that repackage other people's software. Their own logo is never the
-// right answer for the image sitting inside them.
-const DISTRIBUTORS = new Set([
-  "library",
-  "linuxserver",
-  "lscr",
-  "hotio",
-  "bitnami",
-  "bitnamilegacy",
-  "binhex",
-  "hurlenko",
-  "cm2network",
-  "ich777",
-]);
-
-// Generic component names. `goauthentik/server` must not match an icon called "server".
-const GENERIC = new Set([
-  "server",
-  "client",
-  "app",
-  "core",
-  "main",
-  "web",
-  "www",
-  "api",
-  "backend",
-  "frontend",
-  "base",
-  "image",
-  "service",
-  "worker",
-  "master",
-  "node",
-  "agent",
-  "daemon",
-  "db",
-  "database",
-  "cache",
-  "proxy",
-  "gateway",
-  "runner",
-  "job",
-  "cron",
-  "init",
-  "latest",
-  "test",
-  "demo",
-  "bin",
-]);
-
-// Deployment suffixes that decorate an app name without changing it.
-const SUFFIX = /-(server|client|app|core|ce|ee|oss|nox|docker|alpine|slim|standalone|bin|sync|nightly)$/;
-
-// Image names that do not line up with the icon slug on their own.
-const ALIASES: Record<string, string> = {
-  postgres: "postgresql",
-  pgvector: "postgresql",
-  timescaledb: "postgresql",
-  mongo: "mongodb",
-  "eclipse-mosquitto": "mosquitto",
-  httpd: "apache",
-  homeassistant: "home-assistant",
-  "home-assistant-core": "home-assistant",
-  hass: "home-assistant",
-  pihole: "pi-hole",
-  adguardhome: "adguard-home",
-  "pms-docker": "plex",
-  plexinc: "plex",
-  plexmediaserver: "plex",
-  "qbittorrent-nox": "qbittorrent",
-  "transmission-openvpn": "transmission",
-  goauthentik: "authentik",
-  gethomepage: "homepage",
-  fireflyiii: "firefly-iii",
-  actualbudget: "actual-budget",
-  "actual-server": "actual-budget",
-  binwiederhier: "ntfy",
-  louislam: "uptime-kuma",
-  containrrr: "watchtower",
-  jc21: "nginx-proxy-manager",
-  npmplus: "nginx-proxy-manager",
-  "immich-server": "immich",
-  "coolify-helper": "coolify",
-  "beszel-agent": "beszel",
-  "aio-nextcloud": "nextcloud",
-  "immich-machine-learning": "immich",
-  "immich-microservices": "immich",
-  paperless: "paperless-ngx",
-  tandoor: "tandoor-recipes",
-  "wg-easy": "wireguard",
-  wgeasy: "wireguard",
-  "changedetection.io": "changedetection",
-  "changedetection-io": "changedetection",
-  dgtlmoon: "changedetection",
-  drawio: "draw-io",
-  "zwave-js-ui": "zwavejs2mqtt",
-  zwavejs: "zwavejs2mqtt",
-  z2m: "zigbee2mqtt",
-  "rocketchat.chat": "rocket-chat",
-  rocketchat: "rocket-chat",
-  "matrix-synapse": "synapse",
-  codeserver: "code-server",
-  "openvscode-server": "code-server",
-  "node-exporter": "prometheus-node-exporter",
-  nodeexporter: "prometheus-node-exporter",
-  prom: "prometheus",
-  mylar3: "mylar",
-  frooodle: "stirling-pdf",
-  openwebui: "open-webui",
-  anythingllm: "anything-llm",
-  "unifi-controller": "unifi",
-  "unifi-network-application": "unifi",
-  "unifi-console": "unifi",
-  requarks: "wikijs",
-  nxzai: "nextexplorer",
-  dmunozv04: "sponsorblock",
-  timothyjmiller: "cloudflare",
-  otel: "opentelemetry",
-  "pingvin-share-x": "pingvin-share",
-  "signal-cli-rest-api": "signal",
-  pgadmin4: "pgadmin",
-  "bluesky-social": "bluesky",
-  "mastodon-streaming": "mastodon",
-  "apprise-api": "apprise",
-  thetorproject: "tor",
-  openlitespeed: "litespeed",
-  openobserve: "open-observe",
-  "nut-upsd": "nut",
-  pasta: "pastatool",
-  datadoghq: "datadog",
-  "3x-ui": "xray",
-  larapaper: "trmnl",
-  "proxmox-backup-server": "proxmox",
-  airflow: "apache-airflow",
-  collabora: "collabora-office",
-  code: "collabora-office", // alias for collabora/code
-  "whats-up-docker": "wud",
-  "bentopdf-simple": "bentopdf",
-  ubuntu: "ubuntu-linux",
-  alpine: "alpine-linux",
-  archlinux: "arch-linux",
-  artixlinux: "artix-linux",
-  ttrss: "tinytinyrss",
-  "tt-rss": "tinytinyrss",
-  cthulhoo: "tinytinyrss",
-  getarcaneapp: "arcane",
-  fluxerapp: "fluxer",
-  moby: "docker",
-};
+// The matching tables live in JSON beside the logos so Dozzle Cloud reads the same
+// ones (see the file's own comment). Distributors repackage other people's software,
+// so their own logo is never the answer; generic names (`goauthentik/server`) must
+// not match an icon called "server"; the suffix decorates a name without changing it;
+// aliases map image names that don't line up with their slug.
+const DISTRIBUTORS = new Set(matching.distributors);
+const GENERIC = new Set(matching.generic);
+const SUFFIX = new RegExp(matching.suffix);
+const ALIASES: Record<string, string> = matching.aliases;
 
 const stripSuffix = (name: string) => {
   const stripped = name.replace(SUFFIX, "");
