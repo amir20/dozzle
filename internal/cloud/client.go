@@ -43,6 +43,7 @@ type Client struct {
 	deps       ToolDeps
 	apiKeyFunc func() string
 	instanceID string
+	installID  string // see installIDPath
 	version    string
 	// mode and swarmClusterID describe what kind of Dozzle process this is.
 	// Cloud cannot infer either — a swarm replica and a standalone server both
@@ -113,6 +114,7 @@ func NewClient(apiKeyFunc func() string, instanceID string, version string, deps
 		deps:       deps,
 		apiKeyFunc: apiKeyFunc,
 		instanceID: instanceID,
+		installID:  loadInstallID(installIDPath),
 		version:    version,
 		target:     target,
 		plaintext:  plaintext,
@@ -352,6 +354,9 @@ func (c *Client) connect(ctx context.Context) (wasConnected bool, err error) {
 	}
 	if c.swarmClusterID != "" {
 		mdPairs = append(mdPairs, "x-dozzle-swarm-cluster-id", c.swarmClusterID)
+	}
+	if c.installID != "" {
+		mdPairs = append(mdPairs, "x-dozzle-install-id", c.installID)
 	}
 	md := metadata.Pairs(mdPairs...)
 	streamCtx := metadata.NewOutgoingContext(connCtx, md)
