@@ -130,7 +130,9 @@ func setupUsersFileExists() bool {
 // without editing its compose file, and a reboot or an image update must not
 // change that.
 //
-// A restart the wizard triggered carries the previous window's start forward,
+// The first window's start is written to dozzle.yml when it opens, so /data is
+// never empty again and no later start counts as fresh. A restart the wizard
+// triggered carries the previous window's start forward,
 // so first-time setup survives the restart that turns login on, and calling
 // restart just before the window closes cannot keep it open.
 func SetupWindowStart(now time.Time, freshInstall bool) time.Time {
@@ -140,10 +142,16 @@ func SetupWindowStart(now time.Time, freshInstall bool) time.Time {
 			return *file.SetupWindowStartedAt
 		}
 	}
-	if freshInstall {
-		return now
+	if !freshInstall {
+		return time.Time{}
 	}
-	return time.Time{}
+	// Record the first window, so a later start never sees an empty /data and
+	// opens another. Fail closed when it cannot be recorded.
+	if err := config.Update(setupConfigPath, func(c *config.File) { c.SetupWindowStartedAt = &now }); err != nil {
+		log.Error().Err(err).Msg("could not record the setup window, leaving it closed")
+		return time.Time{}
+	}
+	return now
 }
 
 func (h *handler) setupWindowOpen() bool {
