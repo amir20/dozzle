@@ -50,8 +50,10 @@ type File struct {
 	// PrivateAgents are the RemoteAgents that authenticate with the hub's own
 	// pair in agent_cert.pem instead of the one it was started with.
 	PrivateAgents []string `yaml:"privateAgents,omitempty"`
-	// SetupWindowStartedAt is written just before the wizard restarts Dozzle,
-	// so the restart carries the no-login window forward instead of reopening it.
+	// SetupWindowStartedAt is when the no-login window opened. It is written
+	// on a fresh install's first start, so no later start counts as fresh, and
+	// again before the wizard restarts Dozzle, so the restart carries the
+	// window forward instead of reopening it.
 	SetupWindowStartedAt *time.Time `yaml:"setupWindowStartedAt,omitempty"`
 }
 

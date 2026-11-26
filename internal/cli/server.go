@@ -411,7 +411,7 @@ func createServer(args Args, content fs.FS, freshInstall bool, hostService web.H
 			UpdateContainers:    lockedValue(args.Locked.UpdateContainers, args.UpdateContainers),
 			AutoPruneMode:       lockedValue(args.Locked.AutoCleanup, args.AutoCleanup),
 			AutoPruneTime:       lockedValue(args.Locked.AutoCleanupTime, args.AutoCleanupTime),
-			StartedAt:           web.SetupWindowStart(time.Now(), freshInstall),
+			StartedAt:           web.SetupWindowStart(time.Now(), freshInstall && provider == web.NONE),
 			EnvAgents:           args.EnvAgents,
 			CustomCert:          CustomCert(args.CertPath, args.KeyPath),
 		},

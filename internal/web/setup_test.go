@@ -279,6 +279,7 @@ func TestSetup_WindowOnlyOnFreshInstall(t *testing.T) {
 	now := time.Now()
 
 	assert.True(t, SetupWindowStart(now, true).Equal(now), "a brand new install gets the window")
+	setupTestEnv(t, true)
 	assert.True(t, SetupWindowStart(now, false).IsZero(), "an install with earlier data does not")
 
 	// An existing install that restarts with no login stays closed to anonymous writes.
@@ -292,6 +293,27 @@ func TestSetup_WindowOnlyOnFreshInstall(t *testing.T) {
 	require.NoError(t, json.Unmarshal(rr.Body.Bytes(), &state))
 	assert.False(t, state.WindowOpen)
 	assert.False(t, state.CanWrite)
+}
+
+func TestSetup_WindowNeverReopensAfterRestart(t *testing.T) {
+	dir, _ := setupTestEnv(t, true)
+	require.True(t, config.FreshDataDir(dir))
+	now := time.Now()
+
+	assert.True(t, SetupWindowStart(now, config.FreshDataDir(dir)).Equal(now), "first start opens the window")
+
+	// A plain restart after the window, with nobody having touched settings.
+	later := now.Add(setupWindow + time.Minute)
+	assert.False(t, config.FreshDataDir(dir), "opening the window leaves state in /data")
+	assert.True(t, SetupWindowStart(later, config.FreshDataDir(dir)).IsZero(), "a restart never reopens it")
+}
+
+func TestSetup_WindowStaysClosedWhenItCannotBeRecorded(t *testing.T) {
+	dir, _ := setupTestEnv(t, true)
+	setupConfigPath = filepath.Join(dir, "missing", "dozzle.yml")
+	require.NoError(t, os.WriteFile(filepath.Join(dir, "missing"), nil, 0600))
+
+	assert.True(t, SetupWindowStart(time.Now(), true).IsZero())
 }
 
 func TestSetup_AccountRollsBackUsersFileWhenConfigFails(t *testing.T) {
