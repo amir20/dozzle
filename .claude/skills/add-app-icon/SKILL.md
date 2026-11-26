@@ -12,7 +12,7 @@ extension is the slug. `assets/utils/appIcons.ts` resolves an image reference to
 
 1. Find how the image resolves today. The resolver drops registry, tag and digest, then
    tries the image name and falls back to the namespace (`linuxserver/sonarr` tries
-   `sonarr`). Distributor namespaces (`DISTRIBUTORS`) and generic names (`GENERIC`, e.g.
+   `sonarr`). Distributor namespaces (`distributors`) and generic names (`generic`, e.g.
    `server`, `app`) are skipped. Suffixes like `-server`, `-app`, `-alpine` are stripped.
 
 2. Get the icon from dashboard-icons. Prefer SVG, use WebP only when no SVG exists.
@@ -54,15 +54,15 @@ extension is the slug. `assets/utils/appIcons.ts` resolves an image reference to
 
    Use the upstream slug as the filename. Do not rename it to match the image.
 
-3. If the image name does not match the slug after step 1, add an entry to `ALIASES` in
-   `assets/utils/appIcons.ts`, keyed by the lowercased image name or namespace:
+3. If the image name does not match the slug after step 1, add an entry to `aliases` in
+   `assets/icons/apps/matching.json`, keyed by the lowercased image name or namespace:
 
-   ```ts
+   ```json
    "signal-cli-rest-api": "signal",
    ```
 
    Do not alias a generic word or a distributor namespace. If a new distributor
-   repackages other people's software, add it to `DISTRIBUTORS` instead.
+   repackages other people's software, add it to `distributors` in the same file instead.
 
 4. Add a case to the `iconSlugForImage` `test.each` table in
    `assets/utils/appIcons.spec.ts` for every alias you added:
@@ -75,7 +75,7 @@ extension is the slug. `assets/utils/appIcons.ts` resolves an image reference to
 
    ```bash
    TZ=UTC bun run test assets/utils/appIcons.spec.ts
-   bunx prettier --write assets/utils/appIcons.ts assets/utils/appIcons.spec.ts
+   bunx prettier --write assets/icons/apps/matching.json assets/utils/appIcons.spec.ts
    ```
 
    Then check every icon in the folder, not only yours. This should print nothing; any

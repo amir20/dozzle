@@ -19,6 +19,6 @@ Resolution from image name to slug lives in `assets/utils/appIcons.ts`.
 
 ## Adding an icon
 
-Drop the file in `apps/` and, if the image name does not match the slug, add an entry to `ALIASES`
-in `appIcons.ts`. `vite.config.ts` keeps this directory out of the inline-asset budget so each icon
+Drop the file in `apps/` and, if the image name does not match the slug, add an entry to `aliases`
+in `apps/matching.json`. `vite.config.ts` keeps this directory out of the inline-asset budget so each icon
 stays a separately fetched file.
