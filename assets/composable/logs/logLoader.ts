@@ -102,9 +102,9 @@ export function useLogLoader(
     if (--inFlight === 0) loadingMore.value = false;
   }
 
-  // Resolves true when the load got somewhere, lines or a container's start, so
-  // another one from the row still on screen can get further.
-  async function loadOlderLogs(entry: LoadMoreLogEntry): Promise<boolean> {
+  // Resolves true when the load brought lines, or "start" when it only found a
+  // container's start, so another one from the row still on screen can get further.
+  async function loadOlderLogs(entry: LoadMoreLogEntry): Promise<boolean | "start"> {
     if (!(messages.value[0] instanceof LoadMoreLogEntry)) throw new Error("No loadMoreLogEntry on first item");
     if (containers.value.length === 0) return false;
 
@@ -180,7 +180,7 @@ export function useLogLoader(
         messages.value = [head, ...mergeByTime(current.slice(1), older)];
       }
       loadedOlder?.(new Set(reachedStart));
-      return older.length > 0 || reachedStart.size > reachedBefore;
+      return older.length > 0 || (reachedStart.size > reachedBefore && "start");
     } catch (err) {
       console.error(err);
       return false;

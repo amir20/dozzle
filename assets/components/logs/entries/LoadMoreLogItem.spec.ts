@@ -22,7 +22,7 @@ const rect = (top: number, height = 20) => ({ top, bottom: top + height, height 
 
 // A scroller 500px tall holding the loader's row and the row under it, the one
 // the reader sees at the top.
-function setup(loader: (entry: LoadMoreLogEntry) => Promise<boolean | void>) {
+function setup(loader: (entry: LoadMoreLogEntry) => Promise<boolean | "start" | void>) {
   const scroller = document.createElement("main");
   scroller.setAttribute("data-scrolling", "");
   const list = document.createElement("ul");
@@ -142,6 +142,14 @@ describe("LoadMoreLogItem while it stays in view", () => {
       })
       .mockResolvedValueOnce(false);
     const { anchor } = setup(loader);
+    await fire();
+    expect(loader).toHaveBeenCalledTimes(2);
+  });
+
+  test("loads again after a load that only found a container's start", async () => {
+    const loader = vi.fn<(entry: LoadMoreLogEntry) => Promise<boolean | "start">>();
+    loader.mockResolvedValueOnce("start").mockResolvedValueOnce(false);
+    setup(loader);
     await fire();
     expect(loader).toHaveBeenCalledTimes(2);
   });

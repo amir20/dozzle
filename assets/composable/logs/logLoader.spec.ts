@@ -260,7 +260,7 @@ describe("loadOlderLogs telling the row to try again", () => {
     const before = messages.value;
     vi.mocked(loadBetween).mockResolvedValueOnce({ logs: [of("a", 5_000)], signal: new AbortController().signal });
 
-    expect(await loadOlderLogs(loader)).toBe(true);
+    expect(await loadOlderLogs(loader)).toBe("start");
     expect(messages.value).toBe(before);
 
     vi.mocked(loadBetween).mockResolvedValueOnce({ logs: [of("b", 500)], signal: new AbortController().signal });
