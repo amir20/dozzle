@@ -395,8 +395,9 @@ export class SkippedLogsEntry extends LogEntry<string> {
 export class LoadMoreLogEntry extends LogEntry<string> {
   constructor(
     date: Date,
-    // Resolves true when the load got somewhere and another one may get further.
-    private readonly loader: (i: LoadMoreLogEntry) => Promise<boolean | void>,
+    // Resolves true when the load brought lines, or "start" when it only reached a
+    // container's start; either way another one may get further.
+    private readonly loader: (i: LoadMoreLogEntry) => Promise<boolean | "start" | void>,
     public readonly rememberScrollPosition: boolean = true,
   ) {
     super("", "", date.getTime(), date, "stderr", "info");
@@ -406,8 +407,8 @@ export class LoadMoreLogEntry extends LogEntry<string> {
     return LoadMoreLogItem;
   }
 
-  async loadMore(): Promise<boolean> {
-    return (await this.loader(this)) === true;
+  async loadMore(): Promise<boolean | "start"> {
+    return (await this.loader(this)) || false;
   }
 }
 

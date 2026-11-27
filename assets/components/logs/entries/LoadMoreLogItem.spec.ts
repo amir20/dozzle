@@ -22,7 +22,7 @@ const rect = (top: number, height = 20) => ({ top, bottom: top + height, height 
 
 // A scroller 500px tall holding the loader's row and the row under it, the one
 // the reader sees at the top.
-function setup(loader: (entry: LoadMoreLogEntry) => Promise<boolean | void>) {
+function setup(loader: (entry: LoadMoreLogEntry) => Promise<boolean | "start" | void>) {
   const scroller = document.createElement("main");
   scroller.setAttribute("data-scrolling", "");
   const list = document.createElement("ul");
@@ -135,10 +135,31 @@ describe("LoadMoreLogItem scroll position", () => {
 describe("LoadMoreLogItem while it stays in view", () => {
   test("loads again after a load that got somewhere left the row on screen", async () => {
     const loader = vi.fn<(entry: LoadMoreLogEntry) => Promise<boolean>>();
-    loader.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
+    loader
+      .mockImplementationOnce(async () => {
+        anchor.before(document.createElement("li")); // an older line, merged in below the view
+        return true;
+      })
+      .mockResolvedValueOnce(false);
+    const { anchor } = setup(loader);
+    await fire();
+    expect(loader).toHaveBeenCalledTimes(2);
+  });
+
+  test("loads again after a load that only found a container's start", async () => {
+    const loader = vi.fn<(entry: LoadMoreLogEntry) => Promise<boolean | "start">>();
+    loader.mockResolvedValueOnce("start").mockResolvedValueOnce(false);
     setup(loader);
     await fire();
     expect(loader).toHaveBeenCalledTimes(2);
+  });
+
+  test("stops when the older lines only folded into the top run", async () => {
+    // Every page is more of the same line, so it adds to the ×N and no row.
+    const loader = vi.fn(async () => true);
+    setup(loader);
+    await fire();
+    expect(loader).toHaveBeenCalledTimes(1);
   });
 
   test("stops once a load got nowhere", async () => {

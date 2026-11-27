@@ -30,8 +30,10 @@ async function load() {
   // appending at the bottom; only what lands above it should move the view.
   const anchor = root.value?.closest("li")?.nextElementSibling;
   const anchorTop = anchor?.getBoundingClientRect().top;
+  const list = root.value?.closest("ul");
+  const rowsBefore = list?.childElementCount;
   isLoading.value = true;
-  let more = false;
+  let more: boolean | "start" = false;
   try {
     more = await logEntry.loadMore();
   } catch (err) {
@@ -49,7 +51,11 @@ async function load() {
   if (logEntry.rememberScrollPosition && current && anchorTop !== undefined) {
     scroller.scrollTop += current.getBoundingClientRect().top - anchorTop;
   }
-  if (more && inView(scroller)) await load();
+  // With folding on, a page of older repeats only grows the top run's ×N. No row
+  // was added, so the next page would be the same, all the way back to the start.
+  // A load that only found a container's start lets the next one page another.
+  const added = list?.childElementCount !== rowsBefore;
+  if ((more === "start" || (more && added)) && inView(scroller)) await load();
 }
 
 // Covers the loads that follow one another too, not just the one in flight.

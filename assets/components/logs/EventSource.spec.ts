@@ -295,6 +295,8 @@ describe("<ContainerEventSource />", () => {
     expect(messages[0]).toBeInstanceOf(LoadMoreLogEntry);
     // A fresh row: the old one may remember a start that has since been trimmed away.
     expect(messages[0]).not.toBe(opener);
+    // Same id, so it stays the same row and does not load again just for mounting.
+    expect(messages[0].id).toBe(opener.id);
     expect(messages.at(-1)?.message).toBe(`line ${id}`);
   });
 

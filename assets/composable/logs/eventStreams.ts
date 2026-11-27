@@ -202,9 +202,13 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
       // one may remember a start that is no longer on screen.
       const trimmed = overflows && !paused;
       // The trim cuts from the top, so what it took is this many rows off the front.
+      // It keeps the old row's id, so it stays the same row on screen: with folding on
+      // the whole window can be one row, and a new one would load as it mounts, on
+      // every flush.
+      const [top] = messages.value;
+      const since = top instanceof LoadMoreLogEntry ? top.date : new Date();
       if (trimmed) windowTrimmed(messages.value.slice(0, messages.value.length + batch.length - appended.length));
-      messages.value =
-        trimmed && canLoadOlder ? [new LoadMoreLogEntry(new Date(), loadOlderLogs), ...appended] : appended;
+      messages.value = trimmed && canLoadOlder ? [new LoadMoreLogEntry(since, loadOlderLogs), ...appended] : appended;
     }
     settleMarkers({ opening: wasInitial });
     if (wasInitial) decorateWithAlerts();
