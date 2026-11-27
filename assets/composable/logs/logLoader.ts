@@ -212,7 +212,7 @@ export function useLogLoader(
         // A fresh window or a trim may have dropped the entry while alerts loaded.
         if (!messages.value.includes(entry)) return;
         const updated = messages.value.flatMap((log) => (log === entry ? withAlertsApplied : [log]));
-        // Trimming takes the load-more row off the top. A new one, as in flushNow: the
+        // Trimming takes the load-more row off the top. A new entry, as in flushNow: the
         // old one may remember a start that is no longer on screen.
         if (updated.length > config.maxLogs) {
           windowTrimmed(updated.slice(0, -config.maxLogs));
