@@ -88,6 +88,8 @@ export default defineConfig(() => ({
 
     Layouts({
       layoutsDirs: "assets/layouts",
+      // Lazy layouts preload in a beforeRouteEnter guard, which vue-router skips under __VUE_OPTIONS_API__: false.
+      importMode: () => "sync",
     }),
     Components({
       dirs: ["assets/components"],
