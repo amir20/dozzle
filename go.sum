@@ -484,6 +484,8 @@ k8s.io/kube-openapi v0.0.0-20260721132016-d427ff9ee9ad h1:oXImqH8mQNk7PmvzKhmN3d
 k8s.io/kube-openapi v0.0.0-20260721132016-d427ff9ee9ad/go.mod h1:0/mqHCVhlumdJ3BhCfnjSZQE037nAhNodh1/hK0T8/I=
 k8s.io/metrics v0.37.2 h1:CeIZd07BO8vuraDyd0ooQmsLi2Rutj76zThEf72rcWU=
 k8s.io/metrics v0.37.2/go.mod h1:9HzCbIyPruAmoKmjoBjLEYAlLhAapAj1vvzkbhBDg6E=
+k8s.io/metrics v0.37.3 h1:p955U+kWMaPIaeUN88YWrFFZGcI/wPyGZXd+jS26aS4=
+k8s.io/metrics v0.37.3/go.mod h1:XTCmBlUjkssIxuz5Npl2v1CaB4nlwI6etEttVfBIrMw=
 k8s.io/streaming v0.37.2 h1:xmzp9nbqIbjvsRcqrBYa+K5XPQ6Jy/Dm3zZ8mN916AI=
 k8s.io/streaming v0.37.2/go.mod h1:APlJR26ZWRcVy5bIEj0QRrKUXROtBHPcxl2NT7EAzPU=
 k8s.io/streaming v0.37.3 h1:keJ5eovA+b5g2wLO49PlaaOb9vy4DKK5U+BMYhEBNso=
