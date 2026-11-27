@@ -3,7 +3,7 @@
     ref="anchor"
     v-bind="$attrs"
     class="popover-anchor"
-    @click="hoverable ? show() : toggle()"
+    @click="hoverable && viaMouse ? show() : toggle()"
     @pointerenter="onEnter"
     @pointerleave="onLeave"
   >
@@ -81,13 +81,17 @@ watch(isOpen, (value) => (value ? emit("open") : emit("close")));
 // The panel is a sibling of the trigger, not a child, so leaving one to enter the other has
 // to be bridged instead of relying on a single hover region.
 let timer: ReturnType<typeof setTimeout> | undefined;
-function onEnter() {
-  if (!hoverable.value) return;
+// `(hover: hover)` also matches touchscreen laptops and some phones, where a tap still fires
+// enter then leave. So each event says whether it came from a mouse.
+let viaMouse = false;
+function onEnter(event: PointerEvent) {
+  viaMouse = event.pointerType === "mouse";
+  if (!hoverable.value || !viaMouse) return;
   clearTimeout(timer);
   show();
 }
-function onLeave() {
-  if (!hoverable.value) return;
+function onLeave(event: PointerEvent) {
+  if (!hoverable.value || event.pointerType !== "mouse") return;
   clearTimeout(timer);
   timer = setTimeout(hide, 150);
 }
