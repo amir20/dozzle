@@ -135,10 +135,23 @@ describe("LoadMoreLogItem scroll position", () => {
 describe("LoadMoreLogItem while it stays in view", () => {
   test("loads again after a load that got somewhere left the row on screen", async () => {
     const loader = vi.fn<(entry: LoadMoreLogEntry) => Promise<boolean>>();
-    loader.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
-    setup(loader);
+    loader
+      .mockImplementationOnce(async () => {
+        anchor.before(document.createElement("li")); // an older line, merged in below the view
+        return true;
+      })
+      .mockResolvedValueOnce(false);
+    const { anchor } = setup(loader);
     await fire();
     expect(loader).toHaveBeenCalledTimes(2);
+  });
+
+  test("stops when the older lines only folded into the top run", async () => {
+    // Every page is more of the same line, so it adds to the ×N and no row.
+    const loader = vi.fn(async () => true);
+    setup(loader);
+    await fire();
+    expect(loader).toHaveBeenCalledTimes(1);
   });
 
   test("stops once a load got nowhere", async () => {
